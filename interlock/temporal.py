@@ -38,7 +38,7 @@ def gated(gate, proposal, raise_on_refusal=True, **submit_flags):
     refused = status.startswith("REFUSED") or status == "AMBIGUOUS"
     if unsettled or refused:
         esc = explain(gate.journal.entries(eid), status) if refused else None
-        msg = f"interlock: {status}" + (f": {describe(esc)}" if esc else "")   # prefix stays: backend matches on it
+        msg = f"interlock: {status}" + (f": {describe(esc)}" if esc else "")   # read the status back with outcome()
         try:
             from temporalio.exceptions import ApplicationError
         except ImportError:
@@ -47,3 +47,8 @@ def gated(gate, proposal, raise_on_refusal=True, **submit_flags):
             raise e from None
         raise ApplicationError(msg, *([esc] if esc else []), non_retryable=refused)
     return status
+
+
+def outcome(message):
+    """The status in a refusal message, without the explanation after it. Statuses never contain ": "."""
+    return message.split(": ", 2)[1]

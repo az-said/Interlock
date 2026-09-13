@@ -95,10 +95,16 @@ class StripeRefunds:
         return [] if now == was else [f"refunded by others: was {was}, now {now}"]
 
     def explain(self, premises, eid=None, effect=None):
-        """One refunds read. The payment's amount is fetched only when violated; if that fails, no repairs."""
+        """
+        Violations come from validate_premises, so subclasses keep working. Only a change in refunds by others is
+        explained; the payment's amount is fetched only then, and if that fails, no repairs.
+        """
+        violations = self.validate_premises(premises, eid)
+        if not violations:
+            return {"violations": [], "changes": [], "repairs": []}
         was, now = premises["refunded_by_others"], self._by_others(eid)
         if now == was:
-            return {"violations": [], "changes": [], "repairs": []}
+            return {"violations": violations, "changes": [], "repairs": []}
         repairs = []
         if effect is not None:
             try:
@@ -106,7 +112,7 @@ class StripeRefunds:
                 repairs = fits(effect["amount"], total - now, total)
             except (StripeError, OSError, KeyError):
                 pass
-        return {"violations": [f"refunded by others: was {was}, now {now}"],
+        return {"violations": violations,
                 "changes": [{"field": "refunded_by_others", "was": was, "now": now}], "repairs": repairs}
 
     def idempotency_key(self, eid):

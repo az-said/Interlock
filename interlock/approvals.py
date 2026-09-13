@@ -226,7 +226,9 @@ class Inbox:
             return "QUEUED"
         if state != "NEW":
             return {"APPROVED": "APPROVED", "CLOSED": "CLOSED", "DONE": "DUPLICATE_IGNORED", "SENDING": "IN_FLIGHT"}[state]
-        facts = self.capture(request) if facts is None else facts
+        bound = next((x["premises"] for x in es if x["kind"] == "PROPOSED" and x.get("lease") is None), None)
+        if facts is None:                                     # a crash after binding: decide on the facts it was bound
+            facts = self.capture(request) if bound is None else bound   # with, as it would have been without the crash
         failed = [r.name for r in self.rules if not r.check(request, facts)]
         if not failed:
             status = self._send(request, {"by": "policy", "rules": [r.name for r in self.rules]}, facts)
@@ -332,43 +334,60 @@ class Inbox:
             return self.approve(child["id"], by, execute)
         return status
 
+    def _each(self, request, step):
+        """One request's step. If it raises (say its order cannot be read), log it and go on, as gate.recover() does."""
+        try:
+            return step()
+        except Exception as e:
+            self.log.append((request["id"], f"UNRESOLVED:{type(e).__name__}"))
+            return None
+
     def tick(self):
         """Move each escalation unanswered past its SLA to the next group of its route; at the top, record the breach once."""
         out, now = {}, self.clock()
         for request, es in self._chains():
-            e = latest(es)[0]
-            if _state(es) != "ESCALATED" or e["due"] is None or e["due"] > now:
-                continue
-            route = next((r for r in self.routes if r.name == e["route"]), None)
-            chain = route.chain if route else [e["group"]]
-            up = e["level"] + 1 < len(chain)
-            group, level = (chain[e["level"] + 1], e["level"] + 1) if up else (e["group"], e["level"])
-            facts = _plain(self.capture(request))
-            fields = record("ESCALATED", at=now, reason=e["reason"], why=e["why"], detail=e["detail"], facts=facts,
-                            changes=diff(e["facts"], facts) or e["changes"],
-                            repairs=e["repairs"] if facts == e["facts"] else [], route=e["route"], group=group,
-                            routed_to=sorted(self.gate.leases.members(group)), level=level,
-                            due=now + route.sla if up else None, breach=True)
-            if self._write(request, _unanswered(e), fields):
-                out[request["id"]] = group if up else "BREACHED"
+            moved = self._each(request, lambda: self._tick(request, es, now))
+            if moved:
+                out[request["id"]] = moved
         return out
+
+    def _tick(self, request, es, now):
+        e = latest(es)[0]
+        if _state(es) != "ESCALATED" or e["due"] is None or e["due"] > now:
+            return None
+        route = next((r for r in self.routes if r.name == e["route"]), None)
+        chain = route.chain if route else [e["group"]]
+        up = e["level"] + 1 < len(chain)
+        group, level = (chain[e["level"] + 1], e["level"] + 1) if up else (e["group"], e["level"])
+        facts = _plain(self.capture(request))
+        fields = record("ESCALATED", at=now, reason=e["reason"], why=e["why"], detail=e["detail"], facts=facts,
+                        changes=diff(e["facts"], facts) or e["changes"],
+                        repairs=e["repairs"] if facts == e["facts"] else [], route=e["route"], group=group,
+                        routed_to=sorted(self.gate.leases.members(group)), level=level,
+                        due=now + route.sla if up and route.sla is not None else None, breach=True)
+        if self._write(request, _unanswered(e), fields):
+            return group if up else "BREACHED"
+        return None
 
     def refresh(self):
         """Rebuild queue, approvals and cleared from the journal, and finish whatever a crash left half done."""
         self.queue, self.approved, self.cleared = {}, {}, []
         for request, es in self._chains():
-            state = self._cache(request, es)
-            if state == "NEEDS_ESCALATION":
-                self._escalate(request, es)
-            elif state == "NEW":
-                self._submit(request)
-            elif state == "CLOSED":
-                c = closed(es)
-                if c["decision"] == "repair" and not self._chain(c["repair"]["request_id"]):
-                    child = {**request, **c["repair"]["set"], "id": c["repair"]["request_id"], "repair_of": request["id"]}
-                    self._submit(child, next(x["facts"] for x in es if x.get("hash") == c["escalation"]))
-            elif state == "DONE" and _by_policy(es):
-                self.cleared.append(request["id"])
+            self._each(request, lambda: self._refresh(request, es))
+
+    def _refresh(self, request, es):
+        state = self._cache(request, es)
+        if state == "NEEDS_ESCALATION":
+            self._escalate(request, es)
+        elif state == "NEW":
+            self._submit(request)
+        elif state == "CLOSED":
+            c = closed(es)
+            if c["decision"] == "repair" and not self._chain(c["repair"]["request_id"]):
+                child = {**request, **c["repair"]["set"], "id": c["repair"]["request_id"], "repair_of": request["id"]}
+                self._submit(child, next(x["facts"] for x in es if x.get("hash") == c["escalation"]))
+        elif state == "DONE" and _by_policy(es):
+            self.cleared.append(request["id"])
 
     def reconcile(self, recovered):
         """After gate.recover(): confirmed policy sends are cleared; anything recovery could not confirm goes to a person, once."""
@@ -383,4 +402,4 @@ class Inbox:
                     self.cleared.append(request["id"])
             elif status != "IN_FLIGHT" and not status.startswith("UNRESOLVED"):
                 if self._cache(request, es) == "NEEDS_ESCALATION":
-                    self._escalate(request, es)
+                    self._each(request, lambda: self._escalate(request, es))

@@ -16,6 +16,8 @@ from interlock.receipts import bundle, verify
 from interlock.scoreboard import scoreboard
 from interlock.targets import Payments
 from interlock.targets.stripe_api import StripeRefunds
+from interlock.mcp_proxy import Proxy, ToolError
+from interlock.easy import Interlock
 from interlock.temporal import Refused, gated
 from test_confirmations import SECRET, T, Client, event, header
 
@@ -302,6 +304,211 @@ class TamperedReceipt(unittest.TestCase):
                 v = verify(t)
                 self.assertFalse(v["valid"])
                 self.assertTrue(any("was altered" in p for p in v["problems"]))
+
+
+class ProxySettlesOnlyItsOwnSend(unittest.TestCase):
+    """A failed premise read never settles another call's send, so a retry never sends it twice (I2)."""
+    TOOLS = {"create_refund": {"key": ["order_id"],
+             "premises": {"tool": "get_order", "arguments": {"order_id": "order_id"}, "fields": ["refunded_total"]},
+             "lookup": {"tool": "find_refund", "arguments": {"reference": "$effect_id"}, "found": "found"},
+             "idempotency_argument": "reference"}}
+
+    class Up:
+        def __init__(self):
+            self.landed, self.pending, self.fail_read, self.decline = [], [], False, False
+
+        def call_tool(self, name, args, timeout=60):
+            if name == "get_order":
+                if self.fail_read:
+                    raise ToolError("upstream busy")
+                return {"structuredContent": {"refunded_total": sum(r["amount"] for r in self.landed)}}
+            if name == "find_refund":
+                return {"structuredContent": {"found": any(r["reference"] == args["reference"] for r in self.landed)}}
+            if self.decline:
+                return {"isError": True, "content": [{"type": "text", "text": "card declined"}]}
+            self.pending.append(args)                                  # accepted, but the answer never comes
+            raise TimeoutError("create_refund did not answer")
+
+    def proxy(self):
+        p = object.__new__(Proxy)
+        p.upstream, p.interlock, out = self.Up(), Interlock(tempfile.mkdtemp()), []
+        p.tools = {n: p._gated(n, spec) for n, spec in self.TOOLS.items()}
+        p.to_client = out.append
+        call = lambda: (p._handle_call({"id": 1, "params": {"name": "create_refund",
+                                                            "arguments": {"order_id": "881", "amount": 20}}}),
+                        out[-1]["result"])[1]
+        return p, call
+
+    def test_failed_read_while_in_flight_does_not_settle_the_send(self):
+        p, call = self.proxy()
+        self.assertEqual(call()["_meta"]["interlock"]["status"], "IN_FLIGHT")
+        p.upstream.fail_read = True
+        self.assertEqual(call()["_meta"]["interlock"]["status"], "IN_FLIGHT")
+        p.upstream.fail_read = False
+        call()
+        self.assertEqual(len(p.upstream.pending), 1)
+        kinds = [e["kind"] for e in p.tools["create_refund"].gate.journal.entries()]
+        self.assertEqual(kinds.count("DISPATCHED"), 1)
+        self.assertNotIn("REFUSED", kinds)
+
+    def test_failed_read_with_nothing_in_flight_says_nothing_was_sent(self):
+        p, call = self.proxy()
+        p.upstream.fail_read = True
+        result = call()
+        self.assertTrue(result["isError"])
+        self.assertEqual(result["_meta"]["interlock"]["status"], "NOT_SENT")
+        self.assertIn("could not be read", result["content"][0]["text"])
+        self.assertEqual(p.tools["create_refund"].gate.journal.entries(), [])
+
+    def test_declined_send_is_still_settled(self):
+        p, call = self.proxy()
+        p.upstream.decline = True
+        self.assertEqual(call()["_meta"]["interlock"]["status"], "REFUSED:target_error")
+
+
+class TemporalOutcome(unittest.TestCase):
+    """The backend reads the status token, not the explanation that follows it."""
+
+    def test_ambiguous_outcome_is_the_status(self):
+        from interlock.temporal import outcome
+        class Live:
+            def is_live(self, lease):
+                return True
+        api = Payments(3)
+        api.create_order("1", 100)
+        gate = Gate(api, tempfile.mktemp(suffix=".jsonl"), Live())
+        P = {"agent": "a", "lease": "L", "request_id": "r1", "premises": api.capture("1"),
+             "effect": {"order": "1", "amount": 20}}
+        with self.assertRaises(SimulatedCrash):
+            gated(gate, P, crash_after_effect=True)
+        with self.assertRaises(Refused) as ctx:
+            gated(gate, P)
+        self.assertIn("unclear whether it happened", str(ctx.exception))
+        self.assertEqual(outcome(str(ctx.exception)), "AMBIGUOUS")
+        self.assertEqual(outcome("precheck: REFUSED:lease"), "REFUSED:lease")
+
+
+class RepairChildCrash(unittest.TestCase):
+    """A repair child that crashed before its escalation is escalated on the facts the repair was computed from."""
+
+    def test_restart_does_not_overpay(self):
+        for suffix in SUFFIXES:
+            with self.subTest(suffix):
+                w = World(suffix, approvers={"ana"})
+                self.assertEqual(w.ibx.submit({"id": "r", "order": "1", "amount": 80}), "QUEUED")
+                w.ibx.approve("r", "ana", execute=False)
+                w.hand(30, "hand1")
+                self.assertEqual(w.ibx.execute("r"), "REFUSED:stale_premise")
+                real = Inbox._escalate
+
+                def crash(self, request, *a, **kw):
+                    if ":repair:" in request["id"]:
+                        raise SimulatedCrash("died")
+                    return real(self, request, *a, **kw)
+                Inbox._escalate = crash
+                try:
+                    with self.assertRaises(SimulatedCrash):
+                        w.ibx.repair("r", "ana")
+                finally:
+                    Inbox._escalate = real
+                w.hand(40, "hand2")
+                ibx = w.inbox()
+                child = next(k for k in ibx.queue if ":repair:" in k)
+                self.assertEqual(ibx.queue[child]["facts"]["refunded"], 30)
+                self.assertNotEqual(ibx.approve(child, "ana"), "COMMITTED")
+                self.assertEqual(w.api.refunded_total("1"), 70)
+
+
+class OneBadCapture(unittest.TestCase):
+    """A capture that raises for one request does not strand the others."""
+
+    def broken(self, w, order):
+        real = w.api.capture
+        w.api.capture = lambda o: (_ for _ in ()).throw(KeyError(o)) if o == order else real(o)
+
+    def test_restart_escalates_the_rest(self):
+        w = World()
+        w.api.create_order("2", 100)
+        for rid, order in (("ra", "1"), ("rb", "2")):
+            w.ibx.gate.journal.append("PROPOSED", eid(rid), agent="inbox", lease=None, premises=None,
+                                      effect={"order": order, "amount": 80},
+                                      request={"id": rid, "order": order, "amount": 80})
+        self.broken(w, "1")
+        ibx = w.inbox()
+        self.assertEqual(list(ibx.queue), ["rb"])
+
+    def test_reconcile_escalates_the_rest(self):
+        w = World(tier=3, rules=[Rule("any", lambda r, f: True)])
+        w.api.create_order("2", 100)
+        for rid, order in (("r1", "1"), ("r2", "2")):
+            r = {"id": rid, "order": order, "amount": 20}
+            with self.assertRaises(SimulatedCrash):
+                w.ibx.gate.submit(w.proposal(r, {"by": "policy", "rules": ["any"]}, w.api.capture(order)),
+                                  crash_after_effect=True)
+        self.broken(w, "1")
+        w.ibx.reconcile(w.ibx.gate.recover())
+        self.assertEqual(list(w.ibx.queue), ["r2"])
+
+    def test_tick_moves_the_rest(self):
+        for suffix in SUFFIXES:
+            with self.subTest(suffix):
+                w = World(suffix, groups={"a": {"ana"}, "b": {"bo"}}, routes=[Route("d", ["a", "b"], sla=HOUR)])
+                for n in ("1", "2", "3"):
+                    if n != "1":
+                        w.api.create_order(n, 100)
+                    w.ibx.submit({"id": "r" + n, "order": n, "amount": 80})
+                self.broken(w, "1")
+                w.now[0] += 2 * HOUR
+                out = w.ibx.tick()
+                self.assertEqual((out.get("r2"), out.get("r3")), ("b", "b"))
+                self.assertEqual({k: v["group"] for k, v in w.ibx.queue.items()}, {"r1": "a", "r2": "b", "r3": "b"})
+
+
+class RouteLostItsSla(unittest.TestCase):
+    def test_tick_after_sla_removed_from_config(self):
+        w = World(groups={"a": {"ana"}, "b": {"bo"}}, routes=[Route("d", ["a", "b"], sla=HOUR)])
+        w.ibx.submit({"id": "r1", "order": "1", "amount": 80})
+        w.routes = [Route("d", ["a", "b"])]
+        ibx = w.inbox()
+        w.now[0] += 2 * HOUR
+        self.assertEqual(ibx.tick(), {"r1": "b"})
+        self.assertIsNone(ibx.queue["r1"]["due"])
+
+
+class StripeSubclassPremises(unittest.TestCase):
+    """StripeRefunds.explain runs a subclass's validate_premises, like Payments.explain (I3)."""
+
+    def test_override_still_refuses(self):
+        class NoDisputed(StripeRefunds):
+            def validate_premises(self, premises, eid=None):
+                return ["payment disputed"]
+        client = Client()
+        target = NoDisputed(client, "pi_1")
+        leases = Leases()
+        leases.grant("L")
+        gate = Gate(target, tempfile.mktemp(suffix=".jsonl"), leases)
+        P = {"agent": "bot", "lease": "L", "request_id": "c", "premises": target.capture(), "effect": {"amount": 500}}
+        self.assertEqual(gate.submit(P), "REFUSED:stale_premise")
+        self.assertEqual(client.refunds, [])
+
+
+class ReadmeMatchesResults(unittest.TestCase):
+    """README's approval numbers are the ones results/approval_inbox.md reports."""
+
+    def test_table_and_headline(self):
+        import re
+        rows = lambda text: {m[0].split(" (")[0]: (int(m[1]), int(m[2])) for m in
+                             re.findall(r"^\| ([A-Za-z+ ]+(?: \(.*?\))?) \| (\d+) \| \**(\d+)\** \|$", text, re.M)}
+        with open(os.path.join(ROOT, "results", "approval_inbox.md")) as f:
+            results = rows(f.read())
+        with open(os.path.join(ROOT, "README.md")) as f:
+            readme = f.read()
+        self.assertEqual(len(results), 3)
+        self.assertEqual({k: v for k, v in rows(readme).items() if k in results}, results)
+        reviews, _ = results["rules + Interlock"]
+        self.assertIn(f"from 100 to {reviews} with zero wrong payouts, where rules alone paid out wrong "
+                      f"{results['rules only'][1]} times", readme)
+        self.assertIn(f"The {reviews - results['rules only'][0]} extra reviews", readme)
 
 
 if __name__ == "__main__":

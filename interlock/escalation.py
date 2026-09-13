@@ -25,6 +25,7 @@ WHY = {
     "duplicate_symbol": "it defines something already defined or claimed by another agent",
     "target_error": "the tool reported an error, and nothing was sent again",
     "ambiguous": "a crash left it unclear whether it happened, and the tool gives no way to check",
+    "not_sent": "the facts it depends on could not be read, so nothing was sent",
     "in_flight": "its outcome is not known yet; Interlock will settle it before anything is sent again",
     "unresolved": "recovery could not settle it yet; it will be tried again",
     "awaiting_decision": "it is waiting for a person's decision on its latest escalation",

@@ -22,7 +22,7 @@ from backend.leases import DurableLeases
 from interlock import Gate
 from interlock.journal import effect_id_for
 from interlock.targets.stripe_api import StripeRefunds
-from interlock.temporal import gated
+from interlock.temporal import gated, outcome
 
 PRUNED = "/emulated-pruned"             # EMULATED suffix, see config.EMULATE_24H
 REFUSALS = ("interlock: REFUSED", "interlock: AMBIGUOUS", "precheck: REFUSED")
@@ -108,5 +108,5 @@ class RefundCase:
             # fails the workflow, so a stuck run never reads as an outcome.
             if not (isinstance(cause, ApplicationError) and cause.non_retryable and cause.message.startswith(REFUSALS)):
                 raise
-            result = {"outcome": cause.message.split(": ", 1)[1]}
+            result = {"outcome": outcome(cause.message)}
         return {"decision": decision, **result}

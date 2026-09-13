@@ -34,7 +34,7 @@ recovery after a crash can only say AMBIGUOUS. Standard library only.
 import itertools, json, queue, subprocess, sys, threading, uuid
 from .easy import Interlock
 from .escalation import WHY, code, describe, explain
-from .journal import CLAIM_TTL, effect_id_for
+from .journal import CLAIM_TTL, effect_id_for, open_dispatch
 
 RESOLVED = ("DUPLICATE_IGNORED", "COMMITTED_BY_RETRY", "COMMITTED_ON_QUERY", "REAPPLIED_AFTER_QUERY")
 
@@ -126,9 +126,13 @@ class Proxy:
             args = dict(arguments)
             if spec.get("idempotency_argument"):
                 args[spec["idempotency_argument"]] = idempotency_key
-            result = up.call_tool(name, args)
-            if result.get("isError"):
-                raise ToolError(json.dumps(result.get("content")))
+            try:
+                result = up.call_tool(name, args)
+                if result.get("isError"):
+                    raise ToolError(json.dumps(result.get("content")))
+            except Exception as e:
+                e.interlock_sent = True                   # from the send itself, not a read before it
+                raise
             return result
         send.__name__ = send.__qualname__ = name
 
@@ -162,11 +166,15 @@ class Proxy:
         eid = effect_id_for({"request_id": call.key(arguments)})
         try:
             status, result = call(arguments)
-        except ToolError as e:                            # the tool answered "failed": settle it, never resend
-            status, result = call.gate.settle_failed(eid, str(e)) or "IN_FLIGHT", None
-        except Exception as e:                            # no answer (timeout, upstream gone): outcome unknown.
-            sys.stderr.write(f"interlock: {name} did not settle ({e!r}); left for recovery\n")
-            status, result = "IN_FLIGHT", None            # recovery takes it over once the send's claim expires
+        except Exception as e:
+            result = None
+            if not getattr(e, "interlock_sent", False):   # a read before this call sent anything: an open send is another call's
+                status = "IN_FLIGHT" if open_dispatch(call.gate.journal.entries(eid)) else "NOT_SENT"
+            elif isinstance(e, ToolError):                # the tool answered "failed": settle it, never resend
+                status = call.gate.settle_failed(eid, str(e)) or "IN_FLIGHT"
+            else:                                         # no answer (timeout, upstream gone): outcome unknown.
+                sys.stderr.write(f"interlock: {name} did not settle ({e!r}); left for recovery\n")
+                status = "IN_FLIGHT"                      # recovery takes it over once the send's claim expires
         meta = {"interlock": {"status": status, "receipt": call.gate.journal.receipt(eid)}}
         if status == "COMMITTED" and result is not None:
             result = {**result, "_meta": {**result.get("_meta", {}), **meta}}

@@ -27,7 +27,7 @@ Proof, not promises:
 
 The full narrative — the root, the field, what we ruled out, why it's a business — is in [docs/00-the-whole-story.md](docs/00-the-whole-story.md), or as a visual walkthrough at [az-said.github.io/Interlock/docs/interlock-explained.html](https://az-said.github.io/Interlock/docs/interlock-explained.html).
 
-**The goal: let finance teams cut two thirds of the manual approvals they do on agent actions.** Much of what a reviewer checks is mechanical (is the order still eligible, was it already refunded, is this still allowed), and Interlock checks exactly that at the moment of sending. On a synthetic day of 100 refund requests ([results/approval_inbox.md](results/approval_inbox.md), mix stated as an assumption), rules plus Interlock took reviews from 100 to 33 with zero wrong payouts, where rules alone paid out wrong 8 times.
+**The goal: let finance teams cut two thirds of the manual approvals they do on agent actions.** Much of what a reviewer checks is mechanical (is the order still eligible, was it already refunded, is this still allowed), and Interlock checks exactly that at the moment of sending. On a synthetic day of 100 refund requests ([results/approval_inbox.md](results/approval_inbox.md), mix stated as an assumption), rules plus Interlock took reviews from 100 to 36 with zero wrong payouts, where rules alone paid out wrong 10 times.
 
 ## What it is
 
@@ -181,15 +181,15 @@ Temporal does exactly what it promises: the crashed step is retried and, with a 
 
 ### 5. How many approvals still need a person
 
-`experiments/approval_inbox.py` runs one synthetic day of 100 refund requests three ways. **The mix is an assumption, not measured data** (60 routine, 15 over the $50 limit, 5 flagged customers, 5 ineligible orders, 5 duplicate deliveries, 5 crashes mid-send, 5 refunded by hand before the agent's send, and 3 over-limit requests refunded by hand between approval and send). Change it and re-run.
+`experiments/approval_inbox.py` runs one synthetic day of 100 refund requests three ways. **The mix is an assumption, not measured data** (60 routine, 15 over the $50 limit, 5 flagged customers, 5 ineligible orders, 5 duplicate deliveries, 5 crashes mid-send, 5 refunded by hand before the agent's send, and, of the over-limit requests, 3 refunded in full and 2 refunded a third by hand between approval and send). Change it and re-run.
 
 | system | reviews a person did | orders refunded the wrong amount |
 |---|---|---|
-| everyone approves | 100 | **8** |
-| rules only (routine requests send with an idempotency key) | 25 | **8** |
-| rules + Interlock (`interlock/approvals.py`) | 33 | 0 |
+| everyone approves | 100 | **10** |
+| rules only (routine requests send with an idempotency key) | 25 | **10** |
+| rules + Interlock (`interlock/approvals.py`) | 36 | 0 |
 
-Rules take routine work off people, but without the gate they pay out wrong whenever the facts changed between the decision, or the approval, and the send. With the gate, a person's approval is the authority the refund runs under, and the facts they saw are its premises: a stale, expired, or unauthorized approval is refused when the refund is actually sent, and comes back to the queue saying what changed. The 8 extra reviews are people closing refunds the gate stopped, not re-deciding them.
+Rules take routine work off people, but without the gate they pay out wrong whenever the facts changed between the decision, or the approval, and the send. With the gate, a person's approval is the authority the refund runs under, and the facts they saw are its premises: a stale, expired, or unauthorized approval is refused when the refund is actually sent, and comes back to the queue saying what changed. The 11 extra reviews are people closing or repairing refunds the gate stopped, not re-deciding them.
 
 ## Why this and not the obvious things
 
