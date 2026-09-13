@@ -10,6 +10,8 @@ Given a journal `J`, an effect target `T` with declared tier, and a lease store 
 - **I4. No effect under a dead lease.** `T.apply(e)` is called only if `L.is_live(lease(e))` immediately before `DISPATCHED(e)`.
 - **I5. Payload binding.** The first `PROPOSED(e)` fixes `payload(e)`. Any later proposal for `e` with a different payload is `REFUSED`. In particular, recovery always uses the recorded payload and never a fresh model output. (The re-run model saying $30 cannot displace the recorded $20.)
 - **I6. No duplicate implementation.** An effect that defines a symbol already present in the target, or claimed by another live agent, is `REFUSED` before it lands.
+- **I7. Decision binding.** Once an effect has an `ESCALATED` entry, it is dispatched only under a person's recorded `DECIDED` approval of its latest escalation, by a member of that escalation's group (checked when deciding and again at dispatch), with that escalation's facts as premises. Otherwise it is `REFUSED:awaiting_decision`. Policy never sends it again.
+- **I8. Repairs are new decisions.** A suggested repair with a different payload is a new effect id, accepted only while the original never landed; accepting it closes the original, and a closed effect is `REFUSED:closed`. A repair never reuses the refused id (I5) and never skips the rules or a person.
 
 ## Progress
 
@@ -20,6 +22,8 @@ Given a journal `J`, an effect target `T` with declared tier, and a lease store 
 - **One sender at a time, one recoverer at a time.** Dispatching an effect atomically claims it for the sender, and the claim is released when the send resolves. `recover()` takes an effect only after any other live claim has expired (`claim_ttl`, 120s by default), refreshes its own claim right before a resend, and releases it once the effect is resolved. So an effect still being applied, by this worker or another, is never sent a second time.
 - **Recovery is per effect.** If recovering one effect raises (a network error from its lookup), it is reported `UNRESOLVED` and left in flight for a later attempt; the other effects are still recovered.
 - **Premises are bound to an authority.** A re-proposal under the same lease is checked against the premises its decision was first recorded with, never facts re-read at retry time. A new authority (a person approving after a refusal) is a new decision with the premises that person saw. Recovery re-checks exactly the lease and premises recorded on the send.
+- **P'. Every refused or unverifiable outcome of an inbox-owned effect ends in exactly one open escalation.** The inbox queue is a fold over the journal, and escalations and decisions are appended with a check under the journal lock, so a crash, a restart, or a second inbox can neither lose nor duplicate one. An unanswered escalation moves up its route's chain after its SLA; time comes from an injected clock.
+- **Confirmation is evidence, not control.** A `CONFIRMED` entry (a signed Stripe webhook or a refunds lookup, matched by `interlock_effect_id`, payment and amount) never closes a dispatch and never changes gate or inbox behaviour.
 - **A definite failure is settled, not resent.** When a target answers that a send failed (an MCP tool's `isError`), the gate confirms by lookup when it can and otherwise records the failure as `REFUSED`; it does not send again.
 
 ## What the gate is allowed to do when it cannot establish the condition
@@ -73,7 +77,7 @@ Three, because the brief says match evidence to the claim and the team spec says
 - Single journal, single gate. Multiple gates over one target need a shared journal or a notary.
 - The target declares its dedup window (`dedup_window`) and whether it can be queried (`queryable`). A provider that shortens its window without saying so is outside the model. Recovery treats a key as expired 10 minutes early, to absorb clock skew between the worker that sent and the worker that recovers.
 - A send, and a resend during recovery, finishes well inside `claim_ttl`. Targets must time out sooner than that (the Stripe target uses 30s, the MCP proxy 60s, against a 120s default). A send that outlives its claim can be taken over.
-- Receipts: `verify()` checks the chain, that the bundle starts with a proposal, that every send follows an authorization, and that every commit closes a send. The recorded checks are the gate's own attestations. A signature binds them to whoever holds the key; without one, whoever controls the journal could rebuild a consistent chain.
+- Receipts: `verify()` checks the chain, that the bundle starts with a proposal, that every send follows an authorization, and that every commit closes a send. The recorded checks are the gate's own attestations. A signature binds them to whoever holds the key; without one, whoever controls the journal could rebuild a consistent chain. When a chain has escalations, `verify()` also checks that each person's send has that person's decision, on the latest escalation, on the facts shown, before the send, from a member of the group it was routed to; and it reports the escalation history and `confirmed_by_target`. Without a signature, whoever controls the journal could strip escalations so a chain looks like one from before this check; receipts from before it stay valid.
 
 ## Outside the contract
 

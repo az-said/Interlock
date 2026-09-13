@@ -244,6 +244,9 @@ and not measured data, {s["cleared_no_person"]} of {s["requests"]} requests clea
 |---|---|
 {board}
 
+Crash cases reach a person only when recovery cannot settle them. Every crash in this mix hits
+a tier 1 target recovery can settle, so none did; a tier 3 target would send them to `payments-ops`.
+
 ## Mix
 
 """ + "\n".join(f"- {k}: {v}" for k, v in MIX.items()) + f"""

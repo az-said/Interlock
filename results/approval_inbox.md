@@ -34,6 +34,9 @@ and not measured data, 65 of 95 requests cleared with no person, 65 of those wit
 | time to decision, p90 | 302 min |
 | time to decision, max | 409 min |
 
+Crash cases reach a person only when recovery cannot settle them. Every crash in this mix hits
+a tier 1 target recovery can settle, so none did; a tier 3 target would send them to `payments-ops`.
+
 ## Mix
 
 - routine: 60
