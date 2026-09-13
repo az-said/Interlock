@@ -87,8 +87,9 @@ Systems people call the general shape time-of-check to time-of-use. It used to b
 ## How big
 
 - Eight in ten enterprises report an AI agent executing a consequential action in production and paying real cost to correct it; the recurring finding is that they built observability without attribution. (Kore.ai Agent Productivity Index, 2026)
-- 61% of corporate treasury executives name payment reconciliation their most time-consuming manual process, up from 44% in 2022. (J.P. Morgan treasury survey)
+- 61% of corporate treasury teams cite payment reconciliation as their most time-consuming manual process, up from 44% in 2022. (J.P. Morgan 2025 Treasury Services Benchmarking survey)
 - AI payment-matching catches about 1.2% of total payment volume as duplicates that manual review missed. Before agents. (Levvel Research)
-- IDC forecasts 1000x growth in agent-related API calls. Every one is a potential line 2.
+- IDC forecasts that by 2027 agent use in the G2000 grows 10x while token and API call loads grow 1000x. Every call is a potential line 2.
+- Gartner (June 2025) predicts over 40% of agentic AI projects will be canceled by end of 2027, citing escalating costs, unclear business value, or inadequate risk controls.
 
 There is no market for network crashes. There is a market for the consequences of not knowing what happened after one. It's called reconciliation, and agents are about to multiply it.

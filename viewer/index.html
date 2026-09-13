@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interlock journal replay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0A0A0B; --text: #E4E4E7; --dim: #A1A1AA; --line: #27272A; --border: #3F3F46;
+    --amber: #F59E0B; --red: #EF4444; --green: #10B981; --blue: #1D4ED8; --primary: #FAFAFA;
+    --glass: rgba(10, 10, 11, 0.45); --glass-border: rgba(255, 255, 255, 0.15);
+    --sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 var(--sans); }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+  /* Drifting blurred color fields and grain behind frosted glass, as in the video. */
+  .blobs, .grain { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .blobs { overflow: hidden; }
+  .blob { position: absolute; border-radius: 5rem 2rem 5rem 50%; filter: blur(110px); animation: drift 18s ease-in-out infinite alternate; }
+  .blob.a { width: 760px; height: 760px; left: -180px; top: -200px; background: var(--blue); opacity: 0.45; }
+  .blob.b { width: 560px; height: 560px; right: -140px; bottom: -160px; background: var(--amber); opacity: 0.26; animation-delay: -6s; }
+  .blob.c { width: 480px; height: 480px; right: 22%; top: 34%; background: var(--green); opacity: 0.14; animation-delay: -12s; }
+  .grain { opacity: 0.07; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  @keyframes drift { from { transform: translate(0, 0) scale(1); } to { transform: translate(70px, 50px) scale(1.12); } }
+  @media (prefers-reduced-motion: reduce) { .blob { animation: none; } }
+
+  .glass {
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(24px) saturate(1.3); backdrop-filter: blur(24px) saturate(1.3);
+    border: 1px solid var(--glass-border); border-radius: 16px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 24px 50px -18px rgba(0, 0, 0, 0.45);
+  }
+  .page { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding-block: 32px 48px; padding-inline: 20px; }
+  header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+  h1 { font-size: 22px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+  .sub { color: var(--dim); margin: 2px 0 0; }
+  .kicker { font: 11px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+  .mono { font-family: var(--mono); }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 20px; align-items: start; }
+  @media (max-width: 960px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+  .faults { padding: 10px; display: flex; flex-direction: column; gap: 2px; }
+  .faults .kicker { padding: 8px 12px 6px; }
+  .fault { border: 0; background: transparent; text-align: left; padding: 9px 12px; border-radius: 10px; }
+  .fault:hover { background: rgba(255, 255, 255, 0.04); }
+  .fault[aria-pressed="true"] { background: rgba(255, 255, 255, 0.09); }
+  .fault .name { font: 12.5px var(--mono); overflow-wrap: anywhere; }
+  .fault .desc { color: var(--dim); font-size: 12.5px; margin-top: 2px; }
+  .fault.new .name::after { content: "new"; margin-left: 8px; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--amber); }
+
+  .main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; justify-content: space-between; }
+  .toolbar h2 { font: 17px var(--mono); margin: 6px 0 0; overflow-wrap: anywhere; }
+  .tiers { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 999px; }
+  .tier { border: 0; background: transparent; padding: 7px 14px; border-radius: 999px; font: 12px var(--mono); color: var(--dim); }
+  .tier[aria-pressed="true"] { background: rgba(255, 255, 255, 0.13); color: var(--text); }
+
+  .trace { overflow: hidden; }
+  .trace-head { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--glass-border); min-width: 0; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--dim); flex-shrink: 0; }
+  .trace[data-run="running"] .dot { background: var(--primary); }
+  .rid { font: 13px var(--mono); white-space: nowrap; }
+  .count { color: var(--dim); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pill { margin-left: auto; font: 11px var(--mono); padding: 2px 9px; border-radius: 999px; border: 1px solid var(--border); color: var(--dim); flex-shrink: 0; }
+
+  .body { position: relative; --gutter: 230px; --meta: 230px; --pad: 14px; }
+  @media (max-width: 720px) { .body { --gutter: 150px; --meta: 76px; } .meta .d { display: none; } }
+  .track { position: absolute; left: calc(var(--gutter) + var(--pad)); right: calc(var(--meta) + var(--pad)); top: 0; bottom: 0; }
+  .ruler { position: relative; height: 28px; border-bottom: 1px solid var(--glass-border); }
+  .tick { position: absolute; top: 8px; transform: translateX(-50%); font: 10px var(--mono); color: var(--dim); }
+  .gridline { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(63, 63, 70, 0.55); }
+  .lanes { position: relative; }
+  .rows { list-style: none; margin: 0; padding: 4px 0; position: relative; }
+  .row { display: flex; align-items: center; height: 38px; padding: 0 var(--pad); position: relative; }
+  .row[data-state="running"] { background: rgba(39, 39, 42, 0.6); }
+  .label { width: var(--gutter); flex-shrink: 0; display: flex; align-items: center; gap: 8px; font: 12px var(--mono); min-width: 0; position: relative; }
+  .label .t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row[data-state="queued"] .label { color: var(--dim); }
+  .row .guide { position: absolute; left: 6px; top: -19px; bottom: -19px; width: 1px; background: var(--border); }
+  .ic { width: 14px; height: 14px; flex-shrink: 0; color: var(--dim); fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .row[data-state="done"] .ic, .row[data-state="running"] .ic { color: var(--c); }
+  .lane { position: relative; flex: 1; height: 100%; }
+  .bar { position: absolute; top: 50%; height: 8px; min-width: 3px; transform: translateY(-50%); border-radius: 999px; overflow: hidden; background: rgba(228, 228, 231, 0.1); }
+  .fill { position: absolute; inset: 0; transform-origin: left; transform: scaleX(var(--p, 0)); background: var(--c); }
+  .meta { width: var(--meta); flex-shrink: 0; display: flex; justify-content: flex-end; align-items: center; gap: 8px; padding-left: 8px; font: 11px var(--mono); color: var(--dim); white-space: nowrap; min-width: 0; }
+  .meta .d { overflow: hidden; text-overflow: ellipsis; }
+  .meta .ms { color: rgba(228, 228, 231, 0.7); flex-shrink: 0; }
+  .row[data-tone="bad"] .meta .d, .row[data-tone="bad"] .meta .ms { color: var(--red); }
+  .row[data-tone="warn"] .meta .d { color: var(--amber); }
+  .row[data-tone="good"] .meta .d { color: var(--green); }
+  .row[data-state="queued"] .meta { opacity: 0; }
+  .playhead { position: absolute; top: 0; bottom: 0; left: calc(var(--gutter) + var(--pad)); right: calc(var(--meta) + var(--pad)); pointer-events: none; }
+  .playhead i { position: absolute; top: 0; bottom: 0; left: calc(var(--t, 0) * 100%); width: 1px; background: rgba(250, 250, 250, 0.7); }
+  .playhead i::before { content: ""; position: absolute; top: 0; left: -3px; width: 7px; height: 7px; background: var(--primary); transform: rotate(45deg); }
+  .scrub { cursor: ew-resize; touch-action: none; }
+
+  .transport { display: flex; align-items: center; gap: 12px; padding: 8px 14px; border-top: 1px solid var(--glass-border); }
+  .play { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--primary); color: var(--bg); display: grid; place-items: center; flex-shrink: 0; position: relative; }
+  .play::before { content: ""; position: absolute; inset: -4px; }
+  .play svg { width: 14px; height: 14px; fill: currentColor; }
+  .rail { position: relative; flex: 1; height: 36px; touch-action: none; cursor: ew-resize; border-radius: 6px; min-width: 0; }
+  .rail .bg { position: absolute; left: 6px; right: 6px; top: 50%; height: 4px; transform: translateY(-50%); background: rgba(228, 228, 231, 0.1); border-radius: 999px; overflow: hidden; }
+  .rail .fg { height: 100%; background: var(--primary); transform-origin: left; transform: scaleX(var(--t, 0)); }
+  .rail .knob { position: absolute; top: 50%; left: calc(6px + var(--t, 0) * (100% - 12px)); width: 12px; height: 12px; border-radius: 50%; background: var(--primary); transform: translate(-50%, -50%); box-shadow: 0 0 0 2px var(--bg); }
+  .clock { font: 11px var(--mono); color: var(--dim); width: 7.5rem; text-align: right; flex-shrink: 0; }
+  @media (max-width: 480px) { .clock { width: auto; } }
+
+  .bottom { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .card { padding: 18px 20px; }
+  .receipt { font: 13px var(--mono); margin: 14px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 7px 22px; }
+  .receipt dt { color: var(--dim); }
+  .receipt dd { margin: 0; }
+  .yes { color: var(--green); } .no { color: var(--dim); }
+  .big { font-size: 44px; font-weight: 600; letter-spacing: -0.02em; margin-top: 8px; line-height: 1.1; }
+  .verdict { margin: 6px 0 0; color: var(--dim); }
+  .compare { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .chip { font: 12px var(--mono); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); display: inline-flex; gap: 6px; align-items: center; }
+  .chip svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+  .chip.ok { border-color: rgba(16, 185, 129, 0.55); } .chip.ok svg { color: var(--green); }
+  .chip.bad { border-color: rgba(239, 68, 68, 0.55); } .chip.bad svg { color: var(--red); }
+  .chip.warn { border-color: rgba(245, 158, 11, 0.55); } .chip.warn svg { color: var(--amber); }
+  .note { font-size: 12.5px; }
+  .missing { position: relative; z-index: 1; max-width: 560px; margin: 15vh auto; padding: 28px; }
+  code { font-family: var(--mono); }
+</style>
+</head>
+<body>
+<div class="blobs" aria-hidden="true"><div class="blob a"></div><div class="blob b"></div><div class="blob c"></div></div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="page" id="app">
+  <header>
+    <svg width="40" height="40" viewBox="0 0 100 100" aria-hidden="true">
+      <rect x="1" y="1" width="98" height="98" rx="24" fill="#0A0A0B" stroke="#3F3F46" stroke-width="2"/>
+      <circle cx="62" cy="50" r="22" fill="none" stroke="#10B981" stroke-width="7"/>
+      <circle cx="38" cy="50" r="22" fill="none" stroke="#E4E4E7" stroke-width="7"/>
+      <path d="M 57.8 71.6 A 22 22 0 0 1 43.98 62.62" fill="none" stroke="#0A0A0B" stroke-width="13"/>
+      <path d="M 57.8 71.6 A 22 22 0 0 1 43.98 62.62" fill="none" stroke="#10B981" stroke-width="7"/>
+    </svg>
+    <div>
+      <h1>Interlock journal replay</h1>
+      <p class="sub">What the commit gate wrote, step by step, for each injected fault.</p>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="glass faults" aria-label="Faults">
+      <div class="kicker">Fault</div>
+      <div id="faults" style="display:contents"></div>
+    </nav>
+
+    <section class="main" aria-live="off">
+      <div class="toolbar">
+        <div>
+          <div class="kicker">Scenario</div>
+          <h2 id="fault-title"></h2>
+          <p class="sub" id="fault-desc"></p>
+        </div>
+        <div class="glass tiers" id="tiers" role="group" aria-label="How much the payments API cooperates">
+          <button class="tier" type="button" data-tier="1">tier 1 · dedupes</button>
+          <button class="tier" type="button" data-tier="2">tier 2 · lookup</button>
+          <button class="tier" type="button" data-tier="3">tier 3 · neither</button>
+        </div>
+      </div>
+
+      <div class="glass trace" id="trace" data-run="running">
+        <div class="trace-head">
+          <span class="dot" aria-hidden="true"></span>
+          <span class="rid" id="rid"></span>
+          <span class="count" id="count"></span>
+          <span class="pill" id="pill">Running</span>
+        </div>
+        <div class="body">
+          <div class="ruler scrub" id="ruler"><div class="track" id="ticks"></div></div>
+          <div class="lanes">
+            <div class="track" id="grid" aria-hidden="true"></div>
+            <ol class="rows" id="rows" aria-label="Journal entries"></ol>
+            <div class="playhead" aria-hidden="true"><i></i></div>
+            <div class="track scrub" id="lane-scrub"></div>
+          </div>
+        </div>
+        <div class="transport">
+          <button class="play" id="play" type="button" aria-label="Pause replay"></button>
+          <div class="rail" id="rail" role="slider" tabindex="0" aria-label="Playhead" aria-valuemin="0" aria-valuenow="0">
+            <div class="bg"><div class="fg"></div></div><span class="knob"></span>
+          </div>
+          <span class="clock" id="clock"></span>
+        </div>
+      </div>
+
+      <div class="bottom">
+        <div class="glass card">
+          <div class="kicker">Receipt</div>
+          <dl class="receipt" id="receipt"></dl>
+        </div>
+        <div class="glass card">
+          <div class="kicker">Refunded on order 881</div>
+          <div class="big" id="refunded">$0</div>
+          <p class="verdict" id="verdict"></p>
+          <div class="compare" id="compare"></div>
+        </div>
+      </div>
+
+      <p class="sub note">Order, reasons and outcomes come from the gate's real journal (<code>python3 viewer/build.py</code>). Durations are paced for reading, not measured.</p>
+    </section>
+  </div>
+</main>
+
+<script src="traces.js"></script>
+<script>
+(() => {
+  const D = window.INTERLOCK_TRACES;
+  if (!D) {
+    document.getElementById("app").outerHTML =
+      '<div class="glass missing"><h1>No trace data yet</h1><p class="sub">Run <code>python3 viewer/build.py</code> from the repo root, then reload this page.</p></div>';
+    return;
+  }
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const fmt = (ms) => (ms < 1000 ? `${Math.round(ms)}ms` : `${(ms / 1000).toFixed(2)}s`);
+
+  const ICON = {
+    model: '<rect x="4" y="4" width="8" height="8" rx="1.5"/><path d="M6.5 1.5v2M9.5 1.5v2M6.5 12.5v2M9.5 12.5v2M1.5 6.5h2M1.5 9.5h2M12.5 6.5h2M12.5 9.5h2"/>',
+    io: '<path d="M4 1.5h5l3 3v10H4z"/><path d="M9 1.5v3h3"/>',
+    tool: '<path d="M10.5 1.8a3.2 3.2 0 0 0-3.8 4.1L1.8 10.8l3.4 3.4 4.9-4.9a3.2 3.2 0 0 0 4.1-3.8l-2.1 2.1-2.5-.8-.8-2.5z"/>',
+    world: '<circle cx="8" cy="5" r="3"/><path d="M2.5 14.5c.4-3 2.7-4.8 5.5-4.8s5.1 1.8 5.5 4.8"/>',
+    agent: '<rect x="3" y="5" width="10" height="8.5" rx="2"/><path d="M8 2v3M6 9v1M10 9v1"/>',
+    good: '<path d="M3 8.5l3 3 7-7"/>',
+    bad: '<circle cx="8" cy="8" r="6.5"/><path d="M8 4.5v4M8 11v.5"/>',
+    blocked: '<circle cx="8" cy="8" r="6.5"/><path d="M3.5 12.5l9-9"/>',
+    ambiguous: '<circle cx="8" cy="8" r="6.5"/><path d="M6.2 6.2a1.9 1.9 0 1 1 2.6 1.8c-.5.3-.8.7-.8 1.2M8 11.3v.2"/>',
+  };
+  const COLOR = {
+    model: "var(--primary)", io: "rgba(228,228,231,.55)", tool: "rgba(228,228,231,.55)", world: "var(--amber)",
+    agent: "var(--primary)", good: "var(--green)", bad: "var(--red)", blocked: "var(--amber)", ambiguous: "var(--amber)",
+  };
+  const TONE = { bad: "bad", blocked: "warn", ambiguous: "warn", good: "good", world: "warn" };
+  const MARK = { ok: '<path d="M2 6.5l2.5 2.5L10 3.5"/>', bad: '<path d="M3 3l6 6M9 3L3 9"/>', warn: '<path d="M6 2.5v4.5M6 9.3v.2"/>' };
+  const NEW = new Set(["refund_during_outage", "lease_revoked_during_outage", "key_expired"]);
+  const BEFORE_SEND = new Set(["crash_before_send", "refund_during_outage", "lease_revoked_during_outage"]);
+  const OUTAGE = {
+    refund_during_outage: "support refunds $20 by hand",
+    lease_revoked_during_outage: "refund permission revoked",
+    key_expired: "25h pass, provider prunes the key",
+  };
+  const PLAY = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5v9l7.5-4.5z"/></svg>';
+  const PAUSE = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 3h2.5v10H4.5zM9 3h2.5v10H9z"/></svg>';
+
+  const reason = (r) => (Array.isArray(r) ? r.join(", ") : String(r ?? "")).replace(/_/g, " ");
+
+  // Journal entries -> trace rows. Crash and outage rows are inferred from where recovery entries begin.
+  function build(fault, journal) {
+    const rows = [];
+    let t = 0, rec = null, committed = false;
+    const GAP = 120;
+    const add = (row, dur) => { row.start = t; row.end = t + dur; row.depth = rec ? 1 : 0; rows.push(row); t += dur + GAP; };
+    const closeRec = () => { if (rec) { rec.end = t - GAP; rec = null; } };
+
+    journal.forEach((e, i) => {
+      const next = journal[i + 1];
+      const isRecovery = Boolean(e.via) || /at recovery/.test(reason(e.reason)) || e.kind === "AMBIGUOUS";
+      if (isRecovery && !rec) {
+        add({ label: "outage", kind: "world", detail: OUTAGE[fault] || "process restarts" }, 1500);
+        rec = { label: "interlock.recover", kind: "agent", detail: "", start: t, end: t, depth: 0 };
+        rows.push(rec);
+      }
+      switch (e.kind) {
+        case "PROPOSED": {
+          closeRec();
+          const dup = committed && (!next || next.kind === "PROPOSED");
+          const p = e.premises || {};
+          add({ entry: e, label: dup ? "propose again" : "propose + save premises", kind: "model",
+                detail: dup ? "already committed, ignored" : `$${e.effect.amount} · refunded so far $${p.refunded ?? 0}` }, 700);
+          break;
+        }
+        case "AUTHORIZED":
+          add({ entry: e, label: "check lease", kind: "io", detail: `${e.lease} live` }, 380);
+          break;
+        case "DISPATCHED": {
+          add({ entry: e, label: "journal intent, fsync", kind: "io", detail: "on disk before the call" }, 380);
+          const acked = next && next.kind === "COMMITTED" && !next.via;
+          add({ label: `payments.refund $${e.effect.amount}`, kind: acked ? "tool" : "bad",
+                detail: acked ? "ok" : BEFORE_SEND.has(fault) ? "crashed before send" : "sent, ack lost" }, acked ? 800 : 950);
+          break;
+        }
+        case "COMMITTED":
+          committed = true;
+          add({ entry: e, label: "committed", kind: "good",
+                detail: { "retry-idempotent": "safe retry, provider dedupes", "recovery-query": "lookup: it already landed", "recovery-reapply": "lookup: absent, re-sent" }[e.via] || "ack recorded" }, 480);
+          break;
+        case "REFUSED":
+          add({ entry: e, label: "refused", kind: "blocked", detail: reason(e.reason) }, 480);
+          break;
+        case "AMBIGUOUS":
+          add({ entry: e, label: "ambiguous", kind: "ambiguous", detail: e.reason ? reason(e.reason) : "no dedup, no lookup: refuse to guess" }, 480);
+          break;
+      }
+    });
+    closeRec();
+    return rows;
+  }
+
+  const faults = Object.keys(D.faults);
+  let fault = faults.includes("refund_during_outage") ? "refund_during_outage" : faults[0];
+  let tier = 2, cell = null, rows = [], rowEls = [], total = 1, t = 0, playing = false, raf = 0, last = 0;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  $("faults").innerHTML = faults.map((f) =>
+    `<button class="fault${NEW.has(f) ? " new" : ""}" type="button" data-f="${esc(f)}" aria-pressed="false">
+       <div class="name">${esc(f)}</div><div class="desc">${esc(D.faults[f])}</div></button>`).join("");
+  $("faults").addEventListener("click", (e) => { const b = e.target.closest("[data-f]"); if (b) select(b.dataset.f, tier); });
+  $("tiers").addEventListener("click", (e) => { const b = e.target.closest("[data-tier]"); if (b) select(fault, Number(b.dataset.tier)); });
+
+  function load() {
+    const results = D.results[fault];
+    cell = results[`gate@tier${tier}`];
+    rows = build(fault, cell.journal || []);
+    total = Math.max(1, ...rows.map((r) => r.end));
+
+    $("rid").textContent = `effect ${(cell.journal[0] || {}).effect_id || ""}`;
+    $("count").textContent = `refund-bot + interlock · ${rows.length} spans`;
+
+    const step = [250, 500, 1000, 2000].find((s) => total / s <= 8) || 2000;
+    let ticks = "", grid = "";
+    for (let x = step; x < total; x += step) {
+      const left = ((x / total) * 100).toFixed(3);
+      ticks += `<span class="tick" style="left:${left}%">${x < 1000 ? `${x}ms` : `${x / 1000}s`}</span>`;
+      grid += `<span class="gridline" style="left:${left}%"></span>`;
+    }
+    $("ticks").innerHTML = ticks;
+    $("grid").innerHTML = grid;
+
+    $("rows").innerHTML = rows.map((r) =>
+      `<li class="row" data-state="queued" data-tone="${TONE[r.kind] || ""}" style="--p:0;--c:${COLOR[r.kind]}">
+         <div class="label" style="padding-left:${r.depth * 18}px">${r.depth ? '<span class="guide"></span>' : ""}
+           <svg class="ic" viewBox="0 0 16 16" aria-hidden="true">${ICON[r.kind]}</svg><span class="t">${esc(r.label)}</span></div>
+         <div class="lane"><div class="bar" style="left:${(r.start / total) * 100}%;width:${((r.end - r.start) / total) * 100}%"><span class="fill"></span></div></div>
+         <div class="meta"><span class="d"></span><span class="ms"></span></div>
+       </li>`).join("");
+    rowEls = Array.from($("rows").children, (el) => ({ el, d: el.querySelector(".d"), ms: el.querySelector(".ms"), state: "queued" }));
+
+    $("compare").innerHTML = [["naive", "naive retry"], ["idempotency@tier1", "idempotency key"], ["durable@tier1", "durable execution"], [`gate@tier${tier}`, "interlock"]]
+      .map(([k, name]) => {
+        const c = results[k];
+        const cls = c.caveat ? "warn" : c.invariant_held ? "ok" : "bad";
+        return `<span class="chip ${cls}"><svg viewBox="0 0 12 12" aria-hidden="true">${MARK[cls]}</svg>${esc(name)} ${esc(c.refunded)}</span>`;
+      }).join("");
+    $("rail").setAttribute("aria-valuemax", String(Math.round(total)));
+  }
+
+  function paint() {
+    $("trace").style.setProperty("--t", (t / total).toFixed(5));
+    const passed = [];
+    rows.forEach((r, i) => {
+      const h = rowEls[i];
+      const dur = r.end - r.start;
+      const p = dur > 0 ? Math.min(1, Math.max(0, (t - r.start) / dur)) : t >= r.start ? 1 : 0;
+      const state = t < r.start ? "queued" : p < 1 ? "running" : "done";
+      if (h.state !== state) { h.el.dataset.state = state; h.state = state; }
+      h.el.style.setProperty("--p", p.toFixed(4));
+      h.ms.textContent = state === "queued" ? "" : fmt(dur * p);
+      h.d.textContent = state === "done" ? r.detail : "";
+      if (state === "done" && r.entry) passed.push(r.entry.kind);
+    });
+
+    const done = t >= total;
+    $("trace").dataset.run = done ? "complete" : "running";
+    $("pill").textContent = done ? "Completed" : "Running";
+    $("clock").textContent = `${(t / 1000).toFixed(2)}s / ${(total / 1000).toFixed(2)}s`;
+    $("rail").setAttribute("aria-valuenow", String(Math.round(t)));
+    $("rail").setAttribute("aria-valuetext", `${fmt(t)} of ${fmt(total)}`);
+
+    // Same rules as Journal.receipt(): executed is what the target confirmed, not what was attempted.
+    const has = (k) => passed.includes(k);
+    const unresolved = has("AMBIGUOUS") || passed[passed.length - 1] === "DISPATCHED";
+    const executed = has("COMMITTED") ? true : unresolved ? "unknown" : false;
+    const facts = [["proposed", has("PROPOSED")], ["authorized", has("AUTHORIZED")], ["executed", executed], ["recorded", has("COMMITTED")]];
+    const final = has("COMMITTED") ? "COMMITTED" : has("AMBIGUOUS") ? "AMBIGUOUS" : passed[passed.length - 1] || "none";
+    $("receipt").innerHTML = facts.map(([k, v]) => `<dt>${k}</dt><dd class="${v === true ? "yes" : "no"}">${v}</dd>`).join("")
+      + `<dt>final</dt><dd>${esc(final)}</dd>`;
+
+    $("refunded").textContent = done ? cell.refunded : "...";
+    $("verdict").textContent = done
+      ? `${cell.invariant_held ? (cell.caveat ? "Invariant held, availability lost." : "Invariant held.") : "Invariant violated."} Expected ${cell.expected}. Outcome: ${cell.outcome.replace(/_/g, " ").toLowerCase()}.`
+      : "Replaying the journal.";
+  }
+
+  function frame(now) {
+    raf = 0;
+    const dt = Math.min(now - (last || now), 100);
+    last = now;
+    t = Math.min(total, t + dt);
+    paint();
+    if (t >= total) { setPlaying(false); return; }
+    if (playing) raf = requestAnimationFrame(frame);
+  }
+
+  function setPlaying(on) {
+    playing = on;
+    $("play").innerHTML = on ? PAUSE : PLAY;
+    $("play").setAttribute("aria-label", on ? "Pause replay" : "Play replay");
+    if (on && !raf) { last = 0; raf = requestAnimationFrame(frame); }
+    if (!on && raf) { cancelAnimationFrame(raf); raf = 0; }
+  }
+
+  $("play").addEventListener("click", () => {
+    if (!playing && t >= total) t = 0;
+    setPlaying(!playing);
+  });
+
+  const seekTo = (ms) => { t = Math.min(total, Math.max(0, ms)); paint(); };
+  function scrubbable(el, inset) {
+    const at = (x) => { const r = el.getBoundingClientRect(); const w = r.width - inset * 2; if (w > 0) seekTo(((x - r.left - inset) / w) * total); };
+    el.addEventListener("pointerdown", (e) => { el.setPointerCapture(e.pointerId); setPlaying(false); at(e.clientX); });
+    el.addEventListener("pointermove", (e) => { if (el.hasPointerCapture(e.pointerId)) at(e.clientX); });
+    el.addEventListener("pointerup", (e) => { if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId); });
+  }
+  scrubbable($("rail"), 6);
+  scrubbable($("ticks"), 0);
+  scrubbable($("lane-scrub"), 0);
+
+  $("rail").addEventListener("keydown", (e) => {
+    const s = total / 50;
+    const delta = { ArrowRight: s, ArrowUp: s, ArrowLeft: -s, ArrowDown: -s, PageUp: s * 10, PageDown: -s * 10 }[e.key];
+    if (e.key === "Home") seekTo(0);
+    else if (e.key === "End") seekTo(total);
+    else if (delta !== undefined) seekTo(t + delta);
+    else return;
+    e.preventDefault();
+    setPlaying(false);
+  });
+
+  function select(f, tr) {
+    fault = f; tier = tr;
+    for (const b of $("faults").children) b.setAttribute("aria-pressed", String(b.dataset.f === f));
+    for (const b of $("tiers").children) b.setAttribute("aria-pressed", String(Number(b.dataset.tier) === tr));
+    $("fault-title").textContent = f;
+    $("fault-desc").textContent = D.faults[f];
+    setPlaying(false);
+    load();
+    t = reduce ? total : 0;
+    paint();
+    if (!reduce) setPlaying(true);
+  }
+
+  select(fault, tier);
+})();
+</script>
+</body>
+</html>

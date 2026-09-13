@@ -59,15 +59,22 @@ class Journal:
         return [eid for eid, k in last.items() if k == "DISPATCHED"]
 
     def receipt(self, effect_id):
-        """The four facts, as one inspectable object."""
+        """
+        The four facts, as one inspectable object. `executed` is what the target
+        confirmed, not what was attempted: True once COMMITTED, "unknown" while a crash
+        left it in flight or it is AMBIGUOUS, False otherwise. `final` describes the
+        effect, so a later refused re-proposal doesn't hide a committed refund.
+        """
         kinds = [e["kind"] for e in self.entries(effect_id)]
+        committed, ambiguous = "COMMITTED" in kinds, "AMBIGUOUS" in kinds
+        unresolved = ambiguous or (bool(kinds) and kinds[-1] == "DISPATCHED")
         return {
             "effect_id": effect_id,
             "proposed":   "PROPOSED"   in kinds,
             "authorized": "AUTHORIZED" in kinds,
-            "executed":   "DISPATCHED" in kinds,
-            "recorded":   "COMMITTED"  in kinds,
-            "final":      kinds[-1] if kinds else None,
+            "executed":   True if committed else "unknown" if unresolved else False,
+            "recorded":   committed,
+            "final":      "COMMITTED" if committed else "AMBIGUOUS" if ambiguous else (kinds[-1] if kinds else None),
         }
 
 

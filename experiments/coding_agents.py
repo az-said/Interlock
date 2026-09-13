@@ -18,6 +18,7 @@ import os, shutil, subprocess, sys, tempfile
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from interlock import Gate, Naive, Leases, SimulatedCrash
 from interlock.targets import LocalRepo
+from interlock.targets.repo import _read, _write
 
 BASE_AUTH  = "def validate_session(token):\n    return token == 'ok'\n"
 BASE_API   = "import auth\n"
@@ -38,13 +39,13 @@ FAULTS = {
 
 def _fresh():
     d = tempfile.mkdtemp()
-    open(f"{d}/auth.py", "w").write(BASE_AUTH)
-    open(f"{d}/api.py", "w").write(BASE_API)
-    open(f"{d}/utils.py", "w").write(BASE_UTILS)
+    _write(f"{d}/auth.py", BASE_AUTH)
+    _write(f"{d}/api.py", BASE_API)
+    _write(f"{d}/utils.py", BASE_UTILS)
     return d
 
 def _state(d):
-    if "def require_auth" not in open(f"{d}/api.py").read():
+    if "def require_auth" not in _read(f"{d}/api.py"):
         return "not_landed"
     r = subprocess.run([sys.executable, "-c",
         "import api; assert api.require_auth({'token':'ok'}) is True"],
@@ -79,7 +80,7 @@ def run(system, mode, fault):
             held_by = s.claim("B", "utils.format_currency")          # B is told A holds it
         s.submit(A)
         out = s.submit(B) if system == "naive" or held_by is None else f"REFUSED:claimed_by_{held_by}"
-        n = open(f"{d}/utils.py").read().count("def format_currency")
+        n = _read(f"{d}/utils.py").count("def format_currency")
         shutil.rmtree(d)
         return {"outcome": out, "result": f"{n} impl", "duplicated": n > 1, "invariant_held": n == 1, "caveat": ""}
 
@@ -100,7 +101,7 @@ def run(system, mode, fault):
         leases.revoke("L-B"); out = s.submit(B)
 
     state = _state(d)
-    dup = open(f"{d}/api.py").read().count("def require_auth") > 1
+    dup = _read(f"{d}/api.py").count("def require_auth") > 1
     shutil.rmtree(d)
     held = state != "landed_BROKEN" and not dup and not (fault == "lease_revoked" and state != "not_landed")
     caveat = "false_refusal" if (fault == "benign_reformat" and state == "not_landed") else ""

@@ -25,10 +25,23 @@ What we read, in the order that made it make sense, and what each one hands you.
 13. **The Transaction Concept: Virtues and Limitations.** Jim Gray, 1981. Where "commit" comes from.
 14. **How to Talk to Users.** Eric Migicovsky, YC. Not a paper. Watch before interviewing anyone.
 
+## Tier 4: published this summer, closest to us
+
+15. **From Version Conflicts to Decision Conflicts: Selective Revalidation for Long-Running AI Agents (ATR).** Lyu et al., Huawei, Sept 2026. arXiv 2609.08015. Typed premises and selective re-checks, with a refund agent as the example. Excludes crashes. Code: github.com/ezreal13/atr-decision-validation.
+16. **Cordon: Semantic Transactions for Tool-Using LLM Agents.** Chen et al., Tsinghua, EuroSys 27. arXiv 2606.17573. Effect outbox; unproven dispatches go to an audit state. Our tier 3, from the security side.
+17. **Engineering Reliable Commit Gates for Agentic AI.** Zheng et al., WashU and SMU, Sept 2026. arXiv 2609.10969. Verifier portfolios; after-check races need atomic guards.
+18. **SagaLLM.** VLDB. arXiv 2503.11951. Sagas plus independent validation agents for multi-agent planning.
+19. **Agentic Transaction: Towards ACID-Compliant Agent Systems.** arXiv 2608.13900. Semantic atomicity, consistency, isolation, durability.
+20. **Verified Detection and Prevention of Concurrency Anomalies in Multi-Agent LLM Systems.** Khan, June 2026. arXiv 2606.17182. TLA+ isolation levels for agents; the formal cousin of the coding-agent experiment.
+21. **Before the Tool Call: Deterministic Pre-Action Authorization for Autonomous AI Agents.** Uchibeke, APort, March 2026. arXiv 2603.20953. Fail-closed policy checks; no state freshness.
+
 ## Things to know, not read
 
 - MCP has no idempotency or transactional contract. Tools can't declare their tier.
 - Temporal activities are at-least-once by default.
+- DBOS steps and Restate `ctx.run` are at-least-once if the process dies after the call and before the result is saved. Their docs hand idempotency back to you.
+- LangGraph resume re-runs the whole node, not the next line.
+- Stripe rejects a refund on a fully refunded charge (`charge_already_refunded`). Partial refunds get no such protection, which is why experiment 1 uses one.
 - Stripe idempotency keys expire after 24 hours.
 - LangGraph checkpoints state; it doesn't govern effects.
 - `git merge` checks text. CI checks the branch alone. Nothing checks premises.

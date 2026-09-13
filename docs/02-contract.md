@@ -14,7 +14,9 @@ Given a journal `J`, an effect target `T` with declared tier, and a lease store 
 ## Progress
 
 - Any proposal whose premises hold and whose lease is live reaches `COMMITTED`.
-- After a crash, `recover()` resolves every in-flight effect (latest entry `DISPATCHED`) to exactly one of `COMMITTED` or `AMBIGUOUS`. It never re-applies without either idempotency (tier 1) or a positive query result (tier 2).
+- After a crash, `recover()` resolves every in-flight effect (latest entry `DISPATCHED`) to exactly one of `COMMITTED`, `REFUSED`, or `AMBIGUOUS`. It never re-applies without either idempotency inside the provider's dedup window (tier 1) or a query showing the effect is absent (tier 2).
+- **I3 and I4 hold on the recovery path.** A resend is a new dispatch, so the lease and premises are re-checked first. The outage is exactly when the world moves: support refunds the order by hand, or the grant is revoked. If the re-check fails, the gate commits only what a query proves already landed, and refuses or marks `AMBIGUOUS` otherwise.
+- **No resend of an unresolved effect.** Submitting an effect whose latest entry is `DISPATCHED` returns `IN_FLIGHT` and writes nothing, so recovery still finds it. Submitting an `AMBIGUOUS` effect again returns `AMBIGUOUS`. Only `recover()` or a human reconciliation resolves either; a duplicate delivery never does.
 
 ## What the gate is allowed to do when it cannot establish the condition
 
@@ -36,12 +38,15 @@ Faults are injected at the boundaries the brief names:
 | concurrent actor invalidates a premise | partition-like divergence between decision snapshot and world |
 | concurrent actor makes a benign change | control for availability |
 | concurrent actor changes meaning, not signature | the class outside the guarantee |
+| a human performs the effect by hand during the outage | premise change on the recovery path |
+| lease revoked during the outage | permission change on the recovery path |
+| recovery runs after the provider's dedup window | tier 1 degrading to tier 2 |
 
 ## Cooperation ladder
 
 | tier | target offers | guarantee on crash-before-ack |
 |---|---|---|
-| 1 | dedup on effect id | exactly-once effect, safe retry |
+| 1 | dedup on effect id, for a window (Stripe: 24h) | exactly-once effect, safe retry inside the window; after it, tier 2 if the target can be queried, else tier 3 |
 | 2 | lookup by effect id | exactly-once effect, one extra read |
 | 3 | neither | at-most-once; `AMBIGUOUS` surfaced; liveness lost for that effect |
 
@@ -49,10 +54,11 @@ Tier 3 is an impossibility result, not a bug: two distinct real histories (sent-
 
 ## Baselines
 
-Two, because the brief says match evidence to the claim and the team spec says superiority must be measured, not assumed:
+Three, because the brief says match evidence to the claim and the team spec says superiority must be measured, not assumed:
 
 - **naive**: re-run the workflow, fresh attempt id each time, re-ask the model. Today's frameworks.
 - **idempotency-only**: the conventional durable operation. A stable key at a cooperating service, no runtime. "Just use Stripe idempotency keys." This baseline handles crash, duplicate delivery, and payload conflicts *at the service*. It cannot handle a revoked lease or a changed premise, because the service cannot see either. The difference between this column and the gate columns is the runtime's measured contribution.
+- **durable execution**: Temporal, DBOS, or Restate used as their docs recommend, against a tier-1 target. A completed step's result is recorded and replayed; a step that dies before its result is recorded is re-run with a stable idempotency key. This handles crash, duplicate delivery, and a re-decided payload by replaying history. It cannot handle anything that changed after the decision was recorded, because it replays the decision instead of re-checking it.
 
 ## Assumptions
 
@@ -61,6 +67,7 @@ Two, because the brief says match evidence to the claim and the team spec says s
 - `T.validate_premises` and `T.query` are correct for the target. A target that lies about its own state is outside the model.
 - Effect ids are derived from decision content. Two genuinely different decisions that hash identically are outside the model (SHA-256 truncated to 48 bits in this demo; use the full digest in production).
 - Single journal, single gate. Multiple gates over one target need a shared journal or a notary.
+- The target declares its dedup window (`dedup_window`) and whether it can be queried (`queryable`). A provider that shortens its window without saying so is outside the model.
 
 ## Outside the contract
 

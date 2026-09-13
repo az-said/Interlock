@@ -15,11 +15,15 @@ from ..gate import SimulatedCrash
 
 
 class Payments:
+    dedup_window = 24 * 3600                        # Stripe prunes idempotency keys after 24h
+
     def __init__(self, tier):
         assert tier in (1, 2, 3)
         self.tier = tier
+        self.queryable = tier in (1, 2)             # refunds can be listed and matched by reference
         self.orders = {}
         self.refunds = []
+        self.dedup_keys = set()                     # tier 1 only; prune_keys() models expiry
 
     def create_order(self, order_id, amount, eligible=True):
         self.orders[order_id] = {"amount": amount, "eligible": eligible}
@@ -35,21 +39,29 @@ class Payments:
 
     def capture(self, order_id):
         o = self.orders[order_id]
-        return {"order": order_id, "eligible": o["eligible"], "amount": o["amount"]}
+        return {"order": order_id, "eligible": o["eligible"], "amount": o["amount"],
+                "refunded": self.refunded_total(order_id)}
 
-    def validate_premises(self, premises):
+    def validate_premises(self, premises, eid=None):
         o = self.orders.get(premises["order"])
         if o is None:                               return ["order gone"]
         if o["eligible"] != premises["eligible"]:   return ["eligibility changed"]
         if o["amount"] != premises["amount"]:       return ["amount changed"]
+        others = sum(r["amount"] for r in self.refunds_for(premises["order"]) if r["eid"] != eid)
+        if others != premises.get("refunded", others): return ["refunded elsewhere since decision"]
         return []
+
+    def prune_keys(self):
+        """The provider's dedup window passed. Refunds stay listable; retries are new requests."""
+        self.dedup_keys.clear()
 
     def apply(self, eid, effect, crash_after_effect=False):
         if self.tier == 1:
-            prior = [r for r in self.refunds if r["eid"] == eid]
-            if prior:                                                # server-side dedup, Stripe-style:
-                same = {k: v for k, v in prior[0].items() if k != "eid"} == effect
+            if eid in self.dedup_keys:                               # server-side dedup, Stripe-style:
+                prior = next(r for r in self.refunds if r["eid"] == eid)
+                same = {k: v for k, v in prior.items() if k != "eid"} == effect
                 return {"status": "already_processed" if same else "key_reused_with_different_params"}
+            self.dedup_keys.add(eid)
         self.refunds.append({"eid": eid, **effect})
         if crash_after_effect:
             raise SimulatedCrash(eid)                                 # ack lost

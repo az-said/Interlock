@@ -54,6 +54,12 @@ refunded (or $0 if the lease was revoked or the order became ineligible first).
   (the service rejects a reused key with different params). It does **not** handle a
   revoked lease or a changed order, because the service can't see the agent's authority
   or premises. That gap is exactly what the runtime adds.
+- **durable@tier1** is Temporal, DBOS or Restate used as their docs recommend: completed
+  step results replay, a crashed step re-runs with a stable idempotency key, against a
+  Stripe-grade target. It ties the gate on crashes, duplicates and the re-decided $30,
+  because replaying recorded history is exactly what it is for. It fails every row where
+  the world changed after the decision, because it replays the decision instead of
+  re-checking it.
 - **gate@tier1** (API dedupes on the effect id): every fault handled, including crash,
   by a safe retry. Exactly-once effect.
 - **gate@tier2** (API has a lookup): every fault handled; the crash is resolved by
@@ -67,6 +73,12 @@ refunded (or $0 if the lease was revoked or the order became ineligible first).
   lost" is indistinguishable from "never arrived". No protocol closes it without
   the target's cooperation. What the gate can still promise at tier 3 is at-most-once
   plus a surfaced ambiguity for a human or a later reconciliation job.
+- **The last three rows are the recovery path.** While the agent was down, support
+  refunded the order by hand, or the refund permission was revoked, or 24 hours passed
+  and the provider forgot the idempotency key. A key only matches the same request, so
+  the idempotency baseline refunds twice or refunds without authority. The gate
+  re-checks lease and premises before it sends anything again, and after the dedup
+  window it treats tier 1 as a lookup, not a safe retry.
 """
 json.dump(r1, open(f"{OUT}/refund_agent.json", "w"), indent=2)
 open(f"{OUT}/refund_agent.md", "w").write(md1)
