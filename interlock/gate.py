@@ -32,8 +32,8 @@ Invariants (the correctness contract):
         to COMMITTED, REFUSED or AMBIGUOUS, re-checks lease and premises before any
         resend (the outage is when the world moves), and never re-applies blindly
 """
-import time
-from .journal import Journal, effect_id_for
+import os, socket, time, uuid
+from .journal import effect_id_for, open_dispatch, open_journal
 
 
 class SimulatedCrash(Exception):
@@ -41,10 +41,16 @@ class SimulatedCrash(Exception):
 
 
 class Gate:
+    """
+    `journal_path` ending in .db / .sqlite shares one SQLite journal across workers:
+    an effect is dispatched by exactly one of them and recovered by exactly one of them.
+    Any other path is a JSONL file, safe across processes on one machine.
+    """
     def __init__(self, target, journal_path, leases):
         self.target = target
-        self.journal = Journal(journal_path)
+        self.journal = open_journal(journal_path)
         self.leases = leases
+        self.owner = f"{socket.gethostname()}:{os.getpid()}:{uuid.uuid4().hex[:6]}"
         self.claims = {}                       # symbol -> agent holding an unreleased claim
 
     def claim(self, agent, symbol):
@@ -61,8 +67,9 @@ class Gate:
 
     def submit(self, proposal, crash_after_effect=False, crash_before_effect=False):
         eid = effect_id_for(proposal)
-        kinds = [e["kind"] for e in self.journal.entries(eid)]
-        if kinds and kinds[-1] == "DISPATCHED":                         # crashed mid-effect: recover() decides, a resend
+        prior = self.journal.entries(eid)
+        kinds = [e["kind"] for e in prior]
+        if open_dispatch(prior):                                        # crashed mid-effect: recover() decides, a resend
             return "IN_FLIGHT"                                          # doesn't; journal nothing, or recovery loses it
 
         recorded = self.journal.recorded_effect(eid)
@@ -97,7 +104,9 @@ class Gate:
             self.journal.append("REFUSED", eid, reason=violated)
             return "REFUSED:stale_premise"
 
-        self.journal.append("DISPATCHED", eid, effect=proposal["effect"])   # I1
+        if not self.journal.dispatch(eid, proposal["effect"]):              # I1, atomic across workers
+            kinds = [e["kind"] for e in self.journal.entries(eid)]          # another worker got there first
+            return "DUPLICATE_IGNORED" if "COMMITTED" in kinds else "AMBIGUOUS" if "AMBIGUOUS" in kinds else "IN_FLIGHT"
         if crash_before_effect:
             raise SimulatedCrash(eid)          # in-flight marker written, request never sent
         self.target.apply(eid, proposal["effect"], crash_after_effect)  # may raise SimulatedCrash
@@ -113,7 +122,7 @@ class Gate:
         premises = next(e["premises"] for e in es if e["kind"] == "PROPOSED")
         return "stale_premise" if self.target.validate_premises(premises, eid) else None
 
-    def recover(self, now=None):
+    def recover(self, now=None, only=None):
         """
         After a crash. For each DISPATCHED-without-COMMITTED, act by tier.
         This is where the guarantee either holds or is honestly lost.
@@ -122,12 +131,22 @@ class Gate:
         down a human may have refunded the order by hand, or the grant may be gone.
         Tier 1 is only tier 1 inside the provider's dedup window (Stripe: 24h); after
         it, a retry is a new request, so fall back to a lookup or to AMBIGUOUS.
+
+        Each effect is claimed first, so when several workers recover at once exactly one
+        of them resolves it. `only` limits recovery to the given effect ids.
         """
         now = time.time() if now is None else now
         queryable = getattr(self.target, "queryable", self.target.tier == 2)
         out = {}
         for eid in self.journal.in_flight():
-            d = [e for e in self.journal.entries(eid) if e["kind"] == "DISPATCHED"][-1]
+            if only is not None and eid not in only:
+                continue
+            if not self.journal.claim(eid, self.owner):
+                continue                                        # another worker is recovering it
+            es = self.journal.entries(eid)
+            if not open_dispatch(es):
+                continue                                        # resolved while we were claiming
+            d = [e for e in es if e["kind"] == "DISPATCHED"][-1]
             effect, tier = d["effect"], self.target.tier
             if tier == 1 and now - d["ts"] > getattr(self.target, "dedup_window", float("inf")):
                 tier = 2 if queryable else 3                    # provider forgot the key
@@ -147,7 +166,7 @@ class Gate:
                 self.journal.append("COMMITTED", eid, via="recovery-query")
                 out[eid] = "COMMITTED_ON_QUERY"
             elif stale:
-                self.journal.append("REFUSED", eid, reason=f"{stale} at recovery")
+                self.journal.append("REFUSED", eid, reason=f"{stale} at recovery", resolves=True)
                 out[eid] = f"REFUSED:{stale}_at_recovery"
             else:
                 self.target.apply(eid, effect)

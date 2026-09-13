@@ -4,7 +4,7 @@
 Every claim in the README, as an assertion, plus a randomized fault sweep and the
 three-line integration. If a table in results/ and these tests disagree, the table is wrong.
 """
-import os, random, sys, tempfile, time, unittest
+import os, random, sys, tempfile, threading, time, unittest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path[:0] = [ROOT, os.path.join(ROOT, "experiments")]
 from interlock import Gate, Interlock, Leases, SimulatedCrash
@@ -136,6 +136,65 @@ class Receipts(unittest.TestCase):
             with self.assertRaises(ValueError):
                 StripeClient(key)
         StripeClient("sk_test_abc")
+
+
+class SlowPayments(Payments):
+    """Widens the race window so concurrent workers really overlap."""
+    def apply(self, eid, effect, crash_after_effect=False):
+        time.sleep(0.02)
+        return super().apply(eid, effect, crash_after_effect)
+
+
+class SharedJournal(unittest.TestCase):
+    """Several workers over one journal, both backends: one dispatch, one recovery."""
+
+    def journals(self):
+        d = tempfile.mkdtemp()
+        return [os.path.join(d, "journal.jsonl"), os.path.join(d, "journal.db")]
+
+    def setup_world(self):
+        api = SlowPayments(2)
+        api.create_order("881", 100)
+        leases = Leases()
+        leases.grant("L")
+        P = {"agent": "bot", "lease": "L", "request_id": "case-4471",
+             "premises": api.capture("881"), "effect": {"order": "881", "amount": 20}}
+        return api, leases, P
+
+    def run_threads(self, fn, n=8):
+        threads = [threading.Thread(target=fn) for _ in range(n)]
+        for t in threads: t.start()
+        for t in threads: t.join()
+
+    def test_concurrent_submits_dispatch_once(self):
+        for path in self.journals():
+            with self.subTest(journal=os.path.basename(path)):
+                api, leases, P = self.setup_world()
+                outs = []
+                self.run_threads(lambda: outs.append(Gate(api, path, leases).submit(P)))
+                self.assertEqual(api.refunded_total("881"), 20, outs)
+                self.assertEqual(outs.count("COMMITTED"), 1, outs)
+
+    def test_concurrent_recovery_resolves_once(self):
+        for path in self.journals():
+            with self.subTest(journal=os.path.basename(path)):
+                api, leases, P = self.setup_world()
+                with self.assertRaises(SimulatedCrash):
+                    Gate(api, path, leases).submit(P, crash_before_effect=True)
+                outs = []
+                self.run_threads(lambda: outs.append(Gate(api, path, leases).recover()))
+                self.assertEqual(api.refunded_total("881"), 20, outs)
+                self.assertEqual(sum(len(o) for o in outs), 1, outs)
+                receipt = Gate(api, path, leases).receipt(P)
+                self.assertEqual((receipt["final"], receipt["authority"]), ("COMMITTED", "L"))
+
+    def test_recover_only_touches_named_effects(self):
+        api, leases, P = self.setup_world()
+        path = self.journals()[1]
+        with self.assertRaises(SimulatedCrash):
+            Gate(api, path, leases).submit(P, crash_before_effect=True)
+        self.assertEqual(Gate(api, path, leases).recover(only=["someone-else"]), {})
+        self.assertEqual(api.refunded_total("881"), 0)
 
 
 class ThreeLineIntegration(unittest.TestCase):

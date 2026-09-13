@@ -43,7 +43,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.433685,
+      "ts": 1789319022.0077288,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -59,13 +59,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.433822,
+      "ts": 1789319022.007853,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.433986,
+      "ts": 1789319022.008055,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -74,7 +74,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.434067,
+      "ts": 1789319022.008186,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0"
      }
@@ -88,7 +88,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.4344268,
+      "ts": 1789319022.0087512,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -104,13 +104,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.4345222,
+      "ts": 1789319022.008904,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.434598,
+      "ts": 1789319022.0090911,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -119,7 +119,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.434688,
+      "ts": 1789319022.009173,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0"
      }
@@ -133,7 +133,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.434965,
+      "ts": 1789319022.009681,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -149,13 +149,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.435046,
+      "ts": 1789319022.009791,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.435113,
+      "ts": 1789319022.0099552,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -164,7 +164,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.4351711,
+      "ts": 1789319022.010025,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0"
      }
@@ -201,7 +201,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.435464,
+      "ts": 1789319022.010442,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -217,13 +217,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.435539,
+      "ts": 1789319022.0105631,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.435599,
+      "ts": 1789319022.0107598,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -232,7 +232,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.43576,
+      "ts": 1789319022.011168,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "via": "retry-idempotent"
@@ -247,7 +247,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.435978,
+      "ts": 1789319022.011522,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -263,13 +263,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.436052,
+      "ts": 1789319022.0116491,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.436109,
+      "ts": 1789319022.01178,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -278,7 +278,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.436259,
+      "ts": 1789319022.012127,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "via": "recovery-reapply"
@@ -293,7 +293,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.4364731,
+      "ts": 1789319022.0124931,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -309,13 +309,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.436532,
+      "ts": 1789319022.012588,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.436598,
+      "ts": 1789319022.012737,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -324,7 +324,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.436756,
+      "ts": 1789319022.0130272,
       "kind": "AMBIGUOUS",
       "effect_id": "6b6f07d3ceb0"
      }
@@ -361,7 +361,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.4371,
+      "ts": 1789319022.013555,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -377,13 +377,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.437205,
+      "ts": 1789319022.013661,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.4373062,
+      "ts": 1789319022.0138009,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -392,7 +392,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.4375129,
+      "ts": 1789319022.014136,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "via": "retry-idempotent"
@@ -407,7 +407,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.4377952,
+      "ts": 1789319022.0145001,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -423,13 +423,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.4379,
+      "ts": 1789319022.014614,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.4379609,
+      "ts": 1789319022.014739,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -438,7 +438,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.438137,
+      "ts": 1789319022.0150661,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "via": "recovery-query"
@@ -453,7 +453,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.438424,
+      "ts": 1789319022.015413,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -469,13 +469,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.438506,
+      "ts": 1789319022.0154948,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.43858,
+      "ts": 1789319022.015619,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -484,7 +484,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.438729,
+      "ts": 1789319022.0158951,
       "kind": "AMBIGUOUS",
       "effect_id": "6b6f07d3ceb0"
      }
@@ -521,7 +521,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.439028,
+      "ts": 1789319022.016269,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -537,13 +537,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.439102,
+      "ts": 1789319022.0163999,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.4391649,
+      "ts": 1789319022.0165272,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -552,7 +552,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.439243,
+      "ts": 1789319022.016588,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0"
      }
@@ -566,7 +566,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.439617,
+      "ts": 1789319022.017004,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -582,13 +582,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.439699,
+      "ts": 1789319022.017091,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.439759,
+      "ts": 1789319022.0172281,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -597,7 +597,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.439819,
+      "ts": 1789319022.017289,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0"
      }
@@ -611,7 +611,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.4401011,
+      "ts": 1789319022.0177238,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -627,13 +627,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.440171,
+      "ts": 1789319022.0178251,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.440224,
+      "ts": 1789319022.017942,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -642,7 +642,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.4402828,
+      "ts": 1789319022.0180008,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0"
      }
@@ -679,7 +679,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.440628,
+      "ts": 1789319022.018465,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -695,13 +695,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.4406998,
+      "ts": 1789319022.0185769,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.440757,
+      "ts": 1789319022.0186949,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -710,13 +710,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.44092,
+      "ts": 1789319022.01902,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "via": "retry-idempotent"
      },
      {
-      "ts": 1789317628.441049,
+      "ts": 1789319022.0191948,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -732,7 +732,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.441108,
+      "ts": 1789319022.0192692,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "reason": "payload differs from recorded decision",
@@ -755,7 +755,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.441346,
+      "ts": 1789319022.019597,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -771,13 +771,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.4414248,
+      "ts": 1789319022.019682,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.441492,
+      "ts": 1789319022.0198,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -786,13 +786,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.4416552,
+      "ts": 1789319022.020117,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "via": "recovery-query"
      },
      {
-      "ts": 1789317628.441782,
+      "ts": 1789319022.0202932,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -808,7 +808,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.4418392,
+      "ts": 1789319022.02037,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "reason": "payload differs from recorded decision",
@@ -831,7 +831,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.4420621,
+      "ts": 1789319022.020701,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -847,13 +847,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.442136,
+      "ts": 1789319022.0207849,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.4422,
+      "ts": 1789319022.020907,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -862,12 +862,12 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.4423199,
+      "ts": 1789319022.021176,
       "kind": "AMBIGUOUS",
       "effect_id": "6b6f07d3ceb0"
      },
      {
-      "ts": 1789317628.4424372,
+      "ts": 1789319022.02135,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -883,7 +883,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.442493,
+      "ts": 1789319022.021417,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "reason": "payload differs from recorded decision",
@@ -929,7 +929,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.442762,
+      "ts": 1789319022.0217779,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -945,13 +945,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.442827,
+      "ts": 1789319022.021887,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.442881,
+      "ts": 1789319022.0220108,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -960,12 +960,12 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.442933,
+      "ts": 1789319022.0220668,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0"
      },
      {
-      "ts": 1789317628.44308,
+      "ts": 1789319022.0222359,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -981,7 +981,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.443147,
+      "ts": 1789319022.022312,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "reason": "payload differs from recorded decision",
@@ -1004,7 +1004,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.443378,
+      "ts": 1789319022.02272,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1020,13 +1020,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.4434402,
+      "ts": 1789319022.022816,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.4434938,
+      "ts": 1789319022.022954,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -1035,12 +1035,12 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.443545,
+      "ts": 1789319022.0230138,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0"
      },
      {
-      "ts": 1789317628.443659,
+      "ts": 1789319022.0232,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1056,7 +1056,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.4437099,
+      "ts": 1789319022.023276,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "reason": "payload differs from recorded decision",
@@ -1079,7 +1079,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.443925,
+      "ts": 1789319022.023663,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1095,13 +1095,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.443999,
+      "ts": 1789319022.023753,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.4440598,
+      "ts": 1789319022.023881,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -1110,12 +1110,12 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.444126,
+      "ts": 1789319022.023938,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0"
      },
      {
-      "ts": 1789317628.444263,
+      "ts": 1789319022.024145,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1131,7 +1131,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.44432,
+      "ts": 1789319022.024226,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "reason": "payload differs from recorded decision",
@@ -1177,7 +1177,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$0",
     "journal": [
      {
-      "ts": 1789317628.444577,
+      "ts": 1789319022.024647,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1193,7 +1193,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.4446452,
+      "ts": 1789319022.024777,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "reason": "lease not live"
@@ -1208,7 +1208,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$0",
     "journal": [
      {
-      "ts": 1789317628.4449291,
+      "ts": 1789319022.0252202,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1224,7 +1224,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.445013,
+      "ts": 1789319022.025333,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "reason": "lease not live"
@@ -1239,7 +1239,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$0",
     "journal": [
      {
-      "ts": 1789317628.445268,
+      "ts": 1789319022.025704,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1255,7 +1255,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.4453351,
+      "ts": 1789319022.0257962,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "reason": "lease not live"
@@ -1293,7 +1293,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$0",
     "journal": [
      {
-      "ts": 1789317628.445668,
+      "ts": 1789319022.026179,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1309,13 +1309,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.445771,
+      "ts": 1789319022.026272,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.445844,
+      "ts": 1789319022.026348,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "reason": [
@@ -1332,7 +1332,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$0",
     "journal": [
      {
-      "ts": 1789317628.4461231,
+      "ts": 1789319022.026706,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1348,13 +1348,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.446201,
+      "ts": 1789319022.026816,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.44626,
+      "ts": 1789319022.026894,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "reason": [
@@ -1371,7 +1371,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$0",
     "journal": [
      {
-      "ts": 1789317628.4465542,
+      "ts": 1789319022.0272489,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1387,13 +1387,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.446632,
+      "ts": 1789319022.027363,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.446692,
+      "ts": 1789319022.027484,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "reason": [
@@ -1433,7 +1433,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.446949,
+      "ts": 1789319022.027943,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1449,13 +1449,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.447016,
+      "ts": 1789319022.028037,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.44708,
+      "ts": 1789319022.028172,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -1464,10 +1464,11 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.447288,
+      "ts": 1789319022.0287411,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
-      "reason": "stale_premise at recovery"
+      "reason": "stale_premise at recovery",
+      "resolves": true
      }
     ]
    },
@@ -1479,7 +1480,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.4475589,
+      "ts": 1789319022.02916,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1495,13 +1496,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.447634,
+      "ts": 1789319022.02928,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.4477062,
+      "ts": 1789319022.029409,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -1510,10 +1511,11 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.447922,
+      "ts": 1789319022.029793,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
-      "reason": "stale_premise at recovery"
+      "reason": "stale_premise at recovery",
+      "resolves": true
      }
     ]
    },
@@ -1525,7 +1527,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.4481869,
+      "ts": 1789319022.0301938,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1541,13 +1543,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.448268,
+      "ts": 1789319022.030314,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.4483268,
+      "ts": 1789319022.0304499,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -1556,7 +1558,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.448467,
+      "ts": 1789319022.0307462,
       "kind": "AMBIGUOUS",
       "effect_id": "6b6f07d3ceb0"
      }
@@ -1593,7 +1595,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$0",
     "journal": [
      {
-      "ts": 1789317628.448757,
+      "ts": 1789319022.0311308,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1609,13 +1611,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.448832,
+      "ts": 1789319022.031233,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.448895,
+      "ts": 1789319022.031362,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -1624,10 +1626,11 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.4490392,
+      "ts": 1789319022.0317252,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
-      "reason": "lease at recovery"
+      "reason": "lease at recovery",
+      "resolves": true
      }
     ]
    },
@@ -1639,7 +1642,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$0",
     "journal": [
      {
-      "ts": 1789317628.4492679,
+      "ts": 1789319022.032105,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1655,13 +1658,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.4493408,
+      "ts": 1789319022.032205,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.449398,
+      "ts": 1789319022.03234,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -1670,10 +1673,11 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.449634,
+      "ts": 1789319022.032711,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
-      "reason": "lease at recovery"
+      "reason": "lease at recovery",
+      "resolves": true
      }
     ]
    },
@@ -1685,7 +1689,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$0",
     "journal": [
      {
-      "ts": 1789317628.4499788,
+      "ts": 1789319022.033074,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1701,13 +1705,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.4501078,
+      "ts": 1789319022.033181,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.450175,
+      "ts": 1789319022.033309,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -1716,7 +1720,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.4505339,
+      "ts": 1789319022.0335932,
       "kind": "AMBIGUOUS",
       "effect_id": "6b6f07d3ceb0"
      }
@@ -1753,7 +1757,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.4508631,
+      "ts": 1789319022.0339699,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1769,13 +1773,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.450947,
+      "ts": 1789319022.034067,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.4510112,
+      "ts": 1789319022.034234,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -1784,7 +1788,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.451185,
+      "ts": 1789319022.034585,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "via": "recovery-query"
@@ -1799,7 +1803,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.451422,
+      "ts": 1789319022.034931,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1815,13 +1819,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.451497,
+      "ts": 1789319022.0350149,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.4515562,
+      "ts": 1789319022.035127,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -1830,7 +1834,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.45171,
+      "ts": 1789319022.0354402,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "via": "recovery-query"
@@ -1845,7 +1849,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789317628.451946,
+      "ts": 1789319022.035765,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1861,13 +1865,13 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.452021,
+      "ts": 1789319022.035854,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund"
      },
      {
-      "ts": 1789317628.4520772,
+      "ts": 1789319022.0359738,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -1876,7 +1880,7 @@ window.INTERLOCK_TRACES = {
       }
      },
      {
-      "ts": 1789317628.452203,
+      "ts": 1789319022.036232,
       "kind": "AMBIGUOUS",
       "effect_id": "6b6f07d3ceb0"
      }
