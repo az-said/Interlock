@@ -27,6 +27,7 @@ from temporalio.testing import WorkflowEnvironment
 from temporalio.worker import UnsandboxedWorkflowRunner, Worker
 from interlock import Gate, Leases, SimulatedCrash
 from interlock.targets import Payments
+from interlock.temporal import gated
 
 ORDER, AMOUNT = "881", 20
 FAULTS = {
@@ -63,12 +64,9 @@ def refund_step(run_id: str) -> str:
             raise RuntimeError("worker died before reporting the result")
         return "COMPLETED"
 
-    gate = run["gate"]
-    recovered = gate.recover()
-    if recovered:
-        return list(recovered.values())[0]
     try:
-        return gate.submit(run["proposal"], crash_before_effect=before_send, crash_after_effect=after_effect)
+        return gated(run["gate"], run["proposal"], raise_on_refusal=False,
+                     crash_before_effect=before_send, crash_after_effect=after_effect)
     except SimulatedCrash:
         outage(run)
         raise RuntimeError("worker died mid-effect") from None

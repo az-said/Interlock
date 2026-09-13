@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "interlock-gate"
+version = "0.2.0"
+description = "Receipts for AI agent actions: proof an action happened once, was authorized when it fired, and its assumptions held, even under crashes."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+dependencies = []
+
+[project.optional-dependencies]
+temporal = ["temporalio>=1.0"]
+
+[project.urls]
+Repository = "https://github.com/az-said/Interlock"
+
+[project.scripts]
+interlock-mcp = "interlock.mcp_proxy:main"
+interlock-verify = "interlock.receipts:main"
+
+[tool.setuptools]
+packages = ["interlock", "interlock.targets"]

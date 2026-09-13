@@ -1,6 +1,6 @@
 # Results: durable execution on a real Temporal server
 
-Generated 2026-09-13 16:50 UTC by `experiments/temporal_live.py` with temporalio 1.32.0
+Generated 2026-09-13 17:15 UTC by `experiments/temporal_live.py` with temporalio 1.32.0
 and Temporal's local dev server. The refund step is a Temporal activity; Temporal's retry
 policy schedules every retry. Invariant: exactly $20 refunded, or $0 if the permission
 was revoked or the order became ineligible before the refund landed.

@@ -1,6 +1,6 @@
 # Results: refund agent
 
-Generated 2026-09-13 17:10 UTC by `experiments/run_all.py`. Cells: `outcome · refunds · invariant`. ✅ held · ❌ violated · ⚠️ held, but availability lost.
+Generated 2026-09-13 17:15 UTC by `experiments/run_all.py`. Cells: `outcome · refunds · invariant`. ✅ held · ❌ violated · ⚠️ held, but availability lost.
 
 Customer paid $100. Case #4471 approves one $20 partial refund. Invariant: exactly $20
 refunded (or $0 if the lease was revoked or the order became ineligible first).

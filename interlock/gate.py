@@ -69,6 +69,9 @@ class Gate:
         eid = effect_id_for(proposal)
         prior = self.journal.entries(eid)
         kinds = [e["kind"] for e in prior]
+        # A re-proposal of a recorded decision is checked against the premises it was decided on.
+        # Re-reading the world at retry time would bless a change the decision never saw.
+        decided_on = next((e["premises"] for e in prior if e["kind"] == "PROPOSED"), proposal["premises"])
         if open_dispatch(prior):                                        # crashed mid-effect: recover() decides, a resend
             return "IN_FLIGHT"                                          # doesn't; journal nothing, or recovery loses it
 
@@ -99,7 +102,7 @@ class Gate:
             return "REFUSED:lease"
         self.journal.append("AUTHORIZED", eid, lease=proposal["lease"])
 
-        violated = self.target.validate_premises(proposal["premises"], eid)  # I3
+        violated = self.target.validate_premises(decided_on, eid)          # I3
         if violated:
             self.journal.append("REFUSED", eid, reason=violated)
             return "REFUSED:stale_premise"

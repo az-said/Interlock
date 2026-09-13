@@ -138,6 +138,24 @@ class Receipts(unittest.TestCase):
         StripeClient("sk_test_abc")
 
 
+class Resubmission(unittest.TestCase):
+    def test_retry_after_refusal_is_checked_against_the_original_decision(self):
+        api = Payments(2)
+        api.create_order("881", 100)
+        leases = Leases()
+        leases.grant("L")
+        gate = Gate(api, tempfile.mktemp(suffix=".jsonl"), leases)
+        P = {"agent": "bot", "lease": "L", "request_id": "case-4471",
+             "premises": api.capture("881"), "effect": {"order": "881", "amount": 20}}
+        with self.assertRaises(SimulatedCrash):
+            gate.submit(P, crash_before_effect=True)
+        api.refunds.append({"eid": "dashboard", "order": "881", "amount": 20})    # support refunds by hand
+        self.assertEqual(list(gate.recover().values()), ["REFUSED:stale_premise_at_recovery"])
+        fresh = dict(P, premises=api.capture("881"))                              # agent re-reads the order, retries
+        self.assertEqual(gate.submit(fresh), "REFUSED:stale_premise")
+        self.assertEqual(api.refunded_total("881"), 20)
+
+
 class SlowPayments(Payments):
     """Widens the race window so concurrent workers really overlap."""
     def apply(self, eid, effect, crash_after_effect=False):

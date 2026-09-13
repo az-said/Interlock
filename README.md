@@ -5,7 +5,9 @@
 
 A customer paid $100. A support case approves one $20 partial refund. An AI agent issues it. The service commits the refund; the process dies before the response comes back. On restart, nothing in the system can answer three questions: **did the refund happen? may I retry? was I still allowed to do it?**
 
-Today's answer is a human with two logs and a spreadsheet. Or, worse, the workflow re-runs, the model says "$30" this time, and the customer gets $50. Interlock is a commit gate that answers all three questions mechanically, refuses the $30, and is honest about the one case where nobody can know.
+Today's answer is a human with two logs and a spreadsheet. Or, worse, the workflow re-runs, the model says "$30" this time, and the customer gets $50. **Interlock is a receipt for AI agent actions: proof that an action happened once, was authorized when it fired, and that its assumptions still held, even under crashes.** It answers all three questions mechanically, refuses the $30, and is honest about the one case where nobody can know.
+
+**The goal: let finance teams cut two thirds of the manual approvals they do on agent actions.** Much of what a reviewer checks is mechanical (is the order still eligible, was it already refunded, is this still allowed), and Interlock checks exactly that at the moment of sending. On a synthetic day of 100 refund requests ([results/approval_inbox.md](results/approval_inbox.md), mix stated as an assumption), rules plus Interlock took reviews from 100 to 33 with zero wrong payouts, where rules alone paid out wrong 8 times.
 
 ```
 python3 demo.py naive     # today: the refund lands twice
@@ -160,7 +162,19 @@ Not modeled: `experiments/temporal_live.py` runs the refund step as a Temporal a
 | permission revoked during the outage | **refunded** ❌ | refused at recovery ✅ |
 | order became ineligible before the step ran | **refunded** ❌ | refused ✅ |
 
-Temporal does exactly what it promises: the crashed step is retried and, with a stable key, lands once. When the facts behind the decision changed before the retry, it runs the same step again. Put the gate inside the activity and the same retry is refused. Interlock is not a Temporal replacement; it is the activity body.
+Temporal does exactly what it promises: the crashed step is retried and, with a stable key, lands once. When the facts behind the decision changed before the retry, it runs the same step again. Put the gate inside the activity and the same retry is refused. Interlock is not a Temporal replacement; it is the activity body. `interlock.temporal.gated()` is that body, and experiment 4 uses it.
+
+### 5. How many approvals still need a person
+
+`experiments/approval_inbox.py` runs one synthetic day of 100 refund requests three ways. **The mix is an assumption, not measured data** (60 routine, 15 over the $50 limit, 5 flagged customers, 5 ineligible orders, 5 duplicate deliveries, 5 crashes mid-send, 5 refunded by hand before the agent's send, and 3 over-limit requests refunded by hand between approval and send). Change it and re-run.
+
+| system | reviews a person did | orders refunded the wrong amount |
+|---|---|---|
+| everyone approves | 100 | **8** |
+| rules only (routine requests send with an idempotency key) | 25 | **8** |
+| rules + Interlock (`interlock/approvals.py`) | 33 | 0 |
+
+Rules take routine work off people, but without the gate they pay out wrong whenever the facts changed between the decision, or the approval, and the send. With the gate, a person's approval is the authority the refund runs under, and the facts they saw are its premises: a stale, expired, or unauthorized approval is refused when the refund is actually sent, and comes back to the queue saying what changed. The 8 extra reviews are people closing refunds the gate stopped, not re-deciding them.
 
 ## Why this and not the obvious things
 
@@ -201,6 +215,46 @@ gate.recover()   # once, on startup
 
 The one thing you still have to say is the thing no library can guess: which facts the decision depends on. Then say how the service cooperates: `dedupes=True` if it takes the key, `lookup=` a function that answers "did this already happen?", or neither. `allowed=` adds a permission check at dispatch and at recovery. A premise that would count the effect's own result takes `idempotency_key` and leaves it out, as above. The adapter is `interlock/easy.py`; `tests/test_interlock.py` runs it through a crash and a process restart.
 
+## Zero lines: in front of an MCP server
+
+The agent's code doesn't change. Point its MCP server command at the proxy and name the tools that have real effects:
+
+```
+python3 -m interlock.mcp_proxy --config interlock.mcp.json -- python3 payments_server.py
+```
+
+```json
+{"tools": {"create_refund": {
+  "key": ["order_id"],
+  "premises": {"tool": "get_order", "arguments": {"order_id": "order_id"}, "fields": ["refunded_total"]},
+  "lookup": {"tool": "find_refund", "arguments": {"reference": "$effect_id"}, "found": "found"},
+  "idempotency_argument": "reference"}}}
+```
+
+Every other message passes through untouched. `create_refund` is journaled before it goes out, its facts are read from `get_order` and read again before any resend, a crash is recovered on the next start, and the tool result carries the receipt in `_meta.interlock`. MCP itself has no idempotency or transactional contract; this is where a tool gets one. `tests/test_mcp_proxy.py` runs it against a real subprocess MCP server, kills the proxy mid-call, and checks the refund lands once, and that a refund issued by hand during the outage is refused even when the agent retries.
+
+## Receipts you can check
+
+A log you have to trust is not a receipt. Every journal entry is hash-chained to the previous entry for its action, every send records the lease and premise checks that passed immediately before it, and `verify()` re-derives the claims from those entries alone:
+
+```
+$ interlock-verify receipt.json --key $SHARED_KEY
+{ "valid": true, "tamper_evident": true, "signed": true,
+  "happened": true, "happened_once": true,
+  "authorized_when_fired": true, "assumptions_held": true, "problems": [] }
+```
+
+`gate.receipt_bundle(proposal, key)` produces the file. With a key shared with the other side (the payment service, an auditor), the bundle is HMAC-signed, so both sides can confirm the same record of what happened; an edited amount, a removed entry, or a rewritten chain fails. After a crash nobody can resolve, the receipt says `happened: "unknown"` instead of guessing. Without a key, the chain proves internal consistency only, and `verify()` says `signed: null`.
+
+## Install
+
+```
+pip install git+https://github.com/az-said/Interlock      # no dependencies; Python 3.9+
+pip install "interlock-gate[temporal] @ git+https://github.com/az-said/Interlock"   # plus temporalio
+```
+
+A journal path ending in `.db` uses SQLite, so several workers can share one journal: an action is dispatched by exactly one of them and recovered by exactly one of them (`tests/test_interlock.py`, eight workers racing).
+
 ## Where it plugs in
 
 Interlock is a wrapper around the point where an agent calls a tool. It does not touch the model, the prompt, or the agent framework's planning loop.
@@ -234,7 +288,7 @@ Reconciliation is already the most expensive manual process in corporate finance
 
 **Real.** The journal, the gate, both targets, both experiments, every number above. `python3 experiments/run_all.py` regenerates `results/` from scratch in under a second.
 
-**Tested.** `python3 -m unittest discover -s tests` asserts every row above, where each baseline fails as well as where the gate holds, then runs 2,000 randomized interleavings of tier, crash point, events before the decision and during the outage, late recovery, and duplicate delivery, and finally the three-line integration through a simulated restart. CI runs it on every push and fails if `results/` drifts from the code.
+**Tested.** `python3 -m unittest discover -s tests` (41 tests) asserts every row above, where each baseline fails as well as where the gate holds; runs 2,000 randomized interleavings of tier, crash point, events before the decision and during the outage, late recovery, and duplicate delivery; races eight workers on one journal (JSONL and SQLite) to prove one dispatch and one recovery; tampers with receipts; runs the approval inbox through stale, expired, and unauthorized approvals; runs the three-line integration through a simulated restart; and kills the MCP proxy mid-call against a real subprocess server. CI runs it on every push and fails if `results/` drifts from the code. Writing these tests found four bugs in the gate: recovery resent without re-checking, a duplicate could resend an unresolved action, concurrent workers could dispatch twice, and an agent retrying after a refusal was checked against freshly read facts instead of the ones it decided on.
 
 **Simulated.** The payments API and the repo are local. Faults are injected, not observed. This is by design: the brief asks for targeted failures at meaningful boundaries, not random process kills.
 
@@ -252,10 +306,14 @@ Swap `LocalRepo` for a real `gh pr merge` target and measure how often the gate 
 
 ```
 interlock/           the runtime
-  journal.py         append-only, fsync'd; effect_id_for() binds identity to the approved request
+  journal.py         append-only and hash-chained, JSONL or shared SQLite; effect_id_for() binds identity to the approved request
   leases.py          authority that expires and is checked at dispatch
   gate.py            six invariants, recovery by tier, claims registry, three baselines
   easy.py            the three-line decorator: Interlock(dir), @gate.effect(...), gate.recover()
+  approvals.py       rules, a human queue, approvals as authority re-checked at send time
+  receipts.py        receipt bundles and verify(): happened once, authorized, assumptions held
+  mcp_proxy.py       zero-line integration in front of any MCP server
+  temporal.py        gated(): the gate as a Temporal activity body
   targets/
     payments.py      simulated refund API at tiers 1 / 2 / 3, Stripe-style key semantics
     repo.py          local code repo with file-hash and symbol premises

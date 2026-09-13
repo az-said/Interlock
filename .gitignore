@@ -1,4 +1,9 @@
 __pycache__/
 *.pyc
 *.jsonl
+*.jsonl.lock
+*.jsonl.claims
+.interlock/
+build/
+*.egg-info/
 .DS_Store

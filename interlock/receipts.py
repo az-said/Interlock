@@ -88,12 +88,16 @@ def verify(receipt, key=None):
             "assumptions_held": held, "problems": problems}
 
 
-if __name__ == "__main__":
-    args = sys.argv[1:]
+def main(argv=None):
+    args = sys.argv[1:] if argv is None else argv
     if not args:
-        sys.exit("usage: python3 -m interlock.receipts receipt.json [--key KEY]")
+        sys.exit("usage: interlock-verify receipt.json [--key KEY]")
     key = args[args.index("--key") + 1] if "--key" in args else None
     with open(args[0]) as f:
         result = verify(json.load(f), key)
     print(json.dumps(result, indent=2))
     sys.exit(0 if result["valid"] else 1)
+
+
+if __name__ == "__main__":
+    main()
