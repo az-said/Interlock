@@ -11,6 +11,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FAKE = os.path.join(ROOT, "tests", "fake_mcp_server.py")
 CONFIG = {
     "journal_dir": "journal",
+    "claim_ttl": 1,                 # a killed proxy's claim expires quickly, so the restart can recover it
     "tools": {"create_refund": {
         "key": ["order_id"],
         "premises": {"tool": "get_order", "arguments": {"order_id": "order_id"}, "fields": ["refunded_total"]},
@@ -110,11 +111,25 @@ class McpProxy(unittest.TestCase):
         finally:
             s.close()
 
+    def test_tool_error_gets_an_answer_and_is_not_resent(self):
+        s = Session(self.dir, self.state)
+        try:
+            declined = s.refund("881", 999)
+            self.assertTrue(declined.get("isError"), declined)
+            self.assertIn("reported an error", declined["content"][0]["text"])
+            self.assertFalse(os.path.exists(self.state))           # nothing was written, and nothing sent twice
+            fine = s.refund("882", 20)                               # the proxy is still answering
+            self.assertNotIn("isError", fine)
+            self.assertEqual(len(self.refunds()), 1)
+        finally:
+            s.close()
+
     def test_killed_mid_call_is_recovered_once_on_restart(self):
         s = Session(self.dir, self.state, slow=5)
         s.refund("881", 20, wait=False)
         self.wait_for_refund()                                   # the service did it; the response never comes
         s.kill()
+        time.sleep(1.5)                                          # the dead proxy's send claim expires
         s = Session(self.dir, self.state)                        # restart: recovery looks it up
         try:
             again = s.refund("881", 20)                          # the agent retries
@@ -132,6 +147,7 @@ class McpProxy(unittest.TestCase):
         s.kill()
         with open(self.state, "w") as f:                         # ... and support refunds it by hand meanwhile
             json.dump({"refunds": [{"order_id": "881", "amount": 20, "reference": None}]}, f)
+        time.sleep(1.5)
         s = Session(self.dir, self.state)
         try:
             retry = s.refund("881", 20)

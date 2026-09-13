@@ -19,7 +19,8 @@ how much it cooperates:
 Invariants (the correctness contract):
 
     I1  no effect without a journaled decision (DISPATCHED on disk before apply)
-    I2  no duplicate effect (an effect id reaches COMMITTED at most once)
+    I2  no duplicate effect (an effect id reaches COMMITTED at most once, and is never sent
+        while an earlier send of it is unresolved, by this worker or any other)
     I3  no stale premise lands (premises re-validated against the target at commit)
     I4  no effect under a dead lease (lease checked at dispatch, not just proposal)
     I5  payload binding: once a decision is recorded for an effect id, a later proposal
@@ -31,9 +32,20 @@ Invariants (the correctness contract):
     P   progress: valid proposals commit; recovery resolves every in-flight effect
         to COMMITTED, REFUSED or AMBIGUOUS, re-checks lease and premises before any
         resend (the outage is when the world moves), and never re-applies blindly
+
+Premises are bound to a decision under an authority. A retry under the same lease is
+checked against the premises the decision was first recorded with; a new authority (a
+person approving after a refusal) is a new decision and brings the facts that person saw.
+Recovery re-checks exactly the lease and premises the send was dispatched under.
+
+Every send holds a claim on its effect until it is resolved. Recovery takes an effect
+over only after that claim expires (claim_ttl), so an effect still being applied is
+never sent a second time. Targets must time out well inside claim_ttl.
 """
 import os, socket, time, uuid
-from .journal import effect_id_for, open_dispatch, open_journal
+from .journal import CLAIM_TTL, _plain, effect_id_for, open_dispatch, open_journal
+
+DEDUP_MARGIN = 600      # seconds of clock skew allowed for: a dedup key this close to expiry counts as expired
 
 
 class SimulatedCrash(Exception):
@@ -46,11 +58,13 @@ class Gate:
     an effect is dispatched by exactly one of them and recovered by exactly one of them.
     Any other path is a JSONL file, safe across processes on one machine.
     """
-    def __init__(self, target, journal_path, leases):
+    def __init__(self, target, journal_path, leases, claim_ttl=CLAIM_TTL):
         self.target = target
         self.journal = open_journal(journal_path)
         self.leases = leases
+        self.claim_ttl = claim_ttl
         self.owner = f"{socket.gethostname()}:{os.getpid()}:{uuid.uuid4().hex[:6]}"
+        self.sender = self.owner + "/send"     # a separate owner, so even this gate's recover() waits out its own sends
         self.claims = {}                       # symbol -> agent holding an unreleased claim
 
     def claim(self, agent, symbol):
@@ -65,22 +79,24 @@ class Gate:
         for s in [s for s, a in self.claims.items() if a == agent]:
             del self.claims[s]
 
+    @property
+    def _queryable(self):
+        return getattr(self.target, "queryable", self.target.tier == 2)
+
     def submit(self, proposal, crash_after_effect=False, crash_before_effect=False):
         eid = effect_id_for(proposal)
+        effect, lease = _plain(proposal["effect"]), _plain(proposal["lease"])
         prior = self.journal.entries(eid)
         kinds = [e["kind"] for e in prior]
-        # A re-proposal of a recorded decision is checked against the premises it was decided on.
-        # Re-reading the world at retry time would bless a change the decision never saw.
-        decided_on = next((e["premises"] for e in prior if e["kind"] == "PROPOSED"), proposal["premises"])
-        if open_dispatch(prior):                                        # crashed mid-effect: recover() decides, a resend
-            return "IN_FLIGHT"                                          # doesn't; journal nothing, or recovery loses it
+        if open_dispatch(prior):                                        # being sent, or crashed mid-effect:
+            return "IN_FLIGHT"                                          # recover() decides, a resend doesn't
 
-        recorded = self.journal.recorded_effect(eid)
-        if recorded is not None and recorded != proposal["effect"]:    # I5
-            self.journal.append("PROPOSED", eid, agent=proposal["agent"],
-                                premises=proposal["premises"], effect=proposal["effect"])
+        recorded = next((e.get("effect") for e in prior if e["kind"] == "PROPOSED"), None)
+        if recorded is not None and recorded != effect:                 # I5
+            self.journal.append("PROPOSED", eid, agent=proposal["agent"], lease=lease,
+                                premises=proposal["premises"], effect=effect)
             self.journal.append("REFUSED", eid, reason="payload differs from recorded decision",
-                                recorded=recorded, offered=proposal["effect"])
+                                recorded=recorded, offered=effect)
             return "REFUSED:conflicting_payload"
 
         if "AMBIGUOUS" in kinds:                                        # P: never resend what nobody can confirm
@@ -88,8 +104,12 @@ class Gate:
         if "COMMITTED" in kinds:                                        # I2
             return "DUPLICATE_IGNORED"
 
-        self.journal.append("PROPOSED", eid, agent=proposal["agent"],
-                            premises=proposal["premises"], effect=proposal["effect"])
+        # A retry under the same authority is checked against the premises it was decided on;
+        # re-reading the world at retry time would bless a change the decision never saw.
+        decided_on = next((e["premises"] for e in prior if e["kind"] == "PROPOSED" and e.get("lease") == lease),
+                          proposal["premises"])
+        self.journal.append("PROPOSED", eid, agent=proposal["agent"], lease=lease,
+                            premises=proposal["premises"], effect=effect)
 
         for sym in proposal.get("defines", []):                         # I6
             holder = self.claims.get(sym)
@@ -97,34 +117,41 @@ class Gate:
                 self.journal.append("REFUSED", eid, reason=f"{sym} already defined or claimed by {holder}")
                 return "REFUSED:duplicate_symbol"
 
-        if not self.leases.is_live(proposal["lease"]):                  # I4
+        if not self.leases.is_live(lease):                              # I4
             self.journal.append("REFUSED", eid, reason="lease not live")
             return "REFUSED:lease"
-        self.journal.append("AUTHORIZED", eid, lease=proposal["lease"])
+        self.journal.append("AUTHORIZED", eid, lease=lease)
 
-        violated = self.target.validate_premises(decided_on, eid)          # I3
+        violated = self.target.validate_premises(decided_on, eid)      # I3
         if violated:
             self.journal.append("REFUSED", eid, reason=violated)
             return "REFUSED:stale_premise"
 
-        passed = {"lease_live": True, "violations": []}                      # on the record for receipts.verify()
-        if not self.journal.dispatch(eid, proposal["effect"], checks=passed):  # I1, atomic across workers
-            kinds = [e["kind"] for e in self.journal.entries(eid)]          # another worker got there first
-            return "DUPLICATE_IGNORED" if "COMMITTED" in kinds else "AMBIGUOUS" if "AMBIGUOUS" in kinds else "IN_FLIGHT"
-        if crash_before_effect:
-            raise SimulatedCrash(eid)          # in-flight marker written, request never sent
-        self.target.apply(eid, proposal["effect"], crash_after_effect)  # may raise SimulatedCrash
+        blocker = self.journal.dispatch(eid, effect, self.sender, self.claim_ttl, lease=lease, premises=decided_on,
+                                        checks={"lease_live": True, "violations": []})    # I1, atomic across workers
+        if blocker == "conflicting_payload":                            # another worker recorded a different decision first
+            self.journal.append("REFUSED", eid, reason="payload differs from a decision recorded concurrently")
+            return "REFUSED:conflicting_payload"
+        if blocker:
+            return {"committed": "DUPLICATE_IGNORED", "ambiguous": "AMBIGUOUS"}.get(blocker, "IN_FLIGHT")
+
+        try:
+            if crash_before_effect:
+                raise SimulatedCrash(eid)          # in-flight marker written, request never sent
+            self.target.apply(eid, effect, crash_after_effect)          # may raise SimulatedCrash
+        except SimulatedCrash:
+            self.journal.release(eid, self.sender)  # a simulated death ends the process's claim; a real one waits out claim_ttl
+            raise
         self.journal.append("COMMITTED", eid)
+        self.journal.release(eid, self.sender)
         self._release(proposal["agent"])
         return "COMMITTED"
 
-    def _recheck(self, eid):
-        """I3 and I4 again, on the recovery path. A resend is a new dispatch."""
-        es = self.journal.entries(eid)
-        if not self.leases.is_live(next(e["lease"] for e in es if e["kind"] == "AUTHORIZED")):
+    def _recheck(self, dispatched):
+        """I3 and I4 again, against the lease and premises this send was dispatched under."""
+        if not self.leases.is_live(dispatched.get("lease")):
             return "lease"
-        premises = next(e["premises"] for e in es if e["kind"] == "PROPOSED")
-        return "stale_premise" if self.target.validate_premises(premises, eid) else None
+        return "stale_premise" if self.target.validate_premises(dispatched.get("premises"), dispatched["effect_id"]) else None
 
     def recover(self, now=None, only=None):
         """
@@ -136,47 +163,78 @@ class Gate:
         Tier 1 is only tier 1 inside the provider's dedup window (Stripe: 24h); after
         it, a retry is a new request, so fall back to a lookup or to AMBIGUOUS.
 
-        Each effect is claimed first, so when several workers recover at once exactly one
-        of them resolves it. `only` limits recovery to the given effect ids.
+        An effect is recovered only by whoever claims it, and only once any earlier claim
+        (a send still in progress, or another recoverer) has expired. An effect whose
+        recovery raises is reported UNRESOLVED and left for a later attempt; the rest go on.
+        `only` limits recovery to the given effect ids.
         """
         now = time.time() if now is None else now
-        queryable = getattr(self.target, "queryable", self.target.tier == 2)
         out = {}
         for eid in self.journal.in_flight():
             if only is not None and eid not in only:
                 continue
-            if not self.journal.claim(eid, self.owner):
-                continue                                        # another worker is recovering it
-            es = self.journal.entries(eid)
-            if not open_dispatch(es):
-                continue                                        # resolved while we were claiming
-            d = [e for e in es if e["kind"] == "DISPATCHED"][-1]
-            effect, tier = d["effect"], self.target.tier
-            if tier == 1 and now - d["ts"] > getattr(self.target, "dedup_window", float("inf")):
-                tier = 2 if queryable else 3                    # provider forgot the key
-            if tier == 3:
-                self.journal.append("AMBIGUOUS", eid)           # cannot know; refuse to guess
-                out[eid] = "AMBIGUOUS"
-                continue
-            stale = self._recheck(eid)
-            if tier == 1 and not stale:
-                self.target.apply(eid, effect)                  # idempotent: safe to retry
-                self.journal.append("COMMITTED", eid, via="retry-idempotent", rechecked={"lease_live": True, "violations": []})
-                out[eid] = "COMMITTED_BY_RETRY"
-            elif not queryable:                                 # stale, and no way to see what landed
-                self.journal.append("AMBIGUOUS", eid, reason=f"{stale} at recovery, no lookup")
-                out[eid] = "AMBIGUOUS"
-            elif self.target.query(eid, effect):                # ask the target what it has
-                self.journal.append("COMMITTED", eid, via="recovery-query")
-                out[eid] = "COMMITTED_ON_QUERY"
-            elif stale:
-                self.journal.append("REFUSED", eid, reason=f"{stale} at recovery", resolves=True)
-                out[eid] = f"REFUSED:{stale}_at_recovery"
+            if not self.journal.claim(eid, self.owner, self.claim_ttl):
+                continue                                        # being sent or recovered by someone else
+            try:
+                status = self._recover_one(eid, now)
+            except Exception as e:                              # one bad effect must not strand the others
+                status = f"UNRESOLVED:{type(e).__name__}"
             else:
-                self.target.apply(eid, effect)
-                self.journal.append("COMMITTED", eid, via="recovery-reapply", rechecked={"lease_live": True, "violations": []})
-                out[eid] = "REAPPLIED_AFTER_QUERY"
+                self.journal.release(eid, self.owner)
+            if status:
+                out[eid] = status
         return out
+
+    def _recover_one(self, eid, now):
+        es = self.journal.entries(eid)
+        if not open_dispatch(es):
+            return None                                         # resolved while we were claiming
+        d = [e for e in es if e["kind"] == "DISPATCHED"][-1]
+        effect, tier, queryable = d["effect"], self.target.tier, self._queryable
+        if tier == 1 and now - d["ts"] > getattr(self.target, "dedup_window", float("inf")) - DEDUP_MARGIN:
+            tier = 2 if queryable else 3                        # provider forgot (or may have forgotten) the key
+        if tier == 3:
+            self.journal.append("AMBIGUOUS", eid)               # cannot know; refuse to guess
+            return "AMBIGUOUS"
+        stale = self._recheck(d)
+        passed = {"lease_live": True, "violations": []}
+        if tier == 1 and not stale:
+            self.journal.claim(eid, self.owner, self.claim_ttl)   # refresh: the resend must finish inside the claim
+            self.target.apply(eid, effect)                      # idempotent: safe to retry
+            self.journal.append("COMMITTED", eid, via="retry-idempotent", rechecked=passed)
+            return "COMMITTED_BY_RETRY"
+        if not queryable:                                       # stale, and no way to see what landed
+            self.journal.append("AMBIGUOUS", eid, reason=f"{stale} at recovery, no lookup")
+            return "AMBIGUOUS"
+        if self.target.query(eid, effect):                      # ask the target what it has
+            self.journal.append("COMMITTED", eid, via="recovery-query")
+            return "COMMITTED_ON_QUERY"
+        if stale:
+            self.journal.append("REFUSED", eid, reason=f"{stale} at recovery", resolves=True)
+            return f"REFUSED:{stale}_at_recovery"
+        self.journal.claim(eid, self.owner, self.claim_ttl)
+        self.target.apply(eid, effect)
+        self.journal.append("COMMITTED", eid, via="recovery-reapply", rechecked=passed)
+        return "REAPPLIED_AFTER_QUERY"
+
+    def settle_failed(self, eid, reason):
+        """
+        The target answered that the send failed (for example an MCP tool returned isError).
+        Settle it without resending: confirm by lookup when possible, otherwise take the
+        target at its word. Returns the new status, or None if the effect was not in flight.
+        """
+        es = self.journal.entries(eid)
+        if not open_dispatch(es):
+            return None
+        d = [e for e in es if e["kind"] == "DISPATCHED"][-1]
+        if self._queryable and self.target.query(eid, d["effect"]):
+            self.journal.append("COMMITTED", eid, via="failed-but-landed")
+            status = "COMMITTED_ON_QUERY"
+        else:
+            self.journal.append("REFUSED", eid, reason=f"target reported failure: {reason}", resolves=True)
+            status = "REFUSED:target_error"
+        self.journal.release(eid, self.sender)
+        return status
 
     def receipt(self, proposal):
         return self.journal.receipt(effect_id_for(proposal))

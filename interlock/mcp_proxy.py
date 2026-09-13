@@ -31,17 +31,18 @@ response carries the receipt in `_meta.interlock`.
 A premise that counts the tool's own result (like refunded_total) needs a `lookup`, or
 recovery after a crash can only say AMBIGUOUS. Standard library only.
 """
-import itertools, json, queue, subprocess, sys, threading
+import itertools, json, queue, subprocess, sys, threading, uuid
 from .easy import Interlock
-from .journal import effect_id_for
+from .journal import CLAIM_TTL, effect_id_for
 
 RESOLVED = ("DUPLICATE_IGNORED", "COMMITTED_BY_RETRY", "COMMITTED_ON_QUERY", "REAPPLIED_AFTER_QUERY")
 WHY = {
     "REFUSED:stale_premise": "a fact this action depends on changed since it was decided",
     "REFUSED:stale_premise_at_recovery": "a fact this action depends on changed while the agent was down",
     "REFUSED:conflicting_payload": "the same request was already decided with different arguments",
+    "REFUSED:target_error": "the tool reported an error, and nothing was sent again",
     "AMBIGUOUS": "a crash left it unclear whether it happened, and the tool gives no way to check",
-    "IN_FLIGHT": "an earlier attempt is still unresolved",
+    "IN_FLIGHT": "its outcome is not known yet; Interlock will settle it before anything is sent again",
 }
 
 
@@ -68,10 +69,12 @@ def fill(template, arguments, effect_id):
 
 
 class Upstream:
-    """The real MCP server, as a child process. Our own requests use ids prefixed interlock-."""
+    """The real MCP server, as a child process. Our own requests use ids no client can guess."""
     def __init__(self, command, to_client):
         self.proc = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, bufsize=1)
-        self.to_client, self.waiting, self.lock, self.ids = to_client, {}, threading.Lock(), itertools.count(1)
+        self.to_client, self.waiting, self.ids = to_client, {}, itertools.count(1)
+        self.prefix = f"interlock-{uuid.uuid4().hex}-"
+        self.write_lock, self.wait_lock = threading.Lock(), threading.Lock()
         threading.Thread(target=self._read, daemon=True).start()
 
     def _read(self):
@@ -80,21 +83,30 @@ class Upstream:
                 continue
             msg = json.loads(line)
             mid = msg.get("id")
-            waiter = self.waiting.pop(mid, None) if isinstance(mid, str) and mid.startswith("interlock-") else None
+            with self.wait_lock:
+                waiter = self.waiting.pop(mid, None) if isinstance(mid, str) and mid.startswith(self.prefix) else None
             (waiter.put if waiter else self.to_client)(msg)
-        for waiter in list(self.waiting.values()):
+        with self.wait_lock:
+            waiters, self.waiting = list(self.waiting.values()), {}
+        for waiter in waiters:
             waiter.put({"error": {"message": "upstream MCP server exited"}})
 
     def send(self, msg):
-        with self.lock:
+        with self.write_lock:
             self.proc.stdin.write(json.dumps(msg) + "\n")
             self.proc.stdin.flush()
 
     def call_tool(self, name, arguments, timeout=60):
-        rid, waiter = f"interlock-{next(self.ids)}", queue.Queue()
-        self.waiting[rid] = waiter
+        rid, waiter = f"{self.prefix}{next(self.ids)}", queue.Queue()
+        with self.wait_lock:
+            self.waiting[rid] = waiter
         self.send({"jsonrpc": "2.0", "id": rid, "method": "tools/call", "params": {"name": name, "arguments": arguments}})
-        msg = waiter.get(timeout=timeout)
+        try:
+            msg = waiter.get(timeout=timeout)
+        except queue.Empty:
+            with self.wait_lock:
+                self.waiting.pop(rid, None)
+            raise TimeoutError(f"{name} did not answer within {timeout}s") from None
         if "error" in msg:
             raise ToolError(msg["error"].get("message"))
         return msg["result"]
@@ -104,7 +116,7 @@ class Proxy:
     def __init__(self, config, command):
         self.out = threading.Lock()
         self.upstream = Upstream(command, self.to_client)
-        self.interlock = Interlock(config.get("journal_dir", ".interlock/mcp"))
+        self.interlock = Interlock(config.get("journal_dir", ".interlock/mcp"), claim_ttl=config.get("claim_ttl", CLAIM_TTL))
         self.tools = {name: self._gated(name, spec) for name, spec in config["tools"].items()}
         self.recovered = False
 
@@ -125,7 +137,7 @@ class Proxy:
             if result.get("isError"):
                 raise ToolError(json.dumps(result.get("content")))
             return result
-        send.__name__ = name
+        send.__name__ = send.__qualname__ = name
 
         premises = lookup = None
         if "premises" in spec:
@@ -143,14 +155,25 @@ class Proxy:
         return call
 
     def handle_call(self, msg):
+        """Every gated call gets exactly one answer, whatever happens inside."""
+        try:
+            self._handle_call(msg)
+        except Exception as e:
+            sys.stderr.write(f"interlock: could not process call: {e!r}\n")
+            self.to_client({"jsonrpc": "2.0", "id": msg["id"], "result": {
+                "isError": True, "content": [{"type": "text", "text": f"Interlock could not process this call ({type(e).__name__}); it will be settled before anything is sent again."}]}})
+
+    def _handle_call(self, msg):
         name, arguments = msg["params"]["name"], msg["params"].get("arguments") or {}
         call = self.tools[name]
         eid = effect_id_for({"request_id": call.key(arguments)})
         try:
             status, result = call(arguments)
-        except Exception as e:                            # the send failed or died midway: resolve it by tier now
-            sys.stderr.write(f"interlock: {name} send failed ({e}); resolving\n")
-            status, result = call.gate.recover(only=[eid]).get(eid, "IN_FLIGHT"), None
+        except ToolError as e:                            # the tool answered "failed": settle it, never resend
+            status, result = call.gate.settle_failed(eid, str(e)) or "IN_FLIGHT", None
+        except Exception as e:                            # no answer (timeout, upstream gone): outcome unknown.
+            sys.stderr.write(f"interlock: {name} did not settle ({e!r}); left for recovery\n")
+            status, result = "IN_FLIGHT", None            # recovery takes it over once the send's claim expires
         meta = {"interlock": {"status": status, "receipt": call.gate.journal.receipt(eid)}}
         if status == "COMMITTED" and result is not None:
             result = {**result, "_meta": {**result.get("_meta", {}), **meta}}

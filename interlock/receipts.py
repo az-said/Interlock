@@ -13,7 +13,9 @@ re-derives the claims from the entries themselves rather than reading a summary:
 With a key, the bundle is signed (HMAC-SHA256 over the effect id and the last hash). Anyone
 else holding the key (the payment service, an auditor, a notary) can then confirm the log
 was not rewritten wholesale. Without a key the chain proves internal consistency only: whoever
-controls the journal could rebuild a consistent fake chain, and verify() says signed=None.
+controls the journal could rebuild a consistent fake chain, or drop entries off the end, and
+verify() says signed=None. The recorded checks are the gate's own attestations that it ran
+them; a signature binds those attestations to the key holder, it does not re-run them.
 
     python3 -m interlock.receipts receipt.json [--key KEY]
 """
@@ -57,16 +59,28 @@ def verify(receipt, key=None):
         if not signed:
             problems.append("signature does not match this key")
 
-    sends, once, open_ = [], True, False
+    if not es:
+        problems.append("the receipt has no entries")
+    elif es[0].get("kind") != "PROPOSED":
+        problems.append("the receipt does not start with a proposal")
+
+    sends, once, open_, authorized_seen = [], True, False, False
     for e in es:
+        if e["kind"] == "AUTHORIZED":
+            authorized_seen = True
         if e["kind"] == "DISPATCHED":
             if open_:
                 once = False
                 problems.append("sent again while an earlier send was unresolved")
+            if not authorized_seen:
+                problems.append("a send has no authorization before it")
             open_ = True
             sends.append(e.get("checks") or {})
-        elif e["kind"] == "COMMITTED" and e.get("via") in RESENDS:
-            sends.append(e.get("rechecked") or {})
+        elif e["kind"] == "COMMITTED":
+            if not open_:
+                problems.append("a commit that closes no send")
+            if e.get("via") in RESENDS:
+                sends.append(e.get("rechecked") or {})
         if e["kind"] in ("COMMITTED", "AMBIGUOUS") or (e["kind"] == "REFUSED" and e.get("resolves")):
             open_ = False
 

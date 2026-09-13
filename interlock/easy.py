@@ -23,9 +23,9 @@ Any of these functions that declares an `idempotency_key` parameter receives the
 id, so `premises` can leave the effect's own result out of its facts. Arguments and facts
 must be JSON-serializable: they are written to the journal.
 """
-import functools, inspect, json, os
+import functools, inspect, json, os, re
 from .gate import Gate, SimulatedCrash
-from .journal import effect_id_for
+from .journal import CLAIM_TTL, effect_id_for
 
 
 def _call(f, args, eid):
@@ -72,16 +72,18 @@ class _Allowed:
 
 
 class Interlock:
-    def __init__(self, directory=".interlock"):
+    def __init__(self, directory=".interlock", claim_ttl=CLAIM_TTL):
         os.makedirs(directory, exist_ok=True)
-        self.directory = directory
+        self.directory, self.claim_ttl = directory, claim_ttl
         self.gates = {}
 
     def effect(self, key, premises=None, lookup=None, dedupes=False, allowed=None, dedup_window=24 * 3600):
         def wrap(fn):
-            name = f"{fn.__module__}.{fn.__name__}"
+            name = re.sub(r"[^A-Za-z0-9_.-]", "_", f"{fn.__module__}.{fn.__qualname__}")
+            if name in self.gates:                     # one journal per function: recovery must call the right one
+                raise ValueError(f"an effect named {name} is already registered; give the function a distinct name")
             target = _FunctionTarget(fn, premises, lookup, dedupes, dedup_window)
-            gate = Gate(target, os.path.join(self.directory, f"{name}.jsonl"), _Allowed(allowed))
+            gate = Gate(target, os.path.join(self.directory, f"{name}.jsonl"), _Allowed(allowed), claim_ttl=self.claim_ttl)
             self.gates[name] = gate
 
             def proposal(*args):

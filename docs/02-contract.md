@@ -16,7 +16,11 @@ Given a journal `J`, an effect target `T` with declared tier, and a lease store 
 - Any proposal whose premises hold and whose lease is live reaches `COMMITTED`.
 - After a crash, `recover()` resolves every in-flight effect (latest entry `DISPATCHED`) to exactly one of `COMMITTED`, `REFUSED`, or `AMBIGUOUS`. It never re-applies without either idempotency inside the provider's dedup window (tier 1) or a query showing the effect is absent (tier 2).
 - **I3 and I4 hold on the recovery path.** A resend is a new dispatch, so the lease and premises are re-checked first. The outage is exactly when the world moves: support refunds the order by hand, or the grant is revoked. If the re-check fails, the gate commits only what a query proves already landed, and refuses or marks `AMBIGUOUS` otherwise.
-- **No resend of an unresolved effect.** Submitting an effect whose latest entry is `DISPATCHED` returns `IN_FLIGHT` and writes nothing, so recovery still finds it. Submitting an `AMBIGUOUS` effect again returns `AMBIGUOUS`. Only `recover()` or a human reconciliation resolves either; a duplicate delivery never does.
+- **No resend of an unresolved effect.** Submitting an effect with an open send (a `DISPATCHED` not yet resolved by `COMMITTED`, `AMBIGUOUS`, or a recovery-written `REFUSED`) returns `IN_FLIGHT` and writes nothing, so recovery still finds it. Submitting an `AMBIGUOUS` effect again returns `AMBIGUOUS`. Only `recover()` or a human reconciliation resolves either; a duplicate delivery never does.
+- **One sender at a time, one recoverer at a time.** Dispatching an effect atomically claims it for the sender, and the claim is released when the send resolves. `recover()` takes an effect only after any other live claim has expired (`claim_ttl`, 120s by default), refreshes its own claim right before a resend, and releases it once the effect is resolved. So an effect still being applied, by this worker or another, is never sent a second time.
+- **Recovery is per effect.** If recovering one effect raises (a network error from its lookup), it is reported `UNRESOLVED` and left in flight for a later attempt; the other effects are still recovered.
+- **Premises are bound to an authority.** A re-proposal under the same lease is checked against the premises its decision was first recorded with, never facts re-read at retry time. A new authority (a person approving after a refusal) is a new decision with the premises that person saw. Recovery re-checks exactly the lease and premises recorded on the send.
+- **A definite failure is settled, not resent.** When a target answers that a send failed (an MCP tool's `isError`), the gate confirms by lookup when it can and otherwise records the failure as `REFUSED`; it does not send again.
 
 ## What the gate is allowed to do when it cannot establish the condition
 
@@ -67,7 +71,9 @@ Three, because the brief says match evidence to the claim and the team spec says
 - `T.validate_premises` and `T.query` are correct for the target. A target that lies about its own state is outside the model.
 - Effect ids are derived from decision content. Two genuinely different decisions that hash identically are outside the model (SHA-256 truncated to 48 bits in this demo; use the full digest in production).
 - Single journal, single gate. Multiple gates over one target need a shared journal or a notary.
-- The target declares its dedup window (`dedup_window`) and whether it can be queried (`queryable`). A provider that shortens its window without saying so is outside the model.
+- The target declares its dedup window (`dedup_window`) and whether it can be queried (`queryable`). A provider that shortens its window without saying so is outside the model. Recovery treats a key as expired 10 minutes early, to absorb clock skew between the worker that sent and the worker that recovers.
+- A send, and a resend during recovery, finishes well inside `claim_ttl`. Targets must time out sooner than that (the Stripe target uses 30s, the MCP proxy 60s, against a 120s default). A send that outlives its claim can be taken over.
+- Receipts: `verify()` checks the chain, that the bundle starts with a proposal, that every send follows an authorization, and that every commit closes a send. The recorded checks are the gate's own attestations. A signature binds them to whoever holds the key; without one, whoever controls the journal could rebuild a consistent chain.
 
 ## Outside the contract
 

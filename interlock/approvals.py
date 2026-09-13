@@ -90,6 +90,8 @@ class Inbox:
 
     def approve(self, request_id, by, execute=True):
         """Record a person's approval against the facts they saw. execute=False sends it later."""
+        if by == "policy":
+            raise ValueError('"policy" is reserved for sends made by the rules; approvals need a person\'s name')
         item = self.queue.pop(request_id)
         self.approved[request_id] = {"request": item["request"], "facts": item["facts"],
                                      "authority": {"by": by, "at": time.time()}}

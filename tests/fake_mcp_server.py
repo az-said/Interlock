@@ -49,6 +49,8 @@ for line in sys.stdin:
         if name == "get_order":
             reply(mid, data({"order_id": args["order_id"],
                              "refunded_total": sum(r["amount"] for r in state["refunds"] if r["order_id"] == args["order_id"])}))
+        elif name == "create_refund" and args.get("amount") == 999:       # a declined card: an error, nothing written
+            reply(mid, {"isError": True, "content": [{"type": "text", "text": "card declined"}]})
         elif name == "create_refund":
             state["refunds"].append({"order_id": args["order_id"], "amount": args["amount"], "reference": args.get("reference")})
             save(state)

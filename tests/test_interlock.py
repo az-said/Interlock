@@ -14,6 +14,11 @@ import coding_agents, refund_agent
 OUTAGE = {"refund_during_outage", "lease_revoked_during_outage", "key_expired"}
 
 
+def outcomes(recovered):
+    """Statuses from Interlock.recover(), which groups them by effect name."""
+    return [status for per_effect in recovered.values() for status in per_effect.values()]
+
+
 class ExperimentClaims(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -279,7 +284,7 @@ class ThreeLineIntegration(unittest.TestCase):
         _, refund = self.start(dedupes=True)
         self.crash(refund, "881", 20, when="after_effect")
         gate, _ = self.start(dedupes=True)
-        self.assertEqual(list(gate.recover()["test_interlock.refund"].values()), ["COMMITTED_BY_RETRY"])
+        self.assertEqual(outcomes(gate.recover()), ["COMMITTED_BY_RETRY"])
         self.assertEqual(len(self.world["refunds"]), 1)
 
     def test_human_refund_during_outage_is_refused_after_restart(self):
@@ -287,7 +292,7 @@ class ThreeLineIntegration(unittest.TestCase):
         self.crash(refund, "881", 20, when="before_effect")
         self.world["refunds"].append({"key": "dashboard", "amount": 20})
         gate, _ = self.start(lookup=True)
-        self.assertEqual(list(gate.recover()["test_interlock.refund"].values()), ["REFUSED:stale_premise_at_recovery"])
+        self.assertEqual(outcomes(gate.recover()), ["REFUSED:stale_premise_at_recovery"])
         self.assertEqual([r["key"] for r in self.world["refunds"]], ["dashboard"])
 
     def test_permission_revoked_during_outage_is_refused_after_restart(self):
@@ -295,14 +300,14 @@ class ThreeLineIntegration(unittest.TestCase):
         self.crash(refund, "881", 20, when="before_effect")
         self.world["allowed"] = False
         gate, _ = self.start(lookup=True)
-        self.assertEqual(list(gate.recover()["test_interlock.refund"].values()), ["REFUSED:lease_at_recovery"])
+        self.assertEqual(outcomes(gate.recover()), ["REFUSED:lease_at_recovery"])
         self.assertEqual(self.world["refunds"], [])
 
     def test_no_dedup_no_lookup_is_ambiguous_and_never_resent(self):
         _, refund = self.start()
         self.crash(refund, "881", 20, when="after_effect")
         gate, refund = self.start()
-        self.assertEqual(list(gate.recover()["test_interlock.refund"].values()), ["AMBIGUOUS"])
+        self.assertEqual(outcomes(gate.recover()), ["AMBIGUOUS"])
         self.assertEqual(refund("881", 20)[0], "AMBIGUOUS")
         self.assertEqual(len(self.world["refunds"]), 1)
 
