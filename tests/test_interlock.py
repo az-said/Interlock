@@ -180,9 +180,18 @@ class SharedJournal(unittest.TestCase):
         return api, leases, P
 
     def run_threads(self, fn, n=8):
-        threads = [threading.Thread(target=fn) for _ in range(n)]
+        errors = []
+
+        def guarded():
+            try:
+                fn()
+            except Exception as e:                      # a worker that crashes is a lost request: fail loudly
+                errors.append(repr(e))
+
+        threads = [threading.Thread(target=guarded) for _ in range(n)]
         for t in threads: t.start()
         for t in threads: t.join()
+        self.assertEqual(errors, [], "a worker raised")
 
     def test_concurrent_submits_dispatch_once(self):
         for path in self.journals():

@@ -186,15 +186,22 @@ class Journal(_Queries):
 class SqliteJournal(_Queries):
     def __init__(self, path):
         self.path = path
-        with contextlib.closing(self._connect()) as db, db:
-            db.execute("CREATE TABLE IF NOT EXISTS entries (seq INTEGER PRIMARY KEY AUTOINCREMENT, "
-                       "effect_id TEXT NOT NULL, kind TEXT NOT NULL, body TEXT NOT NULL)")
-            db.execute("CREATE INDEX IF NOT EXISTS entries_by_effect ON entries (effect_id, seq)")
-            db.execute("CREATE TABLE IF NOT EXISTS claims (effect_id TEXT PRIMARY KEY, owner TEXT NOT NULL, ts REAL NOT NULL)")
+        for attempt in range(100):              # many workers may open the same new database at once
+            try:
+                with contextlib.closing(sqlite3.connect(self.path, timeout=30)) as db, db:
+                    db.execute("PRAGMA journal_mode=WAL")   # a property of the file: set once here, never per connection
+                    db.execute("CREATE TABLE IF NOT EXISTS entries (seq INTEGER PRIMARY KEY AUTOINCREMENT, "
+                               "effect_id TEXT NOT NULL, kind TEXT NOT NULL, body TEXT NOT NULL)")
+                    db.execute("CREATE INDEX IF NOT EXISTS entries_by_effect ON entries (effect_id, seq)")
+                    db.execute("CREATE TABLE IF NOT EXISTS claims (effect_id TEXT PRIMARY KEY, owner TEXT NOT NULL, ts REAL NOT NULL)")
+                return
+            except sqlite3.OperationalError as e:
+                if "locked" not in str(e) or attempt == 99:
+                    raise
+                time.sleep(0.02)
 
     def _connect(self):
         db = sqlite3.connect(self.path, timeout=30)
-        db.execute("PRAGMA journal_mode=WAL")
         db.execute("PRAGMA synchronous=FULL")    # durable before we return, like the fsync above
         return db
 
