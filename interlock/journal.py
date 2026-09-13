@@ -11,6 +11,9 @@ Entry kinds (the four facts from the brief, plus the failure states):
     COMMITTED   the effect is applied and confirmed
     REFUSED     a premise, lease, claim, or payload-binding check failed; nothing applied
     AMBIGUOUS   we crashed mid-effect and cannot determine what happened
+    ESCALATED   sent to a person: why, what changed, the facts shown, who it was routed to
+    DECIDED     a person answered an escalation (approve, reject or repair)
+    CONFIRMED   the target itself confirmed the effect (evidence only, never control flow)
 
 Mapping to the team spec's state names (docs/team-notes/refund-spec-shawn.md):
     Prepared = PROPOSED+AUTHORIZED · In flight = DISPATCHED · Confirmed = COMMITTED
@@ -33,6 +36,7 @@ A claim expires after its ttl, so a crashed sender or recoverer cannot block an 
 A send, and a resend during recovery, must finish inside that ttl: time targets out sooner.
 """
 import contextlib, hashlib, json, os, sqlite3, threading, time
+from .escalation import closed, latest
 try:
     import fcntl
 except ImportError:                     # no flock (Windows): a file journal is single-process
@@ -121,8 +125,11 @@ def open_dispatch(entries):
     return open_
 
 
-def dispatch_blocker(entries, effect):
-    """Why this effect may not be dispatched now, or None."""
+def dispatch_blocker(entries, effect, lease=None):
+    """
+    Why this effect may not be dispatched now, or None. Once escalated, only a lease citing a
+    person's approval of the latest escalation sends it (I7); a closed effect never goes (I8).
+    """
     kinds = [e["kind"] for e in entries]
     if open_dispatch(entries):
         return "in_flight"
@@ -133,6 +140,14 @@ def dispatch_blocker(entries, effect):
     recorded = next((e.get("effect") for e in entries if e["kind"] == "PROPOSED"), None)
     if recorded is not None and recorded != _plain(effect):
         return "conflicting_payload"
+    if closed(entries):
+        return "closed"
+    esc, dec = latest(entries)
+    if esc is not None:
+        ok = (isinstance(lease, dict) and lease.get("escalation") == esc["hash"] and dec is not None
+              and dec["decision"] == "approve" and dec["by"] == lease.get("by") and dec["at"] == lease.get("at"))
+        if not ok:
+            return "awaiting_decision"
     return None
 
 
@@ -185,6 +200,15 @@ class Journal(_Queries):
                 os.fsync(f.fileno())        # durable before we return
         return entry
 
+    def append_if(self, kind, effect_id, check, **data):
+        """
+        Append unless check(entries) names a blocker. Returns (entry, None) or (None, blocker).
+        check runs under the lock, so it must be pure and fast.
+        """
+        with self._exclusive():
+            blocker = check(self.entries(effect_id))
+            return (None, blocker) if blocker else (self.append(kind, effect_id, **data), None)
+
     def entries(self, effect_id=None):
         with self._exclusive(), open(self.path, "rb") as f:
             data = f.read()
@@ -210,7 +234,7 @@ class Journal(_Queries):
     def dispatch(self, effect_id, effect, owner, ttl=CLAIM_TTL, **data):
         """Write DISPATCHED and claim the effect for `owner`, unless blocked. Returns the blocker, or None."""
         with self._exclusive():
-            blocker = dispatch_blocker(self.entries(effect_id), effect)
+            blocker = dispatch_blocker(self.entries(effect_id), effect, data.get("lease"))
             if blocker:
                 return blocker
             self.append("DISPATCHED", effect_id, effect=effect, **data)
@@ -276,6 +300,22 @@ class SqliteJournal(_Queries):
             db.execute("COMMIT")
             return entry
 
+    def append_if(self, kind, effect_id, check, **data):
+        with contextlib.closing(self._connect()) as db:
+            db.isolation_level = None
+            db.execute("BEGIN IMMEDIATE")            # takes the write lock before reading
+            blocker = check(self._chain(db, effect_id))
+            if blocker:
+                db.execute("ROLLBACK")
+                return None, blocker
+            entry = self._insert(db, kind, effect_id, data)
+            db.execute("COMMIT")
+            return entry, None
+
+    @staticmethod
+    def _chain(db, effect_id):
+        return [json.loads(b) for (b,) in db.execute("SELECT body FROM entries WHERE effect_id = ? ORDER BY seq", (effect_id,))]
+
     def entries(self, effect_id=None):
         with contextlib.closing(self._connect()) as db:
             if effect_id is None:
@@ -288,8 +328,7 @@ class SqliteJournal(_Queries):
         with contextlib.closing(self._connect()) as db:
             db.isolation_level = None
             db.execute("BEGIN IMMEDIATE")            # takes the write lock before reading
-            entries = [json.loads(b) for (b,) in db.execute("SELECT body FROM entries WHERE effect_id = ? ORDER BY seq", (effect_id,))]
-            blocker = dispatch_blocker(entries, effect)
+            blocker = dispatch_blocker(self._chain(db, effect_id), effect, data.get("lease"))
             if blocker:
                 db.execute("ROLLBACK")
                 return blocker

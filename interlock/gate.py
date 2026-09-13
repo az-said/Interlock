@@ -29,6 +29,16 @@ Invariants (the correctness contract):
     I6  no duplicate implementation: an effect that defines a symbol already defined,
         or claimed by another live agent, is refused (MAST's top failure mode, step
         repetition, caught with zero model calls)
+    I7  decision binding: once an effect has been escalated it is dispatched only under a person's
+        recorded approval of its LATEST escalation, by a member of that escalation's group (checked
+        when deciding and again at dispatch), with that escalation's facts as premises. Policy never
+        sends it again.
+    I8  repairs are new decisions: a repair with a different payload is a new effect id, accepted only
+        while the original never landed, and accepting it closes the original. A closed effect is never
+        dispatched.
+    P'  every refused or unverifiable outcome of an inbox-owned effect ends in exactly one open
+        escalation, derived from the journal, so a crash or a second inbox can neither lose nor
+        duplicate it.
     P   progress: valid proposals commit; recovery resolves every in-flight effect
         to COMMITTED, REFUSED or AMBIGUOUS, re-checks lease and premises before any
         resend (the outage is when the world moves), and never re-applies blindly
@@ -43,6 +53,7 @@ over only after that claim expires (claim_ttl), so an effect still being applied
 never sent a second time. Targets must time out well inside claim_ttl.
 """
 import os, socket, time, uuid
+from .escalation import WHY
 from .journal import CLAIM_TTL, _plain, effect_id_for, open_dispatch, open_journal
 
 DEDUP_MARGIN = 600      # seconds of clock skew allowed for: a dedup key this close to expiry counts as expired
@@ -88,14 +99,15 @@ class Gate:
         effect, lease = _plain(proposal["effect"]), _plain(proposal["lease"])
         prior = self.journal.entries(eid)
         kinds = [e["kind"] for e in prior]
+        request = {"request": proposal["request"]} if "request" in proposal else {}
         if open_dispatch(prior):                                        # being sent, or crashed mid-effect:
             return "IN_FLIGHT"                                          # recover() decides, a resend doesn't
 
         recorded = next((e.get("effect") for e in prior if e["kind"] == "PROPOSED"), None)
         if recorded is not None and recorded != effect:                 # I5
             self.journal.append("PROPOSED", eid, agent=proposal["agent"], lease=lease,
-                                premises=proposal["premises"], effect=effect)
-            self.journal.append("REFUSED", eid, reason="payload differs from recorded decision",
+                                premises=proposal["premises"], effect=effect, **request)
+            self.journal.append("REFUSED", eid, code="conflicting_payload", reason="payload differs from recorded decision",
                                 recorded=recorded, offered=effect)
             return "REFUSED:conflicting_payload"
 
@@ -109,30 +121,33 @@ class Gate:
         decided_on = next((e["premises"] for e in prior if e["kind"] == "PROPOSED" and e.get("lease") == lease),
                           proposal["premises"])
         self.journal.append("PROPOSED", eid, agent=proposal["agent"], lease=lease,
-                            premises=proposal["premises"], effect=effect)
+                            premises=proposal["premises"], effect=effect, **request)
 
         for sym in proposal.get("defines", []):                         # I6
             holder = self.claims.get(sym)
             if (holder and holder != proposal["agent"]) or sym in getattr(self.target, "symbol_table", lambda: {})():
-                self.journal.append("REFUSED", eid, reason=f"{sym} already defined or claimed by {holder}")
+                self.journal.append("REFUSED", eid, code="duplicate_symbol", reason=f"{sym} already defined or claimed by {holder}")
                 return "REFUSED:duplicate_symbol"
 
         checks = self._lease_seen(lease, effect)                        # I4
         if not checks["lease_live"]:
-            self.journal.append("REFUSED", eid, reason="lease not live, or it does not cover this effect", checks=checks)
+            self.journal.append("REFUSED", eid, code="lease", reason="lease not live, or it does not cover this effect", checks=checks)
             return "REFUSED:lease"
         self.journal.append("AUTHORIZED", eid, lease=lease)
 
         checks["violations"] = violated = self.target.validate_premises(decided_on, eid)      # I3
         if violated:
-            self.journal.append("REFUSED", eid, reason=violated, checks=checks)
+            self.journal.append("REFUSED", eid, code="stale_premise", reason=violated, checks=checks)
             return "REFUSED:stale_premise"
 
         blocker = self.journal.dispatch(eid, effect, self.sender, self.claim_ttl, lease=lease, premises=decided_on,
-                                        checks=checks)                  # I1, atomic across workers
+                                        checks=checks)                  # I1, I7, I8: atomic across workers
         if blocker == "conflicting_payload":                            # another worker recorded a different decision first
-            self.journal.append("REFUSED", eid, reason="payload differs from a decision recorded concurrently")
+            self.journal.append("REFUSED", eid, code="conflicting_payload", reason="payload differs from a decision recorded concurrently")
             return "REFUSED:conflicting_payload"
+        if blocker in ("closed", "awaiting_decision"):                  # a person owns this effect now
+            self.journal.append("REFUSED", eid, code=blocker, reason=WHY[blocker])
+            return f"REFUSED:{blocker}"
         if blocker:
             return {"committed": "DUPLICATE_IGNORED", "ambiguous": "AMBIGUOUS"}.get(blocker, "IN_FLIGHT")
 
@@ -220,7 +235,7 @@ class Gate:
         if tier == 1 and now - d["ts"] > getattr(self.target, "dedup_window", float("inf")) - DEDUP_MARGIN:
             tier = 2 if queryable else 3                        # provider forgot (or may have forgotten) the key
         if tier == 3:
-            self.journal.append("AMBIGUOUS", eid)               # cannot know; refuse to guess
+            self.journal.append("AMBIGUOUS", eid, code="ambiguous")   # cannot know; refuse to guess
             return "AMBIGUOUS"
         checks, stale = self._recheck(d)
         if tier == 1 and not stale:
@@ -228,14 +243,14 @@ class Gate:
             self.journal.append("COMMITTED", eid, via="retry-idempotent", rechecked=checks, result=result)
             return "COMMITTED_BY_RETRY"
         if not queryable:                                       # stale, and no way to see what landed
-            self.journal.append("AMBIGUOUS", eid, reason=f"{stale} at recovery, no lookup", rechecked=checks)
+            self.journal.append("AMBIGUOUS", eid, code="ambiguous", reason=f"{stale} at recovery, no lookup", rechecked=checks)
             return "AMBIGUOUS"
         found = self.target.query(eid, effect)                  # ask the target what it has
         if found:                                               # the earlier send landed; a failed re-check does not undo it
             self.journal.append("COMMITTED", eid, via="recovery-query", rechecked=checks, found=found)
             return "COMMITTED_ON_QUERY"
         if stale:
-            self.journal.append("REFUSED", eid, reason=f"{stale} at recovery", resolves=True, rechecked=checks)
+            self.journal.append("REFUSED", eid, code=f"{stale}_at_recovery", reason=f"{stale} at recovery", resolves=True, rechecked=checks)
             return f"REFUSED:{stale}_at_recovery"
         result = self._resend(eid, effect)
         self.journal.append("COMMITTED", eid, via="recovery-reapply", rechecked=checks, result=result)
@@ -255,7 +270,7 @@ class Gate:
             self.journal.append("COMMITTED", eid, via="failed-but-landed")
             status = "COMMITTED_ON_QUERY"
         else:
-            self.journal.append("REFUSED", eid, reason=f"target reported failure: {reason}", resolves=True)
+            self.journal.append("REFUSED", eid, code="target_error", reason=f"target reported failure: {reason}", resolves=True)
             status = "REFUSED:target_error"
         self.journal.release(eid, self.sender)
         return status

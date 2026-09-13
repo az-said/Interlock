@@ -33,17 +33,10 @@ recovery after a crash can only say AMBIGUOUS. Standard library only.
 """
 import itertools, json, queue, subprocess, sys, threading, uuid
 from .easy import Interlock
+from .escalation import WHY, code
 from .journal import CLAIM_TTL, effect_id_for
 
 RESOLVED = ("DUPLICATE_IGNORED", "COMMITTED_BY_RETRY", "COMMITTED_ON_QUERY", "REAPPLIED_AFTER_QUERY")
-WHY = {
-    "REFUSED:stale_premise": "a fact this action depends on changed since it was decided",
-    "REFUSED:stale_premise_at_recovery": "a fact this action depends on changed while the agent was down",
-    "REFUSED:conflicting_payload": "the same request was already decided with different arguments",
-    "REFUSED:target_error": "the tool reported an error, and nothing was sent again",
-    "AMBIGUOUS": "a crash left it unclear whether it happened, and the tool gives no way to check",
-    "IN_FLIGHT": "its outcome is not known yet; Interlock will settle it before anything is sent again",
-}
 
 
 class ToolError(RuntimeError):
@@ -180,7 +173,7 @@ class Proxy:
         elif status in RESOLVED or status == "COMMITTED":
             result = {"content": [{"type": "text", "text": f"Interlock: this action already happened once ({status}); it was not sent again."}], "_meta": meta}
         else:
-            why = WHY.get(status, "the gate could not send it safely")
+            why = WHY.get(code(status), WHY["refused"])
             result = {"isError": True, "_meta": meta,
                       "content": [{"type": "text", "text": f"Interlock did not send this action ({status}): {why}."}]}
         self.to_client({"jsonrpc": "2.0", "id": msg["id"], "result": result})
