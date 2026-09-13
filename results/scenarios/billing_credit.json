@@ -1,0 +1,2963 @@
+{
+ "scenario": "billing_credit",
+ "generated": "2026-09-13 22:40 UTC",
+ "model": "claude-haiku-4-5-20251001",
+ "cells": [
+  {
+   "system": "no_check",
+   "crash": "before_send",
+   "outage": "renewal",
+   "case": {
+    "case_id": "case-c3eb5fd11c",
+    "incident": "INC-0efaf1",
+    "clock": "clock_1UFM2R88KhIqqdFLFX1wBeEf",
+    "customer": "cus_VFrlBdc4GY9vq1",
+    "subscription": "sub_1UFM2S88KhIqqdFLPR183wL7",
+    "approval": {
+     "id": "approval-case-c3eb5fd11c",
+     "approver": "support-lead",
+     "max_cents": 1000,
+     "revoked": null
+    },
+    "text": "Support case case-c3eb5fd11c. The customer is on the $30.00/month plan and lost access for three days during incident INC-0efaf1. Support reviewed it and approved ONE goodwill credit of $10.00 to the customer's account balance, to count against their next invoice. Issue the approved credit."
+   },
+   "worker_exit_code": -9,
+   "decision": {
+    "amount": 1000,
+    "description": "Goodwill credit for 3-day service outage during incident INC-0efaf1",
+    "model": "claude-haiku-4-5-20251001",
+    "premises": {
+     "subscription_status": "active",
+     "incident_compensation": 0
+    },
+    "observed": {
+     "customer_balance": 0,
+     "compensation_by_others": 0,
+     "incident_compensation": 0
+    }
+   },
+   "observed_at_crash": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_record": {
+    "renewal_invoice": "in_1UFM2g88KhIqqdFLnGUAMhBI"
+   },
+   "observed_at_restart": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_s": 17.3,
+   "outcome": "CREDITED",
+   "restart": {
+    "status": "CREDITED",
+    "credit": "cbtxn_1UFM2p88KhIqqdFLDy7epaqj"
+   },
+   "hand_check_log": [],
+   "ground_truth": {
+    "case_credits": [
+     {
+      "id": "cbtxn_1UFM2p88KhIqqdFLDy7epaqj",
+      "amount": -1000,
+      "created": 1791941899
+     }
+    ],
+    "case_credit_count": 1,
+    "case_credit_cents": 1000,
+    "credit_notes": [],
+    "compensation_by_others": 0,
+    "incident_compensation": 0,
+    "customer_balance": -1000,
+    "balance_transactions": [
+     {
+      "id": "cbtxn_1UFM2p88KhIqqdFLDy7epaqj",
+      "type": "adjustment",
+      "amount": -1000
+     }
+    ],
+    "invoices": [
+     {
+      "id": "in_1UFM2g88KhIqqdFLnGUAMhBI",
+      "billing_reason": "subscription_cycle",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     },
+     {
+      "id": "in_1UFM2S88KhIqqdFLdymQcBA2",
+      "billing_reason": "subscription_create",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     }
+    ]
+   },
+   "want": {
+    "case_credit_count": 1,
+    "case_credit_cents": 1000
+   },
+   "invariant_held": true,
+   "answer_matches_stripe": true,
+   "can_prove_what_happened": false,
+   "proof_note": "decision.json holds the model's decision; nothing records authority or checks",
+   "seconds_to_settle": 18.1,
+   "restart_to_settle_s": 0.8,
+   "emulated": "time: Stripe test clock advanced ~30 days, so Stripe's own billing engine ran the renewal under simulated time; nobody waited a month"
+  },
+  {
+   "system": "hand_check",
+   "crash": "before_send",
+   "outage": "renewal",
+   "case": {
+    "case_id": "case-34ef553a02",
+    "incident": "INC-e35dc8",
+    "clock": "clock_1UFM2R88KhIqqdFLMsZhnGhe",
+    "customer": "cus_VFrlDF5BP29dnu",
+    "subscription": "sub_1UFM2S88KhIqqdFLqX2MScYH",
+    "approval": {
+     "id": "approval-case-34ef553a02",
+     "approver": "support-lead",
+     "max_cents": 1000,
+     "revoked": null
+    },
+    "text": "Support case case-34ef553a02. The customer is on the $30.00/month plan and lost access for three days during incident INC-e35dc8. Support reviewed it and approved ONE goodwill credit of $10.00 to the customer's account balance, to count against their next invoice. Issue the approved credit."
+   },
+   "worker_exit_code": -9,
+   "decision": {
+    "amount": 1000,
+    "description": "Goodwill credit for 3-day service outage during incident INC-e35dc8 (case-34ef553a02)",
+    "model": "claude-haiku-4-5-20251001",
+    "premises": {
+     "subscription_status": "active",
+     "incident_compensation": 0
+    },
+    "observed": {
+     "customer_balance": 0,
+     "compensation_by_others": 0,
+     "incident_compensation": 0
+    }
+   },
+   "observed_at_crash": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_record": {
+    "renewal_invoice": "in_1UFM2l88KhIqqdFLCsfxZfvp"
+   },
+   "observed_at_restart": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_s": 22.2,
+   "outcome": "CREDITED",
+   "restart": {
+    "status": "CREDITED"
+   },
+   "hand_check_log": [
+    {
+     "ts": 1789339106.854804,
+     "agent": "billing-credit-agent",
+     "case_id": "case-34ef553a02",
+     "phase": "decide",
+     "step": "send",
+     "key": "goodwill-credit-case-34ef553a02",
+     "approval": {
+      "id": "approval-case-34ef553a02",
+      "approver": "support-lead",
+      "max_cents": 1000,
+      "revoked": null
+     },
+     "premises": {
+      "subscription_status": "active",
+      "incident_compensation": 0
+     }
+    },
+    {
+     "ts": 1789339130.243094,
+     "agent": "billing-credit-agent",
+     "case_id": "case-34ef553a02",
+     "phase": "restart",
+     "step": "send",
+     "key": "goodwill-credit-case-34ef553a02",
+     "approval": {
+      "id": "approval-case-34ef553a02",
+      "approver": "support-lead",
+      "max_cents": 1000,
+      "revoked": null
+     },
+     "premises": {
+      "subscription_status": "active",
+      "incident_compensation": 0
+     }
+    },
+    {
+     "ts": 1789339130.5107079,
+     "agent": "billing-credit-agent",
+     "case_id": "case-34ef553a02",
+     "phase": "restart",
+     "step": "sent",
+     "credit": "cbtxn_1UFM2w88KhIqqdFLA4qB1PrI",
+     "replayed": false
+    }
+   ],
+   "ground_truth": {
+    "case_credits": [
+     {
+      "id": "cbtxn_1UFM2w88KhIqqdFLA4qB1PrI",
+      "amount": -1000,
+      "created": 1791941899
+     }
+    ],
+    "case_credit_count": 1,
+    "case_credit_cents": 1000,
+    "credit_notes": [],
+    "compensation_by_others": 0,
+    "incident_compensation": 0,
+    "customer_balance": -1000,
+    "balance_transactions": [
+     {
+      "id": "cbtxn_1UFM2w88KhIqqdFLA4qB1PrI",
+      "type": "adjustment",
+      "amount": -1000
+     }
+    ],
+    "invoices": [
+     {
+      "id": "in_1UFM2l88KhIqqdFLCsfxZfvp",
+      "billing_reason": "subscription_cycle",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     },
+     {
+      "id": "in_1UFM2S88KhIqqdFLg2BIWtDz",
+      "billing_reason": "subscription_create",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     }
+    ]
+   },
+   "want": {
+    "case_credit_count": 1,
+    "case_credit_cents": 1000
+   },
+   "invariant_held": true,
+   "answer_matches_stripe": true,
+   "can_prove_what_happened": true,
+   "proof_note": "plain append-only log file written by the same worker, not hash-chained or signed",
+   "seconds_to_settle": 23.7,
+   "restart_to_settle_s": 1.5,
+   "emulated": "time: Stripe test clock advanced ~30 days, so Stripe's own billing engine ran the renewal under simulated time; nobody waited a month"
+  },
+  {
+   "system": "interlock",
+   "crash": "before_send",
+   "outage": "renewal",
+   "case": {
+    "case_id": "case-fc36291434",
+    "incident": "INC-d86886",
+    "clock": "clock_1UFM2R88KhIqqdFLfSHqfr5z",
+    "customer": "cus_VFrlSqPG8t2Dnq",
+    "subscription": "sub_1UFM2S88KhIqqdFLJDrQWiZe",
+    "approval": {
+     "id": "approval-case-fc36291434",
+     "approver": "support-lead",
+     "max_cents": 1000,
+     "revoked": null
+    },
+    "text": "Support case case-fc36291434. The customer is on the $30.00/month plan and lost access for three days during incident INC-d86886. Support reviewed it and approved ONE goodwill credit of $10.00 to the customer's account balance, to count against their next invoice. Issue the approved credit."
+   },
+   "worker_exit_code": -9,
+   "decision": {
+    "amount": 1000,
+    "description": "Goodwill credit for 3-day service outage during incident INC-d86886 (case-fc36291434)",
+    "model": "claude-haiku-4-5-20251001",
+    "premises": {
+     "subscription_status": "active",
+     "incident_compensation": 0
+    },
+    "observed": {
+     "customer_balance": 0,
+     "compensation_by_others": 0,
+     "incident_compensation": 0
+    }
+   },
+   "observed_at_crash": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_record": {
+    "renewal_invoice": "in_1UFM2r88KhIqqdFLZ3RljPo7"
+   },
+   "observed_at_restart": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_s": 27.8,
+   "receipt": {
+    "effect_id": "6fdbedc91d21",
+    "entries": [
+     {
+      "ts": 1789339107.401141,
+      "kind": "PROPOSED",
+      "effect_id": "6fdbedc91d21",
+      "agent": "billing-credit-agent",
+      "lease": "approval-case-fc36291434",
+      "premises": {
+       "subscription_status": "active",
+       "incident_compensation": 0
+      },
+      "effect": {
+       "customer": "cus_VFrlSqPG8t2Dnq",
+       "amount": 1000,
+       "description": "Goodwill credit for 3-day service outage during incident INC-d86886 (case-fc36291434)"
+      },
+      "prev": null,
+      "hash": "68bb2429106a8956690b85261ae8c9124f9a7aa8bd26208eb23833b93d6da67d"
+     },
+     {
+      "ts": 1789339107.401674,
+      "kind": "AUTHORIZED",
+      "effect_id": "6fdbedc91d21",
+      "lease": "approval-case-fc36291434",
+      "prev": "68bb2429106a8956690b85261ae8c9124f9a7aa8bd26208eb23833b93d6da67d",
+      "hash": "793eacc563db6590b7250147ae65e1476cf2cfdd6d3d7ac1f26f29e104815431"
+     },
+     {
+      "ts": 1789339107.903751,
+      "kind": "DISPATCHED",
+      "effect_id": "6fdbedc91d21",
+      "effect": {
+       "customer": "cus_VFrlSqPG8t2Dnq",
+       "amount": 1000,
+       "description": "Goodwill credit for 3-day service outage during incident INC-d86886 (case-fc36291434)"
+      },
+      "lease": "approval-case-fc36291434",
+      "premises": {
+       "subscription_status": "active",
+       "incident_compensation": 0
+      },
+      "checks": {
+       "lease_live": true,
+       "lease": {
+        "id": "approval-case-fc36291434",
+        "approver": "support-lead",
+        "max_cents": 1000,
+        "revoked": null
+       },
+       "violations": []
+      },
+      "prev": "793eacc563db6590b7250147ae65e1476cf2cfdd6d3d7ac1f26f29e104815431",
+      "hash": "303cb367a84fc815fc94c4fb33efb0ffdf9b80b4fa422fcc362540cb2541123d"
+     },
+     {
+      "ts": 1789339149.7259269,
+      "kind": "COMMITTED",
+      "effect_id": "6fdbedc91d21",
+      "via": "retry-idempotent",
+      "rechecked": {
+       "lease_live": true,
+       "lease": {
+        "id": "approval-case-fc36291434",
+        "approver": "support-lead",
+        "max_cents": 1000,
+        "revoked": null
+       },
+       "violations": []
+      },
+      "result": {
+       "status": "ok",
+       "credit": "cbtxn_1UFM3F88KhIqqdFLXkeHAqTX",
+       "amount": 1000
+      },
+      "prev": "303cb367a84fc815fc94c4fb33efb0ffdf9b80b4fa422fcc362540cb2541123d",
+      "hash": "e1c98957d8cee3366627aed10a823631f53eea2e186cbe99aa944cf22e641efc"
+     }
+    ],
+    "summary": {
+     "effect_id": "6fdbedc91d21",
+     "proposed": true,
+     "authorized": true,
+     "executed": true,
+     "recorded": true,
+     "final": "COMMITTED",
+     "authority": "approval-case-fc36291434"
+    }
+   },
+   "reverified_offline_matches_restart": true,
+   "outcome": "COMMITTED_BY_RETRY",
+   "restart": {
+    "status": "COMMITTED_BY_RETRY",
+    "effect_id": "6fdbedc91d21",
+    "via": "retry-idempotent",
+    "claim_wait_s": 13.9,
+    "verify": {
+     "effect_id": "6fdbedc91d21",
+     "valid": true,
+     "tamper_evident": true,
+     "signed": null,
+     "happened": true,
+     "happened_once": true,
+     "authorized_when_fired": true,
+     "assumptions_held": true,
+     "refused": null,
+     "evidence": {
+      "status": "ok",
+      "credit": "cbtxn_1UFM3F88KhIqqdFLXkeHAqTX",
+      "amount": 1000
+     },
+     "rechecked_at_recovery": {
+      "lease_live": true,
+      "lease": {
+       "id": "approval-case-fc36291434",
+       "approver": "support-lead",
+       "max_cents": 1000,
+       "revoked": null
+      },
+      "violations": []
+     },
+     "problems": []
+    },
+    "journal": [
+     "PROPOSED",
+     "AUTHORIZED",
+     "DISPATCHED",
+     "COMMITTED"
+    ]
+   },
+   "hand_check_log": [],
+   "ground_truth": {
+    "case_credits": [
+     {
+      "id": "cbtxn_1UFM3F88KhIqqdFLXkeHAqTX",
+      "amount": -1000,
+      "created": 1791941899
+     }
+    ],
+    "case_credit_count": 1,
+    "case_credit_cents": 1000,
+    "credit_notes": [],
+    "compensation_by_others": 0,
+    "incident_compensation": 0,
+    "customer_balance": -1000,
+    "balance_transactions": [
+     {
+      "id": "cbtxn_1UFM3F88KhIqqdFLXkeHAqTX",
+      "type": "adjustment",
+      "amount": -1000
+     }
+    ],
+    "invoices": [
+     {
+      "id": "in_1UFM2r88KhIqqdFLZ3RljPo7",
+      "billing_reason": "subscription_cycle",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     },
+     {
+      "id": "in_1UFM2S88KhIqqdFL8WrzBAxQ",
+      "billing_reason": "subscription_create",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     }
+    ]
+   },
+   "want": {
+    "case_credit_count": 1,
+    "case_credit_cents": 1000
+   },
+   "invariant_held": true,
+   "answer_matches_stripe": true,
+   "can_prove_what_happened": true,
+   "proof_note": "hash-chained journal; receipts.verify() re-derives happened/authorized/assumptions",
+   "seconds_to_settle": 41.8,
+   "restart_to_settle_s": 14.0,
+   "emulated": "time: Stripe test clock advanced ~30 days, so Stripe's own billing engine ran the renewal under simulated time; nobody waited a month"
+  },
+  {
+   "system": "no_check",
+   "crash": "before_send",
+   "outage": "billing_credit",
+   "case": {
+    "case_id": "case-7155d2cad6",
+    "incident": "INC-9ea27f",
+    "clock": "clock_1UFM2R88KhIqqdFLStUxOkQD",
+    "customer": "cus_VFrlzBcQz1DUPM",
+    "subscription": "sub_1UFM2S88KhIqqdFLiWGWMwye",
+    "approval": {
+     "id": "approval-case-7155d2cad6",
+     "approver": "support-lead",
+     "max_cents": 1000,
+     "revoked": null
+    },
+    "text": "Support case case-7155d2cad6. The customer is on the $30.00/month plan and lost access for three days during incident INC-9ea27f. Support reviewed it and approved ONE goodwill credit of $10.00 to the customer's account balance, to count against their next invoice. Issue the approved credit."
+   },
+   "worker_exit_code": -9,
+   "decision": {
+    "amount": 1000,
+    "description": "Goodwill credit for service outage during incident INC-9ea27f (3 days downtime) - case-7155d2cad6",
+    "model": "claude-haiku-4-5-20251001",
+    "premises": {
+     "subscription_status": "active",
+     "incident_compensation": 0
+    },
+    "observed": {
+     "customer_balance": 0,
+     "compensation_by_others": 0,
+     "incident_compensation": 0
+    }
+   },
+   "observed_at_crash": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_record": {
+    "renewal_invoice": "in_1UFM2g88KhIqqdFLjzuzCloD",
+    "credit_note": "cn_1UFM2p88KhIqqdFLyhaCCF7G",
+    "credit_note_incident": "INC-9ea27f"
+   },
+   "observed_at_restart": {
+    "customer_balance": -1000,
+    "compensation_by_others": 1000,
+    "incident_compensation": 1000
+   },
+   "outage_s": 18.7,
+   "outcome": "CREDITED",
+   "restart": {
+    "status": "CREDITED",
+    "credit": "cbtxn_1UFM2r88KhIqqdFLxE0HL2Ul"
+   },
+   "hand_check_log": [],
+   "ground_truth": {
+    "case_credits": [
+     {
+      "id": "cbtxn_1UFM2r88KhIqqdFLxE0HL2Ul",
+      "amount": -1000,
+      "created": 1791941899
+     }
+    ],
+    "case_credit_count": 1,
+    "case_credit_cents": 1000,
+    "credit_notes": [
+     {
+      "id": "cn_1UFM2p88KhIqqdFLyhaCCF7G",
+      "amount": 1000,
+      "status": "issued",
+      "incident": "INC-9ea27f"
+     }
+    ],
+    "compensation_by_others": 1000,
+    "incident_compensation": 1000,
+    "customer_balance": -2000,
+    "balance_transactions": [
+     {
+      "id": "cbtxn_1UFM2r88KhIqqdFLxE0HL2Ul",
+      "type": "adjustment",
+      "amount": -1000
+     },
+     {
+      "id": "cbtxn_1UFM2p88KhIqqdFLRqaltiAj",
+      "type": "credit_note",
+      "amount": -1000
+     }
+    ],
+    "invoices": [
+     {
+      "id": "in_1UFM2g88KhIqqdFLjzuzCloD",
+      "billing_reason": "subscription_cycle",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     },
+     {
+      "id": "in_1UFM2S88KhIqqdFLNOmspyQS",
+      "billing_reason": "subscription_create",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     }
+    ]
+   },
+   "want": {
+    "case_credit_count": 0,
+    "case_credit_cents": 0
+   },
+   "invariant_held": false,
+   "answer_matches_stripe": true,
+   "can_prove_what_happened": false,
+   "proof_note": "decision.json holds the model's decision; nothing records authority or checks",
+   "seconds_to_settle": 19.1,
+   "restart_to_settle_s": 0.4,
+   "emulated": "time: Stripe test clock advanced ~30 days, so Stripe's own billing engine ran the renewal under simulated time; nobody waited a month; the billing SLA automation is the harness calling POST /v1/credit_notes (credit_amount=1000) on the renewal invoice; the credit note is real"
+  },
+  {
+   "system": "hand_check",
+   "crash": "before_send",
+   "outage": "billing_credit",
+   "case": {
+    "case_id": "case-cdedf8479d",
+    "incident": "INC-bc90ff",
+    "clock": "clock_1UFM2R88KhIqqdFLdX8c6UVC",
+    "customer": "cus_VFrlr7iW9JSeTP",
+    "subscription": "sub_1UFM2S88KhIqqdFL7myrAloR",
+    "approval": {
+     "id": "approval-case-cdedf8479d",
+     "approver": "support-lead",
+     "max_cents": 1000,
+     "revoked": null
+    },
+    "text": "Support case case-cdedf8479d. The customer is on the $30.00/month plan and lost access for three days during incident INC-bc90ff. Support reviewed it and approved ONE goodwill credit of $10.00 to the customer's account balance, to count against their next invoice. Issue the approved credit."
+   },
+   "worker_exit_code": -9,
+   "decision": {
+    "amount": 1000,
+    "description": "Goodwill credit for three-day service outage (INC-bc90ff). Case case-cdedf8479d.",
+    "model": "claude-haiku-4-5-20251001",
+    "premises": {
+     "subscription_status": "active",
+     "incident_compensation": 0
+    },
+    "observed": {
+     "customer_balance": 0,
+     "compensation_by_others": 0,
+     "incident_compensation": 0
+    }
+   },
+   "observed_at_crash": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_record": {
+    "renewal_invoice": "in_1UFM2j88KhIqqdFLzSGO3Ttr",
+    "credit_note": "cn_1UFM2s88KhIqqdFLLzGeOrsR",
+    "credit_note_incident": "INC-bc90ff"
+   },
+   "observed_at_restart": {
+    "customer_balance": -1000,
+    "compensation_by_others": 1000,
+    "incident_compensation": 1000
+   },
+   "outage_s": 20.2,
+   "outcome": "REFUSED:stale_premise",
+   "restart": {
+    "status": "REFUSED:stale_premise"
+   },
+   "hand_check_log": [
+    {
+     "ts": 1789339106.646006,
+     "agent": "billing-credit-agent",
+     "case_id": "case-cdedf8479d",
+     "phase": "decide",
+     "step": "send",
+     "key": "goodwill-credit-case-cdedf8479d",
+     "approval": {
+      "id": "approval-case-cdedf8479d",
+      "approver": "support-lead",
+      "max_cents": 1000,
+      "revoked": null
+     },
+     "premises": {
+      "subscription_status": "active",
+      "incident_compensation": 0
+     }
+    },
+    {
+     "ts": 1789339128.0027149,
+     "agent": "billing-credit-agent",
+     "case_id": "case-cdedf8479d",
+     "phase": "restart",
+     "step": "premises",
+     "refused": {
+      "was": {
+       "subscription_status": "active",
+       "incident_compensation": 0
+      },
+      "now": {
+       "subscription_status": "active",
+       "incident_compensation": 1000
+      }
+     }
+    }
+   ],
+   "ground_truth": {
+    "case_credits": [],
+    "case_credit_count": 0,
+    "case_credit_cents": 0,
+    "credit_notes": [
+     {
+      "id": "cn_1UFM2s88KhIqqdFLLzGeOrsR",
+      "amount": 1000,
+      "status": "issued",
+      "incident": "INC-bc90ff"
+     }
+    ],
+    "compensation_by_others": 1000,
+    "incident_compensation": 1000,
+    "customer_balance": -1000,
+    "balance_transactions": [
+     {
+      "id": "cbtxn_1UFM2s88KhIqqdFLXPnQUZkx",
+      "type": "credit_note",
+      "amount": -1000
+     }
+    ],
+    "invoices": [
+     {
+      "id": "in_1UFM2j88KhIqqdFLzSGO3Ttr",
+      "billing_reason": "subscription_cycle",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     },
+     {
+      "id": "in_1UFM2S88KhIqqdFLTm3RtaE5",
+      "billing_reason": "subscription_create",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     }
+    ]
+   },
+   "want": {
+    "case_credit_count": 0,
+    "case_credit_cents": 0
+   },
+   "invariant_held": true,
+   "answer_matches_stripe": true,
+   "can_prove_what_happened": true,
+   "proof_note": "plain append-only log file written by the same worker, not hash-chained or signed",
+   "seconds_to_settle": 21.4,
+   "restart_to_settle_s": 1.2,
+   "emulated": "time: Stripe test clock advanced ~30 days, so Stripe's own billing engine ran the renewal under simulated time; nobody waited a month; the billing SLA automation is the harness calling POST /v1/credit_notes (credit_amount=1000) on the renewal invoice; the credit note is real"
+  },
+  {
+   "system": "interlock",
+   "crash": "before_send",
+   "outage": "billing_credit",
+   "case": {
+    "case_id": "case-0230701ef3",
+    "incident": "INC-383222",
+    "clock": "clock_1UFM2r88KhIqqdFLABV3zZAS",
+    "customer": "cus_VFrmE1SLlJEHn2",
+    "subscription": "sub_1UFM2s88KhIqqdFL1VBus6AB",
+    "approval": {
+     "id": "approval-case-0230701ef3",
+     "approver": "support-lead",
+     "max_cents": 1000,
+     "revoked": null
+    },
+    "text": "Support case case-0230701ef3. The customer is on the $30.00/month plan and lost access for three days during incident INC-383222. Support reviewed it and approved ONE goodwill credit of $10.00 to the customer's account balance, to count against their next invoice. Issue the approved credit."
+   },
+   "worker_exit_code": -9,
+   "decision": {
+    "amount": 1000,
+    "description": "Goodwill credit for incident INC-383222 - 3-day service outage",
+    "model": "claude-haiku-4-5-20251001",
+    "premises": {
+     "subscription_status": "active",
+     "incident_compensation": 0
+    },
+    "observed": {
+     "customer_balance": 0,
+     "compensation_by_others": 0,
+     "incident_compensation": 0
+    }
+   },
+   "observed_at_crash": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_record": {
+    "renewal_invoice": "in_1UFM3288KhIqqdFLjWU223Sl",
+    "credit_note": "cn_1UFM3A88KhIqqdFLVm67iu01",
+    "credit_note_incident": "INC-383222"
+   },
+   "observed_at_restart": {
+    "customer_balance": -1000,
+    "compensation_by_others": 1000,
+    "incident_compensation": 1000
+   },
+   "outage_s": 14.0,
+   "receipt": {
+    "effect_id": "5af981a181de",
+    "entries": [
+     {
+      "ts": 1789339131.133697,
+      "kind": "PROPOSED",
+      "effect_id": "5af981a181de",
+      "agent": "billing-credit-agent",
+      "lease": "approval-case-0230701ef3",
+      "premises": {
+       "subscription_status": "active",
+       "incident_compensation": 0
+      },
+      "effect": {
+       "customer": "cus_VFrmE1SLlJEHn2",
+       "amount": 1000,
+       "description": "Goodwill credit for incident INC-383222 - 3-day service outage"
+      },
+      "prev": null,
+      "hash": "11e04db1b73609a6ae53a040fc6f4ad9c279fdebdbf45622d86da3881000166a"
+     },
+     {
+      "ts": 1789339131.1342819,
+      "kind": "AUTHORIZED",
+      "effect_id": "5af981a181de",
+      "lease": "approval-case-0230701ef3",
+      "prev": "11e04db1b73609a6ae53a040fc6f4ad9c279fdebdbf45622d86da3881000166a",
+      "hash": "f44a1992c9557a6e8e009b014a6962b14fd51b0de4b7d5060eefd1784a9ea589"
+     },
+     {
+      "ts": 1789339131.6608052,
+      "kind": "DISPATCHED",
+      "effect_id": "5af981a181de",
+      "effect": {
+       "customer": "cus_VFrmE1SLlJEHn2",
+       "amount": 1000,
+       "description": "Goodwill credit for incident INC-383222 - 3-day service outage"
+      },
+      "lease": "approval-case-0230701ef3",
+      "premises": {
+       "subscription_status": "active",
+       "incident_compensation": 0
+      },
+      "checks": {
+       "lease_live": true,
+       "lease": {
+        "id": "approval-case-0230701ef3",
+        "approver": "support-lead",
+        "max_cents": 1000,
+        "revoked": null
+       },
+       "violations": []
+      },
+      "prev": "f44a1992c9557a6e8e009b014a6962b14fd51b0de4b7d5060eefd1784a9ea589",
+      "hash": "d40916303b4d85136b335c45bdd0d967ac3c55ee211ca48d22d1471bbd64bb4f"
+     },
+     {
+      "ts": 1789339173.084998,
+      "kind": "REFUSED",
+      "effect_id": "5af981a181de",
+      "reason": "stale_premise at recovery",
+      "resolves": true,
+      "rechecked": {
+       "lease_live": true,
+       "lease": {
+        "id": "approval-case-0230701ef3",
+        "approver": "support-lead",
+        "max_cents": 1000,
+        "revoked": null
+       },
+       "violations": [
+        "incident_compensation: was 0, now 1000"
+       ]
+      },
+      "prev": "d40916303b4d85136b335c45bdd0d967ac3c55ee211ca48d22d1471bbd64bb4f",
+      "hash": "9e7dc71115d8bb88399606ed12236002e9c6bb5a70ce1855934ad2bf9afe464f"
+     }
+    ],
+    "summary": {
+     "effect_id": "5af981a181de",
+     "proposed": true,
+     "authorized": true,
+     "executed": false,
+     "recorded": false,
+     "final": "REFUSED",
+     "authority": "approval-case-0230701ef3"
+    }
+   },
+   "reverified_offline_matches_restart": true,
+   "outcome": "REFUSED:stale_premise_at_recovery",
+   "restart": {
+    "status": "REFUSED:stale_premise_at_recovery",
+    "effect_id": "5af981a181de",
+    "via": null,
+    "claim_wait_s": 27.0,
+    "verify": {
+     "effect_id": "5af981a181de",
+     "valid": true,
+     "tamper_evident": true,
+     "signed": null,
+     "happened": false,
+     "happened_once": true,
+     "authorized_when_fired": null,
+     "assumptions_held": null,
+     "refused": "stale_premise at recovery",
+     "evidence": null,
+     "rechecked_at_recovery": {
+      "lease_live": true,
+      "lease": {
+       "id": "approval-case-0230701ef3",
+       "approver": "support-lead",
+       "max_cents": 1000,
+       "revoked": null
+      },
+      "violations": [
+       "incident_compensation: was 0, now 1000"
+      ]
+     },
+     "problems": []
+    },
+    "journal": [
+     "PROPOSED",
+     "AUTHORIZED",
+     "DISPATCHED",
+     "REFUSED"
+    ]
+   },
+   "hand_check_log": [],
+   "ground_truth": {
+    "case_credits": [],
+    "case_credit_count": 0,
+    "case_credit_cents": 0,
+    "credit_notes": [
+     {
+      "id": "cn_1UFM3A88KhIqqdFLVm67iu01",
+      "amount": 1000,
+      "status": "issued",
+      "incident": "INC-383222"
+     }
+    ],
+    "compensation_by_others": 1000,
+    "incident_compensation": 1000,
+    "customer_balance": -1000,
+    "balance_transactions": [
+     {
+      "id": "cbtxn_1UFM3A88KhIqqdFLyzTbtmAj",
+      "type": "credit_note",
+      "amount": -1000
+     }
+    ],
+    "invoices": [
+     {
+      "id": "in_1UFM3288KhIqqdFLjWU223Sl",
+      "billing_reason": "subscription_cycle",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     },
+     {
+      "id": "in_1UFM2s88KhIqqdFLVKQ5ECuN",
+      "billing_reason": "subscription_create",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     }
+    ]
+   },
+   "want": {
+    "case_credit_count": 0,
+    "case_credit_cents": 0
+   },
+   "invariant_held": true,
+   "answer_matches_stripe": true,
+   "can_prove_what_happened": true,
+   "proof_note": "hash-chained journal; receipts.verify() re-derives happened/authorized/assumptions",
+   "seconds_to_settle": 41.5,
+   "restart_to_settle_s": 27.5,
+   "emulated": "time: Stripe test clock advanced ~30 days, so Stripe's own billing engine ran the renewal under simulated time; nobody waited a month; the billing SLA automation is the harness calling POST /v1/credit_notes (credit_amount=1000) on the renewal invoice; the credit note is real"
+  },
+  {
+   "system": "no_check",
+   "crash": "before_send",
+   "outage": "proration",
+   "case": {
+    "case_id": "case-a6abd356e7",
+    "incident": "INC-4c56bb",
+    "clock": "clock_1UFM2s88KhIqqdFL2K2zAh14",
+    "customer": "cus_VFrmxngRKsc8Ua",
+    "subscription": "sub_1UFM2t88KhIqqdFLOs4EVZRs",
+    "approval": {
+     "id": "approval-case-a6abd356e7",
+     "approver": "support-lead",
+     "max_cents": 1000,
+     "revoked": null
+    },
+    "text": "Support case case-a6abd356e7. The customer is on the $30.00/month plan and lost access for three days during incident INC-4c56bb. Support reviewed it and approved ONE goodwill credit of $10.00 to the customer's account balance, to count against their next invoice. Issue the approved credit."
+   },
+   "worker_exit_code": -9,
+   "decision": {
+    "amount": 1000,
+    "description": "Goodwill credit for 3-day access loss during incident INC-4c56bb (case-a6abd356e7)",
+    "model": "claude-haiku-4-5-20251001",
+    "premises": {
+     "subscription_status": "active",
+     "incident_compensation": 0
+    },
+    "observed": {
+     "customer_balance": 0,
+     "compensation_by_others": 0,
+     "incident_compensation": 0
+    }
+   },
+   "observed_at_crash": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_record": {
+    "renewal_invoice": "in_1UFM3488KhIqqdFLauiOoyzU"
+   },
+   "observed_at_restart": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_s": 15.9,
+   "outcome": "CREDITED",
+   "restart": {
+    "status": "CREDITED",
+    "credit": "cbtxn_1UFM3F88KhIqqdFLZE58HbVZ"
+   },
+   "hand_check_log": [],
+   "ground_truth": {
+    "case_credits": [
+     {
+      "id": "cbtxn_1UFM3F88KhIqqdFLZE58HbVZ",
+      "amount": -1000,
+      "created": 1791941925
+     }
+    ],
+    "case_credit_count": 1,
+    "case_credit_cents": 1000,
+    "credit_notes": [],
+    "compensation_by_others": 0,
+    "incident_compensation": 0,
+    "customer_balance": -1000,
+    "balance_transactions": [
+     {
+      "id": "cbtxn_1UFM3F88KhIqqdFLZE58HbVZ",
+      "type": "adjustment",
+      "amount": -1000
+     }
+    ],
+    "invoices": [
+     {
+      "id": "in_1UFM3488KhIqqdFLauiOoyzU",
+      "billing_reason": "subscription_cycle",
+      "status": "paid",
+      "total": 1000,
+      "starting_balance": 0,
+      "amount_due": 1000
+     },
+     {
+      "id": "in_1UFM2t88KhIqqdFL9m954MRf",
+      "billing_reason": "subscription_create",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     }
+    ]
+   },
+   "want": {
+    "case_credit_count": 1,
+    "case_credit_cents": 1000
+   },
+   "invariant_held": true,
+   "answer_matches_stripe": true,
+   "can_prove_what_happened": false,
+   "proof_note": "decision.json holds the model's decision; nothing records authority or checks",
+   "seconds_to_settle": 16.6,
+   "restart_to_settle_s": 0.8,
+   "emulated": "time: Stripe test clock advanced ~30 days, so Stripe's own billing engine ran the renewal under simulated time; nobody waited a month"
+  },
+  {
+   "system": "hand_check",
+   "crash": "before_send",
+   "outage": "proration",
+   "case": {
+    "case_id": "case-79e0c5b893",
+    "incident": "INC-5a01db",
+    "clock": "clock_1UFM2v88KhIqqdFL8PWExpdN",
+    "customer": "cus_VFrmNJXwuwp9nu",
+    "subscription": "sub_1UFM2w88KhIqqdFLdIzwhxIl",
+    "approval": {
+     "id": "approval-case-79e0c5b893",
+     "approver": "support-lead",
+     "max_cents": 1000,
+     "revoked": null
+    },
+    "text": "Support case case-79e0c5b893. The customer is on the $30.00/month plan and lost access for three days during incident INC-5a01db. Support reviewed it and approved ONE goodwill credit of $10.00 to the customer's account balance, to count against their next invoice. Issue the approved credit."
+   },
+   "worker_exit_code": -9,
+   "decision": {
+    "amount": 1000,
+    "description": "Goodwill credit for three-day service outage during incident INC-5a01db per case case-79e0c5b893",
+    "model": "claude-haiku-4-5-20251001",
+    "premises": {
+     "subscription_status": "active",
+     "incident_compensation": 0
+    },
+    "observed": {
+     "customer_balance": 0,
+     "compensation_by_others": 0,
+     "incident_compensation": 0
+    }
+   },
+   "observed_at_crash": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_record": {
+    "renewal_invoice": "in_1UFM3788KhIqqdFLhCXxQlaI"
+   },
+   "observed_at_restart": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_s": 15.6,
+   "outcome": "CREDITED",
+   "restart": {
+    "status": "CREDITED"
+   },
+   "hand_check_log": [
+    {
+     "ts": 1789339136.516681,
+     "agent": "billing-credit-agent",
+     "case_id": "case-79e0c5b893",
+     "phase": "decide",
+     "step": "send",
+     "key": "goodwill-credit-case-79e0c5b893",
+     "approval": {
+      "id": "approval-case-79e0c5b893",
+      "approver": "support-lead",
+      "max_cents": 1000,
+      "revoked": null
+     },
+     "premises": {
+      "subscription_status": "active",
+      "incident_compensation": 0
+     }
+    },
+    {
+     "ts": 1789339153.31462,
+     "agent": "billing-credit-agent",
+     "case_id": "case-79e0c5b893",
+     "phase": "restart",
+     "step": "send",
+     "key": "goodwill-credit-case-79e0c5b893",
+     "approval": {
+      "id": "approval-case-79e0c5b893",
+      "approver": "support-lead",
+      "max_cents": 1000,
+      "revoked": null
+     },
+     "premises": {
+      "subscription_status": "active",
+      "incident_compensation": 0
+     }
+    },
+    {
+     "ts": 1789339153.5283148,
+     "agent": "billing-credit-agent",
+     "case_id": "case-79e0c5b893",
+     "phase": "restart",
+     "step": "sent",
+     "credit": "cbtxn_1UFM3J88KhIqqdFLTuMMKRg6",
+     "replayed": false
+    }
+   ],
+   "ground_truth": {
+    "case_credits": [
+     {
+      "id": "cbtxn_1UFM3J88KhIqqdFLTuMMKRg6",
+      "amount": -1000,
+      "created": 1791941928
+     }
+    ],
+    "case_credit_count": 1,
+    "case_credit_cents": 1000,
+    "credit_notes": [],
+    "compensation_by_others": 0,
+    "incident_compensation": 0,
+    "customer_balance": -1000,
+    "balance_transactions": [
+     {
+      "id": "cbtxn_1UFM3J88KhIqqdFLTuMMKRg6",
+      "type": "adjustment",
+      "amount": -1000
+     }
+    ],
+    "invoices": [
+     {
+      "id": "in_1UFM3788KhIqqdFLhCXxQlaI",
+      "billing_reason": "subscription_cycle",
+      "status": "paid",
+      "total": 1000,
+      "starting_balance": 0,
+      "amount_due": 1000
+     },
+     {
+      "id": "in_1UFM2w88KhIqqdFLavr1elOQ",
+      "billing_reason": "subscription_create",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     }
+    ]
+   },
+   "want": {
+    "case_credit_count": 1,
+    "case_credit_cents": 1000
+   },
+   "invariant_held": true,
+   "answer_matches_stripe": true,
+   "can_prove_what_happened": true,
+   "proof_note": "plain append-only log file written by the same worker, not hash-chained or signed",
+   "seconds_to_settle": 17.0,
+   "restart_to_settle_s": 1.4,
+   "emulated": "time: Stripe test clock advanced ~30 days, so Stripe's own billing engine ran the renewal under simulated time; nobody waited a month"
+  },
+  {
+   "system": "interlock",
+   "crash": "before_send",
+   "outage": "proration",
+   "case": {
+    "case_id": "case-41f8e29f91",
+    "incident": "INC-5a6cfc",
+    "clock": "clock_1UFM2x88KhIqqdFLbQGEMVi5",
+    "customer": "cus_VFrmHkFIS1XfBZ",
+    "subscription": "sub_1UFM2y88KhIqqdFLXEYpGoG8",
+    "approval": {
+     "id": "approval-case-41f8e29f91",
+     "approver": "support-lead",
+     "max_cents": 1000,
+     "revoked": null
+    },
+    "text": "Support case case-41f8e29f91. The customer is on the $30.00/month plan and lost access for three days during incident INC-5a6cfc. Support reviewed it and approved ONE goodwill credit of $10.00 to the customer's account balance, to count against their next invoice. Issue the approved credit."
+   },
+   "worker_exit_code": -9,
+   "decision": {
+    "amount": 1000,
+    "description": "Goodwill credit for 3-day service outage during incident INC-5a6cfc (case-41f8e29f91)",
+    "model": "claude-haiku-4-5-20251001",
+    "premises": {
+     "subscription_status": "active",
+     "incident_compensation": 0
+    },
+    "observed": {
+     "customer_balance": 0,
+     "compensation_by_others": 0,
+     "incident_compensation": 0
+    }
+   },
+   "observed_at_crash": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_record": {
+    "renewal_invoice": "in_1UFM3B88KhIqqdFLoDiEWp5N"
+   },
+   "observed_at_restart": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_s": 16.8,
+   "receipt": {
+    "effect_id": "7d99306218e6",
+    "entries": [
+     {
+      "ts": 1789339137.794954,
+      "kind": "PROPOSED",
+      "effect_id": "7d99306218e6",
+      "agent": "billing-credit-agent",
+      "lease": "approval-case-41f8e29f91",
+      "premises": {
+       "subscription_status": "active",
+       "incident_compensation": 0
+      },
+      "effect": {
+       "customer": "cus_VFrmHkFIS1XfBZ",
+       "amount": 1000,
+       "description": "Goodwill credit for 3-day service outage during incident INC-5a6cfc (case-41f8e29f91)"
+      },
+      "prev": null,
+      "hash": "f23688324147b5c324da3377c41babc05b568f41695670f5f6f71765501e19b8"
+     },
+     {
+      "ts": 1789339137.79546,
+      "kind": "AUTHORIZED",
+      "effect_id": "7d99306218e6",
+      "lease": "approval-case-41f8e29f91",
+      "prev": "f23688324147b5c324da3377c41babc05b568f41695670f5f6f71765501e19b8",
+      "hash": "305742cbede05b53ee0262cba89721268c8c8c0e9d025d3a5133954416be298b"
+     },
+     {
+      "ts": 1789339138.3190138,
+      "kind": "DISPATCHED",
+      "effect_id": "7d99306218e6",
+      "effect": {
+       "customer": "cus_VFrmHkFIS1XfBZ",
+       "amount": 1000,
+       "description": "Goodwill credit for 3-day service outage during incident INC-5a6cfc (case-41f8e29f91)"
+      },
+      "lease": "approval-case-41f8e29f91",
+      "premises": {
+       "subscription_status": "active",
+       "incident_compensation": 0
+      },
+      "checks": {
+       "lease_live": true,
+       "lease": {
+        "id": "approval-case-41f8e29f91",
+        "approver": "support-lead",
+        "max_cents": 1000,
+        "revoked": null
+       },
+       "violations": []
+      },
+      "prev": "305742cbede05b53ee0262cba89721268c8c8c0e9d025d3a5133954416be298b",
+      "hash": "43a5a7815df06aa04b4ef53bf220e14ae366ae68b68955db644d2abe42e56fe8"
+     },
+     {
+      "ts": 1789339179.274369,
+      "kind": "COMMITTED",
+      "effect_id": "7d99306218e6",
+      "via": "retry-idempotent",
+      "rechecked": {
+       "lease_live": true,
+       "lease": {
+        "id": "approval-case-41f8e29f91",
+        "approver": "support-lead",
+        "max_cents": 1000,
+        "revoked": null
+       },
+       "violations": []
+      },
+      "result": {
+       "status": "ok",
+       "credit": "cbtxn_1UFM3j88KhIqqdFLB1eK5Hw5",
+       "amount": 1000
+      },
+      "prev": "43a5a7815df06aa04b4ef53bf220e14ae366ae68b68955db644d2abe42e56fe8",
+      "hash": "d4a4724584200f51c4dc795a899acac1151f8a76c4a5372f48db2c79217afa62"
+     }
+    ],
+    "summary": {
+     "effect_id": "7d99306218e6",
+     "proposed": true,
+     "authorized": true,
+     "executed": true,
+     "recorded": true,
+     "final": "COMMITTED",
+     "authority": "approval-case-41f8e29f91"
+    }
+   },
+   "reverified_offline_matches_restart": true,
+   "outcome": "COMMITTED_BY_RETRY",
+   "restart": {
+    "status": "COMMITTED_BY_RETRY",
+    "effect_id": "7d99306218e6",
+    "via": "retry-idempotent",
+    "claim_wait_s": 24.0,
+    "verify": {
+     "effect_id": "7d99306218e6",
+     "valid": true,
+     "tamper_evident": true,
+     "signed": null,
+     "happened": true,
+     "happened_once": true,
+     "authorized_when_fired": true,
+     "assumptions_held": true,
+     "refused": null,
+     "evidence": {
+      "status": "ok",
+      "credit": "cbtxn_1UFM3j88KhIqqdFLB1eK5Hw5",
+      "amount": 1000
+     },
+     "rechecked_at_recovery": {
+      "lease_live": true,
+      "lease": {
+       "id": "approval-case-41f8e29f91",
+       "approver": "support-lead",
+       "max_cents": 1000,
+       "revoked": null
+      },
+      "violations": []
+     },
+     "problems": []
+    },
+    "journal": [
+     "PROPOSED",
+     "AUTHORIZED",
+     "DISPATCHED",
+     "COMMITTED"
+    ]
+   },
+   "hand_check_log": [],
+   "ground_truth": {
+    "case_credits": [
+     {
+      "id": "cbtxn_1UFM3j88KhIqqdFLB1eK5Hw5",
+      "amount": -1000,
+      "created": 1791941931
+     }
+    ],
+    "case_credit_count": 1,
+    "case_credit_cents": 1000,
+    "credit_notes": [],
+    "compensation_by_others": 0,
+    "incident_compensation": 0,
+    "customer_balance": -1000,
+    "balance_transactions": [
+     {
+      "id": "cbtxn_1UFM3j88KhIqqdFLB1eK5Hw5",
+      "type": "adjustment",
+      "amount": -1000
+     }
+    ],
+    "invoices": [
+     {
+      "id": "in_1UFM3B88KhIqqdFLoDiEWp5N",
+      "billing_reason": "subscription_cycle",
+      "status": "paid",
+      "total": 1000,
+      "starting_balance": 0,
+      "amount_due": 1000
+     },
+     {
+      "id": "in_1UFM2y88KhIqqdFLSJZPhB6Y",
+      "billing_reason": "subscription_create",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     }
+    ]
+   },
+   "want": {
+    "case_credit_count": 1,
+    "case_credit_cents": 1000
+   },
+   "invariant_held": true,
+   "answer_matches_stripe": true,
+   "can_prove_what_happened": true,
+   "proof_note": "hash-chained journal; receipts.verify() re-derives happened/authorized/assumptions",
+   "seconds_to_settle": 41.0,
+   "restart_to_settle_s": 24.1,
+   "emulated": "time: Stripe test clock advanced ~30 days, so Stripe's own billing engine ran the renewal under simulated time; nobody waited a month"
+  },
+  {
+   "system": "no_check",
+   "crash": "after_send",
+   "outage": "renewal",
+   "case": {
+    "case_id": "case-f65c3a6625",
+    "incident": "INC-a81802",
+    "clock": "clock_1UFM3G88KhIqqdFLQFt3AAzA",
+    "customer": "cus_VFrmNh91lKfK0t",
+    "subscription": "sub_1UFM3H88KhIqqdFLWOrF7FFk",
+    "approval": {
+     "id": "approval-case-f65c3a6625",
+     "approver": "support-lead",
+     "max_cents": 1000,
+     "revoked": null
+    },
+    "text": "Support case case-f65c3a6625. The customer is on the $30.00/month plan and lost access for three days during incident INC-a81802. Support reviewed it and approved ONE goodwill credit of $10.00 to the customer's account balance, to count against their next invoice. Issue the approved credit."
+   },
+   "worker_exit_code": -9,
+   "decision": {
+    "amount": 1000,
+    "description": "Goodwill credit for 3-day service outage during incident INC-a81802 (case-f65c3a6625)",
+    "model": "claude-haiku-4-5-20251001",
+    "premises": {
+     "subscription_status": "active",
+     "incident_compensation": 0
+    },
+    "observed": {
+     "customer_balance": 0,
+     "compensation_by_others": 0,
+     "incident_compensation": 0
+    }
+   },
+   "observed_at_crash": {
+    "customer_balance": -1000,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_record": {
+    "renewal_invoice": "in_1UFM3R88KhIqqdFL18N1DbDS"
+   },
+   "observed_at_restart": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_s": 15.1,
+   "outcome": "REPLAYED_BY_STRIPE",
+   "restart": {
+    "status": "REPLAYED_BY_STRIPE",
+    "credit": "cbtxn_1UFM3M88KhIqqdFLXcyLHFTh"
+   },
+   "hand_check_log": [],
+   "ground_truth": {
+    "case_credits": [
+     {
+      "id": "cbtxn_1UFM3M88KhIqqdFLXcyLHFTh",
+      "amount": -1000,
+      "created": 1789339150
+     }
+    ],
+    "case_credit_count": 1,
+    "case_credit_cents": 1000,
+    "credit_notes": [],
+    "compensation_by_others": 0,
+    "incident_compensation": 0,
+    "customer_balance": 0,
+    "balance_transactions": [
+     {
+      "id": "cbtxn_1UFM3V88KhIqqdFLy1IaLyyk",
+      "type": "applied_to_invoice",
+      "amount": 1000
+     },
+     {
+      "id": "cbtxn_1UFM3M88KhIqqdFLXcyLHFTh",
+      "type": "adjustment",
+      "amount": -1000
+     }
+    ],
+    "invoices": [
+     {
+      "id": "in_1UFM3R88KhIqqdFL18N1DbDS",
+      "billing_reason": "subscription_cycle",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": -1000,
+      "amount_due": 2000
+     },
+     {
+      "id": "in_1UFM3H88KhIqqdFLxr0ef1KG",
+      "billing_reason": "subscription_create",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     }
+    ]
+   },
+   "want": {
+    "case_credit_count": 1,
+    "case_credit_cents": 1000
+   },
+   "invariant_held": true,
+   "answer_matches_stripe": true,
+   "can_prove_what_happened": false,
+   "proof_note": "decision.json holds the model's decision; nothing records authority or checks",
+   "seconds_to_settle": 15.5,
+   "restart_to_settle_s": 0.4,
+   "emulated": "time: Stripe test clock advanced ~30 days, so Stripe's own billing engine ran the renewal under simulated time; nobody waited a month"
+  },
+  {
+   "system": "hand_check",
+   "crash": "after_send",
+   "outage": "renewal",
+   "case": {
+    "case_id": "case-bf572ac028",
+    "incident": "INC-08e30e",
+    "clock": "clock_1UFM3G88KhIqqdFLxUHHpFDh",
+    "customer": "cus_VFrmd9kDZMWMtj",
+    "subscription": "sub_1UFM3H88KhIqqdFLrEaCeiF3",
+    "approval": {
+     "id": "approval-case-bf572ac028",
+     "approver": "support-lead",
+     "max_cents": 1000,
+     "revoked": null
+    },
+    "text": "Support case case-bf572ac028. The customer is on the $30.00/month plan and lost access for three days during incident INC-08e30e. Support reviewed it and approved ONE goodwill credit of $10.00 to the customer's account balance, to count against their next invoice. Issue the approved credit."
+   },
+   "worker_exit_code": -9,
+   "decision": {
+    "amount": 1000,
+    "description": "Goodwill credit for 3-day service outage during incident INC-08e30e (case-bf572ac028)",
+    "model": "claude-haiku-4-5-20251001",
+    "premises": {
+     "subscription_status": "active",
+     "incident_compensation": 0
+    },
+    "observed": {
+     "customer_balance": 0,
+     "compensation_by_others": 0,
+     "incident_compensation": 0
+    }
+   },
+   "observed_at_crash": {
+    "customer_balance": -1000,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_record": {
+    "renewal_invoice": "in_1UFM3T88KhIqqdFL0TXBjJVS"
+   },
+   "observed_at_restart": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_s": 15.0,
+   "outcome": "FOUND_BY_LOOKUP",
+   "restart": {
+    "status": "FOUND_BY_LOOKUP"
+   },
+   "hand_check_log": [
+    {
+     "ts": 1789339158.240246,
+     "agent": "billing-credit-agent",
+     "case_id": "case-bf572ac028",
+     "phase": "decide",
+     "step": "send",
+     "key": "goodwill-credit-case-bf572ac028",
+     "approval": {
+      "id": "approval-case-bf572ac028",
+      "approver": "support-lead",
+      "max_cents": 1000,
+      "revoked": null
+     },
+     "premises": {
+      "subscription_status": "active",
+      "incident_compensation": 0
+     }
+    },
+    {
+     "ts": 1789339173.775661,
+     "agent": "billing-credit-agent",
+     "case_id": "case-bf572ac028",
+     "phase": "restart",
+     "step": "lookup",
+     "found": "cbtxn_1UFM3O88KhIqqdFLqqS6C0Cx"
+    }
+   ],
+   "ground_truth": {
+    "case_credits": [
+     {
+      "id": "cbtxn_1UFM3O88KhIqqdFLqqS6C0Cx",
+      "amount": -1000,
+      "created": 1789339150
+     }
+    ],
+    "case_credit_count": 1,
+    "case_credit_cents": 1000,
+    "credit_notes": [],
+    "compensation_by_others": 0,
+    "incident_compensation": 0,
+    "customer_balance": 0,
+    "balance_transactions": [
+     {
+      "id": "cbtxn_1UFM3X88KhIqqdFLs3hyJ0V3",
+      "type": "applied_to_invoice",
+      "amount": 1000
+     },
+     {
+      "id": "cbtxn_1UFM3O88KhIqqdFLqqS6C0Cx",
+      "type": "adjustment",
+      "amount": -1000
+     }
+    ],
+    "invoices": [
+     {
+      "id": "in_1UFM3T88KhIqqdFL0TXBjJVS",
+      "billing_reason": "subscription_cycle",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": -1000,
+      "amount_due": 2000
+     },
+     {
+      "id": "in_1UFM3I88KhIqqdFL2nTrkKS1",
+      "billing_reason": "subscription_create",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     }
+    ]
+   },
+   "want": {
+    "case_credit_count": 1,
+    "case_credit_cents": 1000
+   },
+   "invariant_held": true,
+   "answer_matches_stripe": true,
+   "can_prove_what_happened": true,
+   "proof_note": "plain append-only log file written by the same worker, not hash-chained or signed",
+   "seconds_to_settle": 15.3,
+   "restart_to_settle_s": 0.3,
+   "emulated": "time: Stripe test clock advanced ~30 days, so Stripe's own billing engine ran the renewal under simulated time; nobody waited a month"
+  },
+  {
+   "system": "interlock",
+   "crash": "after_send",
+   "outage": "renewal",
+   "case": {
+    "case_id": "case-50065c673c",
+    "incident": "INC-52a14b",
+    "clock": "clock_1UFM3K88KhIqqdFLkQLvIF5a",
+    "customer": "cus_VFrmfQkuLBftf0",
+    "subscription": "sub_1UFM3L88KhIqqdFLXwZwkWAE",
+    "approval": {
+     "id": "approval-case-50065c673c",
+     "approver": "support-lead",
+     "max_cents": 1000,
+     "revoked": null
+    },
+    "text": "Support case case-50065c673c. The customer is on the $30.00/month plan and lost access for three days during incident INC-52a14b. Support reviewed it and approved ONE goodwill credit of $10.00 to the customer's account balance, to count against their next invoice. Issue the approved credit."
+   },
+   "worker_exit_code": -9,
+   "decision": {
+    "amount": 1000,
+    "description": "Goodwill credit for 3-day service outage during incident INC-52a14b (case-50065c673c)",
+    "model": "claude-haiku-4-5-20251001",
+    "premises": {
+     "subscription_status": "active",
+     "incident_compensation": 0
+    },
+    "observed": {
+     "customer_balance": 0,
+     "compensation_by_others": 0,
+     "incident_compensation": 0
+    }
+   },
+   "observed_at_crash": {
+    "customer_balance": -1000,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_record": {
+    "renewal_invoice": "in_1UFM3c88KhIqqdFLBmyqAhoe"
+   },
+   "observed_at_restart": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_s": 20.8,
+   "receipt": {
+    "effect_id": "7f5b47689844",
+    "entries": [
+     {
+      "ts": 1789339160.546837,
+      "kind": "PROPOSED",
+      "effect_id": "7f5b47689844",
+      "agent": "billing-credit-agent",
+      "lease": "approval-case-50065c673c",
+      "premises": {
+       "subscription_status": "active",
+       "incident_compensation": 0
+      },
+      "effect": {
+       "customer": "cus_VFrmfQkuLBftf0",
+       "amount": 1000,
+       "description": "Goodwill credit for 3-day service outage during incident INC-52a14b (case-50065c673c)"
+      },
+      "prev": null,
+      "hash": "18d076ba869158e92bbc945dd950b9c000a226ca0b8f3b1fdc35e9bb19b3cdec"
+     },
+     {
+      "ts": 1789339160.548003,
+      "kind": "AUTHORIZED",
+      "effect_id": "7f5b47689844",
+      "lease": "approval-case-50065c673c",
+      "prev": "18d076ba869158e92bbc945dd950b9c000a226ca0b8f3b1fdc35e9bb19b3cdec",
+      "hash": "d6900d85170dd818ff183fee12d142634e2d01d42c9fe9101365b9ead09fab4e"
+     },
+     {
+      "ts": 1789339161.1559901,
+      "kind": "DISPATCHED",
+      "effect_id": "7f5b47689844",
+      "effect": {
+       "customer": "cus_VFrmfQkuLBftf0",
+       "amount": 1000,
+       "description": "Goodwill credit for 3-day service outage during incident INC-52a14b (case-50065c673c)"
+      },
+      "lease": "approval-case-50065c673c",
+      "premises": {
+       "subscription_status": "active",
+       "incident_compensation": 0
+      },
+      "checks": {
+       "lease_live": true,
+       "lease": {
+        "id": "approval-case-50065c673c",
+        "approver": "support-lead",
+        "max_cents": 1000,
+        "revoked": null
+       },
+       "violations": []
+      },
+      "prev": "d6900d85170dd818ff183fee12d142634e2d01d42c9fe9101365b9ead09fab4e",
+      "hash": "0fbcf6be3f456392866cc463cb39e5870a52fd7688c4cd8655bbfb2fe2d30f72"
+     },
+     {
+      "ts": 1789339202.463588,
+      "kind": "COMMITTED",
+      "effect_id": "7f5b47689844",
+      "via": "retry-idempotent",
+      "rechecked": {
+       "lease_live": true,
+       "lease": {
+        "id": "approval-case-50065c673c",
+        "approver": "support-lead",
+        "max_cents": 1000,
+        "revoked": null
+       },
+       "violations": []
+      },
+      "result": {
+       "status": "already_processed",
+       "credit": "cbtxn_1UFM3R88KhIqqdFLQ4OeudIT",
+       "amount": 1000
+      },
+      "prev": "0fbcf6be3f456392866cc463cb39e5870a52fd7688c4cd8655bbfb2fe2d30f72",
+      "hash": "4cb13f500c29a09f0e70ac292620783cd61e6f97009b50452491a3c0f30df005"
+     }
+    ],
+    "summary": {
+     "effect_id": "7f5b47689844",
+     "proposed": true,
+     "authorized": true,
+     "executed": true,
+     "recorded": true,
+     "final": "COMMITTED",
+     "authority": "approval-case-50065c673c"
+    }
+   },
+   "reverified_offline_matches_restart": true,
+   "outcome": "COMMITTED_BY_RETRY",
+   "restart": {
+    "status": "COMMITTED_BY_RETRY",
+    "effect_id": "7f5b47689844",
+    "via": "retry-idempotent",
+    "claim_wait_s": 19.8,
+    "verify": {
+     "effect_id": "7f5b47689844",
+     "valid": true,
+     "tamper_evident": true,
+     "signed": null,
+     "happened": true,
+     "happened_once": true,
+     "authorized_when_fired": true,
+     "assumptions_held": true,
+     "refused": null,
+     "evidence": {
+      "status": "already_processed",
+      "credit": "cbtxn_1UFM3R88KhIqqdFLQ4OeudIT",
+      "amount": 1000
+     },
+     "rechecked_at_recovery": {
+      "lease_live": true,
+      "lease": {
+       "id": "approval-case-50065c673c",
+       "approver": "support-lead",
+       "max_cents": 1000,
+       "revoked": null
+      },
+      "violations": []
+     },
+     "problems": []
+    },
+    "journal": [
+     "PROPOSED",
+     "AUTHORIZED",
+     "DISPATCHED",
+     "COMMITTED"
+    ]
+   },
+   "hand_check_log": [],
+   "ground_truth": {
+    "case_credits": [
+     {
+      "id": "cbtxn_1UFM3R88KhIqqdFLQ4OeudIT",
+      "amount": -1000,
+      "created": 1789339154
+     }
+    ],
+    "case_credit_count": 1,
+    "case_credit_cents": 1000,
+    "credit_notes": [],
+    "compensation_by_others": 0,
+    "incident_compensation": 0,
+    "customer_balance": 0,
+    "balance_transactions": [
+     {
+      "id": "cbtxn_1UFM3g88KhIqqdFLQv3DGiw5",
+      "type": "applied_to_invoice",
+      "amount": 1000
+     },
+     {
+      "id": "cbtxn_1UFM3R88KhIqqdFLQ4OeudIT",
+      "type": "adjustment",
+      "amount": -1000
+     }
+    ],
+    "invoices": [
+     {
+      "id": "in_1UFM3c88KhIqqdFLBmyqAhoe",
+      "billing_reason": "subscription_cycle",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": -1000,
+      "amount_due": 2000
+     },
+     {
+      "id": "in_1UFM3L88KhIqqdFLXbmqndx3",
+      "billing_reason": "subscription_create",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     }
+    ]
+   },
+   "want": {
+    "case_credit_count": 1,
+    "case_credit_cents": 1000
+   },
+   "invariant_held": true,
+   "answer_matches_stripe": true,
+   "can_prove_what_happened": true,
+   "proof_note": "hash-chained journal; receipts.verify() re-derives happened/authorized/assumptions",
+   "seconds_to_settle": 41.1,
+   "restart_to_settle_s": 20.3,
+   "emulated": "time: Stripe test clock advanced ~30 days, so Stripe's own billing engine ran the renewal under simulated time; nobody waited a month"
+  },
+  {
+   "system": "no_check",
+   "crash": "after_send",
+   "outage": "proration",
+   "case": {
+    "case_id": "case-8a2b73488a",
+    "incident": "INC-b9ec8a",
+    "clock": "clock_1UFM3d88KhIqqdFLpxT8MdN3",
+    "customer": "cus_VFrnku4NbXnJiD",
+    "subscription": "sub_1UFM3e88KhIqqdFLyu6YDdze",
+    "approval": {
+     "id": "approval-case-8a2b73488a",
+     "approver": "support-lead",
+     "max_cents": 1000,
+     "revoked": null
+    },
+    "text": "Support case case-8a2b73488a. The customer is on the $30.00/month plan and lost access for three days during incident INC-b9ec8a. Support reviewed it and approved ONE goodwill credit of $10.00 to the customer's account balance, to count against their next invoice. Issue the approved credit."
+   },
+   "worker_exit_code": -9,
+   "decision": {
+    "amount": 1000,
+    "description": "Goodwill credit for 3-day service outage during incident INC-b9ec8a (case-8a2b73488a)",
+    "model": "claude-haiku-4-5-20251001",
+    "premises": {
+     "subscription_status": "active",
+     "incident_compensation": 0
+    },
+    "observed": {
+     "customer_balance": 0,
+     "compensation_by_others": 0,
+     "incident_compensation": 0
+    }
+   },
+   "observed_at_crash": {
+    "customer_balance": -1000,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_record": {
+    "renewal_invoice": "in_1UFM3p88KhIqqdFLlIfsNjrx"
+   },
+   "observed_at_restart": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_s": 13.4,
+   "outcome": "REPLAYED_BY_STRIPE",
+   "restart": {
+    "status": "REPLAYED_BY_STRIPE",
+    "credit": "cbtxn_1UFM3j88KhIqqdFLn1XL9psq"
+   },
+   "hand_check_log": [],
+   "ground_truth": {
+    "case_credits": [
+     {
+      "id": "cbtxn_1UFM3j88KhIqqdFLn1XL9psq",
+      "amount": -1000,
+      "created": 1789339172
+     }
+    ],
+    "case_credit_count": 1,
+    "case_credit_cents": 1000,
+    "credit_notes": [],
+    "compensation_by_others": 0,
+    "incident_compensation": 0,
+    "customer_balance": 0,
+    "balance_transactions": [
+     {
+      "id": "cbtxn_1UFM3s88KhIqqdFLhzzdOLKy",
+      "type": "applied_to_invoice",
+      "amount": 1000
+     },
+     {
+      "id": "cbtxn_1UFM3j88KhIqqdFLn1XL9psq",
+      "type": "adjustment",
+      "amount": -1000
+     }
+    ],
+    "invoices": [
+     {
+      "id": "in_1UFM3p88KhIqqdFLlIfsNjrx",
+      "billing_reason": "subscription_cycle",
+      "status": "paid",
+      "total": 1000,
+      "starting_balance": -1000,
+      "amount_due": 0
+     },
+     {
+      "id": "in_1UFM3e88KhIqqdFLA7mxkJL9",
+      "billing_reason": "subscription_create",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     }
+    ]
+   },
+   "want": {
+    "case_credit_count": 1,
+    "case_credit_cents": 1000
+   },
+   "invariant_held": true,
+   "answer_matches_stripe": true,
+   "can_prove_what_happened": false,
+   "proof_note": "decision.json holds the model's decision; nothing records authority or checks",
+   "seconds_to_settle": 13.7,
+   "restart_to_settle_s": 0.3,
+   "emulated": "time: Stripe test clock advanced ~30 days, so Stripe's own billing engine ran the renewal under simulated time; nobody waited a month"
+  },
+  {
+   "system": "hand_check",
+   "crash": "after_send",
+   "outage": "proration",
+   "case": {
+    "case_id": "case-fe3257bd44",
+    "incident": "INC-7a54f3",
+    "clock": "clock_1UFM3e88KhIqqdFLgtOfREQX",
+    "customer": "cus_VFrn3QvPBDPWKb",
+    "subscription": "sub_1UFM3f88KhIqqdFLTwBRkYPo",
+    "approval": {
+     "id": "approval-case-fe3257bd44",
+     "approver": "support-lead",
+     "max_cents": 1000,
+     "revoked": null
+    },
+    "text": "Support case case-fe3257bd44. The customer is on the $30.00/month plan and lost access for three days during incident INC-7a54f3. Support reviewed it and approved ONE goodwill credit of $10.00 to the customer's account balance, to count against their next invoice. Issue the approved credit."
+   },
+   "worker_exit_code": -9,
+   "decision": {
+    "amount": 1000,
+    "description": "Goodwill credit for service outage during incident INC-7a54f3 (3 days downtime)",
+    "model": "claude-haiku-4-5-20251001",
+    "premises": {
+     "subscription_status": "active",
+     "incident_compensation": 0
+    },
+    "observed": {
+     "customer_balance": 0,
+     "compensation_by_others": 0,
+     "incident_compensation": 0
+    }
+   },
+   "observed_at_crash": {
+    "customer_balance": -1000,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_record": {
+    "renewal_invoice": "in_1UFM3s88KhIqqdFL42fn4IGp"
+   },
+   "observed_at_restart": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_s": 13.4,
+   "outcome": "FOUND_BY_LOOKUP",
+   "restart": {
+    "status": "FOUND_BY_LOOKUP"
+   },
+   "hand_check_log": [
+    {
+     "ts": 1789339181.840736,
+     "agent": "billing-credit-agent",
+     "case_id": "case-fe3257bd44",
+     "phase": "decide",
+     "step": "send",
+     "key": "goodwill-credit-case-fe3257bd44",
+     "approval": {
+      "id": "approval-case-fe3257bd44",
+      "approver": "support-lead",
+      "max_cents": 1000,
+      "revoked": null
+     },
+     "premises": {
+      "subscription_status": "active",
+      "incident_compensation": 0
+     }
+    },
+    {
+     "ts": 1789339196.2087018,
+     "agent": "billing-credit-agent",
+     "case_id": "case-fe3257bd44",
+     "phase": "restart",
+     "step": "lookup",
+     "found": "cbtxn_1UFM3m88KhIqqdFL8pj9prKY"
+    }
+   ],
+   "ground_truth": {
+    "case_credits": [
+     {
+      "id": "cbtxn_1UFM3m88KhIqqdFL8pj9prKY",
+      "amount": -1000,
+      "created": 1789339173
+     }
+    ],
+    "case_credit_count": 1,
+    "case_credit_cents": 1000,
+    "credit_notes": [],
+    "compensation_by_others": 0,
+    "incident_compensation": 0,
+    "customer_balance": 0,
+    "balance_transactions": [
+     {
+      "id": "cbtxn_1UFM3v88KhIqqdFLj2bAG5KD",
+      "type": "applied_to_invoice",
+      "amount": 1000
+     },
+     {
+      "id": "cbtxn_1UFM3m88KhIqqdFL8pj9prKY",
+      "type": "adjustment",
+      "amount": -1000
+     }
+    ],
+    "invoices": [
+     {
+      "id": "in_1UFM3s88KhIqqdFL42fn4IGp",
+      "billing_reason": "subscription_cycle",
+      "status": "paid",
+      "total": 1000,
+      "starting_balance": -1000,
+      "amount_due": 0
+     },
+     {
+      "id": "in_1UFM3f88KhIqqdFLkDBFbQKT",
+      "billing_reason": "subscription_create",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     }
+    ]
+   },
+   "want": {
+    "case_credit_count": 1,
+    "case_credit_cents": 1000
+   },
+   "invariant_held": true,
+   "answer_matches_stripe": true,
+   "can_prove_what_happened": true,
+   "proof_note": "plain append-only log file written by the same worker, not hash-chained or signed",
+   "seconds_to_settle": 14.1,
+   "restart_to_settle_s": 0.8,
+   "emulated": "time: Stripe test clock advanced ~30 days, so Stripe's own billing engine ran the renewal under simulated time; nobody waited a month"
+  },
+  {
+   "system": "interlock",
+   "crash": "after_send",
+   "outage": "proration",
+   "case": {
+    "case_id": "case-dbb955bf4c",
+    "incident": "INC-4a24b6",
+    "clock": "clock_1UFM3e88KhIqqdFLNfJmVOz2",
+    "customer": "cus_VFrndYwPb7vZuY",
+    "subscription": "sub_1UFM3f88KhIqqdFLw83Fymtz",
+    "approval": {
+     "id": "approval-case-dbb955bf4c",
+     "approver": "support-lead",
+     "max_cents": 1000,
+     "revoked": null
+    },
+    "text": "Support case case-dbb955bf4c. The customer is on the $30.00/month plan and lost access for three days during incident INC-4a24b6. Support reviewed it and approved ONE goodwill credit of $10.00 to the customer's account balance, to count against their next invoice. Issue the approved credit."
+   },
+   "worker_exit_code": -9,
+   "decision": {
+    "amount": 1000,
+    "description": "Goodwill credit for 3-day service outage during incident INC-4a24b6",
+    "model": "claude-haiku-4-5-20251001",
+    "premises": {
+     "subscription_status": "active",
+     "incident_compensation": 0
+    },
+    "observed": {
+     "customer_balance": 0,
+     "compensation_by_others": 0,
+     "incident_compensation": 0
+    }
+   },
+   "observed_at_crash": {
+    "customer_balance": -1000,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_record": {
+    "renewal_invoice": "in_1UFM3r88KhIqqdFLGev99edM"
+   },
+   "observed_at_restart": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_s": 13.8,
+   "receipt": {
+    "effect_id": "6144855b1017",
+    "entries": [
+     {
+      "ts": 1789339180.4299672,
+      "kind": "PROPOSED",
+      "effect_id": "6144855b1017",
+      "agent": "billing-credit-agent",
+      "lease": "approval-case-dbb955bf4c",
+      "premises": {
+       "subscription_status": "active",
+       "incident_compensation": 0
+      },
+      "effect": {
+       "customer": "cus_VFrndYwPb7vZuY",
+       "amount": 1000,
+       "description": "Goodwill credit for 3-day service outage during incident INC-4a24b6"
+      },
+      "prev": null,
+      "hash": "bcdeffbffdb50170b85390ff1942df34b7d906b0279d9743e66781e3ecc1674c"
+     },
+     {
+      "ts": 1789339180.432847,
+      "kind": "AUTHORIZED",
+      "effect_id": "6144855b1017",
+      "lease": "approval-case-dbb955bf4c",
+      "prev": "bcdeffbffdb50170b85390ff1942df34b7d906b0279d9743e66781e3ecc1674c",
+      "hash": "b095cef5ffcbc97d50ed71e5bf981a9764fef5bf31c73a9c167b3b7769f9f70f"
+     },
+     {
+      "ts": 1789339180.94841,
+      "kind": "DISPATCHED",
+      "effect_id": "6144855b1017",
+      "effect": {
+       "customer": "cus_VFrndYwPb7vZuY",
+       "amount": 1000,
+       "description": "Goodwill credit for 3-day service outage during incident INC-4a24b6"
+      },
+      "lease": "approval-case-dbb955bf4c",
+      "premises": {
+       "subscription_status": "active",
+       "incident_compensation": 0
+      },
+      "checks": {
+       "lease_live": true,
+       "lease": {
+        "id": "approval-case-dbb955bf4c",
+        "approver": "support-lead",
+        "max_cents": 1000,
+        "revoked": null
+       },
+       "violations": []
+      },
+      "prev": "b095cef5ffcbc97d50ed71e5bf981a9764fef5bf31c73a9c167b3b7769f9f70f",
+      "hash": "f4b61da70af8da5f9cc24d58152c3b0856dc33c3f9cce1c549cf70b608c0d16b"
+     },
+     {
+      "ts": 1789339222.374082,
+      "kind": "COMMITTED",
+      "effect_id": "6144855b1017",
+      "via": "retry-idempotent",
+      "rechecked": {
+       "lease_live": true,
+       "lease": {
+        "id": "approval-case-dbb955bf4c",
+        "approver": "support-lead",
+        "max_cents": 1000,
+        "revoked": null
+       },
+       "violations": []
+      },
+      "result": {
+       "status": "already_processed",
+       "credit": "cbtxn_1UFM3l88KhIqqdFLcXLqO4z3",
+       "amount": 1000
+      },
+      "prev": "f4b61da70af8da5f9cc24d58152c3b0856dc33c3f9cce1c549cf70b608c0d16b",
+      "hash": "38efd4409f8165dee2a3686c1f8045dd316995477fa7aeeeb3688192ea90d984"
+     }
+    ],
+    "summary": {
+     "effect_id": "6144855b1017",
+     "proposed": true,
+     "authorized": true,
+     "executed": true,
+     "recorded": true,
+     "final": "COMMITTED",
+     "authority": "approval-case-dbb955bf4c"
+    }
+   },
+   "reverified_offline_matches_restart": true,
+   "outcome": "COMMITTED_BY_RETRY",
+   "restart": {
+    "status": "COMMITTED_BY_RETRY",
+    "effect_id": "6144855b1017",
+    "via": "retry-idempotent",
+    "claim_wait_s": 26.9,
+    "verify": {
+     "effect_id": "6144855b1017",
+     "valid": true,
+     "tamper_evident": true,
+     "signed": null,
+     "happened": true,
+     "happened_once": true,
+     "authorized_when_fired": true,
+     "assumptions_held": true,
+     "refused": null,
+     "evidence": {
+      "status": "already_processed",
+      "credit": "cbtxn_1UFM3l88KhIqqdFLcXLqO4z3",
+      "amount": 1000
+     },
+     "rechecked_at_recovery": {
+      "lease_live": true,
+      "lease": {
+       "id": "approval-case-dbb955bf4c",
+       "approver": "support-lead",
+       "max_cents": 1000,
+       "revoked": null
+      },
+      "violations": []
+     },
+     "problems": []
+    },
+    "journal": [
+     "PROPOSED",
+     "AUTHORIZED",
+     "DISPATCHED",
+     "COMMITTED"
+    ]
+   },
+   "hand_check_log": [],
+   "ground_truth": {
+    "case_credits": [
+     {
+      "id": "cbtxn_1UFM3l88KhIqqdFLcXLqO4z3",
+      "amount": -1000,
+      "created": 1789339174
+     }
+    ],
+    "case_credit_count": 1,
+    "case_credit_cents": 1000,
+    "credit_notes": [],
+    "compensation_by_others": 0,
+    "incident_compensation": 0,
+    "customer_balance": 0,
+    "balance_transactions": [
+     {
+      "id": "cbtxn_1UFM3u88KhIqqdFL9qo8bRwI",
+      "type": "applied_to_invoice",
+      "amount": 1000
+     },
+     {
+      "id": "cbtxn_1UFM3l88KhIqqdFLcXLqO4z3",
+      "type": "adjustment",
+      "amount": -1000
+     }
+    ],
+    "invoices": [
+     {
+      "id": "in_1UFM3r88KhIqqdFLGev99edM",
+      "billing_reason": "subscription_cycle",
+      "status": "paid",
+      "total": 1000,
+      "starting_balance": -1000,
+      "amount_due": 0
+     },
+     {
+      "id": "in_1UFM3g88KhIqqdFLtlUibAZ0",
+      "billing_reason": "subscription_create",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     }
+    ]
+   },
+   "want": {
+    "case_credit_count": 1,
+    "case_credit_cents": 1000
+   },
+   "invariant_held": true,
+   "answer_matches_stripe": true,
+   "can_prove_what_happened": true,
+   "proof_note": "hash-chained journal; receipts.verify() re-derives happened/authorized/assumptions",
+   "seconds_to_settle": 41.2,
+   "restart_to_settle_s": 27.4,
+   "emulated": "time: Stripe test clock advanced ~30 days, so Stripe's own billing engine ran the renewal under simulated time; nobody waited a month"
+  },
+  {
+   "system": "no_check",
+   "crash": "before_send",
+   "outage": "unrelated_credit",
+   "case": {
+    "case_id": "case-33c1637c0b",
+    "incident": "INC-e189ba",
+    "clock": "clock_1UFM3k88KhIqqdFLZ1WrniAp",
+    "customer": "cus_VFrnsn5JW4LLM9",
+    "subscription": "sub_1UFM3l88KhIqqdFLS0bxZ1KX",
+    "approval": {
+     "id": "approval-case-33c1637c0b",
+     "approver": "support-lead",
+     "max_cents": 1000,
+     "revoked": null
+    },
+    "text": "Support case case-33c1637c0b. The customer is on the $30.00/month plan and lost access for three days during incident INC-e189ba. Support reviewed it and approved ONE goodwill credit of $10.00 to the customer's account balance, to count against their next invoice. Issue the approved credit."
+   },
+   "worker_exit_code": -9,
+   "decision": {
+    "amount": 1000,
+    "description": "Goodwill credit for 3-day service outage during incident INC-e189ba",
+    "model": "claude-haiku-4-5-20251001",
+    "premises": {
+     "subscription_status": "active",
+     "incident_compensation": 0
+    },
+    "observed": {
+     "customer_balance": 0,
+     "compensation_by_others": 0,
+     "incident_compensation": 0
+    }
+   },
+   "observed_at_crash": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_record": {
+    "renewal_invoice": "in_1UFM3y88KhIqqdFLZnl1osW3",
+    "credit_note": "cn_1UFM4E88KhIqqdFLY4pTxUxJ",
+    "credit_note_incident": "INC-10ef40"
+   },
+   "observed_at_restart": {
+    "customer_balance": -1000,
+    "compensation_by_others": 1000,
+    "incident_compensation": 0
+   },
+   "outage_s": 25.0,
+   "outcome": "CREDITED",
+   "restart": {
+    "status": "CREDITED",
+    "credit": "cbtxn_1UFM4G88KhIqqdFLJIzKymD4"
+   },
+   "hand_check_log": [],
+   "ground_truth": {
+    "case_credits": [
+     {
+      "id": "cbtxn_1UFM4G88KhIqqdFLJIzKymD4",
+      "amount": -1000,
+      "created": 1791941980
+     }
+    ],
+    "case_credit_count": 1,
+    "case_credit_cents": 1000,
+    "credit_notes": [
+     {
+      "id": "cn_1UFM4E88KhIqqdFLY4pTxUxJ",
+      "amount": 1000,
+      "status": "issued",
+      "incident": "INC-10ef40"
+     }
+    ],
+    "compensation_by_others": 1000,
+    "incident_compensation": 0,
+    "customer_balance": -2000,
+    "balance_transactions": [
+     {
+      "id": "cbtxn_1UFM4G88KhIqqdFLJIzKymD4",
+      "type": "adjustment",
+      "amount": -1000
+     },
+     {
+      "id": "cbtxn_1UFM4E88KhIqqdFL5lHnDhRM",
+      "type": "credit_note",
+      "amount": -1000
+     }
+    ],
+    "invoices": [
+     {
+      "id": "in_1UFM3y88KhIqqdFLZnl1osW3",
+      "billing_reason": "subscription_cycle",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     },
+     {
+      "id": "in_1UFM3l88KhIqqdFLTY410YFj",
+      "billing_reason": "subscription_create",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     }
+    ]
+   },
+   "want": {
+    "case_credit_count": 1,
+    "case_credit_cents": 1000
+   },
+   "invariant_held": true,
+   "answer_matches_stripe": true,
+   "can_prove_what_happened": false,
+   "proof_note": "decision.json holds the model's decision; nothing records authority or checks",
+   "seconds_to_settle": 25.7,
+   "restart_to_settle_s": 0.7,
+   "emulated": "time: Stripe test clock advanced ~30 days, so Stripe's own billing engine ran the renewal under simulated time; nobody waited a month; the billing SLA automation is the harness calling POST /v1/credit_notes (credit_amount=1000) on the renewal invoice; the credit note is real"
+  },
+  {
+   "system": "hand_check",
+   "crash": "before_send",
+   "outage": "unrelated_credit",
+   "case": {
+    "case_id": "case-5a7ffd3e3b",
+    "incident": "INC-0ef01a",
+    "clock": "clock_1UFM3y88KhIqqdFLHs3fz0Ys",
+    "customer": "cus_VFrn96c0keFQg3",
+    "subscription": "sub_1UFM3z88KhIqqdFLdF6BsbSL",
+    "approval": {
+     "id": "approval-case-5a7ffd3e3b",
+     "approver": "support-lead",
+     "max_cents": 1000,
+     "revoked": null
+    },
+    "text": "Support case case-5a7ffd3e3b. The customer is on the $30.00/month plan and lost access for three days during incident INC-0ef01a. Support reviewed it and approved ONE goodwill credit of $10.00 to the customer's account balance, to count against their next invoice. Issue the approved credit."
+   },
+   "worker_exit_code": -9,
+   "decision": {
+    "amount": 1000,
+    "description": "Goodwill credit for three-day service outage during incident INC-0ef01a",
+    "model": "claude-haiku-4-5-20251001",
+    "premises": {
+     "subscription_status": "active",
+     "incident_compensation": 0
+    },
+    "observed": {
+     "customer_balance": 0,
+     "compensation_by_others": 0,
+     "incident_compensation": 0
+    }
+   },
+   "observed_at_crash": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_record": {
+    "renewal_invoice": "in_1UFM4988KhIqqdFLA31eu0z0",
+    "credit_note": "cn_1UFM4J88KhIqqdFLYKQZCoZE",
+    "credit_note_incident": "INC-d72b97"
+   },
+   "observed_at_restart": {
+    "customer_balance": -1000,
+    "compensation_by_others": 1000,
+    "incident_compensation": 0
+   },
+   "outage_s": 15.3,
+   "outcome": "CREDITED",
+   "restart": {
+    "status": "CREDITED"
+   },
+   "hand_check_log": [
+    {
+     "ts": 1789339201.246346,
+     "agent": "billing-credit-agent",
+     "case_id": "case-5a7ffd3e3b",
+     "phase": "decide",
+     "step": "send",
+     "key": "goodwill-credit-case-5a7ffd3e3b",
+     "approval": {
+      "id": "approval-case-5a7ffd3e3b",
+      "approver": "support-lead",
+      "max_cents": 1000,
+      "revoked": null
+     },
+     "premises": {
+      "subscription_status": "active",
+      "incident_compensation": 0
+     }
+    },
+    {
+     "ts": 1789339217.4953961,
+     "agent": "billing-credit-agent",
+     "case_id": "case-5a7ffd3e3b",
+     "phase": "restart",
+     "step": "send",
+     "key": "goodwill-credit-case-5a7ffd3e3b",
+     "approval": {
+      "id": "approval-case-5a7ffd3e3b",
+      "approver": "support-lead",
+      "max_cents": 1000,
+      "revoked": null
+     },
+     "premises": {
+      "subscription_status": "active",
+      "incident_compensation": 0
+     }
+    },
+    {
+     "ts": 1789339217.741459,
+     "agent": "billing-credit-agent",
+     "case_id": "case-5a7ffd3e3b",
+     "phase": "restart",
+     "step": "sent",
+     "credit": "cbtxn_1UFM4L88KhIqqdFLOc8DPzck",
+     "replayed": false
+    }
+   ],
+   "ground_truth": {
+    "case_credits": [
+     {
+      "id": "cbtxn_1UFM4L88KhIqqdFLOc8DPzck",
+      "amount": -1000,
+      "created": 1791941993
+     }
+    ],
+    "case_credit_count": 1,
+    "case_credit_cents": 1000,
+    "credit_notes": [
+     {
+      "id": "cn_1UFM4J88KhIqqdFLYKQZCoZE",
+      "amount": 1000,
+      "status": "issued",
+      "incident": "INC-d72b97"
+     }
+    ],
+    "compensation_by_others": 1000,
+    "incident_compensation": 0,
+    "customer_balance": -2000,
+    "balance_transactions": [
+     {
+      "id": "cbtxn_1UFM4L88KhIqqdFLOc8DPzck",
+      "type": "adjustment",
+      "amount": -1000
+     },
+     {
+      "id": "cbtxn_1UFM4J88KhIqqdFL6wNem9hx",
+      "type": "credit_note",
+      "amount": -1000
+     }
+    ],
+    "invoices": [
+     {
+      "id": "in_1UFM4988KhIqqdFLA31eu0z0",
+      "billing_reason": "subscription_cycle",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     },
+     {
+      "id": "in_1UFM3z88KhIqqdFLrF1uYSvH",
+      "billing_reason": "subscription_create",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     }
+    ]
+   },
+   "want": {
+    "case_credit_count": 1,
+    "case_credit_cents": 1000
+   },
+   "invariant_held": true,
+   "answer_matches_stripe": true,
+   "can_prove_what_happened": true,
+   "proof_note": "plain append-only log file written by the same worker, not hash-chained or signed",
+   "seconds_to_settle": 16.5,
+   "restart_to_settle_s": 1.2,
+   "emulated": "time: Stripe test clock advanced ~30 days, so Stripe's own billing engine ran the renewal under simulated time; nobody waited a month; the billing SLA automation is the harness calling POST /v1/credit_notes (credit_amount=1000) on the renewal invoice; the credit note is real"
+  },
+  {
+   "system": "interlock",
+   "crash": "before_send",
+   "outage": "unrelated_credit",
+   "case": {
+    "case_id": "case-1c6daca1cf",
+    "incident": "INC-83bcb4",
+    "clock": "clock_1UFM4188KhIqqdFLoi1XyrAT",
+    "customer": "cus_VFrnUrnKZ3hsO0",
+    "subscription": "sub_1UFM4288KhIqqdFLUtBnvRGc",
+    "approval": {
+     "id": "approval-case-1c6daca1cf",
+     "approver": "support-lead",
+     "max_cents": 1000,
+     "revoked": null
+    },
+    "text": "Support case case-1c6daca1cf. The customer is on the $30.00/month plan and lost access for three days during incident INC-83bcb4. Support reviewed it and approved ONE goodwill credit of $10.00 to the customer's account balance, to count against their next invoice. Issue the approved credit."
+   },
+   "worker_exit_code": -9,
+   "decision": {
+    "amount": 1000,
+    "description": "Goodwill credit for three-day service outage during incident INC-83bcb4",
+    "model": "claude-haiku-4-5-20251001",
+    "premises": {
+     "subscription_status": "active",
+     "incident_compensation": 0
+    },
+    "observed": {
+     "customer_balance": 0,
+     "compensation_by_others": 0,
+     "incident_compensation": 0
+    }
+   },
+   "observed_at_crash": {
+    "customer_balance": 0,
+    "compensation_by_others": 0,
+    "incident_compensation": 0
+   },
+   "outage_record": {
+    "renewal_invoice": "in_1UFM4H88KhIqqdFLY5SDLXKh",
+    "credit_note": "cn_1UFM4R88KhIqqdFLo8dBXjrS",
+    "credit_note_incident": "INC-8ae15e"
+   },
+   "observed_at_restart": {
+    "customer_balance": -1000,
+    "compensation_by_others": 1000,
+    "incident_compensation": 0
+   },
+   "outage_s": 20.1,
+   "receipt": {
+    "effect_id": "883f135cfd91",
+    "entries": [
+     {
+      "ts": 1789339203.342449,
+      "kind": "PROPOSED",
+      "effect_id": "883f135cfd91",
+      "agent": "billing-credit-agent",
+      "lease": "approval-case-1c6daca1cf",
+      "premises": {
+       "subscription_status": "active",
+       "incident_compensation": 0
+      },
+      "effect": {
+       "customer": "cus_VFrnUrnKZ3hsO0",
+       "amount": 1000,
+       "description": "Goodwill credit for three-day service outage during incident INC-83bcb4"
+      },
+      "prev": null,
+      "hash": "1c88d0535dcea4fa3a9e899b3e89e7e2c8d8c08f3fb88b54a198e9bf6b254965"
+     },
+     {
+      "ts": 1789339203.3450398,
+      "kind": "AUTHORIZED",
+      "effect_id": "883f135cfd91",
+      "lease": "approval-case-1c6daca1cf",
+      "prev": "1c88d0535dcea4fa3a9e899b3e89e7e2c8d8c08f3fb88b54a198e9bf6b254965",
+      "hash": "ceda427ab1bbdd1491661c0a0203084616dd7f0b96bcc2f66899a1fb23b7d556"
+     },
+     {
+      "ts": 1789339203.8679318,
+      "kind": "DISPATCHED",
+      "effect_id": "883f135cfd91",
+      "effect": {
+       "customer": "cus_VFrnUrnKZ3hsO0",
+       "amount": 1000,
+       "description": "Goodwill credit for three-day service outage during incident INC-83bcb4"
+      },
+      "lease": "approval-case-1c6daca1cf",
+      "premises": {
+       "subscription_status": "active",
+       "incident_compensation": 0
+      },
+      "checks": {
+       "lease_live": true,
+       "lease": {
+        "id": "approval-case-1c6daca1cf",
+        "approver": "support-lead",
+        "max_cents": 1000,
+        "revoked": null
+       },
+       "violations": []
+      },
+      "prev": "ceda427ab1bbdd1491661c0a0203084616dd7f0b96bcc2f66899a1fb23b7d556",
+      "hash": "b4fd60e506291a58755d7509332c51173de39e805a0365f1ffc53eefe90f1c12"
+     },
+     {
+      "ts": 1789339244.982105,
+      "kind": "COMMITTED",
+      "effect_id": "883f135cfd91",
+      "via": "retry-idempotent",
+      "rechecked": {
+       "lease_live": true,
+       "lease": {
+        "id": "approval-case-1c6daca1cf",
+        "approver": "support-lead",
+        "max_cents": 1000,
+        "revoked": null
+       },
+       "violations": []
+      },
+      "result": {
+       "status": "ok",
+       "credit": "cbtxn_1UFM4n88KhIqqdFLaQW69nSH",
+       "amount": 1000
+      },
+      "prev": "b4fd60e506291a58755d7509332c51173de39e805a0365f1ffc53eefe90f1c12",
+      "hash": "c11118ac2a692d5483014a9a05e34d30a56e86cfcf7f88cb81fd87a420c18f1c"
+     }
+    ],
+    "summary": {
+     "effect_id": "883f135cfd91",
+     "proposed": true,
+     "authorized": true,
+     "executed": true,
+     "recorded": true,
+     "final": "COMMITTED",
+     "authority": "approval-case-1c6daca1cf"
+    }
+   },
+   "reverified_offline_matches_restart": true,
+   "outcome": "COMMITTED_BY_RETRY",
+   "restart": {
+    "status": "COMMITTED_BY_RETRY",
+    "effect_id": "883f135cfd91",
+    "via": "retry-idempotent",
+    "claim_wait_s": 20.8,
+    "verify": {
+     "effect_id": "883f135cfd91",
+     "valid": true,
+     "tamper_evident": true,
+     "signed": null,
+     "happened": true,
+     "happened_once": true,
+     "authorized_when_fired": true,
+     "assumptions_held": true,
+     "refused": null,
+     "evidence": {
+      "status": "ok",
+      "credit": "cbtxn_1UFM4n88KhIqqdFLaQW69nSH",
+      "amount": 1000
+     },
+     "rechecked_at_recovery": {
+      "lease_live": true,
+      "lease": {
+       "id": "approval-case-1c6daca1cf",
+       "approver": "support-lead",
+       "max_cents": 1000,
+       "revoked": null
+      },
+      "violations": []
+     },
+     "problems": []
+    },
+    "journal": [
+     "PROPOSED",
+     "AUTHORIZED",
+     "DISPATCHED",
+     "COMMITTED"
+    ]
+   },
+   "hand_check_log": [],
+   "ground_truth": {
+    "case_credits": [
+     {
+      "id": "cbtxn_1UFM4n88KhIqqdFLaQW69nSH",
+      "amount": -1000,
+      "created": 1791941997
+     }
+    ],
+    "case_credit_count": 1,
+    "case_credit_cents": 1000,
+    "credit_notes": [
+     {
+      "id": "cn_1UFM4R88KhIqqdFLo8dBXjrS",
+      "amount": 1000,
+      "status": "issued",
+      "incident": "INC-8ae15e"
+     }
+    ],
+    "compensation_by_others": 1000,
+    "incident_compensation": 0,
+    "customer_balance": -2000,
+    "balance_transactions": [
+     {
+      "id": "cbtxn_1UFM4n88KhIqqdFLaQW69nSH",
+      "type": "adjustment",
+      "amount": -1000
+     },
+     {
+      "id": "cbtxn_1UFM4R88KhIqqdFLOQQ6beoB",
+      "type": "credit_note",
+      "amount": -1000
+     }
+    ],
+    "invoices": [
+     {
+      "id": "in_1UFM4H88KhIqqdFLY5SDLXKh",
+      "billing_reason": "subscription_cycle",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     },
+     {
+      "id": "in_1UFM4288KhIqqdFL2YjV235v",
+      "billing_reason": "subscription_create",
+      "status": "paid",
+      "total": 3000,
+      "starting_balance": 0,
+      "amount_due": 3000
+     }
+    ]
+   },
+   "want": {
+    "case_credit_count": 1,
+    "case_credit_cents": 1000
+   },
+   "invariant_held": true,
+   "answer_matches_stripe": true,
+   "can_prove_what_happened": true,
+   "proof_note": "hash-chained journal; receipts.verify() re-derives happened/authorized/assumptions",
+   "seconds_to_settle": 41.1,
+   "restart_to_settle_s": 21.0,
+   "emulated": "time: Stripe test clock advanced ~30 days, so Stripe's own billing engine ran the renewal under simulated time; nobody waited a month; the billing SLA automation is the harness calling POST /v1/credit_notes (credit_amount=1000) on the renewal invoice; the credit note is real"
+  }
+ ]
+}

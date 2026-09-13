@@ -1,0 +1,919 @@
+{
+  "key": "stripe_dispute",
+  "status": "RAN",
+  "generated": "2026-09-13 22:51 UTC",
+  "final_read_after_s": 60,
+  "gap_probe": "- Gap probe, `pi_3UFM7Y88KhIqqdFL1xjLWAch`: $20 refund `re_3UFM7Y88KhIqqdFL1YCvLUoj` created during the inquiry, `succeeded`; 300s later the inquiry was escalated (`du_1UFM7Z88KhIqqdFLWKRcYQWo`, `needs_response` 7.1s later, balance transaction -10000). The refund read `succeeded` 10, 30, 60 and 120s after, and again 144s after (`failure_reason` null); the charge shows `amount_refunded` 2000 and `disputed` true. Out $120 on a $100 payment, in test mode.",
+  "cells": [
+    {
+      "system": "no_check",
+      "fault": "crash_before_send_chargeback_during_outage",
+      "outcome": "STRIPE_ERROR",
+      "answer": {
+        "status": "STRIPE_ERROR",
+        "error": "400 POST /refunds: Charge ch_3UFMFV88KhIqqdFL0gZbADzF has been charged back; cannot issue a refund.",
+        "decision": {
+          "amount": 2000,
+          "reason": "Partial refund for cracked jar on blender (case #4471). Customer keeps the blender. Approved as goodwill gesture despite open bank inquiry.",
+          "model": "claude-haiku-4-5-20251001",
+          "facts": {
+            "chargebacks": [],
+            "refunded_by_others": 0
+          },
+          "decided_at": 1789339912.5138628,
+          "valid": true
+        }
+      },
+      "record": {
+        "decision": {
+          "amount": 2000,
+          "reason": "Partial refund for cracked jar on blender (case #4471). Customer keeps the blender. Approved as goodwill gesture despite open bank inquiry.",
+          "model": "claude-haiku-4-5-20251001",
+          "facts": {
+            "chargebacks": [],
+            "refunded_by_others": 0
+          },
+          "decided_at": 1789339912.5138628,
+          "valid": true
+        },
+        "hand_check_log": null,
+        "receipt": null
+      },
+      "want_refunds": 0,
+      "refunds_at_settle": [],
+      "ids": {
+        "payment_intent": "pi_3UFMFV88KhIqqdFL0fK3svy5",
+        "charge": "ch_3UFMFV88KhIqqdFL0gZbADzF",
+        "dispute": "du_1UFMFW88KhIqqdFLNGFELqEE",
+        "case": "interlock-sandbox-d5f8c375",
+        "first_worker_exit": -9,
+        "refunds": []
+      },
+      "outage": {
+        "dispute": "du_1UFMFW88KhIqqdFLNGFELqEE",
+        "status": "needs_response",
+        "chargeback_at": 1789339916,
+        "seconds_to_chargeback": 6.4
+      },
+      "seconds_to_settle": 6.8,
+      "emulated": null,
+      "final_refunds": [],
+      "ground_truth": "0 refund object(s) (final: none), want 0; created at or after the chargeback: none; money returned: no; dispute needs_response",
+      "invariant_held": true,
+      "refund_to_chargeback_s": [],
+      "answer_matches_refund_objects": true,
+      "answer_reflects_final_money": true,
+      "proof": {
+        "decision_recorded": true,
+        "checks_recorded": false,
+        "outcome_matches": false,
+        "refund_in_record": null,
+        "tamper_evident": false,
+        "final_status_known": false
+      },
+      "can_prove_what_happened": false
+    },
+    {
+      "system": "hand_check",
+      "fault": "crash_before_send_chargeback_during_outage",
+      "outcome": "REFUSED:charged_back",
+      "answer": {
+        "status": "REFUSED:charged_back",
+        "refund": null,
+        "checked": {
+          "chargebacks": [
+            "du_1UFMFg88KhIqqdFLKjVfPqp6"
+          ],
+          "refunded_by_others": 0
+        },
+        "decision": {
+          "amount": 2000,
+          "reason": "Partial refund for cracked jar on blender - customer keeps item. Support case #4471.",
+          "model": "claude-haiku-4-5-20251001",
+          "facts": {
+            "chargebacks": [],
+            "refunded_by_others": 0
+          },
+          "decided_at": 1789339922.763436,
+          "valid": true
+        }
+      },
+      "record": {
+        "decision": {
+          "amount": 2000,
+          "reason": "Partial refund for cracked jar on blender - customer keeps item. Support case #4471.",
+          "model": "claude-haiku-4-5-20251001",
+          "facts": {
+            "chargebacks": [],
+            "refunded_by_others": 0
+          },
+          "decided_at": 1789339922.763436,
+          "valid": true
+        },
+        "hand_check_log": [
+          {
+            "ts": 1789339923.417401,
+            "pid": 5126,
+            "step": "checks",
+            "case": "interlock-sandbox-68aa0fc5",
+            "amount": 2000,
+            "decided_by": "claude-haiku-4-5-20251001",
+            "approved_by": "support",
+            "approval": {
+              "case": "interlock-sandbox-68aa0fc5",
+              "max_cents": 2000,
+              "revoked": null,
+              "by": "support"
+            },
+            "lookup": [],
+            "decided_on": {
+              "chargebacks": [],
+              "refunded_by_others": 0
+            },
+            "now": {
+              "chargebacks": [],
+              "refunded_by_others": 0
+            },
+            "result": "send"
+          },
+          {
+            "ts": 1789339929.8013492,
+            "pid": 5161,
+            "step": "checks",
+            "case": "interlock-sandbox-68aa0fc5",
+            "amount": 2000,
+            "decided_by": "claude-haiku-4-5-20251001",
+            "approved_by": "support",
+            "approval": {
+              "case": "interlock-sandbox-68aa0fc5",
+              "max_cents": 2000,
+              "revoked": null,
+              "by": "support"
+            },
+            "lookup": [],
+            "decided_on": {
+              "chargebacks": [],
+              "refunded_by_others": 0
+            },
+            "now": {
+              "chargebacks": [
+                "du_1UFMFg88KhIqqdFLKjVfPqp6"
+              ],
+              "refunded_by_others": 0
+            },
+            "result": "REFUSED:charged_back"
+          }
+        ],
+        "receipt": null
+      },
+      "want_refunds": 0,
+      "refunds_at_settle": [],
+      "ids": {
+        "payment_intent": "pi_3UFMFf88KhIqqdFL0FKsLelI",
+        "charge": "ch_3UFMFf88KhIqqdFL0jFEFdWC",
+        "dispute": "du_1UFMFg88KhIqqdFLKjVfPqp6",
+        "case": "interlock-sandbox-68aa0fc5",
+        "first_worker_exit": -9,
+        "refunds": []
+      },
+      "outage": {
+        "dispute": "du_1UFMFg88KhIqqdFLKjVfPqp6",
+        "status": "needs_response",
+        "chargeback_at": 1789339926,
+        "seconds_to_chargeback": 5.4
+      },
+      "seconds_to_settle": 6.4,
+      "emulated": null,
+      "final_refunds": [],
+      "ground_truth": "0 refund object(s) (final: none), want 0; created at or after the chargeback: none; money returned: no; dispute needs_response",
+      "invariant_held": true,
+      "refund_to_chargeback_s": [],
+      "answer_matches_refund_objects": true,
+      "answer_reflects_final_money": true,
+      "proof": {
+        "decision_recorded": true,
+        "checks_recorded": true,
+        "outcome_matches": true,
+        "refund_in_record": null,
+        "tamper_evident": false,
+        "final_status_known": false
+      },
+      "can_prove_what_happened": true
+    },
+    {
+      "system": "interlock",
+      "fault": "crash_before_send_chargeback_during_outage",
+      "outcome": "REFUSED:stale_premise_at_recovery",
+      "answer": {
+        "status": "REFUSED:stale_premise_at_recovery",
+        "refund": null,
+        "receipt": {
+          "effect_id": "1d731a505609",
+          "valid": true,
+          "tamper_evident": true,
+          "signed": null,
+          "happened": false,
+          "happened_once": true,
+          "authorized_when_fired": null,
+          "assumptions_held": null,
+          "refused": "stale_premise at recovery",
+          "evidence": null,
+          "rechecked_at_recovery": {
+            "lease_live": true,
+            "lease": null,
+            "violations": [
+              "chargebacks: was [], now ['du_1UFMFr88KhIqqdFLiWRWl4CZ']"
+            ]
+          },
+          "problems": []
+        },
+        "journal": [
+          "PROPOSED",
+          "AUTHORIZED",
+          "DISPATCHED",
+          "REFUSED"
+        ],
+        "decision": {
+          "amount": 2000,
+          "reason": "Partial refund for cracked jar - customer keeping blender. Support case #4471. $20 goodwill refund approved despite open bank inquiry du_1UFMFr88KhIqqdFLiWRWl4CZ.",
+          "model": "claude-haiku-4-5-20251001",
+          "facts": {
+            "chargebacks": [],
+            "refunded_by_others": 0
+          },
+          "decided_at": 1789339933.800071,
+          "valid": true
+        }
+      },
+      "record": {
+        "decision": {
+          "amount": 2000,
+          "reason": "Partial refund for cracked jar - customer keeping blender. Support case #4471. $20 goodwill refund approved despite open bank inquiry du_1UFMFr88KhIqqdFLiWRWl4CZ.",
+          "model": "claude-haiku-4-5-20251001",
+          "facts": {
+            "chargebacks": [],
+            "refunded_by_others": 0
+          },
+          "decided_at": 1789339933.800071,
+          "valid": true
+        },
+        "hand_check_log": null,
+        "receipt": {
+          "effect_id": "1d731a505609",
+          "entries": [
+            {
+              "ts": 1789339934.170021,
+              "kind": "PROPOSED",
+              "effect_id": "1d731a505609",
+              "agent": "__main__.interlock_refund._locals_.refund",
+              "lease": [
+                {
+                  "id": "interlock-sandbox-0d90bc13",
+                  "payment_intent": "pi_3UFMFq88KhIqqdFL1K3OZo0L",
+                  "charge": "ch_3UFMFq88KhIqqdFL1gwgYrj7",
+                  "dispute": "du_1UFMFr88KhIqqdFLiWRWl4CZ"
+                },
+                2000
+              ],
+              "premises": {
+                "args": [
+                  {
+                    "id": "interlock-sandbox-0d90bc13",
+                    "payment_intent": "pi_3UFMFq88KhIqqdFL1K3OZo0L",
+                    "charge": "ch_3UFMFq88KhIqqdFL1gwgYrj7",
+                    "dispute": "du_1UFMFr88KhIqqdFLiWRWl4CZ"
+                  },
+                  2000
+                ],
+                "facts": {
+                  "chargebacks": [],
+                  "refunded_by_others": 0
+                }
+              },
+              "effect": {
+                "args": [
+                  {
+                    "id": "interlock-sandbox-0d90bc13",
+                    "payment_intent": "pi_3UFMFq88KhIqqdFL1K3OZo0L",
+                    "charge": "ch_3UFMFq88KhIqqdFL1gwgYrj7",
+                    "dispute": "du_1UFMFr88KhIqqdFLiWRWl4CZ"
+                  },
+                  2000
+                ]
+              },
+              "prev": null,
+              "hash": "39158633af54f36ecbda45b3587adcfd31c1d8b76c0859db25f171d8f7a056f7"
+            },
+            {
+              "ts": 1789339934.17087,
+              "kind": "AUTHORIZED",
+              "effect_id": "1d731a505609",
+              "lease": [
+                {
+                  "id": "interlock-sandbox-0d90bc13",
+                  "payment_intent": "pi_3UFMFq88KhIqqdFL1K3OZo0L",
+                  "charge": "ch_3UFMFq88KhIqqdFL1gwgYrj7",
+                  "dispute": "du_1UFMFr88KhIqqdFLiWRWl4CZ"
+                },
+                2000
+              ],
+              "prev": "39158633af54f36ecbda45b3587adcfd31c1d8b76c0859db25f171d8f7a056f7",
+              "hash": "3d23745791f231a9a1b7485ba72f0969c977677105e465df9898519a2e70953c"
+            },
+            {
+              "ts": 1789339934.675522,
+              "kind": "DISPATCHED",
+              "effect_id": "1d731a505609",
+              "effect": {
+                "args": [
+                  {
+                    "id": "interlock-sandbox-0d90bc13",
+                    "payment_intent": "pi_3UFMFq88KhIqqdFL1K3OZo0L",
+                    "charge": "ch_3UFMFq88KhIqqdFL1gwgYrj7",
+                    "dispute": "du_1UFMFr88KhIqqdFLiWRWl4CZ"
+                  },
+                  2000
+                ]
+              },
+              "lease": [
+                {
+                  "id": "interlock-sandbox-0d90bc13",
+                  "payment_intent": "pi_3UFMFq88KhIqqdFL1K3OZo0L",
+                  "charge": "ch_3UFMFq88KhIqqdFL1gwgYrj7",
+                  "dispute": "du_1UFMFr88KhIqqdFLiWRWl4CZ"
+                },
+                2000
+              ],
+              "premises": {
+                "args": [
+                  {
+                    "id": "interlock-sandbox-0d90bc13",
+                    "payment_intent": "pi_3UFMFq88KhIqqdFL1K3OZo0L",
+                    "charge": "ch_3UFMFq88KhIqqdFL1gwgYrj7",
+                    "dispute": "du_1UFMFr88KhIqqdFLiWRWl4CZ"
+                  },
+                  2000
+                ],
+                "facts": {
+                  "chargebacks": [],
+                  "refunded_by_others": 0
+                }
+              },
+              "checks": {
+                "lease_live": true,
+                "lease": null,
+                "violations": []
+              },
+              "prev": "3d23745791f231a9a1b7485ba72f0969c977677105e465df9898519a2e70953c",
+              "hash": "bc1518ec2a7735b671dd22ff532796e25cf2f8a8a6a212884c9c5df7b11ea8df"
+            },
+            {
+              "ts": 1789339976.497482,
+              "kind": "REFUSED",
+              "effect_id": "1d731a505609",
+              "reason": "stale_premise at recovery",
+              "resolves": true,
+              "rechecked": {
+                "lease_live": true,
+                "lease": null,
+                "violations": [
+                  "chargebacks: was [], now ['du_1UFMFr88KhIqqdFLiWRWl4CZ']"
+                ]
+              },
+              "prev": "bc1518ec2a7735b671dd22ff532796e25cf2f8a8a6a212884c9c5df7b11ea8df",
+              "hash": "85642a0c55012403f424a61a0e78733e5ad0f16d6517d95816fa37b262c36a5c"
+            }
+          ],
+          "summary": {
+            "effect_id": "1d731a505609",
+            "proposed": true,
+            "authorized": true,
+            "executed": false,
+            "recorded": false,
+            "final": "REFUSED",
+            "authority": [
+              {
+                "id": "interlock-sandbox-0d90bc13",
+                "payment_intent": "pi_3UFMFq88KhIqqdFL1K3OZo0L",
+                "charge": "ch_3UFMFq88KhIqqdFL1gwgYrj7",
+                "dispute": "du_1UFMFr88KhIqqdFLiWRWl4CZ"
+              },
+              2000
+            ]
+          }
+        }
+      },
+      "want_refunds": 0,
+      "refunds_at_settle": [],
+      "ids": {
+        "payment_intent": "pi_3UFMFq88KhIqqdFL1K3OZo0L",
+        "charge": "ch_3UFMFq88KhIqqdFL1gwgYrj7",
+        "dispute": "du_1UFMFr88KhIqqdFLiWRWl4CZ",
+        "case": "interlock-sandbox-0d90bc13",
+        "first_worker_exit": -9,
+        "refunds": []
+      },
+      "outage": {
+        "dispute": "du_1UFMFr88KhIqqdFLiWRWl4CZ",
+        "status": "needs_response",
+        "chargeback_at": 1789339938,
+        "seconds_to_chargeback": 6.6
+      },
+      "seconds_to_settle": 42.4,
+      "emulated": null,
+      "final_refunds": [],
+      "ground_truth": "0 refund object(s) (final: none), want 0; created at or after the chargeback: none; money returned: no; dispute needs_response",
+      "invariant_held": true,
+      "refund_to_chargeback_s": [],
+      "answer_matches_refund_objects": true,
+      "answer_reflects_final_money": true,
+      "proof": {
+        "decision_recorded": true,
+        "checks_recorded": true,
+        "outcome_matches": true,
+        "refund_in_record": null,
+        "tamper_evident": true,
+        "final_status_known": false
+      },
+      "can_prove_what_happened": true,
+      "receipt_reverified_from_results": true
+    },
+    {
+      "system": "no_check",
+      "fault": "crash_after_send_chargeback_during_outage",
+      "outcome": "REPLAYED_BY_STRIPE",
+      "answer": {
+        "status": "REPLAYED_BY_STRIPE",
+        "refund": "re_3UFMGb88KhIqqdFL0En6hjgf",
+        "decision": {
+          "amount": 2000,
+          "reason": "Partial refund for cracked jar on blender - customer keeping item. Approved as goodwill. Open bank inquiry present on account.",
+          "model": "claude-haiku-4-5-20251001",
+          "facts": {
+            "chargebacks": [],
+            "refunded_by_others": 0
+          },
+          "decided_at": 1789339980.643498,
+          "valid": true
+        }
+      },
+      "record": {
+        "decision": {
+          "amount": 2000,
+          "reason": "Partial refund for cracked jar on blender - customer keeping item. Approved as goodwill. Open bank inquiry present on account.",
+          "model": "claude-haiku-4-5-20251001",
+          "facts": {
+            "chargebacks": [],
+            "refunded_by_others": 0
+          },
+          "decided_at": 1789339980.643498,
+          "valid": true
+        },
+        "hand_check_log": null,
+        "receipt": null
+      },
+      "want_refunds": 1,
+      "refunds_at_settle": [
+        "re_3UFMGb88KhIqqdFL0En6hjgf (failed)"
+      ],
+      "ids": {
+        "payment_intent": "pi_3UFMGb88KhIqqdFL0scwI3qe",
+        "charge": "ch_3UFMGb88KhIqqdFL0pUzlpTx",
+        "dispute": "du_1UFMGc88KhIqqdFLtVBdjHhK",
+        "case": "interlock-sandbox-93c54206",
+        "first_worker_exit": -9,
+        "refunds": [
+          "re_3UFMGb88KhIqqdFL0En6hjgf"
+        ]
+      },
+      "outage": {
+        "dispute": "du_1UFMGc88KhIqqdFLtVBdjHhK",
+        "status": "needs_response",
+        "chargeback_at": 1789339987,
+        "seconds_to_chargeback": 7.9
+      },
+      "seconds_to_settle": 8.6,
+      "emulated": null,
+      "final_refunds": [
+        {
+          "id": "re_3UFMGb88KhIqqdFL0En6hjgf",
+          "status": "failed",
+          "failure_reason": "charge_for_pending_refund_disputed",
+          "created": 1789339982,
+          "amount": 2000
+        }
+      ],
+      "ground_truth": "1 refund object(s) (final: failed (charge_for_pending_refund_disputed)), want 1; created at or after the chargeback: none; money returned: no; dispute needs_response",
+      "invariant_held": true,
+      "refund_to_chargeback_s": [
+        5
+      ],
+      "answer_matches_refund_objects": true,
+      "answer_reflects_final_money": false,
+      "proof": {
+        "decision_recorded": true,
+        "checks_recorded": false,
+        "outcome_matches": false,
+        "refund_in_record": null,
+        "tamper_evident": false,
+        "final_status_known": false
+      },
+      "can_prove_what_happened": false
+    },
+    {
+      "system": "hand_check",
+      "fault": "crash_after_send_chargeback_during_outage",
+      "outcome": "FOUND_BY_LOOKUP",
+      "answer": {
+        "status": "FOUND_BY_LOOKUP",
+        "refund": "re_3UFMGp88KhIqqdFL0bDuQq0K",
+        "checked": {
+          "chargebacks": [
+            "du_1UFMGq88KhIqqdFLMTmeFAi0"
+          ],
+          "refunded_by_others": 0
+        },
+        "decision": {
+          "amount": 2000,
+          "reason": "Goodwill partial refund for cracked jar on blender - case #4471",
+          "model": "claude-haiku-4-5-20251001",
+          "facts": {
+            "chargebacks": [],
+            "refunded_by_others": 0
+          },
+          "decided_at": 1789339994.618211,
+          "valid": true
+        }
+      },
+      "record": {
+        "decision": {
+          "amount": 2000,
+          "reason": "Goodwill partial refund for cracked jar on blender - case #4471",
+          "model": "claude-haiku-4-5-20251001",
+          "facts": {
+            "chargebacks": [],
+            "refunded_by_others": 0
+          },
+          "decided_at": 1789339994.618211,
+          "valid": true
+        },
+        "hand_check_log": [
+          {
+            "ts": 1789339995.258645,
+            "pid": 6843,
+            "step": "checks",
+            "case": "interlock-sandbox-c518e2a4",
+            "amount": 2000,
+            "decided_by": "claude-haiku-4-5-20251001",
+            "approved_by": "support",
+            "approval": {
+              "case": "interlock-sandbox-c518e2a4",
+              "max_cents": 2000,
+              "revoked": null,
+              "by": "support"
+            },
+            "lookup": [],
+            "decided_on": {
+              "chargebacks": [],
+              "refunded_by_others": 0
+            },
+            "now": {
+              "chargebacks": [],
+              "refunded_by_others": 0
+            },
+            "result": "send"
+          },
+          {
+            "ts": 1789340007.346835,
+            "pid": 7055,
+            "step": "checks",
+            "case": "interlock-sandbox-c518e2a4",
+            "amount": 2000,
+            "decided_by": "claude-haiku-4-5-20251001",
+            "approved_by": "support",
+            "approval": {
+              "case": "interlock-sandbox-c518e2a4",
+              "max_cents": 2000,
+              "revoked": null,
+              "by": "support"
+            },
+            "lookup": [
+              "re_3UFMGp88KhIqqdFL0bDuQq0K"
+            ],
+            "decided_on": {
+              "chargebacks": [],
+              "refunded_by_others": 0
+            },
+            "now": {
+              "chargebacks": [
+                "du_1UFMGq88KhIqqdFLMTmeFAi0"
+              ],
+              "refunded_by_others": 0
+            },
+            "result": "FOUND_BY_LOOKUP"
+          }
+        ],
+        "receipt": null
+      },
+      "want_refunds": 1,
+      "refunds_at_settle": [
+        "re_3UFMGp88KhIqqdFL0bDuQq0K (failed)"
+      ],
+      "ids": {
+        "payment_intent": "pi_3UFMGp88KhIqqdFL0WthWowP",
+        "charge": "ch_3UFMGp88KhIqqdFL0zsOb5hu",
+        "dispute": "du_1UFMGq88KhIqqdFLMTmeFAi0",
+        "case": "interlock-sandbox-c518e2a4",
+        "first_worker_exit": -9,
+        "refunds": [
+          "re_3UFMGp88KhIqqdFL0bDuQq0K"
+        ]
+      },
+      "outage": {
+        "dispute": "du_1UFMGq88KhIqqdFLMTmeFAi0",
+        "status": "needs_response",
+        "chargeback_at": 1789340002,
+        "seconds_to_chargeback": 10.3
+      },
+      "seconds_to_settle": 11.2,
+      "emulated": null,
+      "final_refunds": [
+        {
+          "id": "re_3UFMGp88KhIqqdFL0bDuQq0K",
+          "status": "failed",
+          "failure_reason": "charge_for_pending_refund_disputed",
+          "created": 1789339995,
+          "amount": 2000
+        }
+      ],
+      "ground_truth": "1 refund object(s) (final: failed (charge_for_pending_refund_disputed)), want 1; created at or after the chargeback: none; money returned: no; dispute needs_response",
+      "invariant_held": true,
+      "refund_to_chargeback_s": [
+        7
+      ],
+      "answer_matches_refund_objects": true,
+      "answer_reflects_final_money": false,
+      "proof": {
+        "decision_recorded": true,
+        "checks_recorded": true,
+        "outcome_matches": true,
+        "refund_in_record": "re_3UFMGp88KhIqqdFL0bDuQq0K",
+        "tamper_evident": false,
+        "final_status_known": false
+      },
+      "can_prove_what_happened": true
+    },
+    {
+      "system": "interlock",
+      "fault": "crash_after_send_chargeback_during_outage",
+      "outcome": "COMMITTED_ON_QUERY",
+      "answer": {
+        "status": "COMMITTED_ON_QUERY",
+        "refund": "re_3UFMH588KhIqqdFL0MBmVhm9",
+        "receipt": {
+          "effect_id": "338d62723afb",
+          "valid": true,
+          "tamper_evident": true,
+          "signed": null,
+          "happened": true,
+          "happened_once": true,
+          "authorized_when_fired": true,
+          "assumptions_held": true,
+          "refused": null,
+          "evidence": "re_3UFMH588KhIqqdFL0MBmVhm9",
+          "rechecked_at_recovery": {
+            "lease_live": true,
+            "lease": null,
+            "violations": [
+              "chargebacks: was [], now ['du_1UFMH688KhIqqdFLHtQYBYrd']"
+            ]
+          },
+          "problems": []
+        },
+        "journal": [
+          "PROPOSED",
+          "AUTHORIZED",
+          "DISPATCHED",
+          "COMMITTED"
+        ],
+        "decision": {
+          "amount": 2000,
+          "reason": "Support case #4471: Partial refund for cracked jar on $100 blender. Customer approved for $20 goodwill refund and is keeping the item. Payment has open bank inquiry.",
+          "model": "claude-haiku-4-5-20251001",
+          "facts": {
+            "chargebacks": [],
+            "refunded_by_others": 0
+          },
+          "decided_at": 1789340011.526078,
+          "valid": true
+        }
+      },
+      "record": {
+        "decision": {
+          "amount": 2000,
+          "reason": "Support case #4471: Partial refund for cracked jar on $100 blender. Customer approved for $20 goodwill refund and is keeping the item. Payment has open bank inquiry.",
+          "model": "claude-haiku-4-5-20251001",
+          "facts": {
+            "chargebacks": [],
+            "refunded_by_others": 0
+          },
+          "decided_at": 1789340011.526078,
+          "valid": true
+        },
+        "hand_check_log": null,
+        "receipt": {
+          "effect_id": "338d62723afb",
+          "entries": [
+            {
+              "ts": 1789340011.988075,
+              "kind": "PROPOSED",
+              "effect_id": "338d62723afb",
+              "agent": "__main__.interlock_refund._locals_.refund",
+              "lease": [
+                {
+                  "id": "interlock-sandbox-0e3ef814",
+                  "payment_intent": "pi_3UFMH588KhIqqdFL0n3kwR0A",
+                  "charge": "ch_3UFMH588KhIqqdFL04jrOCiG",
+                  "dispute": "du_1UFMH688KhIqqdFLHtQYBYrd"
+                },
+                2000
+              ],
+              "premises": {
+                "args": [
+                  {
+                    "id": "interlock-sandbox-0e3ef814",
+                    "payment_intent": "pi_3UFMH588KhIqqdFL0n3kwR0A",
+                    "charge": "ch_3UFMH588KhIqqdFL04jrOCiG",
+                    "dispute": "du_1UFMH688KhIqqdFLHtQYBYrd"
+                  },
+                  2000
+                ],
+                "facts": {
+                  "chargebacks": [],
+                  "refunded_by_others": 0
+                }
+              },
+              "effect": {
+                "args": [
+                  {
+                    "id": "interlock-sandbox-0e3ef814",
+                    "payment_intent": "pi_3UFMH588KhIqqdFL0n3kwR0A",
+                    "charge": "ch_3UFMH588KhIqqdFL04jrOCiG",
+                    "dispute": "du_1UFMH688KhIqqdFLHtQYBYrd"
+                  },
+                  2000
+                ]
+              },
+              "prev": null,
+              "hash": "5da4940697eea8cbaa89071942c8481a952446a9f45bfa445f104f2af1c372eb"
+            },
+            {
+              "ts": 1789340011.988961,
+              "kind": "AUTHORIZED",
+              "effect_id": "338d62723afb",
+              "lease": [
+                {
+                  "id": "interlock-sandbox-0e3ef814",
+                  "payment_intent": "pi_3UFMH588KhIqqdFL0n3kwR0A",
+                  "charge": "ch_3UFMH588KhIqqdFL04jrOCiG",
+                  "dispute": "du_1UFMH688KhIqqdFLHtQYBYrd"
+                },
+                2000
+              ],
+              "prev": "5da4940697eea8cbaa89071942c8481a952446a9f45bfa445f104f2af1c372eb",
+              "hash": "2c24ade36747b5941886d4c108285d55dff821841a227716232f2214e0bf58e2"
+            },
+            {
+              "ts": 1789340012.388732,
+              "kind": "DISPATCHED",
+              "effect_id": "338d62723afb",
+              "effect": {
+                "args": [
+                  {
+                    "id": "interlock-sandbox-0e3ef814",
+                    "payment_intent": "pi_3UFMH588KhIqqdFL0n3kwR0A",
+                    "charge": "ch_3UFMH588KhIqqdFL04jrOCiG",
+                    "dispute": "du_1UFMH688KhIqqdFLHtQYBYrd"
+                  },
+                  2000
+                ]
+              },
+              "lease": [
+                {
+                  "id": "interlock-sandbox-0e3ef814",
+                  "payment_intent": "pi_3UFMH588KhIqqdFL0n3kwR0A",
+                  "charge": "ch_3UFMH588KhIqqdFL04jrOCiG",
+                  "dispute": "du_1UFMH688KhIqqdFLHtQYBYrd"
+                },
+                2000
+              ],
+              "premises": {
+                "args": [
+                  {
+                    "id": "interlock-sandbox-0e3ef814",
+                    "payment_intent": "pi_3UFMH588KhIqqdFL0n3kwR0A",
+                    "charge": "ch_3UFMH588KhIqqdFL04jrOCiG",
+                    "dispute": "du_1UFMH688KhIqqdFLHtQYBYrd"
+                  },
+                  2000
+                ],
+                "facts": {
+                  "chargebacks": [],
+                  "refunded_by_others": 0
+                }
+              },
+              "checks": {
+                "lease_live": true,
+                "lease": null,
+                "violations": []
+              },
+              "prev": "2c24ade36747b5941886d4c108285d55dff821841a227716232f2214e0bf58e2",
+              "hash": "a35776240d21322630028f24d374f40072567ba1cf58629b32f453d3493a841b"
+            },
+            {
+              "ts": 1789340055.5920599,
+              "kind": "COMMITTED",
+              "effect_id": "338d62723afb",
+              "via": "recovery-query",
+              "rechecked": {
+                "lease_live": true,
+                "lease": null,
+                "violations": [
+                  "chargebacks: was [], now ['du_1UFMH688KhIqqdFLHtQYBYrd']"
+                ]
+              },
+              "found": "re_3UFMH588KhIqqdFL0MBmVhm9",
+              "prev": "a35776240d21322630028f24d374f40072567ba1cf58629b32f453d3493a841b",
+              "hash": "bbd4e162812d80634d90ca813e1df0281f6482cbdd576b54064fffdb2231296d"
+            }
+          ],
+          "summary": {
+            "effect_id": "338d62723afb",
+            "proposed": true,
+            "authorized": true,
+            "executed": true,
+            "recorded": true,
+            "final": "COMMITTED",
+            "authority": [
+              {
+                "id": "interlock-sandbox-0e3ef814",
+                "payment_intent": "pi_3UFMH588KhIqqdFL0n3kwR0A",
+                "charge": "ch_3UFMH588KhIqqdFL04jrOCiG",
+                "dispute": "du_1UFMH688KhIqqdFLHtQYBYrd"
+              },
+              2000
+            ]
+          }
+        }
+      },
+      "want_refunds": 1,
+      "refunds_at_settle": [
+        "re_3UFMH588KhIqqdFL0MBmVhm9 (failed)"
+      ],
+      "ids": {
+        "payment_intent": "pi_3UFMH588KhIqqdFL0n3kwR0A",
+        "charge": "ch_3UFMH588KhIqqdFL04jrOCiG",
+        "dispute": "du_1UFMH688KhIqqdFLHtQYBYrd",
+        "case": "interlock-sandbox-0e3ef814",
+        "first_worker_exit": -9,
+        "refunds": [
+          "re_3UFMH588KhIqqdFL0MBmVhm9"
+        ]
+      },
+      "outage": {
+        "dispute": "du_1UFMH688KhIqqdFLHtQYBYrd",
+        "status": "needs_response",
+        "chargeback_at": 1789340018,
+        "seconds_to_chargeback": 9.2
+      },
+      "seconds_to_settle": 43.0,
+      "emulated": null,
+      "final_refunds": [
+        {
+          "id": "re_3UFMH588KhIqqdFL0MBmVhm9",
+          "status": "failed",
+          "failure_reason": "charge_for_pending_refund_disputed",
+          "created": 1789340012,
+          "amount": 2000
+        }
+      ],
+      "ground_truth": "1 refund object(s) (final: failed (charge_for_pending_refund_disputed)), want 1; created at or after the chargeback: none; money returned: no; dispute needs_response",
+      "invariant_held": true,
+      "refund_to_chargeback_s": [
+        6
+      ],
+      "answer_matches_refund_objects": true,
+      "answer_reflects_final_money": false,
+      "proof": {
+        "decision_recorded": true,
+        "checks_recorded": true,
+        "outcome_matches": true,
+        "refund_in_record": "re_3UFMH588KhIqqdFL0MBmVhm9",
+        "tamper_evident": true,
+        "final_status_known": false
+      },
+      "can_prove_what_happened": true,
+      "receipt_reverified_from_results": true
+    }
+  ]
+}
