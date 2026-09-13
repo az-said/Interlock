@@ -1,6 +1,6 @@
 # Results: parallel coding agents
 
-Generated 2026-09-13 17:03 UTC by `experiments/run_all.py`. Cells: `outcome · result · invariant`. ✅ held · ❌ violated · ⚠️ held, but availability lost.
+Generated 2026-09-13 17:10 UTC by `experiments/run_all.py`. Cells: `outcome · result · invariant`. ✅ held · ❌ violated · ⚠️ held, but availability lost.
 
 Invariant: nothing lands that fails at runtime; nothing lands twice; nothing lands
 under a revoked lease. `result` executes the code B added, it does not just import it.

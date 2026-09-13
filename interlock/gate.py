@@ -104,7 +104,8 @@ class Gate:
             self.journal.append("REFUSED", eid, reason=violated)
             return "REFUSED:stale_premise"
 
-        if not self.journal.dispatch(eid, proposal["effect"]):              # I1, atomic across workers
+        passed = {"lease_live": True, "violations": []}                      # on the record for receipts.verify()
+        if not self.journal.dispatch(eid, proposal["effect"], checks=passed):  # I1, atomic across workers
             kinds = [e["kind"] for e in self.journal.entries(eid)]          # another worker got there first
             return "DUPLICATE_IGNORED" if "COMMITTED" in kinds else "AMBIGUOUS" if "AMBIGUOUS" in kinds else "IN_FLIGHT"
         if crash_before_effect:
@@ -157,7 +158,7 @@ class Gate:
             stale = self._recheck(eid)
             if tier == 1 and not stale:
                 self.target.apply(eid, effect)                  # idempotent: safe to retry
-                self.journal.append("COMMITTED", eid, via="retry-idempotent")
+                self.journal.append("COMMITTED", eid, via="retry-idempotent", rechecked={"lease_live": True, "violations": []})
                 out[eid] = "COMMITTED_BY_RETRY"
             elif not queryable:                                 # stale, and no way to see what landed
                 self.journal.append("AMBIGUOUS", eid, reason=f"{stale} at recovery, no lookup")
@@ -170,12 +171,17 @@ class Gate:
                 out[eid] = f"REFUSED:{stale}_at_recovery"
             else:
                 self.target.apply(eid, effect)
-                self.journal.append("COMMITTED", eid, via="recovery-reapply")
+                self.journal.append("COMMITTED", eid, via="recovery-reapply", rechecked={"lease_live": True, "violations": []})
                 out[eid] = "REAPPLIED_AFTER_QUERY"
         return out
 
     def receipt(self, proposal):
         return self.journal.receipt(effect_id_for(proposal))
+
+    def receipt_bundle(self, proposal, key=None):
+        """Every journal entry for this effect, hash-chained and optionally signed. See receipts.verify()."""
+        from .receipts import bundle
+        return bundle(self.journal, effect_id_for(proposal), key)
 
 
 class Naive:

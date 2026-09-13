@@ -1,0 +1,49 @@
+{
+  "mix": {
+    "routine": 60,
+    "over_limit": 15,
+    "flagged": 5,
+    "ineligible": 5,
+    "duplicate": 5,
+    "crash": 5,
+    "refunded_by_hand": 5
+  },
+  "stale_approvals": 3,
+  "requests": 100,
+  "systems": {
+    "everyone approves": {
+      "reviews": 100,
+      "wrong_orders": [
+        "ord-061",
+        "ord-062",
+        "ord-063",
+        "ord-091",
+        "ord-092",
+        "ord-093",
+        "ord-094",
+        "ord-095"
+      ]
+    },
+    "rules only": {
+      "reviews": 25,
+      "wrong_orders": [
+        "ord-061",
+        "ord-062",
+        "ord-063",
+        "ord-091",
+        "ord-092",
+        "ord-093",
+        "ord-094",
+        "ord-095"
+      ]
+    },
+    "rules + Interlock": {
+      "reviews": 33,
+      "wrong_orders": [],
+      "why": {
+        "needs judgment": 25,
+        "could not be sent safely": 8
+      }
+    }
+  }
+}

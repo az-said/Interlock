@@ -78,6 +78,22 @@ class _Queries:
         }
 
 
+def _canonical(entry):
+    return json.dumps(entry, sort_keys=True, separators=(",", ":"), default=str)
+
+
+def entry_hash(entry):
+    return hashlib.sha256(_canonical({k: v for k, v in entry.items() if k != "hash"}).encode()).hexdigest()
+
+
+def _seal(entry, previous):
+    """Chain the entry to this effect's previous entry, so edits, deletions and reordering show."""
+    entry = json.loads(json.dumps(entry, default=str))     # hash exactly what will be stored
+    entry["prev"] = previous.get("hash") if previous else None
+    entry["hash"] = entry_hash(entry)
+    return entry
+
+
 def open_dispatch(entries):
     """
     True while a DISPATCHED entry has not been resolved. Only COMMITTED, AMBIGUOUS, or a
@@ -128,11 +144,13 @@ class Journal(_Queries):
                         fcntl.flock(f, fcntl.LOCK_UN)
 
     def append(self, kind, effect_id, **data):
-        entry = {"ts": time.time(), "kind": kind, "effect_id": effect_id, **data}
-        with self._exclusive(), open(self.path, "a") as f:
-            f.write(json.dumps(entry, default=str) + "\n")
-            f.flush()
-            os.fsync(f.fileno())            # durable before we return
+        with self._exclusive():
+            prior = self.entries(effect_id)
+            entry = _seal({"ts": time.time(), "kind": kind, "effect_id": effect_id, **data}, prior[-1] if prior else None)
+            with open(self.path, "a") as f:
+                f.write(json.dumps(entry) + "\n")
+                f.flush()
+                os.fsync(f.fileno())        # durable before we return
         return entry
 
     def entries(self, effect_id=None):
@@ -140,12 +158,12 @@ class Journal(_Queries):
             es = [json.loads(l) for l in f if l.strip()]
         return [e for e in es if effect_id is None or e["effect_id"] == effect_id]
 
-    def dispatch(self, effect_id, effect):
+    def dispatch(self, effect_id, effect, **data):
         """Write DISPATCHED unless another worker already dispatched or resolved it. False if it did."""
         with self._exclusive():
             if _blocks_dispatch(self.entries(effect_id)):
                 return False
-            self.append("DISPATCHED", effect_id, effect=effect)
+            self.append("DISPATCHED", effect_id, effect=effect, **data)
             return True
 
     def claim(self, effect_id, owner):
@@ -182,14 +200,19 @@ class SqliteJournal(_Queries):
 
     @staticmethod
     def _insert(db, kind, effect_id, data):
-        entry = {"ts": time.time(), "kind": kind, "effect_id": effect_id, **data}
-        db.execute("INSERT INTO entries (effect_id, kind, body) VALUES (?, ?, ?)",
-                   (effect_id, kind, json.dumps(entry, default=str)))
+        """Call inside BEGIN IMMEDIATE, so the chain link and the insert are one step."""
+        row = db.execute("SELECT body FROM entries WHERE effect_id = ? ORDER BY seq DESC LIMIT 1", (effect_id,)).fetchone()
+        entry = _seal({"ts": time.time(), "kind": kind, "effect_id": effect_id, **data}, json.loads(row[0]) if row else None)
+        db.execute("INSERT INTO entries (effect_id, kind, body) VALUES (?, ?, ?)", (effect_id, kind, json.dumps(entry)))
         return entry
 
     def append(self, kind, effect_id, **data):
-        with contextlib.closing(self._connect()) as db, db:
-            return self._insert(db, kind, effect_id, data)
+        with contextlib.closing(self._connect()) as db:
+            db.isolation_level = None
+            db.execute("BEGIN IMMEDIATE")
+            entry = self._insert(db, kind, effect_id, data)
+            db.execute("COMMIT")
+            return entry
 
     def entries(self, effect_id=None):
         with contextlib.closing(self._connect()) as db:
@@ -199,7 +222,7 @@ class SqliteJournal(_Queries):
                 rows = db.execute("SELECT body FROM entries WHERE effect_id = ? ORDER BY seq", (effect_id,))
             return [json.loads(body) for (body,) in rows]
 
-    def dispatch(self, effect_id, effect):
+    def dispatch(self, effect_id, effect, **data):
         with contextlib.closing(self._connect()) as db:
             db.isolation_level = None
             db.execute("BEGIN IMMEDIATE")            # takes the write lock before reading
@@ -207,7 +230,7 @@ class SqliteJournal(_Queries):
             if _blocks_dispatch(entries):
                 db.execute("ROLLBACK")
                 return False
-            self._insert(db, "DISPATCHED", effect_id, {"effect": effect})
+            self._insert(db, "DISPATCHED", effect_id, {"effect": effect, **data})
             db.execute("COMMIT")
             return True
 
