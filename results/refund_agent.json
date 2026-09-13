@@ -1,0 +1,258 @@
+{
+  "happy_path": {
+    "naive": {
+      "outcome": "APPLIED",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "idempotency@tier1": {
+      "outcome": "APPLIED:ok",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier1": {
+      "outcome": "COMMITTED",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier2": {
+      "outcome": "COMMITTED",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier3": {
+      "outcome": "COMMITTED",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    }
+  },
+  "crash_before_send": {
+    "naive": {
+      "outcome": "RETRIED",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "idempotency@tier1": {
+      "outcome": "RETRIED",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier1": {
+      "outcome": "COMMITTED_BY_RETRY",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier2": {
+      "outcome": "REAPPLIED_AFTER_QUERY",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier3": {
+      "outcome": "AMBIGUOUS",
+      "refunded": "$0",
+      "invariant_held": true,
+      "caveat": "liveness_lost"
+    }
+  },
+  "crash_before_ack": {
+    "naive": {
+      "outcome": "RETRIED",
+      "refunded": "$40",
+      "invariant_held": false,
+      "caveat": ""
+    },
+    "idempotency@tier1": {
+      "outcome": "RETRIED",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier1": {
+      "outcome": "COMMITTED_BY_RETRY",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier2": {
+      "outcome": "COMMITTED_ON_QUERY",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier3": {
+      "outcome": "AMBIGUOUS",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": "liveness_lost"
+    }
+  },
+  "duplicate_submit": {
+    "naive": {
+      "outcome": "APPLIED",
+      "refunded": "$40",
+      "invariant_held": false,
+      "caveat": ""
+    },
+    "idempotency@tier1": {
+      "outcome": "APPLIED:already_processed",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier1": {
+      "outcome": "DUPLICATE_IGNORED",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier2": {
+      "outcome": "DUPLICATE_IGNORED",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier3": {
+      "outcome": "DUPLICATE_IGNORED",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    }
+  },
+  "model_redecides": {
+    "naive": {
+      "outcome": "APPLIED",
+      "refunded": "$50",
+      "invariant_held": false,
+      "caveat": ""
+    },
+    "idempotency@tier1": {
+      "outcome": "APPLIED:key_reused_with_different_params",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier1": {
+      "outcome": "REFUSED:conflicting_payload",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier2": {
+      "outcome": "REFUSED:conflicting_payload",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier3": {
+      "outcome": "REFUSED:conflicting_payload",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    }
+  },
+  "conflicting_payload": {
+    "naive": {
+      "outcome": "APPLIED",
+      "refunded": "$50",
+      "invariant_held": false,
+      "caveat": ""
+    },
+    "idempotency@tier1": {
+      "outcome": "APPLIED:key_reused_with_different_params",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier1": {
+      "outcome": "REFUSED:conflicting_payload",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier2": {
+      "outcome": "REFUSED:conflicting_payload",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier3": {
+      "outcome": "REFUSED:conflicting_payload",
+      "refunded": "$20",
+      "invariant_held": true,
+      "caveat": ""
+    }
+  },
+  "lease_revoked": {
+    "naive": {
+      "outcome": "APPLIED",
+      "refunded": "$20",
+      "invariant_held": false,
+      "caveat": ""
+    },
+    "idempotency@tier1": {
+      "outcome": "APPLIED:ok",
+      "refunded": "$20",
+      "invariant_held": false,
+      "caveat": ""
+    },
+    "gate@tier1": {
+      "outcome": "REFUSED:lease",
+      "refunded": "$0",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier2": {
+      "outcome": "REFUSED:lease",
+      "refunded": "$0",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier3": {
+      "outcome": "REFUSED:lease",
+      "refunded": "$0",
+      "invariant_held": true,
+      "caveat": ""
+    }
+  },
+  "stale_eligibility": {
+    "naive": {
+      "outcome": "APPLIED",
+      "refunded": "$20",
+      "invariant_held": false,
+      "caveat": ""
+    },
+    "idempotency@tier1": {
+      "outcome": "APPLIED:ok",
+      "refunded": "$20",
+      "invariant_held": false,
+      "caveat": ""
+    },
+    "gate@tier1": {
+      "outcome": "REFUSED:stale_premise",
+      "refunded": "$0",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier2": {
+      "outcome": "REFUSED:stale_premise",
+      "refunded": "$0",
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate@tier3": {
+      "outcome": "REFUSED:stale_premise",
+      "refunded": "$0",
+      "invariant_held": true,
+      "caveat": ""
+    }
+  }
+}

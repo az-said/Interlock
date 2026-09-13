@@ -1,5 +1,4 @@
-node_modules/
 __pycache__/
-.env
-dist/
+*.pyc
+*.jsonl
 .DS_Store

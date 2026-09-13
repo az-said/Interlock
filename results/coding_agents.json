@@ -1,0 +1,163 @@
+{
+  "rename_break": {
+    "naive": {
+      "outcome": "APPLIED",
+      "result": "landed_BROKEN",
+      "duplicated": false,
+      "invariant_held": false,
+      "caveat": ""
+    },
+    "gate/file": {
+      "outcome": "REFUSED:stale_premise",
+      "result": "not_landed",
+      "duplicated": false,
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate/symbol": {
+      "outcome": "REFUSED:stale_premise",
+      "result": "not_landed",
+      "duplicated": false,
+      "invariant_held": true,
+      "caveat": ""
+    }
+  },
+  "duplicate_work": {
+    "naive": {
+      "outcome": "APPLIED",
+      "result": "2 impl",
+      "duplicated": true,
+      "invariant_held": false,
+      "caveat": ""
+    },
+    "gate/file": {
+      "outcome": "REFUSED:claimed_by_A",
+      "result": "1 impl",
+      "duplicated": false,
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate/symbol": {
+      "outcome": "REFUSED:claimed_by_A",
+      "result": "1 impl",
+      "duplicated": false,
+      "invariant_held": true,
+      "caveat": ""
+    }
+  },
+  "benign_reformat": {
+    "naive": {
+      "outcome": "APPLIED",
+      "result": "landed_ok",
+      "duplicated": false,
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate/file": {
+      "outcome": "REFUSED:stale_premise",
+      "result": "not_landed",
+      "duplicated": false,
+      "invariant_held": true,
+      "caveat": "false_refusal"
+    },
+    "gate/symbol": {
+      "outcome": "COMMITTED",
+      "result": "landed_ok",
+      "duplicated": false,
+      "invariant_held": true,
+      "caveat": ""
+    }
+  },
+  "crash_before_commit": {
+    "naive": {
+      "outcome": "RETRIED",
+      "result": "landed_ok",
+      "duplicated": true,
+      "invariant_held": false,
+      "caveat": ""
+    },
+    "gate/file": {
+      "outcome": "COMMITTED_ON_QUERY",
+      "result": "landed_ok",
+      "duplicated": false,
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate/symbol": {
+      "outcome": "COMMITTED_ON_QUERY",
+      "result": "landed_ok",
+      "duplicated": false,
+      "invariant_held": true,
+      "caveat": ""
+    }
+  },
+  "duplicate_submit": {
+    "naive": {
+      "outcome": "APPLIED",
+      "result": "landed_ok",
+      "duplicated": true,
+      "invariant_held": false,
+      "caveat": ""
+    },
+    "gate/file": {
+      "outcome": "DUPLICATE_IGNORED",
+      "result": "landed_ok",
+      "duplicated": false,
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate/symbol": {
+      "outcome": "DUPLICATE_IGNORED",
+      "result": "landed_ok",
+      "duplicated": false,
+      "invariant_held": true,
+      "caveat": ""
+    }
+  },
+  "lease_revoked": {
+    "naive": {
+      "outcome": "APPLIED",
+      "result": "landed_ok",
+      "duplicated": false,
+      "invariant_held": false,
+      "caveat": ""
+    },
+    "gate/file": {
+      "outcome": "REFUSED:lease",
+      "result": "not_landed",
+      "duplicated": false,
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate/symbol": {
+      "outcome": "REFUSED:lease",
+      "result": "not_landed",
+      "duplicated": false,
+      "invariant_held": true,
+      "caveat": ""
+    }
+  },
+  "semantic_only": {
+    "naive": {
+      "outcome": "APPLIED",
+      "result": "landed_BROKEN",
+      "duplicated": false,
+      "invariant_held": false,
+      "caveat": ""
+    },
+    "gate/file": {
+      "outcome": "REFUSED:stale_premise",
+      "result": "not_landed",
+      "duplicated": false,
+      "invariant_held": true,
+      "caveat": ""
+    },
+    "gate/symbol": {
+      "outcome": "COMMITTED",
+      "result": "landed_BROKEN",
+      "duplicated": false,
+      "invariant_held": false,
+      "caveat": ""
+    }
+  }
+}
