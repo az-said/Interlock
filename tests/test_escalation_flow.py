@@ -67,6 +67,17 @@ class Flow(unittest.TestCase):
         self.assertEqual((s["escalated_by_reason"], s["sent_after_person"], s["cleared_no_person"]),
                          ({"stale_premise": 1}, 1, 0))
 
+    def test_accepting_still_fits_counts_as_an_accepted_repair(self):
+        api = HandRefundAfterCapture(30)
+        api.create_order("1", 100)
+        ibx = self.inbox(api, 50)
+        ibx.submit({"id": "r1", "order": "1", "amount": 50})
+        self.assertEqual(ibx.repair("r1", "alice", seen=ibx.queue["r1"]["escalation"]), "COMMITTED")
+        r = verify(bundle(ibx.gate.journal, eid("r1")))
+        self.assertTrue(r["valid"], r["problems"])
+        s = scoreboard(ibx.gate.journal)
+        self.assertEqual((s["repairs_accepted"], s["closed_by_repair"], api.refunded_total("1")), (1, 0, 80))
+
     def test_refund_remaining_repair_end_to_end(self):
         api = HandRefundAfterCapture(30)
         api.create_order("1", 100)

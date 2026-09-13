@@ -68,10 +68,10 @@ def scoreboard(journal, name="inbox"):
                 approved = approved or e["decision"] == "approve"
                 s["rejected"] += e["decision"] == "reject"
                 s["closed_by_repair"] += e["decision"] == "repair"
+                s["repairs_accepted"] += bool(e.get("repair"))    # a new payload, or the same one accepted as still fitting
                 if since is not None:
                     waits.append(e["at"] - since)
                 since = None
-    s["repairs_accepted"] = s["closed_by_repair"]
 
     waits.sort()
     n = len(waits)

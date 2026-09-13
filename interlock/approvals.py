@@ -260,16 +260,16 @@ class Inbox:
 
     def _decide(self, request_id, e, by, decision, members, repair=None):
         return self.gate.journal.append_if(
-            "DECIDED", effect_id_for({"request_id": request_id}), _unanswered(e, landed=repair is not None),
+            "DECIDED", effect_id_for({"request_id": request_id}), _unanswered(e, landed=decision == "repair"),
             **record("DECIDED", at=self.clock(), by=by, decision=decision, escalation=e["hash"], group=e["group"],
                      members=sorted(members), repair=repair))
 
-    def approve(self, request_id, by, execute=True, seen=None):
+    def approve(self, request_id, by, execute=True, seen=None, _repair=None):
         """Record a person's approval against the facts they saw. execute=False sends it later."""
         es, e, members, refusal = self._pending(request_id, by, seen, ambiguous=False)
         if refusal:
             return refusal
-        d, blocker = self._decide(request_id, e, by, "approve", members)
+        d, blocker = self._decide(request_id, e, by, "approve", members, _repair)
         if blocker:
             return blocker
         self.queue.pop(request_id, None)
@@ -307,8 +307,9 @@ class Inbox:
         if not 0 <= index < len(e["repairs"]):
             return "REFUSED:no_repair"
         r = e["repairs"][index]
-        if not r["set"]:
-            return self.approve(request_id, by, execute, seen=e["hash"])
+        if not r["set"]:                                      # same payload: an approval, recorded as the accepted repair
+            return self.approve(request_id, by, execute, seen=e["hash"],
+                                _repair={"code": r["code"], "set": {}, "request_id": request_id})
         request = self._request(es)
         child = {**request, **r["set"], "id": f"{request_id}:repair:{e['hash'][:8]}", "repair_of": request_id}
         if _plain(self.effect(child)) != _plain({**self.effect(request), **r["set"]}):
