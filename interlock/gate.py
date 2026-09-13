@@ -106,7 +106,11 @@ class Gate:
 
         # A retry under the same authority is checked against the premises it was decided on;
         # re-reading the world at retry time would bless a change the decision never saw.
-        decided_on = next((e["premises"] for e in prior if e["kind"] == "PROPOSED" and e.get("lease") == lease),
+        # A store whose leases are closings of one approval (AP2: many closed mandates per open
+        # mandate) names that approval with authority(lease), so re-closing it is not a new decision.
+        authority = getattr(self.leases, "authority", lambda lease: lease)
+        decided_on = next((e["premises"] for e in prior
+                           if e["kind"] == "PROPOSED" and authority(e.get("lease")) == authority(lease)),
                           proposal["premises"])
         self.journal.append("PROPOSED", eid, agent=proposal["agent"], lease=lease,
                             premises=proposal["premises"], effect=effect)
@@ -127,6 +131,13 @@ class Gate:
         if violated:
             self.journal.append("REFUSED", eid, reason=violated, checks=checks)
             return "REFUSED:stale_premise"
+
+        reserve = getattr(self.leases, "reserve", None)                 # a store that counts uses binds the lease to this effect
+        if reserve:
+            checks["use_problems"] = used = reserve(lease, eid, effect)
+            if used:
+                self.journal.append("REFUSED", eid, reason="lease already used: " + "; ".join(used), checks=checks)
+                return "REFUSED:lease_used"
 
         blocker = self.journal.dispatch(eid, effect, self.sender, self.claim_ttl, lease=lease, premises=decided_on,
                                         checks=checks)                  # I1, atomic across workers
