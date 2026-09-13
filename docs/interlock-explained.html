@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Interlock, explained</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDF0F3; --card:#F7F8FA; --ink:#12233A; --ink-2:#4A5A6E; --line:#CDD5DE;
+    --ok:#3E9A3A; --bad:#C8432B; --warn:#D08A1E; --hi:#1F5FBF;
+    --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace; --sans:'IBM Plex Sans',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.55}
+  a{color:var(--hi)}
+  .wrap{display:grid;grid-template-columns:220px 1fr;gap:48px;max-width:1240px;margin:0 auto;padding:40px 28px}
+  nav{position:sticky;top:32px;align-self:start;font-size:14px}
+  nav a{display:block;color:var(--ink-2);text-decoration:none;padding:6px 0;border-left:2px solid var(--line);padding-left:12px}
+  nav a.on{color:var(--ink);border-color:var(--ink)}
+  main{min-width:0}
+  section{padding:56px 0;border-top:1px solid var(--line)}
+  section:first-of-type{border-top:0;padding-top:0}
+  h1{font-size:44px;line-height:1.1;font-weight:600;margin:0 0 12px;letter-spacing:-.01em}
+  h2{font-size:30px;line-height:1.2;font-weight:600;margin:0 0 20px;letter-spacing:-.01em}
+  h3{font-size:19px;font-weight:600;margin:24px 0 8px}
+  p{max-width:68ch;margin:0 0 14px}
+  .lede{font-size:21px;color:var(--ink-2);max-width:60ch}
+  .quiet{color:var(--ink-2);font-size:15px}
+  .mono{font-family:var(--mono)}
+  code,.jrn{font-family:var(--mono);font-size:14px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:18px 20px}
+  .card h4{margin:0 0 8px;font-size:16px;font-weight:600}
+  .card p{font-size:15px;margin:0 0 6px}
+  /* ---- scrubber ---- */
+  .scrub{background:var(--ink);color:#E8EEF5;border-radius:8px;padding:26px 26px 20px;margin:20px 0}
+  .track{position:relative;height:74px;margin:14px 0 6px}
+  .track .rail{position:absolute;left:0;right:0;top:26px;height:3px;background:#3A4B62}
+  .track .stop{position:absolute;top:14px;width:26px;height:26px;border-radius:50%;background:#2A3A50;border:2px solid #7F92AA;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;font-size:12px;font-family:var(--mono)}
+  .track .lbl{position:absolute;top:48px;transform:translateX(-50%);font-size:12px;color:#B7C4D4;white-space:nowrap}
+  .track .cursor{position:absolute;top:2px;width:3px;height:50px;background:var(--bad);transform:translateX(-50%);pointer-events:none;transition:left .15s}
+  .track .cursor::after{content:'crash';position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--bad);font-family:var(--mono)}
+  input[type=range]{width:100%;accent-color:#E8EEF5}
+  .tiers{display:flex;gap:8px;margin:10px 0 0}
+  .tiers button{background:#2A3A50;color:#E8EEF5;border:1px solid #4A5E78;border-radius:4px;padding:6px 12px;font:inherit;font-size:14px;cursor:pointer}
+  .tiers button.on{background:#E8EEF5;color:var(--ink)}
+  .out{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:20px}
+  .out .box{background:#0E1B2C;border-radius:6px;padding:16px;min-height:200px}
+  .out h4{margin:0 0 10px;font-size:15px;color:#B7C4D4;font-weight:500}
+  .out .res{font-size:28px;font-weight:600;margin:6px 0 10px}
+  .ok{color:#7FD07A}.bad{color:#F08A75}.warn{color:#F2B65B}
+  .jrn div{padding:2px 0;color:#B7C4D4}
+  .jrn b{color:#E8EEF5;font-weight:500;display:inline-block;width:110px}
+  /* ---- state machine ---- */
+  svg text{font-family:var(--sans);font-size:13px;fill:var(--ink)}
+  svg .m{font-family:var(--mono);font-size:12.5px}
+  /* ---- results ---- */
+  table{border-collapse:collapse;width:100%;font-size:14px}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+  th{background:var(--card);font-weight:600}
+  td.c-ok{background:#E3F3E1}td.c-bad{background:#F7E0DA}td.c-warn{background:#FAECD3}
+  .legend{display:flex;gap:18px;font-size:14px;margin:8px 0 14px}
+  .legend span::before{content:'';display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px;border:1px solid var(--line)}
+  .legend .a::before{background:#E3F3E1}.legend .b::before{background:#F7E0DA}.legend .c::before{background:#FAECD3}
+  /* ---- timeline ---- */
+  .tl{border-left:2px solid var(--ink);margin-left:8px;padding-left:22px}
+  .tl div{position:relative;margin-bottom:18px}
+  .tl div::before{content:'';position:absolute;left:-30px;top:8px;width:12px;height:12px;border-radius:50%;background:var(--ink)}
+  .tl b{display:block;font-weight:600}
+  .tl span{color:var(--ink-2);font-size:15px}
+  details{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 16px;margin-bottom:8px}
+  summary{cursor:pointer;font-weight:600}
+  details p{margin:8px 0 0;font-size:15px}
+  .steps{counter-reset:s}
+  .steps li{list-style:none;position:relative;padding-left:44px;margin-bottom:12px}
+  .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;width:30px;height:30px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px}
+  @media (max-width:900px){.wrap{grid-template-columns:1fr}nav{display:none}.grid2,.grid3,.out{grid-template-columns:1fr}h1{font-size:34px}}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav id="nav">
+  <a href="#s0">Start here</a>
+  <a href="#s1">The crash, live</a>
+  <a href="#s2">The root</a>
+  <a href="#s3">The machine</a>
+  <a href="#s4">Three kinds of service</a>
+  <a href="#s5">What we measured</a>
+  <a href="#s6">Under the code</a>
+  <a href="#s7">The field</a>
+  <a href="#s8">How we got here</a>
+  <a href="#s9">What we ruled out</a>
+  <a href="#s10">What's next</a>
+</nav>
+<main>
+
+<section id="s0">
+  <h1>Interlock, explained</h1>
+  <p class="lede">A receipt for AI agent actions: proof an action happened once, was authorized when it fired, and its assumptions still held. Finance teams use it to stop hand-approving every agent action.</p>
+  <p>This page walks the whole project from the challenge to the code to what's next. Drag the crash around in the next section first. Everything after it is explaining what you just saw.</p>
+</section>
+
+<section id="s1">
+  <h2>The crash, live</h2>
+  <p>A customer paid $100. Support approved one $20 refund. The agent sends it. Drag the crash to any point in the sequence and pick what the payment service can do. Watch what a plain retry does versus what Interlock does.</p>
+  <div class="scrub">
+    <div class="track" id="track">
+      <div class="rail"></div>
+      <div class="cursor" id="cursor"></div>
+    </div>
+    <input type="range" id="crash" min="0" max="4" step="1" value="3" aria-label="Crash point">
+    <div class="tiers" role="group" aria-label="Service capability">
+      <button data-t="1">service dedupes on a key</button>
+      <button data-t="2" class="on">service can be looked up</button>
+      <button data-t="3">service can do neither</button>
+    </div>
+    <div class="out">
+      <div class="box"><h4>Plain retry (most agents today)</h4><div id="nv"></div></div>
+      <div class="box"><h4>Interlock</h4><div id="il"></div></div>
+    </div>
+  </div>
+  <p class="quiet">The five stops are the five moments a real process can die. Stop 3 is the one the track brief describes: the service did it, the response never came back.</p>
+</section>
+
+<section id="s2">
+  <h2>The root, in one sentence</h2>
+  <p class="lede">An agent decides on premises that are true when it decides; its action lands later; and nothing carries the premises along with the action to be re-checked when it lands.</p>
+  <p>At the wire, a timeout has four possible meanings and one observation. That's the Two Generals problem (1975): provably impossible to close from the client side alone. You design around it and say what's left.</p>
+  <div class="grid2">
+    <div class="card"><h4>What a timeout could mean</h4>
+      <p>The request never arrived.</p><p>The service did it; the response was lost.</p><p>The service is still working.</p><p>The service crashed halfway.</p></div>
+    <div class="card"><h4>What AI adds</h4>
+      <p>Re-running the program doesn't reproduce the decision.</p><p>Data the agent reads can change what the program does.</p><p>Permissions move while the agent runs.</p></div>
+  </div>
+  <h3>The four facts the brief asks for</h3>
+  <div class="grid2">
+    <div class="card"><h4>Proposed</h4><p>The model said "refund $20."</p></div>
+    <div class="card"><h4>Authorized</h4><p>The agent held a live refund grant at that instant.</p></div>
+    <div class="card"><h4>Executed</h4><p>The service actually moved $20.</p></div>
+    <div class="card"><h4>Recorded</h4><p>Our record says refunded, and can prove it.</p></div>
+  </div>
+  <p>Every framework today collapses these into one log line. A crash can separate any two. Each separation wants a different repair, so the journal keeps all four.</p>
+</section>
+
+<section id="s3">
+  <h2>The machine</h2>
+  <p>Five rules. Write the decision to disk before acting. Fix the effect's identity when the request is approved, never by the model. Carry the premises and re-check at commit. Treat authority as a lease checked at dispatch. On recovery, never guess.</p>
+  <svg viewBox="0 0 900 300" width="100%" role="img" aria-label="State machine">
+    <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5 0 10z" fill="#12233A"/></marker></defs>
+    <g class="m">
+      <rect x="20" y="60" width="120" height="40" rx="4" fill="#F7F8FA" stroke="#12233A"/><text x="80" y="85" text-anchor="middle">PROPOSED</text>
+      <rect x="190" y="60" width="130" height="40" rx="4" fill="#F7F8FA" stroke="#12233A"/><text x="255" y="85" text-anchor="middle">AUTHORIZED</text>
+      <rect x="370" y="60" width="130" height="40" rx="4" fill="#F7F8FA" stroke="#12233A"/><text x="435" y="85" text-anchor="middle">DISPATCHED</text>
+      <rect x="550" y="60" width="100" height="40" rx="4" fill="#12233A"/><text x="600" y="85" text-anchor="middle" fill="#fff">effect</text>
+      <rect x="700" y="60" width="130" height="40" rx="4" fill="#E3F3E1" stroke="#3E9A3A"/><text x="765" y="85" text-anchor="middle">COMMITTED</text>
+      <line x1="140" y1="80" x2="188" y2="80" stroke="#12233A" stroke-width="1.5" marker-end="url(#ar)"/>
+      <line x1="320" y1="80" x2="368" y2="80" stroke="#12233A" stroke-width="1.5" marker-end="url(#ar)"/>
+      <line x1="500" y1="80" x2="548" y2="80" stroke="#12233A" stroke-width="1.5" marker-end="url(#ar)"/>
+      <line x1="650" y1="80" x2="698" y2="80" stroke="#12233A" stroke-width="1.5" marker-end="url(#ar)"/>
+      <rect x="700" y="150" width="130" height="34" rx="4" fill="#F7E0DA" stroke="#C8432B"/><text x="765" y="172" text-anchor="middle">REFUSED</text>
+      <rect x="700" y="230" width="130" height="34" rx="4" fill="#FAECD3" stroke="#D08A1E"/><text x="765" y="252" text-anchor="middle">AMBIGUOUS</text>
+      <path d="M80 100 V167 H698" fill="none" stroke="#C8432B" stroke-width="1.2" marker-end="url(#ar)"/>
+      <path d="M255 100 V167" fill="none" stroke="#C8432B" stroke-width="1.2"/>
+      <path d="M600 100 V247 H698" fill="none" stroke="#D08A1E" stroke-width="1.2" marker-end="url(#ar)"/>
+    </g>
+    <text x="435" y="122" text-anchor="middle" class="m">written to disk before the call</text>
+    <text x="90" y="128" >premise changed · same id, different amount</text>
+    <text x="262" y="150">lease dead</text>
+    <text x="610" y="215">crash here → recover by tier: retry / look up / cannot know</text>
+  </svg>
+  <p>The output of every effect is a receipt: four booleans and a final state. An auditor reads receipts instead of reconciling logs.</p>
+</section>
+
+<section id="s4">
+  <h2>Three kinds of service</h2>
+  <p>Whether "exactly once" is even possible depends on the other side, not on you. So the gate declares which kind of service it's talking to and promises only what that kind allows.</p>
+  <div class="grid3">
+    <div class="card"><h4>Tier 1: dedupes on a key</h4><p>Stripe with an idempotency key. Retry is safe; the service returns the earlier result.</p><p><b>Guarantee:</b> exactly once.</p></div>
+    <div class="card"><h4>Tier 2: can be looked up</h4><p>Most APIs with a GET, a database, a filesystem. On recovery, ask what it has, then commit without re-sending.</p><p><b>Guarantee:</b> exactly once, one extra read.</p></div>
+    <div class="card"><h4>Tier 3: neither</h4><p>Email, webhooks, many internal services. "Sent and lost" and "never sent" look identical.</p><p><b>Guarantee:</b> at most once, ambiguity surfaced to a person. A refund that never happened may stay blocked. That's the stated cost.</p></div>
+  </div>
+  <p>Tier 3 is an impossibility result, not a bug. The brief lists "an impossibility result paired with a useful weaker guarantee" as a valid format. That's Finding 1.</p>
+</section>
+
+<section id="s5">
+  <h2>What we measured</h2>
+  <p>Every cell regenerates from one command. Two baselines: today's plain retry, and the conventional "just use idempotency keys" durable operation. Then the gate at each tier.</p>
+  <div class="legend"><span class="a">invariant held</span><span class="b">violated</span><span class="c">held, but availability lost</span></div>
+  <h3>Refund agent: $100 paid, one $20 refund approved</h3>
+  <table id="t1"></table>
+  <h3>Parallel coding agents: same gate, different world</h3>
+  <table id="t2"></table>
+  <h3>The findings</h3>
+  <div class="grid2">
+    <div class="card"><h4>1. Exactly-once belongs to the target</h4><p>Achievable at tiers 1 and 2. Undecidable at tier 3; the honest guarantee is at-most-once plus a surfaced ambiguity, and the cost is on the table.</p></div>
+    <div class="card"><h4>2. Keys are necessary and insufficient</h4><p>Idempotency handles crash, duplicates, and the $30 re-decision at the service. It still refunds under a revoked lease and on an ineligible order, because the service can't see the agent.</p></div>
+    <div class="card"><h4>3. Premises are a dial with a floor</h4><p>File hashes never land broken code but refuse benign edits. Symbols land benign edits, catch renames and duplicated work, and can't see a same-signature meaning change.</p></div>
+    <div class="card"><h4>4. Recovery is when the world moves</h4><p>Our own tests found the gate re-sent without re-checking premises. Support refunded by hand during the outage; the gate paid twice. Fixed: a resend is a new dispatch.</p></div>
+  </div>
+  <p class="quiet">Since then the team ran the key rows against real Stripe (test mode) and a real Temporal server, with the same outcomes. Those results live in <code>results/stripe_live.md</code> and <code>results/temporal_live.md</code>.</p>
+</section>
+
+<section id="s6">
+  <h2>Under the code: one refund, traced</h2>
+  <ol class="steps">
+    <li>The agent builds a proposal: the approved case id, its lease, the premises it saw (order eligible, $100 paid), and the effect (refund $20).</li>
+    <li><code>effect_id_for()</code> hashes the <em>case id</em>, not the model's words. Same case, same id, forever. A model that says $30 on retry produces the same id with a different payload, and that's refused.</li>
+    <li><code>journal.append("PROPOSED")</code> writes the decision and premises to disk with an fsync.</li>
+    <li>Checks, in order: already committed? lease live right now? premises still true against the world? Any no → <code>REFUSED:*</code>.</li>
+    <li><code>journal.append("DISPATCHED")</code>. Only now does the call go out. If the process dies after this line, the journal knows something was started.</li>
+    <li>On restart, <code>recover()</code> finds every DISPATCHED without COMMITTED and acts by tier: retry, look up, or write AMBIGUOUS. Before any resend it re-checks lease and premises, because the outage is exactly when the world moves.</li>
+    <li><code>receipt()</code> reads the journal back into four facts and a final state.</li>
+  </ol>
+  <p>The protocol is about 250 lines across <code>journal.py</code>, <code>leases.py</code>, and <code>gate.py</code>. Everything else in the repo is evidence (experiments, tests, live runs) or adapters (Stripe, Temporal, MCP, the decorator). If you strip it to what's judged, it's those 250 lines and the two tables.</p>
+</section>
+
+<section id="s7">
+  <h2>The field</h2>
+  <table>
+    <tr><th>Layer</th><th>Question it answers</th><th>Who</th></tr>
+    <tr><td>Artifacts in</td><td>Is this package safe to install?</td><td>Sandboxing tools</td></tr>
+    <tr><td>Policy and inventory</td><td>What may agents do?</td><td>Governance platforms</td></tr>
+    <tr><td>Durable execution</td><td>Resume after failure</td><td>Workflow engines; agent SDKs with first-party support</td></tr>
+    <tr><td>Injection containment</td><td>Can data change control flow?</td><td>Capability-based research systems</td></tr>
+    <tr><td>Dedup at the receiver</td><td>Don't do it twice</td><td>Payment APIs with idempotency keys</td></tr>
+    <tr><td>Agent-native payment rails</td><td>Let agents hold and move money</td><td>New rails, funded this year</td></tr>
+    <tr><td class="c-ok"><b>Effects</b></td><td class="c-ok"><b>Did it happen, once, under live authority, on premises that still hold?</b></td><td class="c-ok"><b>Nobody</b></td></tr>
+  </table>
+  <p>The empty row is empty for a structural reason. Model providers sit on one side of the effect, API providers on the other, workflow engines upstream. Nobody owns the seam. Seams are where payment processors, telephony APIs, and bank-data aggregators came from.</p>
+</section>
+
+<section id="s8">
+  <h2>How we got here</h2>
+  <div class="tl">
+    <div><b>Saturday morning</b><span>Read the brief. Thought "multi-agent." Whiteboard listed sandboxes, prompt injection, poisoning, duplicate tasks, and a fork: security vs efficiency.</span></div>
+    <div><b>Saturday afternoon</b><span>Found the root at the packet level. Read Two Generals, Stripe idempotency, CaMeL, Mosaic. Mapped the field. Dropped sandboxes (friends already built it), detectors (model-quality claim), and the security-vs-efficiency fork (positioning, not research).</span></div>
+    <div><b>Saturday evening</b><span>Two specs written: one refund, at most once; and concurrency control for parallel coding agents. Checkpoint 1: problem statement, empty repo. Scored 6 / 5 / 2.5 with "hard to follow, add voice."</span></div>
+    <div><b>Sunday morning</b><span>Saw the two specs were one mechanism aimed at two targets. Built the core once: journal, leases, gate, two targets, two experiments. First tables. Checkpoint 2.</span></div>
+    <div><b>Sunday afternoon</b><span>Bound effect identity to the approved request per the refund spec. Added the idempotency-only baseline. Then the team extended it: durable-execution baseline, live Stripe, live Temporal, approval inbox, decorator, MCP proxy, signed receipts, 41 tests. Tests found Finding 4.</span></div>
+  </div>
+</section>
+
+<section id="s9">
+  <h2>What we ruled out</h2>
+  <details><summary>Log more</summary><p>A log records what the logger saw. The fact you need is on a machine you don't control, and it can only tell you by sending a message, which can also be lost.</p></details>
+  <details><summary>A proxy that records every request</summary><p>A third party in the same problem. It has to terminate TLS to see payment traffic, which nobody allows. The storage half is right; the recovery protocol is the actual work.</p></details>
+  <details><summary>Idempotency keys alone</summary><p>Handles crash and duplicates at the service. Can't see authority or premises. Measured: the second column.</p></details>
+  <details><summary>Durable execution alone</summary><p>Checkpoints the step's result; a step that dies after the effect re-runs the tool and replays the old decision. Measured: the third column in the repo's table.</p></details>
+  <details><summary>A detector for bad actions</summary><p>Model-quality claim, needs a benchmark, and the brief says keep it separate from protocol guarantees.</p></details>
+  <details><summary>A sandbox</summary><p>Admission control on artifacts, not correctness of effects. Already built, and by people we know.</p></details>
+  <details><summary>Agents messaging each other</summary><p>Every message arrives too late or becomes a check at the commit point. So we built the check at the commit point.</p></details>
+  <details><summary>Hash every file the agent read</summary><p>Safe but refuses benign edits. Measured: the file-hash column. Over-fires.</p></details>
+</section>
+
+<section id="s10">
+  <h2>What's next</h2>
+  <div class="grid2">
+    <div class="card"><h4>Before Monday noon</h4>
+      <p>Verify the live runs and citations by hand. Fix the stale demo text in the README. Point the old repo URL at the new one.</p>
+      <p>Record the 90-second video: face, cookie, terminal, one table.</p>
+      <p>One more real row if there's time: a GitHub merge target, or the premise-coverage table on a real repo.</p></div>
+    <div class="card"><h4>The next 90 days</h4>
+      <p>Ten interviews with people who approve agent actions. The approval-inbox mix is an assumption; the first real number replaces it.</p>
+      <p>One design partner running refunds. Measure approvals and wrong payouts before and after.</p>
+      <p>The notary: a shared log both agent and service write to, lifting tier-3 services to tier 2 without changing their API. That's the hosted product.</p></div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+// ---------- crash scrubber ----------
+const stops=[["0","agent decides"],["1","intent on disk"],["2","request sent"],["3","service commits"],["4","ack recorded"]];
+const track=document.getElementById('track');
+stops.forEach(([n,l],i)=>{const x=(i/4)*100;
+  track.insertAdjacentHTML('beforeend',`<div class="stop" style="left:${x}%">${n}</div><div class="lbl" style="left:${x}%">${l}</div>`);});
+const cursor=document.getElementById('cursor'), slider=document.getElementById('crash');
+let tier=2;
+document.querySelectorAll('.tiers button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tiers button').forEach(x=>x.classList.remove('on'));b.classList.add('on');tier=+b.dataset.t;render();}));
+slider.addEventListener('input',render);
+function j(rows){return '<div class="jrn">'+rows.map(([k,v])=>`<div><b>${k}</b>${v}</div>`).join('')+'</div>';}
+function render(){
+  const c=+slider.value; cursor.style.left=(c/4*100)+'%';
+  const nv=document.getElementById('nv'), il=document.getElementById('il');
+  // plain retry: no memory; on restart it just sends again
+  const didHappen = c>=3;               // service committed before the crash
+  const naiveTotal = didHappen ? 40 : 20;
+  nv.innerHTML=`<div class="res ${naiveTotal===20?'ok':'bad'}">$${naiveTotal} refunded</div>
+    <p style="font-size:14px;color:#B7C4D4;margin:0 0 8px">${c<3?'Nothing had landed yet. The blind retry happens to be fine this time.':'The refund had landed. Restart has no memory, sends again. Customer paid twice.'}</p>
+    ${j([["restart","no record of what it was doing"],["action","send $20 again"]])}`;
+  // interlock
+  let res, rows=[["PROPOSED","case-4471 · premises saved"],["AUTHORIZED","lease live"]];
+  if(c===0){res='<div class="res ok">$20 refunded</div>';rows.push(["DISPATCHED","—"],["","crash before intent was written: nothing sent, nothing to recover; run proceeds normally"],["COMMITTED","once"]);}
+  else{
+    rows.push(["DISPATCHED","written to disk first"]);
+    if(c<=2){ // not yet sent / sent but not committed
+      if(tier===1){res='<div class="res ok">$20 refunded</div>';rows.push(["recover","tier 1: resend with same key, safe"],["COMMITTED","by retry"]);}
+      else if(tier===2){res='<div class="res ok">$20 refunded</div>';rows.push(["recover","tier 2: look up → not found → send once"],["COMMITTED","after query"]);}
+      else{res='<div class="res warn">$0 · AMBIGUOUS</div>';rows.push(["recover","tier 3: cannot tell sent-and-lost from never-sent"],["AMBIGUOUS","refuses to guess; goes to a person"]);}
+    }else if(c===3){
+      if(tier===1){res='<div class="res ok">$20 refunded</div>';rows.push(["recover","tier 1: resend → service returns the earlier result"],["COMMITTED","by retry"]);}
+      else if(tier===2){res='<div class="res ok">$20 refunded</div>';rows.push(["recover","tier 2: look up → found → nothing re-sent"],["COMMITTED","on query"]);}
+      else{res='<div class="res warn">$20 · AMBIGUOUS</div>';rows.push(["recover","tier 3: no way to confirm"],["AMBIGUOUS","one refund exists; receipt says unknown"]);}
+    }else{res='<div class="res ok">$20 refunded</div>';rows.push(["COMMITTED","ack recorded before the crash"],["","nothing to recover"]);}
+  }
+  il.innerHTML=res+j(rows);
+}
+render();
+
+// ---------- results tables ----------
+const t1h=["fault","naive (today)","idempotency key only","gate @ tier 1","gate @ tier 2","gate @ tier 3"];
+const t1=[
+ ["crash before send",["$20","a"],["$20","a"],["$20","a"],["$20","a"],["$0, AMBIGUOUS","c"]],
+ ["crash before ack",["$40","b"],["$20","a"],["$20","a"],["$20","a"],["$20, AMBIGUOUS","c"]],
+ ["duplicate submit",["$40","b"],["$20","a"],["$20","a"],["$20","a"],["$20","a"]],
+ ["model re-decides $30 on retry",["$50","b"],["$20","a"],["refused","a"],["refused","a"],["refused","a"]],
+ ["same request, different amount",["$50","b"],["$20","a"],["refused","a"],["refused","a"],["refused","a"]],
+ ["lease revoked mid-flight",["refunded","b"],["refunded","b"],["refused","a"],["refused","a"],["refused","a"]],
+ ["order became ineligible",["refunded","b"],["refunded","b"],["refused","a"],["refused","a"],["refused","a"]],
+ ["support refunds by hand during outage",["$40","b"],["$40","b"],["$20, refused at recovery","a"],["$20, refused at recovery","a"],["$20, AMBIGUOUS","c"]],
+];
+const t2h=["fault","naive (today)","gate, file-hash premises","gate, symbol premises"];
+const t2=[
+ ["A renames the function B calls",["lands, breaks","b"],["refused","a"],["refused","a"]],
+ ["A and B both implement the same function",["2 implementations","b"],["1","a"],["1","a"]],
+ ["A edits the file in a way B doesn't depend on",["lands","a"],["refused","c"],["lands","a"]],
+ ["crash after apply, before commit",["duplicated","b"],["recovered","a"],["recovered","a"]],
+ ["duplicate submit",["duplicated","b"],["ignored","a"],["ignored","a"]],
+ ["lease revoked",["lands","b"],["refused","a"],["refused","a"]],
+ ["A keeps name+arity, inverts meaning",["lands, breaks","b"],["refused","a"],["lands, breaks","b"]],
+];
+function tbl(id,h,rows){const cls={a:'c-ok',b:'c-bad',c:'c-warn'};
+  document.getElementById(id).innerHTML='<tr>'+h.map(x=>`<th>${x}</th>`).join('')+'</tr>'+
+  rows.map(r=>'<tr><td>'+r[0]+'</td>'+r.slice(1).map(([v,k])=>`<td class="${cls[k]}">${v}</td>`).join('')+'</tr>').join('');}
+tbl('t1',t1h,t1);tbl('t2',t2h,t2);
+
+// ---------- nav highlight ----------
+const links=[...document.querySelectorAll('#nav a')];
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.toggle('on',l.getAttribute('href')==='#'+e.target.id));}})},{rootMargin:'-40% 0px -55% 0px'});
+document.querySelectorAll('section').forEach(s=>io.observe(s));
+</script>
+</body>
+</html>
