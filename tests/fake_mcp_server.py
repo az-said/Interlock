@@ -9,7 +9,7 @@ import json, os, sys, time
 
 STATE = os.environ["FAKE_STATE"]
 TOOLS = [{"name": n, "description": n, "inputSchema": {"type": "object"}}
-         for n in ("get_order", "create_refund", "find_refund")]
+         for n in ("get_order", "create_refund", "find_refund", "get_approval")]
 
 
 def load():
@@ -56,5 +56,9 @@ for line in sys.stdin:
             save(state)
             time.sleep(float(os.environ.get("FAKE_SLOW", "0")))
             reply(mid, {"content": [{"type": "text", "text": "refund created"}]})
+        elif name == "get_approval":                                       # case approves $20 in total per order
+            refunded = sum(r["amount"] for r in state["refunds"] if r["order_id"] == args["order_id"])
+            reply(mid, data({"id": f"case-{args['order_id']}", "match": {"order_id": args["order_id"]},
+                             "max": {"amount": 20 - refunded}}))
         elif name == "find_refund":
             reply(mid, data({"found": any(r.get("reference") == args["reference"] for r in state["refunds"])}))

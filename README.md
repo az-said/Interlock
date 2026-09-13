@@ -248,6 +248,30 @@ python3 -m interlock.mcp_proxy --config interlock.mcp.json -- python3 payments_s
 
 Every other message passes through untouched. `create_refund` is journaled before it goes out, its facts are read from `get_order` and read again before any resend, a crash is recovered on the next start, and the tool result carries the receipt in `_meta.interlock`. MCP itself has no idempotency or transactional contract; this is where a tool gets one. `tests/test_mcp_proxy.py` runs it against a real subprocess MCP server, kills the proxy mid-call, and checks the refund lands once, and that a refund issued by hand during the outage is refused even when the agent retries.
 
+The same config drives in-process tool lists, for OpenAI or Anthropic tool calling or any loop that maps a tool name to a function:
+
+```python
+from interlock.tools import protect
+tools = protect({"get_order": get_order, "create_refund": create_refund, "find_refund": find_refund}, config)
+tools.recover()                                   # once, on startup
+out = tools["create_refund"](order_id="881", amount=20)
+# hand out["message"] back to the model as the tool result
+```
+
+## Refused, then repaired
+
+A refusal says what changed, not just that something did: `Interlock did not send this action (REFUSED:stale_premise): ... refunded_total: was 0, now 5.` The same facts are in `out["repair"]` and in the MCP result's `_meta.interlock.repair`.
+
+By default a refused request stays refused until a person decides again, because a model that re-decides on retry is how a $20 refund becomes $50. Add an `approval` to the tool's config and the agent may send a corrected call instead:
+
+```json
+"approval": {"tool": "get_approval", "arguments": {"order_id": "order_id"}}
+```
+
+The tool returns the approval from the system of record, never from the model: `{"id": "case-4471", "match": {"order_id": "881"}, "max": {"amount": 15}}`, where `max` is what is still left. Each distinct decision is its own attempt. A call that fits the approval is sent, and only one attempt per approval is ever sent, so a crash can't be routed around with a new amount. A call outside it is refused with the limit (`amount 30 is over the 15 approved`). An expired or revoked approval, or one already used, says `may_retry: false`. The store is `approvals.Envelope`; the decorator takes `approval=` too.
+
+On a synthetic day of 100 refunds ([results/repair_loop.md](results/repair_loop.md), mix stated as an assumption, scripted agent rather than a model), the refunds that needed a person went from 17 to 3 and wrong payouts from 13 to 0. The 13 were $30 decisions on $20 cases, which premises alone don't bound. With no gate, 40 of 100 paid out wrong.
+
 ## Receipts you can check
 
 A log you have to trust is not a receipt. Every journal entry is hash-chained to the previous entry for its action, every send records the lease and premise checks that passed immediately before it, and `verify()` re-derives the claims from those entries alone:
@@ -325,9 +349,10 @@ interlock/           the runtime
   leases.py          authority that expires and is checked at dispatch
   gate.py            six invariants, recovery by tier, claims registry, three baselines
   easy.py            the three-line decorator: Interlock(dir), @gate.effect(...), gate.recover()
-  approvals.py       rules, a human queue, approvals as authority re-checked at send time
+  approvals.py       rules, a human queue, approvals as authority re-checked at send time, Envelope for repair
   receipts.py        receipt bundles and verify(): happened once, authorized, assumptions held
   mcp_proxy.py       zero-line integration in front of any MCP server
+  tools.py           protect() for in-process tool lists, and the refusal-and-repair message both share
   temporal.py        gated(): the gate as a Temporal activity body
   targets/
     payments.py      simulated refund API at tiers 1 / 2 / 3, Stripe-style key semantics

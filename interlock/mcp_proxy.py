@@ -17,6 +17,7 @@ response carries the receipt in `_meta.interlock`.
           "premises": {"tool": "get_order", "arguments": {"order_id": "order_id"},
                        "fields": ["refunded_total"]},
           "lookup": {"tool": "find_refund", "arguments": {"reference": "$effect_id"}, "found": "found"},
+          "approval": {"tool": "get_approval", "arguments": {"order_id": "order_id"}},
           "idempotency_argument": "reference",
           "dedupes": false
         }
@@ -26,46 +27,19 @@ response carries the receipt in `_meta.interlock`.
 `key`       arguments that name the approved request; the same key is the same action
 `premises`  a read tool, how to fill its arguments from the call's, and the fields that must not change
 `lookup`    a tool that answers "did this effect already happen?" (tier 2); "$effect_id" fills in the id
+`approval`  optional: a read tool returning the approval (approvals.Envelope), so the agent may send a
+            corrected call after a refusal, within the approval, once
 `idempotency_argument`  pass the effect id to the tool under this name
 `dedupes`   true if the tool itself dedupes on that argument (tier 1)
 A premise that counts the tool's own result (like refunded_total) needs a `lookup`, or
-recovery after a crash can only say AMBIGUOUS. Standard library only.
+recovery after a crash can only say AMBIGUOUS. A refusal carries what changed in its text and in
+`_meta.interlock.repair`. The same config drives tools.protect() for in-process tool lists.
+Standard library only.
 """
 import itertools, json, queue, subprocess, sys, threading, uuid
 from .easy import Interlock
-from .journal import CLAIM_TTL, effect_id_for
-
-RESOLVED = ("DUPLICATE_IGNORED", "COMMITTED_BY_RETRY", "COMMITTED_ON_QUERY", "REAPPLIED_AFTER_QUERY")
-WHY = {
-    "REFUSED:stale_premise": "a fact this action depends on changed since it was decided",
-    "REFUSED:stale_premise_at_recovery": "a fact this action depends on changed while the agent was down",
-    "REFUSED:conflicting_payload": "the same request was already decided with different arguments",
-    "REFUSED:target_error": "the tool reported an error, and nothing was sent again",
-    "AMBIGUOUS": "a crash left it unclear whether it happened, and the tool gives no way to check",
-    "IN_FLIGHT": "its outcome is not known yet; Interlock will settle it before anything is sent again",
-}
-
-
-class ToolError(RuntimeError):
-    pass
-
-
-def structured(result):
-    """A tool result's data: structuredContent, or JSON in its first text block."""
-    if isinstance(result.get("structuredContent"), dict):
-        return result["structuredContent"]
-    for block in result.get("content", []):
-        if block.get("type") == "text":
-            try:
-                data = json.loads(block["text"])
-                return data if isinstance(data, dict) else {}
-            except ValueError:
-                pass
-    return {}
-
-
-def fill(template, arguments, effect_id):
-    return {k: effect_id if v == "$effect_id" else arguments.get(v) for k, v in template.items()}
+from .journal import CLAIM_TTL
+from .tools import ToolError, gated, run
 
 
 class Upstream:
@@ -117,42 +91,14 @@ class Proxy:
         self.out = threading.Lock()
         self.upstream = Upstream(command, self.to_client)
         self.interlock = Interlock(config.get("journal_dir", ".interlock/mcp"), claim_ttl=config.get("claim_ttl", CLAIM_TTL))
-        self.tools = {name: self._gated(name, spec) for name, spec in config["tools"].items()}
+        self.tools = {name: gated(self.interlock, name, spec, self.upstream.call_tool, module=__name__)
+                      for name, spec in config["tools"].items()}
         self.recovered = False
 
     def to_client(self, msg):
         with self.out:
             sys.stdout.write(json.dumps(msg) + "\n")
             sys.stdout.flush()
-
-    def _gated(self, name, spec):
-        up = self.upstream
-        key = lambda arguments: f"{name}:" + json.dumps({k: arguments.get(k) for k in spec["key"]}, sort_keys=True)
-
-        def send(arguments, idempotency_key):
-            args = dict(arguments)
-            if spec.get("idempotency_argument"):
-                args[spec["idempotency_argument"]] = idempotency_key
-            result = up.call_tool(name, args)
-            if result.get("isError"):
-                raise ToolError(json.dumps(result.get("content")))
-            return result
-        send.__name__ = send.__qualname__ = name
-
-        premises = lookup = None
-        if "premises" in spec:
-            p = spec["premises"]
-            def premises(arguments, idempotency_key):
-                facts = structured(up.call_tool(p["tool"], fill(p["arguments"], arguments, idempotency_key)))
-                return {field: facts.get(field) for field in p["fields"]}
-        if "lookup" in spec:
-            l = spec["lookup"]
-            def lookup(arguments, idempotency_key):
-                return bool(structured(up.call_tool(l["tool"], fill(l["arguments"], arguments, idempotency_key))).get(l.get("found", "found")))
-
-        call = self.interlock.effect(key=key, premises=premises, lookup=lookup, dedupes=spec.get("dedupes", False))(send)
-        call.key = key
-        return call
 
     def handle_call(self, msg):
         """Every gated call gets exactly one answer, whatever happens inside."""
@@ -165,24 +111,14 @@ class Proxy:
 
     def _handle_call(self, msg):
         name, arguments = msg["params"]["name"], msg["params"].get("arguments") or {}
-        call = self.tools[name]
-        eid = effect_id_for({"request_id": call.key(arguments)})
-        try:
-            status, result = call(arguments)
-        except ToolError as e:                            # the tool answered "failed": settle it, never resend
-            status, result = call.gate.settle_failed(eid, str(e)) or "IN_FLIGHT", None
-        except Exception as e:                            # no answer (timeout, upstream gone): outcome unknown.
-            sys.stderr.write(f"interlock: {name} did not settle ({e!r}); left for recovery\n")
-            status, result = "IN_FLIGHT", None            # recovery takes it over once the send's claim expires
-        meta = {"interlock": {"status": status, "receipt": call.gate.journal.receipt(eid)}}
-        if status == "COMMITTED" and result is not None:
-            result = {**result, "_meta": {**result.get("_meta", {}), **meta}}
-        elif status in RESOLVED or status == "COMMITTED":
-            result = {"content": [{"type": "text", "text": f"Interlock: this action already happened once ({status}); it was not sent again."}], "_meta": meta}
+        out = run(self.tools[name], arguments)
+        meta = {"interlock": {"status": out["status"], "receipt": out["receipt"], "repair": out["repair"]}}
+        if out["status"] == "COMMITTED" and isinstance(out["result"], dict):
+            result = {**out["result"], "_meta": {**out["result"].get("_meta", {}), **meta}}
         else:
-            why = WHY.get(status, "the gate could not send it safely")
-            result = {"isError": True, "_meta": meta,
-                      "content": [{"type": "text", "text": f"Interlock did not send this action ({status}): {why}."}]}
+            result = {"content": [{"type": "text", "text": out["message"]}], "_meta": meta}
+            if not out["ok"]:
+                result["isError"] = True
         self.to_client({"jsonrpc": "2.0", "id": msg["id"], "result": result})
 
     def run(self):

@@ -101,7 +101,7 @@ class McpProxy(unittest.TestCase):
     def test_passthrough_and_one_refund_per_request(self):
         s = Session(self.dir, self.state)
         try:
-            self.assertEqual(len(s.request("tools/list", {})["tools"]), 3)
+            self.assertEqual(len(s.request("tools/list", {})["tools"]), 4)
             first = s.refund("881", 20)
             self.assertNotIn("isError", first)
             self.assertEqual(first["_meta"]["interlock"]["receipt"]["final"], "COMMITTED")
@@ -153,7 +153,27 @@ class McpProxy(unittest.TestCase):
             retry = s.refund("881", 20)
             self.assertTrue(retry.get("isError"), retry)
             self.assertIn("changed", retry["content"][0]["text"])
+            self.assertIn("refunded_total: was 0, now 20", retry["content"][0]["text"])   # the fact, not just "something"
+            self.assertFalse(retry["_meta"]["interlock"]["repair"]["may_retry"])         # no approval config: a person decides
             self.assertEqual(len(self.refunds()), 1)
+        finally:
+            s.close()
+
+    def test_agent_repairs_a_refused_call_within_its_approval(self):
+        config = json.loads(json.dumps(CONFIG))
+        config["tools"]["create_refund"]["approval"] = {"tool": "get_approval", "arguments": {"order_id": "order_id"}}
+        with open(os.path.join(self.dir, "config.json"), "w") as f:
+            json.dump(config, f)
+        s = Session(self.dir, self.state)
+        try:
+            over = s.refund("881", 30)                                   # the model overshoots the $20 case
+            self.assertTrue(over.get("isError"), over)
+            self.assertIn("amount 30 is over the 20 approved", over["content"][0]["text"])
+            self.assertTrue(over["_meta"]["interlock"]["repair"]["may_retry"])
+            self.assertNotIn("isError", s.refund("881", 20))             # corrected, sent once
+            again = s.refund("881", 5)                                   # a second decision under a used approval
+            self.assertTrue(again.get("isError"), again)
+            self.assertEqual([r["amount"] for r in self.refunds()], [20])
         finally:
             s.close()
 
