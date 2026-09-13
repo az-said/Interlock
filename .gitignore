@@ -6,4 +6,5 @@ __pycache__/
 .interlock/
 build/
 *.egg-info/
+.venv/
 .DS_Store
