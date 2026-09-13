@@ -7,6 +7,9 @@ Stripe what it has even after the key window.
 
 Premise captured: how much has been refunded on this payment by anyone other than this
 effect. A refund issued by hand from the dashboard changes that number; our own does not.
+This detects that the payment's refunds changed after the decision. It does not recognize a
+hand refund as the same action: an unrelated refund on the payment refuses too, and a person
+re-approves.
 
 Standard library only, like the rest of the repo.
 """
@@ -83,19 +86,25 @@ class StripeRefunds:
         return sum(r["amount"] for r in self.refunds() if r["metadata"].get("interlock_effect_id") != eid)
 
     def capture(self):
-        return {"payment_intent": self.payment_intent, "refunded_by_others": self._by_others(None)}
+        # At decision time no refund of this effect exists yet, so every refund, hand refunds included, is someone else's.
+        return {"payment_intent": self.payment_intent, "refunded_by_others": self.refunded_total()}
 
     def validate_premises(self, premises, eid=None):
         was, now = premises["refunded_by_others"], self._by_others(eid)
         return [] if now == was else [f"refunded by others: was {was}, now {now}"]
 
+    def idempotency_key(self, eid):
+        return eid
+
     def apply(self, eid, effect, crash_after_effect=False):
         refund = self.client.request("POST", "/refunds", {
             "payment_intent": self.payment_intent, "amount": effect["amount"],
-            "metadata": {"interlock_effect_id": eid}}, idempotency_key=eid)
+            "metadata": {"interlock_effect_id": eid}}, idempotency_key=self.idempotency_key(eid))
         if crash_after_effect:
             raise SimulatedCrash(eid)                 # Stripe committed; we never record the response
-        return {"status": "already_processed" if refund["_replayed"] else "ok", "refund": refund["id"]}
+        return {"status": "already_processed" if refund["_replayed"] else "ok", "refund": refund["id"],
+                "amount": refund["amount"]}
 
     def query(self, eid, effect):
-        return any(r["metadata"].get("interlock_effect_id") == eid for r in self.refunds())
+        """The id of the refund this effect created, or None."""
+        return next((r["id"] for r in self.refunds() if r["metadata"].get("interlock_effect_id") == eid), None)

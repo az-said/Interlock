@@ -77,6 +77,19 @@ class Receipts(unittest.TestCase):
         gate.recover()
         r = verify(gate.receipt_bundle(P))
         self.assertEqual((r["valid"], r["happened"], r["happened_once"]), (True, False, True), r)
+        # the pre-crash dispatch passed its checks, but it never landed: nothing fired, so nothing is attested
+        self.assertEqual((r["authorized_when_fired"], r["assumptions_held"], r["refused"]),
+                         (None, None, "stale_premise at recovery"), r)
+
+    def test_revoked_at_recovery_does_not_claim_it_was_authorized(self):
+        _, leases, gate, P = self.world(tier=2)
+        with self.assertRaises(SimulatedCrash):
+            gate.submit(P, crash_before_effect=True)
+        leases.revoke("L")
+        gate.recover()
+        r = verify(gate.receipt_bundle(P))
+        self.assertEqual((r["valid"], r["happened"], r["authorized_when_fired"], r["assumptions_held"], r["refused"]),
+                         (True, False, None, None, "lease at recovery"), r)
 
     def test_ambiguous_is_reported_as_unknown(self):
         _, _, gate, P = self.world(tier=3)

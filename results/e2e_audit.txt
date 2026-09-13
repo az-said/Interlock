@@ -1,0 +1,25 @@
+scenario                        mode              cents  want  audit  flag      detail
+crash_after_commit              temporal          2000   2000  PASS             
+crash_after_commit              temporal_checked  2000   2000  PASS             
+crash_after_commit              interlock         2000   2000  PASS             
+hand_refund_before_decision     temporal          2500   2500  PASS             
+hand_refund_before_decision     temporal_checked  2500   2500  PASS             
+hand_refund_before_decision     interlock         2500   2500  PASS             
+hand_refund_during_outage       temporal          4000   2000  PASS             
+hand_refund_during_outage       temporal_checked  2000   2000  PASS             
+hand_refund_during_outage       interlock         2000   2000  PASS             
+unrelated_refund_during_outage  temporal          2500   2500  PASS             
+unrelated_refund_during_outage  temporal_checked  500    2500  PASS             
+unrelated_refund_during_outage  interlock         500    2500  PASS             
+approval_revoked_during_outage  temporal          2000   0     PASS             
+approval_revoked_during_outage  temporal_checked  0      0     PASS             
+approval_revoked_during_outage  interlock         0      0     PASS             
+approval_revoked_after_commit   temporal          2000   2000  PASS             
+approval_revoked_after_commit   temporal_checked  2000   2000  PASS             
+approval_revoked_after_commit   interlock         2000   2000  PASS             
+key_pruned_after_24h            temporal          4000   2000  PASS   EMULATED  
+key_pruned_after_24h            temporal_checked  2000   2000  PASS   EMULATED  
+key_pruned_after_24h            interlock         2000   2000  PASS   EMULATED  
+no_lookup_after_24h             interlock         2000   2000  PASS   EMULATED  receipt AMBIGUOUS, Stripe has 1 refund(s) for 6cce6c06a86a
+
+22/22 cells verified against Stripe

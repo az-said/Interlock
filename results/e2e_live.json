@@ -1,0 +1,2295 @@
+{
+  "generated": "2026-09-13 21:57 UTC",
+  "model": "claude-haiku-4-5-20251001",
+  "temporalio": "1.32.0",
+  "cells": [
+    {
+      "scenario": "crash_after_commit",
+      "mode": "temporal",
+      "case_id": "case-a5a52df220f4",
+      "payment_intent": "pi_3UFLCJ88KhIqqdFL0ztvENXN",
+      "workflow_id": "refund-case-a5a52df220f4",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 2,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 2
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund approved for cracked glass jar - Support case #4471",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund approved for cracked glass jar - Support case #4471"
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "REPLAYED_BY_STRIPE",
+      "agent_refund_ids": [
+        "re_3UFLCJ88KhIqqdFL0sttM6ck"
+      ],
+      "answer_matches_stripe": true,
+      "refund_ids": [
+        "re_3UFLCJ88KhIqqdFL0sttM6ck"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFLCJ88KhIqqdFL0sttM6ck",
+          "amount": 2000,
+          "status": "succeeded",
+          "metadata": {
+            "workflow_id": "refund-case-a5a52df220f4"
+          },
+          "created": 1789335871
+        }
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "receipt": null,
+      "crash": {
+        "point": "after_commit",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 15.2,
+      "action_before_decision": null,
+      "outage_action": null,
+      "emulated": null
+    },
+    {
+      "scenario": "crash_after_commit",
+      "mode": "temporal_checked",
+      "case_id": "case-60135745c493",
+      "payment_intent": "pi_3UFLCh88KhIqqdFL0fhR3J3C",
+      "workflow_id": "refund-case-60135745c493",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 2,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 2
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer keeps blender (Support case #4471)",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - customer keeps blender (Support case #4471)"
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "FOUND_BY_LOOKUP",
+      "agent_refund_ids": [
+        "re_3UFLCh88KhIqqdFL0SYAwdkC"
+      ],
+      "answer_matches_stripe": true,
+      "refund_ids": [
+        "re_3UFLCh88KhIqqdFL0SYAwdkC"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFLCh88KhIqqdFL0SYAwdkC",
+          "amount": 2000,
+          "status": "succeeded",
+          "metadata": {
+            "workflow_id": "refund-case-60135745c493"
+          },
+          "created": 1789335895
+        }
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "receipt": null,
+      "crash": {
+        "point": "after_commit",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 14.7,
+      "action_before_decision": null,
+      "outage_action": null,
+      "emulated": null
+    },
+    {
+      "scenario": "crash_after_commit",
+      "mode": "interlock",
+      "case_id": "case-2bec0a15821d",
+      "payment_intent": "pi_3UFLD488KhIqqdFL0yyILFry",
+      "workflow_id": "refund-case-2bec0a15821d",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 8,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 8
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer retains blender (Support case #4471)",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - customer retains blender (Support case #4471)"
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "COMMITTED_BY_RETRY",
+      "agent_refund_ids": [
+        "re_3UFLD488KhIqqdFL0vZXMcLB"
+      ],
+      "answer_matches_stripe": true,
+      "refund_ids": [
+        "re_3UFLD488KhIqqdFL0vZXMcLB"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFLD488KhIqqdFL0vZXMcLB",
+          "amount": 2000,
+          "status": "succeeded",
+          "metadata": {
+            "interlock_effect_id": "8f071607fe8d"
+          },
+          "created": 1789335919
+        }
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "receipt": {
+        "effect_id": "8f071607fe8d",
+        "bundle": {
+          "effect_id": "8f071607fe8d",
+          "entries": [
+            {
+              "ts": 1789335918.6024919,
+              "kind": "PROPOSED",
+              "effect_id": "8f071607fe8d",
+              "agent": "claude-haiku-4-5-20251001",
+              "lease": "approval/case-2bec0a15821d",
+              "premises": {
+                "payment_intent": "pi_3UFLD488KhIqqdFL0yyILFry",
+                "refunded_by_others": 0
+              },
+              "effect": {
+                "amount": 2000
+              },
+              "prev": null,
+              "hash": "4937a8d18b5eb513897c75131c5d7b6a0cafe776906362968ba6ab11a68d7c01"
+            },
+            {
+              "ts": 1789335918.604144,
+              "kind": "AUTHORIZED",
+              "effect_id": "8f071607fe8d",
+              "lease": "approval/case-2bec0a15821d",
+              "prev": "4937a8d18b5eb513897c75131c5d7b6a0cafe776906362968ba6ab11a68d7c01",
+              "hash": "cf4a1652d976fcab42103a8199010971f09c8ded5f32443db7eea1f98646bb21"
+            },
+            {
+              "ts": 1789335918.776991,
+              "kind": "DISPATCHED",
+              "effect_id": "8f071607fe8d",
+              "effect": {
+                "amount": 2000
+              },
+              "lease": "approval/case-2bec0a15821d",
+              "premises": {
+                "payment_intent": "pi_3UFLD488KhIqqdFL0yyILFry",
+                "refunded_by_others": 0
+              },
+              "checks": {
+                "lease_live": true,
+                "lease": {
+                  "lease_id": "approval/case-2bec0a15821d",
+                  "max_cents": 2000,
+                  "revoked": null,
+                  "granted": 1789335914.847429
+                },
+                "violations": []
+              },
+              "prev": "cf4a1652d976fcab42103a8199010971f09c8ded5f32443db7eea1f98646bb21",
+              "hash": "32aab2d73aae70232660736bb3e99722bd0ccffc89886490a5e55dff7f601175"
+            },
+            {
+              "ts": 1789335963.7611141,
+              "kind": "COMMITTED",
+              "effect_id": "8f071607fe8d",
+              "via": "retry-idempotent",
+              "rechecked": {
+                "lease_live": true,
+                "lease": {
+                  "lease_id": "approval/case-2bec0a15821d",
+                  "max_cents": 2000,
+                  "revoked": null,
+                  "granted": 1789335914.847429
+                },
+                "violations": []
+              },
+              "result": {
+                "status": "already_processed",
+                "refund": "re_3UFLD488KhIqqdFL0vZXMcLB",
+                "amount": 2000
+              },
+              "prev": "32aab2d73aae70232660736bb3e99722bd0ccffc89886490a5e55dff7f601175",
+              "hash": "47240ac56dfd73fe8f0c940bc18908c4aed04754c2868c23a9407b3e001fb716"
+            }
+          ],
+          "summary": {
+            "effect_id": "8f071607fe8d",
+            "proposed": true,
+            "authorized": true,
+            "executed": true,
+            "recorded": true,
+            "final": "COMMITTED",
+            "authority": "approval/case-2bec0a15821d"
+          }
+        },
+        "verification": {
+          "effect_id": "8f071607fe8d",
+          "valid": true,
+          "tamper_evident": true,
+          "signed": null,
+          "happened": true,
+          "happened_once": true,
+          "authorized_when_fired": true,
+          "assumptions_held": true,
+          "refused": null,
+          "evidence": {
+            "status": "already_processed",
+            "refund": "re_3UFLD488KhIqqdFL0vZXMcLB",
+            "amount": 2000
+          },
+          "rechecked_at_recovery": {
+            "lease_live": true,
+            "lease": {
+              "lease_id": "approval/case-2bec0a15821d",
+              "max_cents": 2000,
+              "revoked": null,
+              "granted": 1789335914.847429
+            },
+            "violations": []
+          },
+          "problems": []
+        }
+      },
+      "crash": {
+        "point": "after_commit",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 44.0,
+      "action_before_decision": null,
+      "outage_action": null,
+      "emulated": null
+    },
+    {
+      "scenario": "hand_refund_before_decision",
+      "mode": "temporal",
+      "case_id": "case-45ebe5c11858",
+      "payment_intent": "pi_3UFLDw88KhIqqdFL0KrZwtXO",
+      "workflow_id": "refund-case-45ebe5c11858",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 2,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 2
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund approved for cracked glass jar - customer retains blender. Support case #4471.",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund approved for cracked glass jar - customer retains blender. Support case #4471."
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "REPLAYED_BY_STRIPE",
+      "agent_refund_ids": [
+        "re_3UFLDw88KhIqqdFL0qyQgg4X"
+      ],
+      "answer_matches_stripe": true,
+      "refund_ids": [
+        "re_3UFLDw88KhIqqdFL0qyQgg4X",
+        "re_3UFLDw88KhIqqdFL0uwVEBVM"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFLDw88KhIqqdFL0qyQgg4X",
+          "amount": 2000,
+          "status": "succeeded",
+          "metadata": {
+            "workflow_id": "refund-case-45ebe5c11858"
+          },
+          "created": 1789335974
+        },
+        {
+          "id": "re_3UFLDw88KhIqqdFL0uwVEBVM",
+          "amount": 500,
+          "status": "succeeded",
+          "metadata": {},
+          "created": 1789335970
+        }
+      ],
+      "refunded_cents": 2500,
+      "expected_cents": 2500,
+      "expected_refunds": 2,
+      "invariant_held": true,
+      "receipt": null,
+      "crash": {
+        "point": "after_commit",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 15.1,
+      "action_before_decision": {
+        "manual-refund": {
+          "refund_id": "re_3UFLDw88KhIqqdFL0uwVEBVM",
+          "amount": 500,
+          "status": "succeeded"
+        }
+      },
+      "outage_action": null,
+      "emulated": null
+    },
+    {
+      "scenario": "hand_refund_before_decision",
+      "mode": "temporal_checked",
+      "case_id": "case-5a98bfa60198",
+      "payment_intent": "pi_3UFLEM88KhIqqdFL0HFZSgIt",
+      "workflow_id": "refund-case-5a98bfa60198",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 2,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 2
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer keeps blender. Support case #4471 approved $20.00 refund.",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - customer keeps blender. Support case #4471 approved $20.00 refund."
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "FOUND_BY_LOOKUP",
+      "agent_refund_ids": [
+        "re_3UFLEM88KhIqqdFL0zPqKEnk"
+      ],
+      "answer_matches_stripe": true,
+      "refund_ids": [
+        "re_3UFLEM88KhIqqdFL0zPqKEnk",
+        "re_3UFLEM88KhIqqdFL0pLhEqoB"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFLEM88KhIqqdFL0zPqKEnk",
+          "amount": 2000,
+          "status": "succeeded",
+          "metadata": {
+            "workflow_id": "refund-case-5a98bfa60198"
+          },
+          "created": 1789336000
+        },
+        {
+          "id": "re_3UFLEM88KhIqqdFL0pLhEqoB",
+          "amount": 500,
+          "status": "succeeded",
+          "metadata": {},
+          "created": 1789335996
+        }
+      ],
+      "refunded_cents": 2500,
+      "expected_cents": 2500,
+      "expected_refunds": 2,
+      "invariant_held": true,
+      "receipt": null,
+      "crash": {
+        "point": "after_commit",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 14.7,
+      "action_before_decision": {
+        "manual-refund": {
+          "refund_id": "re_3UFLEM88KhIqqdFL0pLhEqoB",
+          "amount": 500,
+          "status": "succeeded"
+        }
+      },
+      "outage_action": null,
+      "emulated": null
+    },
+    {
+      "scenario": "hand_refund_before_decision",
+      "mode": "interlock",
+      "case_id": "case-6a860c8c08db",
+      "payment_intent": "pi_3UFLEl88KhIqqdFL14RIXZOb",
+      "workflow_id": "refund-case-6a860c8c08db",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 8,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 8
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - Order #881 Support Case #4471. Customer keeps blender.",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - Order #881 Support Case #4471. Customer keeps blender."
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "COMMITTED_BY_RETRY",
+      "agent_refund_ids": [
+        "re_3UFLEl88KhIqqdFL1Baf5aiR"
+      ],
+      "answer_matches_stripe": true,
+      "refund_ids": [
+        "re_3UFLEl88KhIqqdFL1Baf5aiR",
+        "re_3UFLEl88KhIqqdFL1F0bp1E9"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFLEl88KhIqqdFL1Baf5aiR",
+          "amount": 2000,
+          "status": "succeeded",
+          "metadata": {
+            "interlock_effect_id": "d61055b11d73"
+          },
+          "created": 1789336025
+        },
+        {
+          "id": "re_3UFLEl88KhIqqdFL1F0bp1E9",
+          "amount": 500,
+          "status": "succeeded",
+          "metadata": {},
+          "created": 1789336020
+        }
+      ],
+      "refunded_cents": 2500,
+      "expected_cents": 2500,
+      "expected_refunds": 2,
+      "invariant_held": true,
+      "receipt": {
+        "effect_id": "d61055b11d73",
+        "bundle": {
+          "effect_id": "d61055b11d73",
+          "entries": [
+            {
+              "ts": 1789336024.911362,
+              "kind": "PROPOSED",
+              "effect_id": "d61055b11d73",
+              "agent": "claude-haiku-4-5-20251001",
+              "lease": "approval/case-6a860c8c08db",
+              "premises": {
+                "payment_intent": "pi_3UFLEl88KhIqqdFL14RIXZOb",
+                "refunded_by_others": 500
+              },
+              "effect": {
+                "amount": 2000
+              },
+              "prev": null,
+              "hash": "9f0f2ae36b156abaa3edfca5bdc469c2bd6293a12bd41da6f15d348ecaf64142"
+            },
+            {
+              "ts": 1789336024.912778,
+              "kind": "AUTHORIZED",
+              "effect_id": "d61055b11d73",
+              "lease": "approval/case-6a860c8c08db",
+              "prev": "9f0f2ae36b156abaa3edfca5bdc469c2bd6293a12bd41da6f15d348ecaf64142",
+              "hash": "5c454de7ac91483ecca93a9cf48cd35f11b1c2f54338cfcac692311e399d1c51"
+            },
+            {
+              "ts": 1789336025.118089,
+              "kind": "DISPATCHED",
+              "effect_id": "d61055b11d73",
+              "effect": {
+                "amount": 2000
+              },
+              "lease": "approval/case-6a860c8c08db",
+              "premises": {
+                "payment_intent": "pi_3UFLEl88KhIqqdFL14RIXZOb",
+                "refunded_by_others": 500
+              },
+              "checks": {
+                "lease_live": true,
+                "lease": {
+                  "lease_id": "approval/case-6a860c8c08db",
+                  "max_cents": 2000,
+                  "revoked": null,
+                  "granted": 1789336020.0755231
+                },
+                "violations": []
+              },
+              "prev": "5c454de7ac91483ecca93a9cf48cd35f11b1c2f54338cfcac692311e399d1c51",
+              "hash": "1c1f0cf334251dfe950855c1de902e1a8f588c99c36b5e201e265221416b738b"
+            },
+            {
+              "ts": 1789336068.835754,
+              "kind": "COMMITTED",
+              "effect_id": "d61055b11d73",
+              "via": "retry-idempotent",
+              "rechecked": {
+                "lease_live": true,
+                "lease": {
+                  "lease_id": "approval/case-6a860c8c08db",
+                  "max_cents": 2000,
+                  "revoked": null,
+                  "granted": 1789336020.0755231
+                },
+                "violations": []
+              },
+              "result": {
+                "status": "already_processed",
+                "refund": "re_3UFLEl88KhIqqdFL1Baf5aiR",
+                "amount": 2000
+              },
+              "prev": "1c1f0cf334251dfe950855c1de902e1a8f588c99c36b5e201e265221416b738b",
+              "hash": "1a7f340361a895780911beaa8ced85a7b605d59e155ba697fe35278a3413e898"
+            }
+          ],
+          "summary": {
+            "effect_id": "d61055b11d73",
+            "proposed": true,
+            "authorized": true,
+            "executed": true,
+            "recorded": true,
+            "final": "COMMITTED",
+            "authority": "approval/case-6a860c8c08db"
+          }
+        },
+        "verification": {
+          "effect_id": "d61055b11d73",
+          "valid": true,
+          "tamper_evident": true,
+          "signed": null,
+          "happened": true,
+          "happened_once": true,
+          "authorized_when_fired": true,
+          "assumptions_held": true,
+          "refused": null,
+          "evidence": {
+            "status": "already_processed",
+            "refund": "re_3UFLEl88KhIqqdFL1Baf5aiR",
+            "amount": 2000
+          },
+          "rechecked_at_recovery": {
+            "lease_live": true,
+            "lease": {
+              "lease_id": "approval/case-6a860c8c08db",
+              "max_cents": 2000,
+              "revoked": null,
+              "granted": 1789336020.0755231
+            },
+            "violations": []
+          },
+          "problems": []
+        }
+      },
+      "crash": {
+        "point": "after_commit",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 42.8,
+      "action_before_decision": {
+        "manual-refund": {
+          "refund_id": "re_3UFLEl88KhIqqdFL1F0bp1E9",
+          "amount": 500,
+          "status": "succeeded"
+        }
+      },
+      "outage_action": null,
+      "emulated": null
+    },
+    {
+      "scenario": "hand_refund_during_outage",
+      "mode": "temporal",
+      "case_id": "case-9c7d47d97c03",
+      "payment_intent": "pi_3UFLFc88KhIqqdFL1GYvMoH5",
+      "workflow_id": "refund-case-9c7d47d97c03",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 2,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 2
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer keeps blender (Support case #4471)",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - customer keeps blender (Support case #4471)"
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "REFUNDED",
+      "agent_refund_ids": [
+        "re_3UFLFc88KhIqqdFL1wespZDi"
+      ],
+      "answer_matches_stripe": true,
+      "refund_ids": [
+        "re_3UFLFc88KhIqqdFL1wespZDi",
+        "re_3UFLFc88KhIqqdFL1tMmzYZw"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFLFc88KhIqqdFL1wespZDi",
+          "amount": 2000,
+          "status": "succeeded",
+          "metadata": {
+            "workflow_id": "refund-case-9c7d47d97c03"
+          },
+          "created": 1789336093
+        },
+        {
+          "id": "re_3UFLFc88KhIqqdFL1tMmzYZw",
+          "amount": 2000,
+          "status": "succeeded",
+          "metadata": {},
+          "created": 1789336077
+        }
+      ],
+      "refunded_cents": 4000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": false,
+      "receipt": null,
+      "crash": {
+        "point": "before_send",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 16.8,
+      "action_before_decision": null,
+      "outage_action": {
+        "manual-refund": {
+          "refund_id": "re_3UFLFc88KhIqqdFL1tMmzYZw",
+          "amount": 2000,
+          "status": "succeeded"
+        }
+      },
+      "emulated": null
+    },
+    {
+      "scenario": "hand_refund_during_outage",
+      "mode": "temporal_checked",
+      "case_id": "case-cb569da91f13",
+      "payment_intent": "pi_3UFLG288KhIqqdFL0RojYZFC",
+      "workflow_id": "refund-case-cb569da91f13",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 2,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 2
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar on blender - Support case #4471 approved",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar on blender - Support case #4471 approved"
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "REFUSED:stale_premise",
+      "agent_refund_ids": [],
+      "answer_matches_stripe": true,
+      "refund_ids": [
+        "re_3UFLG288KhIqqdFL0nyY6K7S"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFLG288KhIqqdFL0nyY6K7S",
+          "amount": 2000,
+          "status": "succeeded",
+          "metadata": {},
+          "created": 1789336103
+        }
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "receipt": null,
+      "crash": {
+        "point": "before_send",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 16.0,
+      "action_before_decision": null,
+      "outage_action": {
+        "manual-refund": {
+          "refund_id": "re_3UFLG288KhIqqdFL0nyY6K7S",
+          "amount": 2000,
+          "status": "succeeded"
+        }
+      },
+      "emulated": null
+    },
+    {
+      "scenario": "hand_refund_during_outage",
+      "mode": "interlock",
+      "case_id": "case-2c6cf93e2009",
+      "payment_intent": "pi_3UFLGR88KhIqqdFL0CRX2N3s",
+      "workflow_id": "refund-case-2c6cf93e2009",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 8,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 8
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar. Customer approved refund of $20.00 while keeping the blender. Support case #4471.",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar. Customer approved refund of $20.00 while keeping the blender. Support case #4471."
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "REFUSED:stale_premise_at_recovery",
+      "agent_refund_ids": [],
+      "answer_matches_stripe": true,
+      "refund_ids": [
+        "re_3UFLGR88KhIqqdFL0Iw28eMm"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFLGR88KhIqqdFL0Iw28eMm",
+          "amount": 2000,
+          "status": "succeeded",
+          "metadata": {},
+          "created": 1789336128
+        }
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "receipt": {
+        "effect_id": "74065bf0aafe",
+        "bundle": {
+          "effect_id": "74065bf0aafe",
+          "entries": [
+            {
+              "ts": 1789336127.678755,
+              "kind": "PROPOSED",
+              "effect_id": "74065bf0aafe",
+              "agent": "claude-haiku-4-5-20251001",
+              "lease": "approval/case-2c6cf93e2009",
+              "premises": {
+                "payment_intent": "pi_3UFLGR88KhIqqdFL0CRX2N3s",
+                "refunded_by_others": 0
+              },
+              "effect": {
+                "amount": 2000
+              },
+              "prev": null,
+              "hash": "7ed2632da12ea332cd0dca60f0d0d8dbe269c4e1616c0f840271607b5657b8a8"
+            },
+            {
+              "ts": 1789336127.679934,
+              "kind": "AUTHORIZED",
+              "effect_id": "74065bf0aafe",
+              "lease": "approval/case-2c6cf93e2009",
+              "prev": "7ed2632da12ea332cd0dca60f0d0d8dbe269c4e1616c0f840271607b5657b8a8",
+              "hash": "ecd0aaf0f4a4d007418d70bca06d74e5794c6b5ec498a8fe2d3c98d182ee5971"
+            },
+            {
+              "ts": 1789336127.9816709,
+              "kind": "DISPATCHED",
+              "effect_id": "74065bf0aafe",
+              "effect": {
+                "amount": 2000
+              },
+              "lease": "approval/case-2c6cf93e2009",
+              "premises": {
+                "payment_intent": "pi_3UFLGR88KhIqqdFL0CRX2N3s",
+                "refunded_by_others": 0
+              },
+              "checks": {
+                "lease_live": true,
+                "lease": {
+                  "lease_id": "approval/case-2c6cf93e2009",
+                  "max_cents": 2000,
+                  "revoked": null,
+                  "granted": 1789336123.759812
+                },
+                "violations": []
+              },
+              "prev": "ecd0aaf0f4a4d007418d70bca06d74e5794c6b5ec498a8fe2d3c98d182ee5971",
+              "hash": "003e49a477252e397a72e8b687643f066905d8c9e2f63d562d89e2b09770cbe4"
+            },
+            {
+              "ts": 1789336171.691029,
+              "kind": "REFUSED",
+              "effect_id": "74065bf0aafe",
+              "reason": "stale_premise at recovery",
+              "resolves": true,
+              "rechecked": {
+                "lease_live": true,
+                "lease": {
+                  "lease_id": "approval/case-2c6cf93e2009",
+                  "max_cents": 2000,
+                  "revoked": null,
+                  "granted": 1789336123.759812
+                },
+                "violations": [
+                  "refunded by others: was 0, now 2000"
+                ]
+              },
+              "prev": "003e49a477252e397a72e8b687643f066905d8c9e2f63d562d89e2b09770cbe4",
+              "hash": "b3bb4aefa6ebdac028a37d769d2273747fbf56d90beb8cea5a1fef0ff6fa7980"
+            }
+          ],
+          "summary": {
+            "effect_id": "74065bf0aafe",
+            "proposed": true,
+            "authorized": true,
+            "executed": false,
+            "recorded": false,
+            "final": "REFUSED",
+            "authority": "approval/case-2c6cf93e2009"
+          }
+        },
+        "verification": {
+          "effect_id": "74065bf0aafe",
+          "valid": true,
+          "tamper_evident": true,
+          "signed": null,
+          "happened": false,
+          "happened_once": true,
+          "authorized_when_fired": null,
+          "assumptions_held": null,
+          "refused": "stale_premise at recovery",
+          "evidence": null,
+          "rechecked_at_recovery": {
+            "lease_live": true,
+            "lease": {
+              "lease_id": "approval/case-2c6cf93e2009",
+              "max_cents": 2000,
+              "revoked": null,
+              "granted": 1789336123.759812
+            },
+            "violations": [
+              "refunded by others: was 0, now 2000"
+            ]
+          },
+          "problems": []
+        }
+      },
+      "crash": {
+        "point": "before_send",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 43.6,
+      "action_before_decision": null,
+      "outage_action": {
+        "manual-refund": {
+          "refund_id": "re_3UFLGR88KhIqqdFL0Iw28eMm",
+          "amount": 2000,
+          "status": "succeeded"
+        }
+      },
+      "emulated": null
+    },
+    {
+      "scenario": "unrelated_refund_during_outage",
+      "mode": "temporal",
+      "case_id": "case-e1b335661018",
+      "payment_intent": "pi_3UFLHI88KhIqqdFL0Gu4S5tX",
+      "workflow_id": "refund-case-e1b335661018",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 2,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 2
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund approved for cracked glass jar - customer retains blender (Support case #4471)",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund approved for cracked glass jar - customer retains blender (Support case #4471)"
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "REFUNDED",
+      "agent_refund_ids": [
+        "re_3UFLHI88KhIqqdFL0M6Be6Ph"
+      ],
+      "answer_matches_stripe": true,
+      "refund_ids": [
+        "re_3UFLHI88KhIqqdFL0M6Be6Ph",
+        "re_3UFLHI88KhIqqdFL0hRY4pyV"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFLHI88KhIqqdFL0M6Be6Ph",
+          "amount": 2000,
+          "status": "succeeded",
+          "metadata": {
+            "workflow_id": "refund-case-e1b335661018"
+          },
+          "created": 1789336196
+        },
+        {
+          "id": "re_3UFLHI88KhIqqdFL0hRY4pyV",
+          "amount": 500,
+          "status": "succeeded",
+          "metadata": {},
+          "created": 1789336180
+        }
+      ],
+      "refunded_cents": 2500,
+      "expected_cents": 2500,
+      "expected_refunds": 2,
+      "invariant_held": true,
+      "receipt": null,
+      "crash": {
+        "point": "before_send",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 16.5,
+      "action_before_decision": null,
+      "outage_action": {
+        "manual-refund": {
+          "refund_id": "re_3UFLHI88KhIqqdFL0hRY4pyV",
+          "amount": 500,
+          "status": "succeeded"
+        }
+      },
+      "emulated": null
+    },
+    {
+      "scenario": "unrelated_refund_during_outage",
+      "mode": "temporal_checked",
+      "case_id": "case-ab11cc394068",
+      "payment_intent": "pi_3UFLHg88KhIqqdFL0t7YjYVe",
+      "workflow_id": "refund-case-ab11cc394068",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 2,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 2
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer keeps blender. Support case #4471",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - customer keeps blender. Support case #4471"
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "REFUSED:stale_premise",
+      "agent_refund_ids": [],
+      "answer_matches_stripe": true,
+      "refund_ids": [
+        "re_3UFLHg88KhIqqdFL0RXq9T8P"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFLHg88KhIqqdFL0RXq9T8P",
+          "amount": 500,
+          "status": "succeeded",
+          "metadata": {},
+          "created": 1789336205
+        }
+      ],
+      "refunded_cents": 500,
+      "expected_cents": 2500,
+      "expected_refunds": 2,
+      "invariant_held": false,
+      "receipt": null,
+      "crash": {
+        "point": "before_send",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 15.7,
+      "action_before_decision": null,
+      "outage_action": {
+        "manual-refund": {
+          "refund_id": "re_3UFLHg88KhIqqdFL0RXq9T8P",
+          "amount": 500,
+          "status": "succeeded"
+        }
+      },
+      "emulated": null
+    },
+    {
+      "scenario": "unrelated_refund_during_outage",
+      "mode": "interlock",
+      "case_id": "case-c707abca4b95",
+      "payment_intent": "pi_3UFLI488KhIqqdFL06jKY2GF",
+      "workflow_id": "refund-case-c707abca4b95",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 8,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 8
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer keeps blender (Support case #4471)",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - customer keeps blender (Support case #4471)"
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "REFUSED:stale_premise_at_recovery",
+      "agent_refund_ids": [],
+      "answer_matches_stripe": true,
+      "refund_ids": [
+        "re_3UFLI488KhIqqdFL0PIfGTmF"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFLI488KhIqqdFL0PIfGTmF",
+          "amount": 500,
+          "status": "succeeded",
+          "metadata": {},
+          "created": 1789336229
+        }
+      ],
+      "refunded_cents": 500,
+      "expected_cents": 2500,
+      "expected_refunds": 2,
+      "invariant_held": false,
+      "receipt": {
+        "effect_id": "feafe9e2d080",
+        "bundle": {
+          "effect_id": "feafe9e2d080",
+          "entries": [
+            {
+              "ts": 1789336228.285692,
+              "kind": "PROPOSED",
+              "effect_id": "feafe9e2d080",
+              "agent": "claude-haiku-4-5-20251001",
+              "lease": "approval/case-c707abca4b95",
+              "premises": {
+                "payment_intent": "pi_3UFLI488KhIqqdFL06jKY2GF",
+                "refunded_by_others": 0
+              },
+              "effect": {
+                "amount": 2000
+              },
+              "prev": null,
+              "hash": "25b150d1c0306aa5428e914ed19d54e90d6c73c194f76f70beb6409960c01ade"
+            },
+            {
+              "ts": 1789336228.287051,
+              "kind": "AUTHORIZED",
+              "effect_id": "feafe9e2d080",
+              "lease": "approval/case-c707abca4b95",
+              "prev": "25b150d1c0306aa5428e914ed19d54e90d6c73c194f76f70beb6409960c01ade",
+              "hash": "8107de8a5c4be15739effbedfe5a2372b608b12ce8bc019d27139d504b499b6b"
+            },
+            {
+              "ts": 1789336228.539746,
+              "kind": "DISPATCHED",
+              "effect_id": "feafe9e2d080",
+              "effect": {
+                "amount": 2000
+              },
+              "lease": "approval/case-c707abca4b95",
+              "premises": {
+                "payment_intent": "pi_3UFLI488KhIqqdFL06jKY2GF",
+                "refunded_by_others": 0
+              },
+              "checks": {
+                "lease_live": true,
+                "lease": {
+                  "lease_id": "approval/case-c707abca4b95",
+                  "max_cents": 2000,
+                  "revoked": null,
+                  "granted": 1789336224.568825
+                },
+                "violations": []
+              },
+              "prev": "8107de8a5c4be15739effbedfe5a2372b608b12ce8bc019d27139d504b499b6b",
+              "hash": "61129f8c2e4ea186b90450e184bcbefcbb71d01d72ee6eafd233bd02f6e169ed"
+            },
+            {
+              "ts": 1789336271.930688,
+              "kind": "REFUSED",
+              "effect_id": "feafe9e2d080",
+              "reason": "stale_premise at recovery",
+              "resolves": true,
+              "rechecked": {
+                "lease_live": true,
+                "lease": {
+                  "lease_id": "approval/case-c707abca4b95",
+                  "max_cents": 2000,
+                  "revoked": null,
+                  "granted": 1789336224.568825
+                },
+                "violations": [
+                  "refunded by others: was 0, now 500"
+                ]
+              },
+              "prev": "61129f8c2e4ea186b90450e184bcbefcbb71d01d72ee6eafd233bd02f6e169ed",
+              "hash": "7fd4b51b73a7fc4ac5c08be147cce063c63e564826d9d5becdca5eb1580dbb41"
+            }
+          ],
+          "summary": {
+            "effect_id": "feafe9e2d080",
+            "proposed": true,
+            "authorized": true,
+            "executed": false,
+            "recorded": false,
+            "final": "REFUSED",
+            "authority": "approval/case-c707abca4b95"
+          }
+        },
+        "verification": {
+          "effect_id": "feafe9e2d080",
+          "valid": true,
+          "tamper_evident": true,
+          "signed": null,
+          "happened": false,
+          "happened_once": true,
+          "authorized_when_fired": null,
+          "assumptions_held": null,
+          "refused": "stale_premise at recovery",
+          "evidence": null,
+          "rechecked_at_recovery": {
+            "lease_live": true,
+            "lease": {
+              "lease_id": "approval/case-c707abca4b95",
+              "max_cents": 2000,
+              "revoked": null,
+              "granted": 1789336224.568825
+            },
+            "violations": [
+              "refunded by others: was 0, now 500"
+            ]
+          },
+          "problems": []
+        }
+      },
+      "crash": {
+        "point": "before_send",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 43.3,
+      "action_before_decision": null,
+      "outage_action": {
+        "manual-refund": {
+          "refund_id": "re_3UFLI488KhIqqdFL0PIfGTmF",
+          "amount": 500,
+          "status": "succeeded"
+        }
+      },
+      "emulated": null
+    },
+    {
+      "scenario": "approval_revoked_during_outage",
+      "mode": "temporal",
+      "case_id": "case-932a20ddc4e6",
+      "payment_intent": "pi_3UFLIu88KhIqqdFL1t09U4v0",
+      "workflow_id": "refund-case-932a20ddc4e6",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 2,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 2
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer keeps blender (Support case #4471)",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - customer keeps blender (Support case #4471)"
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "REFUNDED",
+      "agent_refund_ids": [
+        "re_3UFLIu88KhIqqdFL13ma9bra"
+      ],
+      "answer_matches_stripe": true,
+      "refund_ids": [
+        "re_3UFLIu88KhIqqdFL13ma9bra"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFLIu88KhIqqdFL13ma9bra",
+          "amount": 2000,
+          "status": "succeeded",
+          "metadata": {
+            "workflow_id": "refund-case-932a20ddc4e6"
+          },
+          "created": 1789336297
+        }
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 0,
+      "expected_refunds": 0,
+      "invariant_held": false,
+      "receipt": null,
+      "crash": {
+        "point": "before_send",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 16.8,
+      "action_before_decision": null,
+      "outage_action": {
+        "revoke": {
+          "lease_id": "approval/case-932a20ddc4e6",
+          "live": false
+        }
+      },
+      "emulated": null
+    },
+    {
+      "scenario": "approval_revoked_during_outage",
+      "mode": "temporal_checked",
+      "case_id": "case-01a6508b806b",
+      "payment_intent": "pi_3UFLJJ88KhIqqdFL0p816tcU",
+      "workflow_id": "refund-case-01a6508b806b",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 2,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 2
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer keeps blender (Support case #4471)",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - customer keeps blender (Support case #4471)"
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "REFUSED:lease",
+      "agent_refund_ids": [],
+      "answer_matches_stripe": true,
+      "refund_ids": [],
+      "refunds": [],
+      "refunded_cents": 0,
+      "expected_cents": 0,
+      "expected_refunds": 0,
+      "invariant_held": true,
+      "receipt": null,
+      "crash": {
+        "point": "before_send",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 16.0,
+      "action_before_decision": null,
+      "outage_action": {
+        "revoke": {
+          "lease_id": "approval/case-01a6508b806b",
+          "live": false
+        }
+      },
+      "emulated": null
+    },
+    {
+      "scenario": "approval_revoked_during_outage",
+      "mode": "interlock",
+      "case_id": "case-74cc6f3789ee",
+      "payment_intent": "pi_3UFLJi88KhIqqdFL1ScyHvYz",
+      "workflow_id": "refund-case-74cc6f3789ee",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 8,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 8
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer keeps blender. Case #4471 approved.",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - customer keeps blender. Case #4471 approved."
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "REFUSED:lease_at_recovery",
+      "agent_refund_ids": [],
+      "answer_matches_stripe": true,
+      "refund_ids": [],
+      "refunds": [],
+      "refunded_cents": 0,
+      "expected_cents": 0,
+      "expected_refunds": 0,
+      "invariant_held": true,
+      "receipt": {
+        "effect_id": "ffa06094439c",
+        "bundle": {
+          "effect_id": "ffa06094439c",
+          "entries": [
+            {
+              "ts": 1789336330.257109,
+              "kind": "PROPOSED",
+              "effect_id": "ffa06094439c",
+              "agent": "claude-haiku-4-5-20251001",
+              "lease": "approval/case-74cc6f3789ee",
+              "premises": {
+                "payment_intent": "pi_3UFLJi88KhIqqdFL1ScyHvYz",
+                "refunded_by_others": 0
+              },
+              "effect": {
+                "amount": 2000
+              },
+              "prev": null,
+              "hash": "fbb11af8722945354be6dbdb3d7807df4d620a1da954208289c724886e0b838f"
+            },
+            {
+              "ts": 1789336330.25872,
+              "kind": "AUTHORIZED",
+              "effect_id": "ffa06094439c",
+              "lease": "approval/case-74cc6f3789ee",
+              "prev": "fbb11af8722945354be6dbdb3d7807df4d620a1da954208289c724886e0b838f",
+              "hash": "86d59a6a23ffb91859f537c4e540f76865c119c5df0fc9bf29f7040bacd7f9bf"
+            },
+            {
+              "ts": 1789336330.440812,
+              "kind": "DISPATCHED",
+              "effect_id": "ffa06094439c",
+              "effect": {
+                "amount": 2000
+              },
+              "lease": "approval/case-74cc6f3789ee",
+              "premises": {
+                "payment_intent": "pi_3UFLJi88KhIqqdFL1ScyHvYz",
+                "refunded_by_others": 0
+              },
+              "checks": {
+                "lease_live": true,
+                "lease": {
+                  "lease_id": "approval/case-74cc6f3789ee",
+                  "max_cents": 2000,
+                  "revoked": null,
+                  "granted": 1789336326.71497
+                },
+                "violations": []
+              },
+              "prev": "86d59a6a23ffb91859f537c4e540f76865c119c5df0fc9bf29f7040bacd7f9bf",
+              "hash": "7449114c79d8852273406c61a2d4ad69d81a6861303177674347ac9610c2b9ca"
+            },
+            {
+              "ts": 1789336374.050366,
+              "kind": "REFUSED",
+              "effect_id": "ffa06094439c",
+              "reason": "lease at recovery",
+              "resolves": true,
+              "rechecked": {
+                "lease_live": false,
+                "lease": {
+                  "lease_id": "approval/case-74cc6f3789ee",
+                  "max_cents": 2000,
+                  "revoked": 1789336330.451019,
+                  "granted": 1789336326.71497
+                }
+              },
+              "prev": "7449114c79d8852273406c61a2d4ad69d81a6861303177674347ac9610c2b9ca",
+              "hash": "828979b879d2966b1a32eb6a54ecda88260ddac8d700f034f2cb574f06d50977"
+            }
+          ],
+          "summary": {
+            "effect_id": "ffa06094439c",
+            "proposed": true,
+            "authorized": true,
+            "executed": false,
+            "recorded": false,
+            "final": "REFUSED",
+            "authority": "approval/case-74cc6f3789ee"
+          }
+        },
+        "verification": {
+          "effect_id": "ffa06094439c",
+          "valid": true,
+          "tamper_evident": true,
+          "signed": null,
+          "happened": false,
+          "happened_once": true,
+          "authorized_when_fired": null,
+          "assumptions_held": null,
+          "refused": "lease at recovery",
+          "evidence": null,
+          "rechecked_at_recovery": {
+            "lease_live": false,
+            "lease": {
+              "lease_id": "approval/case-74cc6f3789ee",
+              "max_cents": 2000,
+              "revoked": 1789336330.451019,
+              "granted": 1789336326.71497
+            }
+          },
+          "problems": []
+        }
+      },
+      "crash": {
+        "point": "before_send",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 43.6,
+      "action_before_decision": null,
+      "outage_action": {
+        "revoke": {
+          "lease_id": "approval/case-74cc6f3789ee",
+          "live": false
+        }
+      },
+      "emulated": null
+    },
+    {
+      "scenario": "approval_revoked_after_commit",
+      "mode": "temporal",
+      "case_id": "case-7b2bada89027",
+      "payment_intent": "pi_3UFLKZ88KhIqqdFL0wXc5mIb",
+      "workflow_id": "refund-case-7b2bada89027",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 2,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 2
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar (support case #4471) - customer keeps blender",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar (support case #4471) - customer keeps blender"
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "REPLAYED_BY_STRIPE",
+      "agent_refund_ids": [
+        "re_3UFLKZ88KhIqqdFL0gWLvaWY"
+      ],
+      "answer_matches_stripe": true,
+      "refund_ids": [
+        "re_3UFLKZ88KhIqqdFL0gWLvaWY"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFLKZ88KhIqqdFL0gWLvaWY",
+          "amount": 2000,
+          "status": "succeeded",
+          "metadata": {
+            "workflow_id": "refund-case-7b2bada89027"
+          },
+          "created": 1789336383
+        }
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "receipt": null,
+      "crash": {
+        "point": "after_commit",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 14.8,
+      "action_before_decision": null,
+      "outage_action": {
+        "revoke": {
+          "lease_id": "approval/case-7b2bada89027",
+          "live": false
+        }
+      },
+      "emulated": null
+    },
+    {
+      "scenario": "approval_revoked_after_commit",
+      "mode": "temporal_checked",
+      "case_id": "case-d470e9e94b37",
+      "payment_intent": "pi_3UFLKx88KhIqqdFL1chvXgVQ",
+      "workflow_id": "refund-case-d470e9e94b37",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 2,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 2
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - Support case #4471 approved",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - Support case #4471 approved"
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "FOUND_BY_LOOKUP",
+      "agent_refund_ids": [
+        "re_3UFLKx88KhIqqdFL1BWmSm4f"
+      ],
+      "answer_matches_stripe": true,
+      "refund_ids": [
+        "re_3UFLKx88KhIqqdFL1BWmSm4f"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFLKx88KhIqqdFL1BWmSm4f",
+          "amount": 2000,
+          "status": "succeeded",
+          "metadata": {
+            "workflow_id": "refund-case-d470e9e94b37"
+          },
+          "created": 1789336407
+        }
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "receipt": null,
+      "crash": {
+        "point": "after_commit",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 14.8,
+      "action_before_decision": null,
+      "outage_action": {
+        "revoke": {
+          "lease_id": "approval/case-d470e9e94b37",
+          "live": false
+        }
+      },
+      "emulated": null
+    },
+    {
+      "scenario": "approval_revoked_after_commit",
+      "mode": "interlock",
+      "case_id": "case-6bacaf2358e8",
+      "payment_intent": "pi_3UFLLL88KhIqqdFL1rOXb7KZ",
+      "workflow_id": "refund-case-6bacaf2358e8",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 8,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 8
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer keeps blender (Support case #4471)",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - customer keeps blender (Support case #4471)"
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "COMMITTED_ON_QUERY",
+      "agent_refund_ids": [
+        "re_3UFLLL88KhIqqdFL1nHHCzLv"
+      ],
+      "answer_matches_stripe": true,
+      "refund_ids": [
+        "re_3UFLLL88KhIqqdFL1nHHCzLv"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFLLL88KhIqqdFL1nHHCzLv",
+          "amount": 2000,
+          "status": "succeeded",
+          "metadata": {
+            "interlock_effect_id": "974833a0ea4a"
+          },
+          "created": 1789336432
+        }
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "receipt": {
+        "effect_id": "974833a0ea4a",
+        "bundle": {
+          "effect_id": "974833a0ea4a",
+          "entries": [
+            {
+              "ts": 1789336431.5309901,
+              "kind": "PROPOSED",
+              "effect_id": "974833a0ea4a",
+              "agent": "claude-haiku-4-5-20251001",
+              "lease": "approval/case-6bacaf2358e8",
+              "premises": {
+                "payment_intent": "pi_3UFLLL88KhIqqdFL1rOXb7KZ",
+                "refunded_by_others": 0
+              },
+              "effect": {
+                "amount": 2000
+              },
+              "prev": null,
+              "hash": "1e911add4adff8b8fa7cc007e4a712a1d6757756916d0e9160e1abda0fffade1"
+            },
+            {
+              "ts": 1789336431.532421,
+              "kind": "AUTHORIZED",
+              "effect_id": "974833a0ea4a",
+              "lease": "approval/case-6bacaf2358e8",
+              "prev": "1e911add4adff8b8fa7cc007e4a712a1d6757756916d0e9160e1abda0fffade1",
+              "hash": "d77c667951f1fdab5f0891e40d2dacd7c27744b0156564ac07c2585da2e85f5b"
+            },
+            {
+              "ts": 1789336431.799914,
+              "kind": "DISPATCHED",
+              "effect_id": "974833a0ea4a",
+              "effect": {
+                "amount": 2000
+              },
+              "lease": "approval/case-6bacaf2358e8",
+              "premises": {
+                "payment_intent": "pi_3UFLLL88KhIqqdFL1rOXb7KZ",
+                "refunded_by_others": 0
+              },
+              "checks": {
+                "lease_live": true,
+                "lease": {
+                  "lease_id": "approval/case-6bacaf2358e8",
+                  "max_cents": 2000,
+                  "revoked": null,
+                  "granted": 1789336427.773262
+                },
+                "violations": []
+              },
+              "prev": "d77c667951f1fdab5f0891e40d2dacd7c27744b0156564ac07c2585da2e85f5b",
+              "hash": "3b15287b438c9da84e60f96f45010c1543dfe12547e08fdf07a2217e7d601b18"
+            },
+            {
+              "ts": 1789336476.010941,
+              "kind": "COMMITTED",
+              "effect_id": "974833a0ea4a",
+              "via": "recovery-query",
+              "rechecked": {
+                "lease_live": false,
+                "lease": {
+                  "lease_id": "approval/case-6bacaf2358e8",
+                  "max_cents": 2000,
+                  "revoked": 1789336432.746815,
+                  "granted": 1789336427.773262
+                }
+              },
+              "found": "re_3UFLLL88KhIqqdFL1nHHCzLv",
+              "prev": "3b15287b438c9da84e60f96f45010c1543dfe12547e08fdf07a2217e7d601b18",
+              "hash": "a00c3d360e1c85cf928c152c0735be491ec2ba2115a0a748b37fd8dea9f3279e"
+            }
+          ],
+          "summary": {
+            "effect_id": "974833a0ea4a",
+            "proposed": true,
+            "authorized": true,
+            "executed": true,
+            "recorded": true,
+            "final": "COMMITTED",
+            "authority": "approval/case-6bacaf2358e8"
+          }
+        },
+        "verification": {
+          "effect_id": "974833a0ea4a",
+          "valid": true,
+          "tamper_evident": true,
+          "signed": null,
+          "happened": true,
+          "happened_once": true,
+          "authorized_when_fired": true,
+          "assumptions_held": true,
+          "refused": null,
+          "evidence": "re_3UFLLL88KhIqqdFL1nHHCzLv",
+          "rechecked_at_recovery": {
+            "lease_live": false,
+            "lease": {
+              "lease_id": "approval/case-6bacaf2358e8",
+              "max_cents": 2000,
+              "revoked": 1789336432.746815,
+              "granted": 1789336427.773262
+            }
+          },
+          "problems": []
+        }
+      },
+      "crash": {
+        "point": "after_commit",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 43.3,
+      "action_before_decision": null,
+      "outage_action": {
+        "revoke": {
+          "lease_id": "approval/case-6bacaf2358e8",
+          "live": false
+        }
+      },
+      "emulated": null
+    },
+    {
+      "scenario": "key_pruned_after_24h",
+      "mode": "temporal",
+      "case_id": "case-7e950f912412",
+      "payment_intent": "pi_3UFLMD88KhIqqdFL0YfikdAU",
+      "workflow_id": "refund-case-7e950f912412",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 2,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 2
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer keeps blender. Support case #4471 approved $20.00 refund.",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - customer keeps blender. Support case #4471 approved $20.00 refund."
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "REFUNDED",
+      "agent_refund_ids": [
+        "re_3UFLMD88KhIqqdFL0mPmfCpd",
+        "re_3UFLMD88KhIqqdFL0Z9Gizi0"
+      ],
+      "answer_matches_stripe": false,
+      "refund_ids": [
+        "re_3UFLMD88KhIqqdFL0mPmfCpd",
+        "re_3UFLMD88KhIqqdFL0Z9Gizi0"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFLMD88KhIqqdFL0mPmfCpd",
+          "amount": 2000,
+          "status": "succeeded",
+          "metadata": {
+            "workflow_id": "refund-case-7e950f912412"
+          },
+          "created": 1789336501
+        },
+        {
+          "id": "re_3UFLMD88KhIqqdFL0Z9Gizi0",
+          "amount": 2000,
+          "status": "succeeded",
+          "metadata": {
+            "workflow_id": "refund-case-7e950f912412"
+          },
+          "created": 1789336485
+        }
+      ],
+      "refunded_cents": 4000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": false,
+      "receipt": null,
+      "crash": {
+        "point": "after_commit",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 15.9,
+      "action_before_decision": null,
+      "outage_action": null,
+      "emulated": "Stripe keeps an idempotency key for at least 24 hours and cannot be made to forget one on demand, and nobody waited a day. The columns do not get the same emulated input. All three: after the restart, each refund POST uses Idempotency-Key '<original key>/emulated-pruned', a key Stripe has never seen, which is how a pruned key looks to Stripe (INTERLOCK_EMULATE_24H=1). Interlock only: its gate also recovers with its clock moved 25h ahead (EmulatedClockGate in backend/workflows.py), standing in for the day that would really have passed. Interlock's result in this row depends on that clock, not on the key: the gate compares the clock with the timestamp of its DISPATCHED entry, finds it older than Stripe's 24h window, and looks the refund up instead of resending, so it never sends the pruned key. Given the pruned key without the moved clock, it would resend under the pruned key and create a second refund, as plain Temporal did (read from gate.py, not run: a key lost inside 24h is outside what Stripe documents). The hand-written re-check column needs no clock, because it looks up its own refund before every send; a Temporal activity could also compare activity.info().scheduled_time with now. The timing is emulated too: the retry came seconds after the crash. In this workflow a retry that late happens if no worker picks the task up for more than 24h (an attempt only starts, and only times out, once a worker takes it), or with a retry policy, schedule or reconciler that spans more than a day. What this row shows is that a key alone does not survive pruning and a lookup does."
+    },
+    {
+      "scenario": "key_pruned_after_24h",
+      "mode": "temporal_checked",
+      "case_id": "case-78b66e77feaf",
+      "payment_intent": "pi_3UFLMb88KhIqqdFL0SAT5p00",
+      "workflow_id": "refund-case-78b66e77feaf",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 2,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 2
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer keeps blender. Support case #4471 approved.",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - customer keeps blender. Support case #4471 approved."
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "FOUND_BY_LOOKUP",
+      "agent_refund_ids": [
+        "re_3UFLMb88KhIqqdFL0eZepcOf"
+      ],
+      "answer_matches_stripe": true,
+      "refund_ids": [
+        "re_3UFLMb88KhIqqdFL0eZepcOf"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFLMb88KhIqqdFL0eZepcOf",
+          "amount": 2000,
+          "status": "succeeded",
+          "metadata": {
+            "workflow_id": "refund-case-78b66e77feaf"
+          },
+          "created": 1789336510
+        }
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "receipt": null,
+      "crash": {
+        "point": "after_commit",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 15.0,
+      "action_before_decision": null,
+      "outage_action": null,
+      "emulated": "Stripe keeps an idempotency key for at least 24 hours and cannot be made to forget one on demand, and nobody waited a day. The columns do not get the same emulated input. All three: after the restart, each refund POST uses Idempotency-Key '<original key>/emulated-pruned', a key Stripe has never seen, which is how a pruned key looks to Stripe (INTERLOCK_EMULATE_24H=1). Interlock only: its gate also recovers with its clock moved 25h ahead (EmulatedClockGate in backend/workflows.py), standing in for the day that would really have passed. Interlock's result in this row depends on that clock, not on the key: the gate compares the clock with the timestamp of its DISPATCHED entry, finds it older than Stripe's 24h window, and looks the refund up instead of resending, so it never sends the pruned key. Given the pruned key without the moved clock, it would resend under the pruned key and create a second refund, as plain Temporal did (read from gate.py, not run: a key lost inside 24h is outside what Stripe documents). The hand-written re-check column needs no clock, because it looks up its own refund before every send; a Temporal activity could also compare activity.info().scheduled_time with now. The timing is emulated too: the retry came seconds after the crash. In this workflow a retry that late happens if no worker picks the task up for more than 24h (an attempt only starts, and only times out, once a worker takes it), or with a retry policy, schedule or reconciler that spans more than a day. What this row shows is that a key alone does not survive pruning and a lookup does."
+    },
+    {
+      "scenario": "key_pruned_after_24h",
+      "mode": "interlock",
+      "case_id": "case-4c3b9ced729c",
+      "payment_intent": "pi_3UFLMz88KhIqqdFL15ms0IEw",
+      "workflow_id": "refund-case-4c3b9ced729c",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 8,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 8
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund approved for cracked glass jar - customer retains blender. Support case #4471",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund approved for cracked glass jar - customer retains blender. Support case #4471"
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "COMMITTED_ON_QUERY",
+      "agent_refund_ids": [
+        "re_3UFLMz88KhIqqdFL1ujDkkHe"
+      ],
+      "answer_matches_stripe": true,
+      "refund_ids": [
+        "re_3UFLMz88KhIqqdFL1ujDkkHe"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFLMz88KhIqqdFL1ujDkkHe",
+          "amount": 2000,
+          "status": "succeeded",
+          "metadata": {
+            "interlock_effect_id": "3d085b1c0a0b"
+          },
+          "created": 1789336533
+        }
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "receipt": {
+        "effect_id": "3d085b1c0a0b",
+        "bundle": {
+          "effect_id": "3d085b1c0a0b",
+          "entries": [
+            {
+              "ts": 1789336533.273469,
+              "kind": "PROPOSED",
+              "effect_id": "3d085b1c0a0b",
+              "agent": "claude-haiku-4-5-20251001",
+              "lease": "approval/case-4c3b9ced729c",
+              "premises": {
+                "payment_intent": "pi_3UFLMz88KhIqqdFL15ms0IEw",
+                "refunded_by_others": 0
+              },
+              "effect": {
+                "amount": 2000
+              },
+              "prev": null,
+              "hash": "db8288a724bc6e91458a6e96fe8ce3d3c2f1f1aff303e0d57145cf1e36532af7"
+            },
+            {
+              "ts": 1789336533.275946,
+              "kind": "AUTHORIZED",
+              "effect_id": "3d085b1c0a0b",
+              "lease": "approval/case-4c3b9ced729c",
+              "prev": "db8288a724bc6e91458a6e96fe8ce3d3c2f1f1aff303e0d57145cf1e36532af7",
+              "hash": "73fc0776bf8b73ef109dc3fa9435314d33499132e6e82c321d76811adcde952d"
+            },
+            {
+              "ts": 1789336533.47117,
+              "kind": "DISPATCHED",
+              "effect_id": "3d085b1c0a0b",
+              "effect": {
+                "amount": 2000
+              },
+              "lease": "approval/case-4c3b9ced729c",
+              "premises": {
+                "payment_intent": "pi_3UFLMz88KhIqqdFL15ms0IEw",
+                "refunded_by_others": 0
+              },
+              "checks": {
+                "lease_live": true,
+                "lease": {
+                  "lease_id": "approval/case-4c3b9ced729c",
+                  "max_cents": 2000,
+                  "revoked": null,
+                  "granted": 1789336529.7897768
+                },
+                "violations": []
+              },
+              "prev": "73fc0776bf8b73ef109dc3fa9435314d33499132e6e82c321d76811adcde952d",
+              "hash": "50233d7451f7e4fd76cd96e48da075538bffe7a771be8435acd2035aa866730d"
+            },
+            {
+              "ts": 1789336577.452338,
+              "kind": "COMMITTED",
+              "effect_id": "3d085b1c0a0b",
+              "via": "recovery-query",
+              "rechecked": {
+                "lease_live": true,
+                "lease": {
+                  "lease_id": "approval/case-4c3b9ced729c",
+                  "max_cents": 2000,
+                  "revoked": null,
+                  "granted": 1789336529.7897768
+                },
+                "violations": []
+              },
+              "found": "re_3UFLMz88KhIqqdFL1ujDkkHe",
+              "prev": "50233d7451f7e4fd76cd96e48da075538bffe7a771be8435acd2035aa866730d",
+              "hash": "65fc89f9bfcf1f6a6a80b5dbaab6cd484b8d9911b96bfa03fde40fece326d691"
+            }
+          ],
+          "summary": {
+            "effect_id": "3d085b1c0a0b",
+            "proposed": true,
+            "authorized": true,
+            "executed": true,
+            "recorded": true,
+            "final": "COMMITTED",
+            "authority": "approval/case-4c3b9ced729c"
+          }
+        },
+        "verification": {
+          "effect_id": "3d085b1c0a0b",
+          "valid": true,
+          "tamper_evident": true,
+          "signed": null,
+          "happened": true,
+          "happened_once": true,
+          "authorized_when_fired": true,
+          "assumptions_held": true,
+          "refused": null,
+          "evidence": "re_3UFLMz88KhIqqdFL1ujDkkHe",
+          "rechecked_at_recovery": {
+            "lease_live": true,
+            "lease": {
+              "lease_id": "approval/case-4c3b9ced729c",
+              "max_cents": 2000,
+              "revoked": null,
+              "granted": 1789336529.7897768
+            },
+            "violations": []
+          },
+          "problems": []
+        }
+      },
+      "crash": {
+        "point": "after_commit",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 43.1,
+      "action_before_decision": null,
+      "outage_action": null,
+      "emulated": "Stripe keeps an idempotency key for at least 24 hours and cannot be made to forget one on demand, and nobody waited a day. The columns do not get the same emulated input. All three: after the restart, each refund POST uses Idempotency-Key '<original key>/emulated-pruned', a key Stripe has never seen, which is how a pruned key looks to Stripe (INTERLOCK_EMULATE_24H=1). Interlock only: its gate also recovers with its clock moved 25h ahead (EmulatedClockGate in backend/workflows.py), standing in for the day that would really have passed. Interlock's result in this row depends on that clock, not on the key: the gate compares the clock with the timestamp of its DISPATCHED entry, finds it older than Stripe's 24h window, and looks the refund up instead of resending, so it never sends the pruned key. Given the pruned key without the moved clock, it would resend under the pruned key and create a second refund, as plain Temporal did (read from gate.py, not run: a key lost inside 24h is outside what Stripe documents). The hand-written re-check column needs no clock, because it looks up its own refund before every send; a Temporal activity could also compare activity.info().scheduled_time with now. The timing is emulated too: the retry came seconds after the crash. In this workflow a retry that late happens if no worker picks the task up for more than 24h (an attempt only starts, and only times out, once a worker takes it), or with a retry policy, schedule or reconciler that spans more than a day. What this row shows is that a key alone does not survive pruning and a lookup does."
+    },
+    {
+      "scenario": "no_lookup_after_24h",
+      "mode": "interlock",
+      "case_id": "case-715746517075",
+      "payment_intent": "pi_3UFLNp88KhIqqdFL19fBdxOL",
+      "workflow_id": "refund-case-715746517075",
+      "workflow_status": "COMPLETED",
+      "workflow_ok": true,
+      "attempts": 8,
+      "attempts_by_activity": {
+        "decide": 1,
+        "refund": 8
+      },
+      "llm_decision": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer keeping blender (Support case #4471)",
+        "model": "claude-haiku-4-5-20251001",
+        "tool_call": {
+          "input": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - customer keeping blender (Support case #4471)"
+          },
+          "name": "issue_refund"
+        }
+      },
+      "approved_cents": 2000,
+      "decision_matches_approval": true,
+      "outcome": "AMBIGUOUS",
+      "agent_refund_ids": [
+        "re_3UFLNp88KhIqqdFL1o1fWcTL"
+      ],
+      "answer_matches_stripe": true,
+      "refund_ids": [
+        "re_3UFLNp88KhIqqdFL1o1fWcTL"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFLNp88KhIqqdFL1o1fWcTL",
+          "amount": 2000,
+          "status": "succeeded",
+          "metadata": {
+            "interlock_effect_id": "6cce6c06a86a"
+          },
+          "created": 1789336586
+        }
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "receipt": {
+        "effect_id": "6cce6c06a86a",
+        "bundle": {
+          "effect_id": "6cce6c06a86a",
+          "entries": [
+            {
+              "ts": 1789336585.564715,
+              "kind": "PROPOSED",
+              "effect_id": "6cce6c06a86a",
+              "agent": "claude-haiku-4-5-20251001",
+              "lease": "approval/case-715746517075",
+              "premises": {
+                "payment_intent": "pi_3UFLNp88KhIqqdFL19fBdxOL",
+                "refunded_by_others": 0
+              },
+              "effect": {
+                "amount": 2000
+              },
+              "prev": null,
+              "hash": "c9ce8208e4f4dea1e969784d01a9c6a799dd466a554755d9f5cab909de64f0be"
+            },
+            {
+              "ts": 1789336585.566407,
+              "kind": "AUTHORIZED",
+              "effect_id": "6cce6c06a86a",
+              "lease": "approval/case-715746517075",
+              "prev": "c9ce8208e4f4dea1e969784d01a9c6a799dd466a554755d9f5cab909de64f0be",
+              "hash": "5353070d16f92580f4409c247b79072d372d140c083b664771c2d66fa4db8f5b"
+            },
+            {
+              "ts": 1789336585.750601,
+              "kind": "DISPATCHED",
+              "effect_id": "6cce6c06a86a",
+              "effect": {
+                "amount": 2000
+              },
+              "lease": "approval/case-715746517075",
+              "premises": {
+                "payment_intent": "pi_3UFLNp88KhIqqdFL19fBdxOL",
+                "refunded_by_others": 0
+              },
+              "checks": {
+                "lease_live": true,
+                "lease": {
+                  "lease_id": "approval/case-715746517075",
+                  "max_cents": 2000,
+                  "revoked": null,
+                  "granted": 1789336581.9484632
+                },
+                "violations": []
+              },
+              "prev": "5353070d16f92580f4409c247b79072d372d140c083b664771c2d66fa4db8f5b",
+              "hash": "0a482cb1e072692abcced1ccec70a83dfa6ada3fd4eb5617b08536a98ef1ec97"
+            },
+            {
+              "ts": 1789336628.814369,
+              "kind": "AMBIGUOUS",
+              "effect_id": "6cce6c06a86a",
+              "prev": "0a482cb1e072692abcced1ccec70a83dfa6ada3fd4eb5617b08536a98ef1ec97",
+              "hash": "e35805863438d93de89f45dff0cfe9d8ec9b51d799ec7a4141c21366fb2c90b2"
+            }
+          ],
+          "summary": {
+            "effect_id": "6cce6c06a86a",
+            "proposed": true,
+            "authorized": true,
+            "executed": "unknown",
+            "recorded": false,
+            "final": "AMBIGUOUS",
+            "authority": "approval/case-715746517075"
+          }
+        },
+        "verification": {
+          "effect_id": "6cce6c06a86a",
+          "valid": true,
+          "tamper_evident": true,
+          "signed": null,
+          "happened": "unknown",
+          "happened_once": true,
+          "authorized_when_fired": true,
+          "assumptions_held": true,
+          "refused": null,
+          "evidence": null,
+          "rechecked_at_recovery": null,
+          "problems": []
+        }
+      },
+      "crash": {
+        "point": "after_commit",
+        "worker_exit_code": -9,
+        "sigkill": true
+      },
+      "seconds_crash_to_close": 42.1,
+      "action_before_decision": null,
+      "outage_action": null,
+      "emulated": "Emulated as in key_pruned_after_24h (pruned key, gate clock 25h ahead), and the Interlock target also declares that it cannot list refunds (INTERLOCK_NO_LOOKUP=1), as for a provider with no way to look up what it did. Stripe itself can list refunds. Run for Interlock only: it shows the gate saying AMBIGUOUS instead of guessing."
+    }
+  ]
+}

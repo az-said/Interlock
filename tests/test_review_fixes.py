@@ -98,6 +98,19 @@ class ReviewFixes(unittest.TestCase):
         api.query = flaky_query
         self.assertEqual(sorted(gate.recover().values()), ["REAPPLIED_AFTER_QUERY", "UNRESOLVED:ConnectionError"])
         self.assertEqual((api.refunded_total("1"), api.refunded_total("2")), (0, 20))
+        api.query = real_query                      # nothing was sent, so the next attempt need not wait out a claim
+        self.assertEqual(list(Gate(api, gate.journal.path, leases).recover().values()), ["REAPPLIED_AFTER_QUERY"])
+        self.assertEqual(api.refunded_total("1"), 20)
+
+    def test_a_resend_that_raised_keeps_its_claim(self):
+        api, leases, path, P = world(tier=1)
+        with self.assertRaises(SimulatedCrash):
+            Gate(api, path, leases).submit(P, crash_before_effect=True)
+        real_apply = api.apply
+        api.apply = lambda *a, **k: (_ for _ in ()).throw(TimeoutError("response lost"))
+        self.assertEqual(list(Gate(api, path, leases).recover().values()), ["UNRESOLVED:TimeoutError"])
+        api.apply = real_apply
+        self.assertEqual(Gate(api, path, leases).recover(), {})      # the timed-out send may still land: wait
 
     def test_functions_with_the_same_name_get_separate_journals(self):
         gate = Interlock(tempfile.mkdtemp())
