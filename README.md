@@ -61,7 +61,8 @@ The last three rows of the refund table below are steps 2 and 3, measured.
 $ python3 demo.py 2
 
   system: INTERLOCK, payments API at tier 2
-  agent decides: refund order #881 for $80
+  customer paid $100. case #4471 approves one $20 partial refund.
+  agent decides: refund $20
 
   ── refund executes, then the process dies before the ack ──
   💥 crash
@@ -69,13 +70,22 @@ $ python3 demo.py 2
   ── process restarts ──
   journal says DISPATCHED with no COMMITTED → recovery: COMMITTED_ON_QUERY
 
-  refunds on order #881: 1
+  refunded on order #881: $20  (1 refund record(s))
+
+  receipt:
+    effect_id   6b6f07d3ceb0
+    proposed    True
+    authorized  True
+    executed    True
+    recorded    True
+    final       COMMITTED
+    authority   L-refund
 
   journal:
-    PROPOSED    8351811bed3d
-    AUTHORIZED  8351811bed3d
-    DISPATCHED  8351811bed3d
-    COMMITTED   8351811bed3d  recovery-query
+    PROPOSED    6b6f07d3ceb0
+    AUTHORIZED  6b6f07d3ceb0
+    DISPATCHED  6b6f07d3ceb0
+    COMMITTED   6b6f07d3ceb0  recovery-query
 ```
 
 Same crash, same agent, against an API that offers neither dedup nor lookup:
@@ -84,7 +94,8 @@ Same crash, same agent, against an API that offers neither dedup nor lookup:
 $ python3 demo.py 3
   ...
   journal says DISPATCHED with no COMMITTED → recovery: AMBIGUOUS
-  refunds on order #881: 1
+  refunded on order #881: $20  (1 refund record(s))
+    executed    unknown
     final       AMBIGUOUS
 ```
 
