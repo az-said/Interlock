@@ -15,6 +15,7 @@ Standard library only, like the rest of the repo.
 """
 import base64, json, urllib.error, urllib.parse, urllib.request
 from ..gate import SimulatedCrash
+from .payments import fits
 
 API = "https://api.stripe.com/v1"
 
@@ -92,6 +93,21 @@ class StripeRefunds:
     def validate_premises(self, premises, eid=None):
         was, now = premises["refunded_by_others"], self._by_others(eid)
         return [] if now == was else [f"refunded by others: was {was}, now {now}"]
+
+    def explain(self, premises, eid=None, effect=None):
+        """One refunds read. The payment's amount is fetched only when violated; if that fails, no repairs."""
+        was, now = premises["refunded_by_others"], self._by_others(eid)
+        if now == was:
+            return {"violations": [], "changes": [], "repairs": []}
+        repairs = []
+        if effect is not None:
+            try:
+                total = self.client.request("GET", f"/payment_intents/{self.payment_intent}")["amount_received"]
+                repairs = fits(effect["amount"], total - now, total)
+            except (StripeError, OSError, KeyError):
+                pass
+        return {"violations": [f"refunded by others: was {was}, now {now}"],
+                "changes": [{"field": "refunded_by_others", "was": was, "now": now}], "repairs": repairs}
 
     def idempotency_key(self, eid):
         return eid

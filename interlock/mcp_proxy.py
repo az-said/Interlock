@@ -33,7 +33,7 @@ recovery after a crash can only say AMBIGUOUS. Standard library only.
 """
 import itertools, json, queue, subprocess, sys, threading, uuid
 from .easy import Interlock
-from .escalation import WHY, code
+from .escalation import WHY, code, describe, explain
 from .journal import CLAIM_TTL, effect_id_for
 
 RESOLVED = ("DUPLICATE_IGNORED", "COMMITTED_BY_RETRY", "COMMITTED_ON_QUERY", "REAPPLIED_AFTER_QUERY")
@@ -174,6 +174,10 @@ class Proxy:
             result = {"content": [{"type": "text", "text": f"Interlock: this action already happened once ({status}); it was not sent again."}], "_meta": meta}
         else:
             why = WHY.get(code(status), WHY["refused"])
+            if status.startswith("REFUSED") or status == "AMBIGUOUS":   # repairs here are suggestions; a retry
+                esc = explain(call.gate.journal.entries(eid))           # with a new amount stays conflicting_payload
+                meta["interlock"]["escalation"] = esc
+                why = describe(esc) if esc else why
             result = {"isError": True, "_meta": meta,
                       "content": [{"type": "text", "text": f"Interlock did not send this action ({status}): {why}."}]}
         self.to_client({"jsonrpc": "2.0", "id": msg["id"], "result": result})
