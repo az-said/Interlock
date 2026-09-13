@@ -9,6 +9,7 @@
     "refunded_by_hand": 5
   },
   "stale_approvals": 3,
+  "partial_by_hand": 2,
   "requests": 100,
   "systems": {
     "everyone approves": {
@@ -17,6 +18,8 @@
         "ord-061",
         "ord-062",
         "ord-063",
+        "ord-064",
+        "ord-065",
         "ord-091",
         "ord-092",
         "ord-093",
@@ -30,6 +33,8 @@
         "ord-061",
         "ord-062",
         "ord-063",
+        "ord-064",
+        "ord-065",
         "ord-091",
         "ord-092",
         "ord-093",
@@ -38,11 +43,38 @@
       ]
     },
     "rules + Interlock": {
-      "reviews": 33,
+      "reviews": 36,
       "wrong_orders": [],
       "why": {
-        "needs judgment": 25,
-        "could not be sent safely": 8
+        "stale_premise": 10,
+        "needs_judgment": 26
+      },
+      "scoreboard": {
+        "requests": 95,
+        "cleared_no_person": 65,
+        "cleared_verified": 65,
+        "sent_after_person": 12,
+        "rejected": 18,
+        "closed_by_repair": 2,
+        "open": 0,
+        "escalated": 32,
+        "stale_approvals_caught": 5,
+        "crash_to_person": 0,
+        "repairs_suggested": 7,
+        "repairs_accepted": 2,
+        "sla_breaches": 3,
+        "confirmed_by_target": 0,
+        "no_person_share": 0.684,
+        "escalated_by_reason": {
+          "needs_judgment": 27,
+          "stale_premise": 10
+        },
+        "time_to_decision": {
+          "n": 37,
+          "median": 6165.590079235531,
+          "p90": 18107.794484595463,
+          "max": 24524.502646231733
+        }
       }
     }
   }

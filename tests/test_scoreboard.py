@@ -24,7 +24,7 @@ class Day:
     """Hand-built inbox chains: real gate sends, escalations and decisions written with record()."""
     def __init__(self, suffix=".jsonl"):
         self.api = Payments(2)
-        self.gate = Gate(self.api, tempfile.mktemp(suffix=suffix), Authority(approvers={"ana", "fm"}))
+        self.gate = Gate(self.api, tempfile.mktemp(suffix=suffix), Authority(approvers={"ana", "fm"}, groups={"ap-leads": {"ana"}, "finance-manager": {"fm"}}))
         self.j = self.gate.journal
 
     def request(self, rid, amount=20, **extra):

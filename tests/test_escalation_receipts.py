@@ -51,7 +51,7 @@ class EscalationReceipts(unittest.TestCase):
     def setUp(self):
         self.api = Payments(2)
         self.api.create_order("1", 100)
-        self.gate = Gate(self.api, tempfile.mktemp(suffix=".jsonl"), Authority(approvers={"alice"}))
+        self.gate = Gate(self.api, tempfile.mktemp(suffix=".jsonl"), Authority(approvers={"alice"}, groups={"ops": {"alice"}}))
         self.eid = effect_id_for({"request_id": "r1"})
 
     def proposal(self, lease, premises=None):
