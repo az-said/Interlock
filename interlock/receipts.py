@@ -16,6 +16,15 @@ re-derives the claims from the entries themselves rather than reading a summary:
     evidence             what the target returned for the commit (e.g. Stripe's refund id), or what a lookup found
     rechecked_at_recovery  the last re-check recovery recorded, including a failed one before a lookup
                          found the effect had already landed
+    approved_by          the person whose lease the landed send went out under (None for policy)
+    approval_verified    once escalated, every decision answers the latest escalation, from someone it was
+                         routed to, before a send citing it on the facts it showed (None: never escalated)
+    escalations          who each escalation went to, why, what changed, and who decided it
+    confirmed_by_target  the target's own last word by chain position: True, False, "pending" or None
+
+A person lease with no escalation on a chain with no ESCALATED or DECIDED is a legacy approval and
+is not checked against decisions. Without a signature, whoever controls the journal can strip the
+escalations off a chain and make it look legacy.
 
 With a key, the bundle is signed (HMAC-SHA256 over the effect id and the last hash). Anyone
 else holding the key (the payment service, an auditor, a notary) can then confirm the log
@@ -99,6 +108,9 @@ def verify(receipt, key=None):
             open_ = False
 
     kinds = [e["kind"] for e in es]
+    decisions, confirms = _people(es, problems), _confirmations(es, problems)
+    if confirms["refunds"] > 1:
+        once = False
     commits = kinds.count("COMMITTED")
     if commits > 1:
         once = False
@@ -114,7 +126,87 @@ def verify(receipt, key=None):
     return {"effect_id": effect_id, "valid": not problems, "tamper_evident": chained, "signed": signed,
             "happened": happened, "happened_once": once, "authorized_when_fired": authorized,
             "assumptions_held": held, "refused": None if happened is True else refused,
-            "evidence": evidence, "rechecked_at_recovery": at_recovery, "problems": problems}
+            "evidence": evidence, "rechecked_at_recovery": at_recovery, **decisions,
+            "confirmed_by_target": confirms["confirmed_by_target"], "confirmation": confirms["confirmation"],
+            "problems": problems}
+
+
+def _people(es, problems):
+    """
+    Rules for escalated effects, in chain order: every decision answers the latest escalation, from
+    someone it was routed to, once; every send after an escalation cites that person's approval of
+    the latest one and carries the facts it showed; nothing is sent after a person closed it.
+    """
+    before = len(problems)
+    history, answered, latest, closed, sent, landed = [], {}, None, False, None, None
+    for e in es:
+        kind, lease = e["kind"], e.get("lease")
+        if kind == "ESCALATED":
+            latest = e
+            history.append({"at": e.get("at"), "reason": e.get("reason"), "group": e.get("group"),
+                            "routed_to": e.get("routed_to"), "level": e.get("level"), "breach": e.get("breach"),
+                            "changes": e.get("changes"), "repairs": len(e.get("repairs") or []), "decision": None,
+                            "hash": e["hash"]})
+        elif kind == "DECIDED":
+            if latest is None or e.get("escalation") != latest["hash"]:
+                problems.append("a decision answers an escalation that was superseded or missing")
+            elif e.get("group") != latest.get("group") or e.get("by") not in (e.get("members") or []):
+                problems.append("decided by someone the item was not routed to")
+            if e.get("escalation") in answered:
+                problems.append("decided twice")
+            answered.setdefault(e.get("escalation"), e)
+            for h in history:
+                if h["hash"] == e.get("escalation") and h["decision"] is None:
+                    h["decision"] = {"by": e.get("by"), "decision": e.get("decision"), "at": e.get("at")}
+            closed = closed or e.get("decision") in ("reject", "repair")
+        elif kind == "DISPATCHED":
+            sent = lease
+            person = isinstance(lease, dict)
+            if closed:
+                problems.append("sent after a person closed it")
+            if latest is not None:
+                d = answered.get(latest["hash"])
+                if not (person and lease.get("escalation") == latest["hash"]):
+                    problems.append("sent without the decision its latest escalation asked for")
+                elif not (d and d.get("decision") == "approve" and
+                          (d.get("by"), d.get("at"), d.get("group")) == (lease.get("by"), lease.get("at"), lease.get("group"))):
+                    problems.append("a person's send has no matching decision")
+                if e.get("premises") != latest.get("facts"):
+                    problems.append("sent on facts the approver never saw")
+            elif person and "escalation" in lease:
+                problems.append("a send cites an escalation that is not in the receipt")
+        elif kind == "COMMITTED" and landed is None:
+            landed = sent
+    for h in history:
+        del h["hash"]
+    by = landed.get("by") if isinstance(landed, dict) else None
+    verified = False if len(problems) > before else True if history else None
+    return {"approved_by": None if by == "policy" else by, "approval_verified": verified, "escalations": history}
+
+
+def _confirmations(es, problems):
+    """What the target itself said about the send: evidence only, never what decides whether it happened."""
+    seen, sent, refunds = [], None, set()
+    for e in es:
+        if e["kind"] == "DISPATCHED":
+            sent = e.get("effect") or {}
+        elif e["kind"] == "CONFIRMED":
+            if sent is None:
+                problems.append("a confirmation matches no send")
+            elif "amount" in sent and e.get("amount") != sent["amount"]:
+                problems.append("target confirmed a different amount")
+            refunds.add(e.get("refund"))
+            seen.append({k: e.get(k) for k in ("via", "event", "refund", "status")})
+    if len(refunds) > 1:
+        problems.append("target confirmed more than one refund")
+    kinds = [e["kind"] for e in es]
+    never_landed = "COMMITTED" not in kinds and "AMBIGUOUS" not in kinds and any(
+        e["kind"] == "REFUSED" and e.get("resolves") for e in es)
+    if never_landed and any(c["status"] == "succeeded" for c in seen):
+        problems.append("target confirmed an effect the journal says never landed")
+    last = seen[-1]["status"] if seen else None
+    return {"refunds": len(refunds), "confirmation": seen,
+            "confirmed_by_target": None if last is None else {"succeeded": True, "failed": False, "canceled": False}.get(last, "pending")}
 
 
 def _lease_held(checks, effect):
