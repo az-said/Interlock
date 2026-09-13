@@ -1,0 +1,15 @@
+Repo: https://github.com/shawnzhu02/Interlock — commit 27a4fd7
+
+At checkpoint 1 we had a problem statement and an empty repo. The repo now contains the runtime, two fault-injection experiments with two baselines, generated results, and three findings.
+
+1. Exactly-once is a property of the target, not the client; tier 3's honest guarantee is at-most-once with surfaced ambiguity.
+2. Idempotency keys are necessary but insufficient: they still refund under revoked leases and ineligible orders.
+3. Premise granularity is a dial with a floor: file hashes over-refuse; symbols land benign edits but miss meaning changes.
+
+Judge feedback from checkpoint 1 is answered point by point in docs/checkpoints/checkpoint-1.md.
+
+Feedback wanted:
+- Is the tier-3 AMBIGUOUS result, stated as an impossibility with a named weaker guarantee and a measured cost, the kind of negative result the track values? Or should we push into the notary design (docs/04) that lifts tier 3 to tier 2?
+- Finding 3's boundary is where premises end and intent begins. The concurrency spec proposes measuring what fraction of real dependencies are statically resolvable vs coarse vs dark. Is that the right next experiment, or should semantics stay out per the brief's model-quality separation?
+
+Run: python3 demo.py naive, then 2. Regenerate tables: python3 experiments/run_all.py.
