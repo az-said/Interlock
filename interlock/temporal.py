@@ -37,7 +37,7 @@ def gated(gate, proposal, raise_on_refusal=True, **submit_flags):
     unsettled = status == "IN_FLIGHT" or status.startswith("UNRESOLVED")
     refused = status.startswith("REFUSED") or status == "AMBIGUOUS"
     if unsettled or refused:
-        esc = explain(gate.journal.entries(eid)) if refused else None
+        esc = explain(gate.journal.entries(eid), status) if refused else None
         msg = f"interlock: {status}" + (f": {describe(esc)}" if esc else "")   # prefix stays: backend matches on it
         try:
             from temporalio.exceptions import ApplicationError

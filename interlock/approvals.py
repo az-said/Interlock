@@ -141,6 +141,7 @@ class Inbox:
                 yield request, es
 
     def _cache(self, request, es):
+        request = self._request(es) or request               # show what the journal bound, which is what gets sent
         rid, state = request["id"], _state(es)
         self.queue.pop(rid, None)
         self.approved.pop(rid, None)
@@ -176,15 +177,23 @@ class Inbox:
         return reason
 
     def _escalate(self, request, es, facts=None, failed=None):
-        """Open the one escalation this chain is owed: a rule failed, or the gate refused or could not verify it."""
+        """
+        Open the one escalation this chain is owed: a rule failed, or the gate refused or could not verify it.
+        Routed and captured for the bound request, not a retry's. A refusal's repairs are kept only while the
+        facts read now are the world they were computed on.
+        """
+        bound = self._request(es)
+        if bound is not None and bound != _plain(request):
+            request, facts = bound, None
         facts = _plain(self.capture(request) if facts is None else facts)
         if failed:
             want, reason, detail, changes, repairs = "NEW", "needs_judgment", failed, [], []
         else:
             esc, e = explain(es), latest(es)[0]
             want, reason, detail = "NEEDS_ESCALATION", self._refine(esc["reason"], es), esc["status"]
-            shown = e["facts"] if e else next(x.get("premises") for x in es if x["kind"] == "PROPOSED")
-            changes, repairs = esc["changes"] or diff(shown or {}, facts), esc["repairs"]
+            shown = (e["facts"] if e else next(x.get("premises") for x in es if x["kind"] == "PROPOSED")) or {}
+            then = {**shown, **{c["field"]: c["now"] for c in esc["changes"]}}
+            changes, repairs = esc["changes"] or diff(shown, facts), esc["repairs"] if facts == then else []
         route = self._route({"request": request, "facts": facts, "reason": reason, "detail": detail})
         at, group = self.clock(), route.chain[0]
         fields = record("ESCALATED", at=at, reason=reason, why=WHY.get(reason, WHY["refused"]), detail=detail,

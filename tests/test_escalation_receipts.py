@@ -91,7 +91,12 @@ class EscalationReceipts(unittest.TestCase):
         for decided in ({"members": ("bob",)}, {"group": "ops", "members": ("alice",)}):
             with self.subTest(**decided):
                 self.setUp()
-                r = self.check(self.approved(**decided))
+                es = self.approved(members=decided["members"])
+                if "group" in decided:       # the gate now refuses this send at dispatch (I7), so forge the sent chain
+                    es = reseal([{**e, "group": "ops"} if e["kind"] == "DECIDED" else
+                                 {**e, "lease": {**e["lease"], "group": "ops"}} if "escalation" in (e.get("lease") or {})
+                                 else e for e in es])
+                r = self.check(es)
                 self.assertFalse(r["valid"])
                 self.assertIs(r["approval_verified"], False)
                 self.assertIn("decided by someone the item was not routed to", problems(r))
@@ -185,7 +190,7 @@ class EscalationReceipts(unittest.TestCase):
         self.assertIs(self.check(j.entries(self.eid))["confirmed_by_target"], False)
         j.append("CONFIRMED", self.eid, **confirmed("pending", event="evt_3"))
         r = self.check(j.entries(self.eid))
-        self.assertEqual(r["confirmed_by_target"], "pending")
+        self.assertIs(r["confirmed_by_target"], False)       # a late pending never walks back a final status
         self.assertEqual(r["confirmation"], [{"via": "webhook", "event": e, "refund": "re_1", "status": s}
                                              for e, s in (("evt_1", "succeeded"), ("evt_2", "failed"), ("evt_3", "pending"))])
 

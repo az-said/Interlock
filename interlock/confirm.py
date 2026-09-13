@@ -9,15 +9,17 @@ The signature is HMAC-SHA256 over "t.raw_body" keyed by the endpoint's whsec_ se
 tried (secret rotation sends one per secret), other schemes are ignored so nobody can downgrade to
 v0, and the timestamp must sit inside the tolerance, so an old signed event can't be replayed.
 
-A refund is matched to its effect by metadata interlock_effect_id, then must name this payment
-and the amount that was sent. Anything unsigned or mismatched writes nothing. CONFIRMED is
+A refund is matched to its effect by metadata interlock_effect_id, then must name this payment,
+the amount that was sent and, once committed, the refund id the commit recorded. Stripe does not
+deliver in order, so a status behind the one recorded (pending after succeeded, succeeded after
+failed) is ignored. Anything unsigned or mismatched writes nothing. CONFIRMED is
 evidence only: it never closes a dispatch, and the gate and inbox never read it. It stores ids,
 status and amount, never the payload or the signature header, so auditors re-fetch the event.
 
 Test mode only: live-mode events are refused.
 """
 import hashlib, hmac, json, time
-from .escalation import record
+from .escalation import RANK, final, record, sent_refund
 
 TYPES = ("refund.created", "refund.updated", "refund.failed")   # charge.refunded carries no refund metadata
 
@@ -61,7 +63,7 @@ def verify_webhook(payload, header, secret, now=None, tolerance=300):
 
 
 def confirm_event(journal, target, payload, header, secret, now=None):
-    """CONFIRMED, DUPLICATE_IGNORED, REFUSED:mismatch, IGNORED:type or IGNORED:unknown_effect."""
+    """CONFIRMED, DUPLICATE_IGNORED, REFUSED:mismatch, IGNORED:type, IGNORED:unknown_effect or IGNORED:out_of_order."""
     event = verify_webhook(payload, header, secret, now)
     if event.get("type") not in TYPES:
         return "IGNORED:type"
@@ -89,15 +91,21 @@ def _record(journal, target, eid, obj, via, event, created):
         if (not sent or obj.get("payment_intent") != target.payment_intent
                 or obj.get("amount") != (sent[-1].get("effect") or {}).get("amount")):
             return "mismatch"
+        refund = sent_refund(entries)
+        if refund is not None and obj.get("id") != refund:
+            return "mismatch"
         seen = [e for e in entries if e["kind"] == "CONFIRMED"]
         if event is not None and any(e["event"] == event for e in seen):
             return "duplicate"
-        last = next((e for e in reversed(seen) if e["refund"] == obj.get("id")), None)
-        if last and last["status"] == obj.get("status"):
+        statuses = [e["status"] for e in seen if e["refund"] == obj.get("id")]
+        if statuses and RANK.get(obj.get("status"), 0) < RANK.get(final(statuses), 0):
+            return "out_of_order"
+        if statuses and statuses[-1] == obj.get("status"):
             return "duplicate"
         return None
 
     entry, blocker = journal.append_if("CONFIRMED", eid, check, **record(
         "CONFIRMED", via=via, event=event, refund=obj.get("id"), status=obj.get("status"),
         amount=obj.get("amount"), payment_intent=obj.get("payment_intent"), created=created))
-    return "CONFIRMED" if entry else "DUPLICATE_IGNORED" if blocker == "duplicate" else "REFUSED:mismatch"
+    return ("CONFIRMED" if entry else "DUPLICATE_IGNORED" if blocker == "duplicate"
+            else "IGNORED:out_of_order" if blocker == "out_of_order" else "REFUSED:mismatch")

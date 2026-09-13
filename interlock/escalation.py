@@ -71,17 +71,40 @@ def closed(entries):
     return next((x for x in entries if x["kind"] == "DECIDED" and x.get("decision") in ("reject", "repair")), None)
 
 
-def explain(entries):
-    """The last refusal or unverifiable outcome, unless the effect committed after it. Old entries read as 'refused'."""
+def explain(entries, of=None):
+    """
+    The last refusal or unverifiable outcome, unless the effect committed after it. Old entries read as 'refused'.
+    `of` is the status a caller was handed, so a later unrelated refusal can't explain it. Without it, a
+    refusal that only says a person owns the effect is passed over, as the inbox's state reading does.
+    """
     for i in range(len(entries) - 1, -1, -1):
         e = entries[i]
         if e["kind"] in ("REFUSED", "AMBIGUOUS"):
+            if (status(e) != of) if of else e.get("code") in ("awaiting_decision", "closed"):
+                continue
             if any(x["kind"] == "COMMITTED" for x in entries[i + 1:]):
                 return None
             reason = e.get("code") or ("ambiguous" if e["kind"] == "AMBIGUOUS" else "refused")
             return {"effect_id": e["effect_id"], "status": status(e), "reason": reason,
                     "why": WHY.get(reason, WHY["refused"]),
                     "changes": e.get("changes", []), "repairs": e.get("repairs", [])}
+    return None
+
+
+RANK = {"succeeded": 1, "failed": 2, "canceled": 2}   # anything else is pending; a refund never goes back
+
+
+def final(statuses):
+    """The target's last word on one refund: the furthest status, the latest among equals. Delivery order is not."""
+    return max(reversed(statuses), key=lambda s: RANK.get(s, 0)) if statuses else None
+
+
+def sent_refund(entries):
+    """The refund id the commit recorded (a send's result, or a lookup's find), or None when the target names none."""
+    for e in entries:
+        if e.get("kind") == "COMMITTED":
+            r, found = e.get("result"), e.get("found")
+            return r.get("refund") if isinstance(r, dict) else found if isinstance(found, str) else None
     return None
 
 

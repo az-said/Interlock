@@ -253,7 +253,9 @@ and not measured data, {s["cleared_no_person"]} of {s["requests"]} requests clea
 
 """ + "\n".join(f"- {k}: {v}" for k, v in why.items()) + """
 
-Escalations by reason, first time only (SLA moves not counted):
+Escalations by reason from the journal, once per trip to a person (SLA moves and re-shown items not
+counted). This includes a repair's own escalation, which the person who accepted the repair answers
+at once, so it can exceed the list above:
 
 """ + "\n".join(f"- {k}: {v}" for k, v in s["escalated_by_reason"].items()) + """
 

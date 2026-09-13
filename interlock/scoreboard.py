@@ -3,10 +3,11 @@ How many agent requests still needed a person, derived from the journal alone.
 
 Nothing here is kept in memory by the inbox, so the numbers survive a restart and anyone holding
 the entries can recompute them. Workflow time is the inbox clock (`at`), never the wall clock `ts`.
-Duplicate deliveries are not counted: a DUPLICATE_IGNORED writes nothing.
+Duplicate deliveries are not counted: a DUPLICATE_IGNORED writes nothing. An escalation counts by reason
+once per trip to a person: re-showing an unanswered item (SLA move, stale repair) is not a new one.
 """
 import math, statistics
-from .escalation import latest
+from .escalation import final, latest
 from .receipts import verify
 
 STALE = ("stale_premise", "approval_expired", "approver_removed")
@@ -43,23 +44,22 @@ def scoreboard(journal, name="inbox"):
             lease = _landed(es)
             if isinstance(lease, dict) and lease.get("by") != "policy":
                 s["sent_after_person"] += 1
-            if root and not escalated and all((e.get("lease") or {}).get("by") == "policy"
+            if root and not escalated and all(isinstance(e.get("lease"), dict) and e["lease"].get("by") == "policy"
                                               for e in es if e["kind"] == "DISPATCHED"):
                 s["cleared_no_person"] += 1
                 s["cleared_verified"] += verify({"effect_id": eid, "entries": es})["valid"]
         s["escalated"] += escalated
         E, D = latest(es)
         s["open"] += E is not None and D is None
-        confirmed = [e for e in es if e["kind"] == "CONFIRMED"]
-        s["confirmed_by_target"] += bool(confirmed) and confirmed[-1].get("status") == "succeeded"
+        s["confirmed_by_target"] += final([e.get("status") for e in es if e["kind"] == "CONFIRMED"]) == "succeeded"
 
         approved, since = False, None
         for e in es:
             if e["kind"] == "ESCALATED":
-                since = e["at"] if since is None else since
-                if e.get("breach"):
-                    s["sla_breaches"] += 1
+                s["sla_breaches"] += bool(e.get("breach"))
+                if since is not None:              # the same unanswered item shown again: an SLA move or a stale repair
                     continue
+                since = e["at"]
                 by_reason[e["reason"]] = by_reason.get(e["reason"], 0) + 1
                 s["stale_approvals_caught"] += e["reason"] in STALE and approved
                 s["crash_to_person"] += e["reason"] in CRASH

@@ -175,7 +175,7 @@ class Proxy:
         else:
             why = WHY.get(code(status), WHY["refused"])
             if status.startswith("REFUSED") or status == "AMBIGUOUS":   # repairs here are suggestions; a retry
-                esc = explain(call.gate.journal.entries(eid))           # with a new amount stays conflicting_payload
+                esc = explain(call.gate.journal.entries(eid), status)   # with a new amount stays conflicting_payload
                 meta["interlock"]["escalation"] = esc
                 why = describe(esc) if esc else why
             result = {"isError": True, "_meta": meta,

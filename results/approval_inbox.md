@@ -51,7 +51,9 @@ and not measured data, 65 of 95 requests cleared with no person, 65 of those wit
 - stale_premise: 10
 - needs_judgment: 26
 
-Escalations by reason, first time only (SLA moves not counted):
+Escalations by reason from the journal, once per trip to a person (SLA moves and re-shown items not
+counted). This includes a repair's own escalation, which the person who accepted the repair answers
+at once, so it can exceed the list above:
 
 - needs_judgment: 27
 - stale_premise: 10

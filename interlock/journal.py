@@ -125,10 +125,12 @@ def open_dispatch(entries):
     return open_
 
 
-def dispatch_blocker(entries, effect, lease=None):
+def dispatch_blocker(entries, effect, lease=None, premises=None):
     """
     Why this effect may not be dispatched now, or None. Once escalated, only a lease citing a
-    person's approval of the latest escalation sends it (I7); a closed effect never goes (I8).
+    person's approval of the latest escalation, in the group it was routed to, on the facts it
+    showed, sends it (I7); a closed effect never goes (I8). The lease's group decides whose
+    membership is_live checks, so it must be the escalation's, not whatever the caller names.
     """
     kinds = [e["kind"] for e in entries]
     if open_dispatch(entries):
@@ -145,7 +147,8 @@ def dispatch_blocker(entries, effect, lease=None):
     esc, dec = latest(entries)
     if esc is not None:
         ok = (isinstance(lease, dict) and lease.get("escalation") == esc["hash"] and dec is not None
-              and dec["decision"] == "approve" and dec["by"] == lease.get("by") and dec["at"] == lease.get("at"))
+              and dec["decision"] == "approve" and dec["by"] == lease.get("by") and dec["at"] == lease.get("at")
+              and lease.get("group") == esc["group"] and _plain(premises) == esc["facts"])
         if not ok:
             return "awaiting_decision"
     return None
@@ -234,7 +237,7 @@ class Journal(_Queries):
     def dispatch(self, effect_id, effect, owner, ttl=CLAIM_TTL, **data):
         """Write DISPATCHED and claim the effect for `owner`, unless blocked. Returns the blocker, or None."""
         with self._exclusive():
-            blocker = dispatch_blocker(self.entries(effect_id), effect, data.get("lease"))
+            blocker = dispatch_blocker(self.entries(effect_id), effect, data.get("lease"), data.get("premises"))
             if blocker:
                 return blocker
             self.append("DISPATCHED", effect_id, effect=effect, **data)
@@ -328,7 +331,7 @@ class SqliteJournal(_Queries):
         with contextlib.closing(self._connect()) as db:
             db.isolation_level = None
             db.execute("BEGIN IMMEDIATE")            # takes the write lock before reading
-            blocker = dispatch_blocker(self._chain(db, effect_id), effect, data.get("lease"))
+            blocker = dispatch_blocker(self._chain(db, effect_id), effect, data.get("lease"), data.get("premises"))
             if blocker:
                 db.execute("ROLLBACK")
                 return blocker
