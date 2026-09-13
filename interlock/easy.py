@@ -24,6 +24,7 @@ id, so `premises` can leave the effect's own result out of its facts. Arguments 
 must be JSON-serializable: they are written to the journal.
 """
 import functools, inspect, json, os, re
+from .escalation import diff
 from .gate import Gate, SimulatedCrash
 from .journal import CLAIM_TTL, effect_id_for
 
@@ -48,9 +49,12 @@ class _FunctionTarget:
         return json.loads(json.dumps(raw, default=str))    # compare exactly what the journal stores
 
     def validate_premises(self, premises, eid=None):
-        was, now = premises["facts"], self.facts(premises["args"], eid)
-        return [f"{k}: was {was.get(k)!r}, now {now.get(k)!r}" for k in sorted(set(was) | set(now))
-                if was.get(k) != now.get(k)]
+        return self.explain(premises, eid)["violations"]
+
+    def explain(self, premises, eid=None, effect=None):
+        changes = diff(premises["facts"], self.facts(premises["args"], eid))
+        return {"violations": [f"{c['field']}: was {c['was']!r}, now {c['now']!r}" for c in changes],
+                "changes": changes, "repairs": []}
 
     def apply(self, eid, effect, crash_after_effect=False):
         self.results[eid] = _call(self.fn, effect["args"], eid)

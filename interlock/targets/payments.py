@@ -11,7 +11,19 @@ one is configurable to the three real-world levels of cooperation:
 
 Premises an agent captures: the order's eligibility and amount as it saw them.
 """
+from ..escalation import diff
 from ..gate import SimulatedCrash
+
+
+def fits(amount, remaining, total):
+    """Repairs for a refund of `amount` when `remaining` of `total` is left. Suggestions: rules or a person decide."""
+    if 0 < amount <= remaining:
+        return [{"code": "still_fits", "set": {},
+                 "why": f"{amount} still fits: {remaining} of {total} is left to refund, if the other refund was not this one"}]
+    if 0 < remaining < amount:
+        return [{"code": "refund_remaining", "set": {"amount": remaining},
+                 "why": f"{remaining} is what is left to refund on this order"}]
+    return []
 
 
 class Payments:
@@ -50,6 +62,23 @@ class Payments:
         others = sum(r["amount"] for r in self.refunds_for(premises["order"]) if r["eid"] != eid)
         if others != premises.get("refunded", others): return ["refunded elsewhere since decision"]
         return []
+
+    def explain(self, premises, eid=None, effect=None):
+        """What changed, and what could still be sent. Violations come from validate_premises, so subclasses keep working."""
+        violations = self.validate_premises(premises, eid)
+        if not violations:
+            return {"violations": [], "changes": [], "repairs": []}
+        o = self.orders.get(premises["order"])
+        if o is None:
+            return {"violations": violations, "changes": [{"field": "order", "was": premises["order"], "now": None}],
+                    "repairs": []}
+        others = sum(r["amount"] for r in self.refunds_for(premises["order"]) if r["eid"] != eid)
+        now = {"eligible": o["eligible"], "amount": o["amount"], "refunded": others}
+        seen = {k: premises[k] for k in now if k in premises}
+        repairs = []
+        if o["eligible"] and o["amount"] == premises["amount"] and effect is not None:
+            repairs = fits(effect["amount"], o["amount"] - others, o["amount"])
+        return {"violations": violations, "changes": diff(seen, {k: now[k] for k in seen}), "repairs": repairs}
 
     def prune_keys(self):
         """The provider's dedup window passed. Refunds stay listable; retries are new requests."""

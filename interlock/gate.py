@@ -59,6 +59,11 @@ from .journal import CLAIM_TTL, _plain, effect_id_for, open_dispatch, open_journ
 DEDUP_MARGIN = 600      # seconds of clock skew allowed for: a dedup key this close to expiry counts as expired
 
 
+def _nonempty(**fields):
+    """Old receipts stay byte-identical: a refusal only gains changes/repairs keys when there are some."""
+    return {k: v for k, v in fields.items() if v}
+
+
 class SimulatedCrash(Exception):
     """Raised by a target AFTER the effect exists but BEFORE the ack returns."""
 
@@ -135,9 +140,10 @@ class Gate:
             return "REFUSED:lease"
         self.journal.append("AUTHORIZED", eid, lease=lease)
 
-        checks["violations"] = violated = self.target.validate_premises(decided_on, eid)      # I3
-        if violated:
-            self.journal.append("REFUSED", eid, code="stale_premise", reason=violated, checks=checks)
+        checks["violations"], changes, repairs = self._premises(decided_on, eid, effect)     # I3
+        if checks["violations"]:
+            self.journal.append("REFUSED", eid, code="stale_premise", reason=checks["violations"], checks=checks,
+                                **_nonempty(changes=changes, repairs=repairs))
             return "REFUSED:stale_premise"
 
         blocker = self.journal.dispatch(eid, effect, self.sender, self.claim_ttl, lease=lease, premises=decided_on,
@@ -180,17 +186,27 @@ class Gate:
             e.interlock_sent = True     # the request may have reached the target: recover() keeps the claim
             raise
 
+    def _premises(self, premises, eid, effect):
+        """(violations, changes, repairs) from one read: target.explain when it has one, else validate_premises."""
+        explain = getattr(self.target, "explain", None)
+        if explain is None:
+            return self.target.validate_premises(premises, eid), [], []
+        out = explain(premises, eid, effect)
+        return out["violations"], out["changes"], out["repairs"]
+
     def _recheck(self, dispatched):
         """
         I4 and I3 again, against the lease and premises this send was dispatched under. Returns the
-        observed checks (recorded on whatever recovery writes next) and what failed: "lease",
-        "stale_premise" or None. violations are only read when the lease holds.
+        observed checks (recorded on whatever recovery writes next), what failed ("lease",
+        "stale_premise" or None), and the target's changes and repairs. violations are only read
+        when the lease holds.
         """
         checks = self._lease_seen(dispatched.get("lease"), dispatched["effect"])
         if not checks["lease_live"]:
-            return checks, "lease"
-        checks["violations"] = self.target.validate_premises(dispatched.get("premises"), dispatched["effect_id"])
-        return checks, "stale_premise" if checks["violations"] else None
+            return checks, "lease", [], []
+        checks["violations"], changes, repairs = self._premises(dispatched.get("premises"), dispatched["effect_id"],
+                                                                dispatched["effect"])
+        return checks, "stale_premise" if checks["violations"] else None, changes, repairs
 
     def recover(self, now=None, only=None):
         """
@@ -237,20 +253,22 @@ class Gate:
         if tier == 3:
             self.journal.append("AMBIGUOUS", eid, code="ambiguous")   # cannot know; refuse to guess
             return "AMBIGUOUS"
-        checks, stale = self._recheck(d)
+        checks, stale, changes, repairs = self._recheck(d)
         if tier == 1 and not stale:
             result = self._resend(eid, effect)                  # idempotent: safe to retry
             self.journal.append("COMMITTED", eid, via="retry-idempotent", rechecked=checks, result=result)
             return "COMMITTED_BY_RETRY"
-        if not queryable:                                       # stale, and no way to see what landed
-            self.journal.append("AMBIGUOUS", eid, code="ambiguous", reason=f"{stale} at recovery, no lookup", rechecked=checks)
+        if not queryable:                                       # stale, and no way to see what landed: no repairs
+            self.journal.append("AMBIGUOUS", eid, code="ambiguous", reason=f"{stale} at recovery, no lookup", rechecked=checks,
+                                **_nonempty(changes=changes))
             return "AMBIGUOUS"
         found = self.target.query(eid, effect)                  # ask the target what it has
         if found:                                               # the earlier send landed; a failed re-check does not undo it
             self.journal.append("COMMITTED", eid, via="recovery-query", rechecked=checks, found=found)
             return "COMMITTED_ON_QUERY"
         if stale:
-            self.journal.append("REFUSED", eid, code=f"{stale}_at_recovery", reason=f"{stale} at recovery", resolves=True, rechecked=checks)
+            self.journal.append("REFUSED", eid, code=f"{stale}_at_recovery", reason=f"{stale} at recovery", resolves=True, rechecked=checks,
+                                **_nonempty(changes=changes, repairs=repairs))   # the lookup found nothing landed
             return f"REFUSED:{stale}_at_recovery"
         result = self._resend(eid, effect)
         self.journal.append("COMMITTED", eid, via="recovery-reapply", rechecked=checks, result=result)
