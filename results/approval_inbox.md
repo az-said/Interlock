@@ -30,7 +30,7 @@ and not measured data, 65 of 95 requests cleared with no person, 65 of those wit
 | repairs accepted | 2 |
 | SLA breaches | 3 |
 | still open | 0 |
-| time to decision, median | 103 min |
+| time to decision, median | 104 min |
 | time to decision, p90 | 302 min |
 | time to decision, max | 409 min |
 
@@ -50,10 +50,12 @@ and not measured data, 65 of 95 requests cleared with no person, 65 of those wit
 
 - stale_premise: 10
 - needs_judgment: 26
+- of those, deciding the new amount of an accepted repair: 1
 
 Escalations by reason from the journal, once per trip to a person (SLA moves and re-shown items not
-counted). This includes a repair's own escalation, which the person who accepted the repair answers
-at once, so it can exceed the list above:
+counted). This includes each accepted repair's own escalation. When the person who accepted the repair
+belongs to the group its new amount routes to, they approve it at once and it is not a review above;
+otherwise that group reviews it like any other item. So it can exceed the list above:
 
 - needs_judgment: 27
 - stale_premise: 10

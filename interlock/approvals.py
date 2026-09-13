@@ -86,9 +86,12 @@ def _state(es):
 
 
 def _by_policy(es):
+    """Sent under the rules with no person involved: never escalated, and not a repair a person accepted."""
     sent = [x for x in es if x["kind"] == "DISPATCHED"]
     lease = sent[-1].get("lease") if sent else None
-    return isinstance(lease, dict) and lease.get("by") == "policy" and not any(x["kind"] == "ESCALATED" for x in es)
+    request = next((x["request"] for x in es if "request" in x), {})
+    return (isinstance(lease, dict) and lease.get("by") == "policy" and "repair_of" not in request
+            and not any(x["kind"] == "ESCALATED" for x in es))
 
 
 def _unanswered(e, landed=False):
@@ -232,7 +235,7 @@ class Inbox:
         failed = [r.name for r in self.rules if not r.check(request, facts)]
         if not failed:
             status = self._send(request, {"by": "policy", "rules": [r.name for r in self.rules]}, facts)
-            if status == "COMMITTED" and rid not in self.cleared:
+            if status == "COMMITTED" and rid not in self.cleared and _by_policy(self._chain(rid)):
                 self.cleared.append(rid)
             return status
         eid = effect_id_for({"request_id": rid})
@@ -281,7 +284,19 @@ class Inbox:
         return self.execute(request_id) if execute else "APPROVED"
 
     def execute(self, request_id):
+        """
+        Send an approval only while the journal still holds it. The cache may be older than the chain: another
+        inbox may have sent it, re-escalated it, or had a newer escalation approved, which this must not undo.
+        """
         a = self.approved.pop(request_id)
+        es = self._chain(request_id)
+        state = self._cache(a["request"], es)
+        if state == "NEEDS_ESCALATION":
+            self._escalate(a["request"], es)
+        now = self.approved.get(request_id)
+        if state != "APPROVED" or now["authority"]["escalation"] != a["authority"]["escalation"]:
+            return "SUPERSEDED"
+        del self.approved[request_id]
         return self._send(a["request"], a["authority"], a["facts"])
 
     def execute_approved(self):
@@ -352,22 +367,31 @@ class Inbox:
         return out
 
     def _tick(self, request, es, now):
-        e = latest(es)[0]
+        """
+        Each level's deadline runs from the one before, not from this tick, and every deadline already passed
+        (an inbox that was down) is moved through now, so a breach is never recorded late.
+        """
+        start = e = latest(es)[0]
         if _state(es) != "ESCALATED" or e["due"] is None or e["due"] > now:
             return None
         route = next((r for r in self.routes if r.name == e["route"]), None)
         chain = route.chain if route else [e["group"]]
-        up = e["level"] + 1 < len(chain)
-        group, level = (chain[e["level"] + 1], e["level"] + 1) if up else (e["group"], e["level"])
         facts = _plain(self.capture(request))
-        fields = record("ESCALATED", at=now, reason=e["reason"], why=e["why"], detail=e["detail"], facts=facts,
-                        changes=diff(e["facts"], facts) or e["changes"],
-                        repairs=e["repairs"] if facts == e["facts"] else [], route=e["route"], group=group,
-                        routed_to=sorted(self.gate.leases.members(group)), level=level,
-                        due=now + route.sla if up and route.sla is not None else None, breach=True)
-        if self._write(request, _unanswered(e), fields):
-            return group if up else "BREACHED"
-        return None
+        while e["due"] is not None and e["due"] <= now:
+            up = e["level"] + 1 < len(chain)
+            group, level = (chain[e["level"] + 1], e["level"] + 1) if up else (e["group"], e["level"])
+            fields = record("ESCALATED", at=now, reason=e["reason"], why=e["why"], detail=e["detail"], facts=facts,
+                            changes=diff(e["facts"], facts) or e["changes"],
+                            repairs=e["repairs"] if facts == e["facts"] else [], route=e["route"], group=group,
+                            routed_to=sorted(self.gate.leases.members(group)), level=level,
+                            due=e["due"] + route.sla if up and route.sla is not None else None, breach=True)
+            moved = self._write(request, _unanswered(e), fields)
+            if not moved:
+                break
+            e = moved
+        if e is start:
+            return None
+        return e["group"] if e["level"] > start["level"] else "BREACHED"
 
     def refresh(self):
         """Rebuild queue, approvals and cleared from the journal, and finish whatever a crash left half done."""

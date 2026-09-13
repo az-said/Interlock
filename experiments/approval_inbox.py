@@ -158,7 +158,7 @@ def with_gate(reqs):
     inbox = Inbox(gate, capture=lambda r: api.capture(r["order"]),
                   effect=lambda r: {"order": r["order"], "amount": r["amount"]}, rules=RULES,
                   routes=ROUTES, clock=clock)
-    reviews, why, ready = 0, {}, {}                           # ready: escalation hash -> when its reviewer answers
+    reviews, why, ready, repairs = 0, {}, {}, 0               # ready: escalation hash -> when its reviewer answers
 
     def decide(rid, item):
         by, seen, r, facts = min(authority.members(item["group"])), item["escalation"], item["request"], item["facts"]
@@ -170,11 +170,12 @@ def with_gate(reqs):
         return inbox.reject(rid, by, seen=seen)               # flagged, ineligible, refunded by hand, or a crash case
 
     def review():
-        nonlocal reviews
+        nonlocal reviews, repairs
         inbox.tick()
         for rid, item in list(inbox.queue.items()):
             if ready.setdefault(item["escalation"], now[0] + rng.expovariate(1 / LATENCY)) <= now[0]:
                 reviews += 1
+                repairs += "repair_of" in item["request"]
                 why[item["reason"]] = why.get(item["reason"], 0) + 1
                 decide(rid, item)
         inbox.execute_approved()
@@ -191,7 +192,7 @@ def with_gate(reqs):
             ready.setdefault(item["escalation"], now[0] + rng.expovariate(1 / LATENCY))
         now[0] = max(now[0], min(ready[i["escalation"]] for i in inbox.queue.values()))
         review()
-    return {"reviews": reviews, "wrong_orders": wrong_orders(api, reqs), "why": why,
+    return {"reviews": reviews, "wrong_orders": wrong_orders(api, reqs), "why": why, "repair_reviews": repairs,
             "scoreboard": scoreboard(gate.journal)}
 
 
@@ -251,11 +252,13 @@ and not measured data, {s["cleared_no_person"]} of {s["requests"]} requests clea
 
 ## Why rules + Interlock still sent things to a person
 
-""" + "\n".join(f"- {k}: {v}" for k, v in why.items()) + """
+""" + "\n".join(f"- {k}: {v}" for k, v in why.items()) + f"""
+- of those, deciding the new amount of an accepted repair: {results["systems"]["rules + Interlock"]["repair_reviews"]}
 
 Escalations by reason from the journal, once per trip to a person (SLA moves and re-shown items not
-counted). This includes a repair's own escalation, which the person who accepted the repair answers
-at once, so it can exceed the list above:
+counted). This includes each accepted repair's own escalation. When the person who accepted the repair
+belongs to the group its new amount routes to, they approve it at once and it is not a review above;
+otherwise that group reviews it like any other item. So it can exceed the list above:
 
 """ + "\n".join(f"- {k}: {v}" for k, v in s["escalated_by_reason"].items()) + """
 

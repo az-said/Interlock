@@ -9,7 +9,7 @@ The signature is HMAC-SHA256 over "t.raw_body" keyed by the endpoint's whsec_ se
 tried (secret rotation sends one per secret), other schemes are ignored so nobody can downgrade to
 v0, and the timestamp must sit inside the tolerance, so an old signed event can't be replayed.
 
-A refund is matched to its effect by metadata interlock_effect_id, then must name this payment,
+A refund is matched to its effect by metadata interlock_effect_id, then must name the payment the send recorded,
 the amount that was sent and, once committed, the refund id the commit recorded. Stripe does not
 deliver in order, so a status behind the one recorded (pending after succeeded, succeeded after
 failed) is ignored. Anything unsigned or mismatched writes nothing. CONFIRMED is
@@ -88,8 +88,10 @@ def confirm_by_lookup(journal, target, eid):
 def _record(journal, target, eid, obj, via, event, created):
     def check(entries):
         sent = [e for e in entries if e["kind"] == "DISPATCHED"]
-        if (not sent or obj.get("payment_intent") != target.payment_intent
-                or obj.get("amount") != (sent[-1].get("effect") or {}).get("amount")):
+        if not sent or obj.get("amount") != (sent[-1].get("effect") or {}).get("amount"):
+            return "mismatch"
+        paid = (sent[-1].get("premises") or {}).get("payment_intent", target.payment_intent)   # a handler's target
+        if obj.get("payment_intent") != paid:                                                 # may come from the event
             return "mismatch"
         refund = sent_refund(entries)
         if refund is not None and obj.get("id") != refund:

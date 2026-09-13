@@ -49,6 +49,7 @@
         "stale_premise": 10,
         "needs_judgment": 26
       },
+      "repair_reviews": 1,
       "scoreboard": {
         "requests": 95,
         "cleared_no_person": 65,
@@ -70,8 +71,8 @@
           "stale_premise": 10
         },
         "time_to_decision": {
-          "n": 37,
-          "median": 6165.590079235531,
+          "n": 36,
+          "median": 6232.795039617766,
           "p90": 18107.794484595463,
           "max": 24524.502646231733
         }

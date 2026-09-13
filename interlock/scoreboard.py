@@ -35,6 +35,8 @@ def scoreboard(journal, name="inbox"):
                        "closed_by_repair", "open", "escalated", "stale_approvals_caught", "crash_to_person",
                        "repairs_suggested", "repairs_accepted", "sla_breaches", "confirmed_by_target"), 0)
     by_reason, waits = {}, []
+    accepted = {e["repair"]["request_id"]: e["by"] for es in chains.values() for e in es
+                if e["kind"] == "DECIDED" and e.get("decision") == "repair" and e.get("repair")}
     for eid, es in chains.items():
         kinds = [e["kind"] for e in es]
         root = "repair_of" not in (es[0].get("request") or {})
@@ -53,7 +55,8 @@ def scoreboard(journal, name="inbox"):
         s["open"] += E is not None and D is None
         s["confirmed_by_target"] += final([e.get("status") for e in es if e["kind"] == "CONFIRMED"]) == "succeeded"
 
-        approved, since = False, None
+        approved, since, first = False, None, True
+        repairer = accepted.get((es[0].get("request") or {}).get("id"))
         for e in es:
             if e["kind"] == "ESCALATED":
                 s["sla_breaches"] += bool(e.get("breach"))
@@ -69,9 +72,9 @@ def scoreboard(journal, name="inbox"):
                 s["rejected"] += e["decision"] == "reject"
                 s["closed_by_repair"] += e["decision"] == "repair"
                 s["repairs_accepted"] += bool(e.get("repair"))    # a new payload, or the same one accepted as still fitting
-                if since is not None:
-                    waits.append(e["at"] - since)
-                since = None
+                if since is not None and not (first and e["by"] == repairer):   # accepting a repair approves its
+                    waits.append(e["at"] - since)                              # child at once: nobody waited
+                since, first = None, False
 
     waits.sort()
     n = len(waits)

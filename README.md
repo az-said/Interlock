@@ -189,7 +189,7 @@ Temporal does exactly what it promises: the crashed step is retried and, with a 
 | rules only (routine requests send with an idempotency key) | 25 | **10** |
 | rules + Interlock (`interlock/approvals.py`) | 36 | 0 |
 
-Rules take routine work off people, but without the gate they pay out wrong whenever the facts changed between the decision, or the approval, and the send. With the gate, a person's approval is the authority the refund runs under, and the facts they saw are its premises: a stale, expired, or unauthorized approval is refused when the refund is actually sent, and comes back to the queue saying what changed. The 11 extra reviews are people closing or repairing refunds the gate stopped, not re-deciding them.
+Rules take routine work off people, but without the gate they pay out wrong whenever the facts changed between the decision, or the approval, and the send. With the gate, a person's approval is the authority the refund runs under, and the facts they saw are its premises: a stale, expired, or unauthorized approval is refused when the refund is actually sent, and comes back to the queue saying what changed. Of the 11 extra reviews, 10 are people closing or repairing refunds the gate stopped, not re-deciding them, and 1 is a person deciding the new, smaller amount of an accepted repair.
 
 ## Why this and not the obvious things
 

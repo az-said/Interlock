@@ -68,6 +68,13 @@ class SimulatedCrash(Exception):
     """Raised by a target AFTER the effect exists but BEFORE the ack returns."""
 
 
+class Rejected(Exception):
+    """
+    Raised by a target that answered: this was not done (a 400, a declined card). Unlike a timeout the
+    outcome is known, so the gate settles it as REFUSED:target_error and never sends it again.
+    """
+
+
 class Gate:
     """
     `journal_path` ending in .db / .sqlite shares one SQLite journal across workers:
@@ -164,6 +171,8 @@ class Gate:
         except SimulatedCrash:
             self.journal.release(eid, self.sender)  # a simulated death ends the process's claim; a real one waits out claim_ttl
             raise
+        except Rejected as e:
+            return self.settle_failed(eid, str(e))
         self.journal.append("COMMITTED", eid, result=result)
         self.journal.release(eid, self.sender)
         self._release(proposal["agent"])
@@ -178,13 +187,18 @@ class Gate:
         return {"lease_live": bool(allows(lease, effect) if allows else self.leases.is_live(lease)),
                 "lease": describe(lease) if describe else None}
 
-    def _resend(self, eid, effect):
+    def _resend(self, eid, effect, status, **commit):
+        """status once the resend commits; a target's rejection is settled here, so no later pass sends it again."""
         self.journal.claim(eid, self.owner, self.claim_ttl)   # refresh: the resend must finish inside the claim
         try:
-            return self.target.apply(eid, effect)
+            result = self.target.apply(eid, effect)
+        except Rejected as e:
+            return self.settle_failed(eid, str(e))
         except Exception as e:
             e.interlock_sent = True     # the request may have reached the target: recover() keeps the claim
             raise
+        self.journal.append("COMMITTED", eid, **commit, result=result)
+        return status
 
     def _premises(self, premises, eid, effect):
         """(violations, changes, repairs) from one read: target.explain when it has one, else validate_premises."""
@@ -254,10 +268,8 @@ class Gate:
             self.journal.append("AMBIGUOUS", eid, code="ambiguous")   # cannot know; refuse to guess
             return "AMBIGUOUS"
         checks, stale, changes, repairs = self._recheck(d)
-        if tier == 1 and not stale:
-            result = self._resend(eid, effect)                  # idempotent: safe to retry
-            self.journal.append("COMMITTED", eid, via="retry-idempotent", rechecked=checks, result=result)
-            return "COMMITTED_BY_RETRY"
+        if tier == 1 and not stale:                             # idempotent: safe to retry
+            return self._resend(eid, effect, "COMMITTED_BY_RETRY", via="retry-idempotent", rechecked=checks)
         if not queryable:                                       # stale, and no way to see what landed: no repairs
             self.journal.append("AMBIGUOUS", eid, code="ambiguous", reason=f"{stale} at recovery, no lookup", rechecked=checks,
                                 **_nonempty(changes=changes))
@@ -270,9 +282,7 @@ class Gate:
             self.journal.append("REFUSED", eid, code=f"{stale}_at_recovery", reason=f"{stale} at recovery", resolves=True, rechecked=checks,
                                 **_nonempty(changes=changes, repairs=repairs))   # the lookup found nothing landed
             return f"REFUSED:{stale}_at_recovery"
-        result = self._resend(eid, effect)
-        self.journal.append("COMMITTED", eid, via="recovery-reapply", rechecked=checks, result=result)
-        return "REAPPLIED_AFTER_QUERY"
+        return self._resend(eid, effect, "REAPPLIED_AFTER_QUERY", via="recovery-reapply", rechecked=checks)
 
     def settle_failed(self, eid, reason):
         """

@@ -492,6 +492,185 @@ class StripeSubclassPremises(unittest.TestCase):
         self.assertEqual(client.refunds, [])
 
 
+class AmbiguousKeepsItsGuard(unittest.TestCase):
+    """An AMBIGUOUS crash case stays ambiguous when a retry with another payload lands before reconcile (P')."""
+
+    def test_conflicting_retry_before_reconcile(self):
+        w = World(tier=3, approvers={"alice"})
+        r = {"id": "r1", "order": "1", "amount": 40}
+        with self.assertRaises(SimulatedCrash):
+            w.ibx.gate.submit(w.proposal(r, {"by": "policy", "rules": ["small"]}, w.api.capture("1")),
+                              crash_after_effect=True)
+        rec = w.ibx.gate.recover()
+        retry = {**r, "amount": 45}
+        self.assertEqual(w.ibx.gate.submit(w.proposal(retry, {"by": "policy", "rules": ["small"]}, w.api.capture("1"))),
+                         "REFUSED:conflicting_payload")
+        w.ibx.reconcile(rec)
+        self.assertEqual(w.ibx.queue["r1"]["reason"], "ambiguous")
+        self.assertEqual(w.ibx.approve("r1", "alice"), "REFUSED:ambiguous")
+        again = w.inbox()
+        self.assertEqual((list(again.queue), list(again.approved)), (["r1"], []))
+        self.assertEqual(scoreboard(w.ibx.gate.journal)["crash_to_person"], 1)
+        self.assertEqual(w.api.refunded_total("1"), 40)
+
+
+class TargetRejection(unittest.TestCase):
+    """A send the target answers 'not done' (a Stripe 400) is settled and escalated, never resent."""
+
+    def rejecting(self, tier=1):
+        from interlock.gate import Rejected
+
+        class Rejecting(Payments):
+            calls = 0
+
+            def apply(self, eid, effect, crash_after_effect=False):
+                Rejecting.calls += 1
+                raise Rejected("400 amount exceeds unrefunded")
+        return Rejecting
+
+    def test_rejected_send_goes_to_a_person(self):
+        for suffix in SUFFIXES:
+            with self.subTest(suffix):
+                w = World(suffix, tier=1, approvers={"alice"})
+                w.api = api = self.rejecting()(1)
+                api.create_order("1", 100)
+                w.ibx = w.inbox()
+                self.assertEqual(w.ibx.submit({"id": "r1", "order": "1", "amount": 40}), "REFUSED:target_error")
+                for _ in range(3):
+                    w.ibx.reconcile(w.ibx.gate.recover())
+                self.assertEqual(type(api).calls, 1)
+                self.assertEqual(w.inbox().queue["r1"]["reason"], "target_error")
+
+    def test_rejected_resend_at_recovery_is_settled(self):
+        api = self.rejecting()(1)
+        api.create_order("1", 100)
+        gate = Gate(api, tempfile.mktemp(suffix=".jsonl"), Authority(approvers={"alice"}))
+        p = {"agent": "a", "lease": {"by": "policy"}, "request_id": "r1", "premises": api.capture("1"),
+             "effect": {"order": "1", "amount": 40}}
+        with self.assertRaises(SimulatedCrash):
+            gate.submit(p, crash_before_effect=True)
+        self.assertEqual(gate.recover(), {eid("r1"): "REFUSED:target_error"})
+        self.assertEqual(gate.recover(), {})
+        self.assertEqual(type(api).calls, 1)
+        with self.assertRaises(Refused):
+            gated(gate, p)
+
+    def test_stripe_4xx_is_a_rejection_and_5xx_is_not(self):
+        import io, urllib.error
+        from unittest import mock
+        from interlock.gate import Rejected
+        from interlock.targets.stripe_api import StripeClient, StripeError
+        client = StripeClient("sk_test_x")
+        for code, rejected in ((400, True), (402, True), (409, False), (429, False), (500, False)):
+            err = urllib.error.HTTPError("u", code, "m", {}, io.BytesIO(b'{"error": {"message": "no"}}'))
+            with self.subTest(code), mock.patch("urllib.request.urlopen", side_effect=err):
+                with self.assertRaises(StripeError) as ctx:
+                    client.request("POST", "/refunds", {})
+                self.assertIs(isinstance(ctx.exception, Rejected), rejected)
+            err.close()
+
+
+class StaleCachedApproval(unittest.TestCase):
+    """A second inbox's cached approval of an older escalation is not sent and does not supersede a newer one."""
+
+    def test_second_inbox_does_not_discard_newer_approval(self):
+        for suffix in SUFFIXES:
+            with self.subTest(suffix):
+                w = World(suffix, approvers={"ana"})
+                a = w.ibx
+                self.assertEqual(a.submit({"id": "r", "order": "1", "amount": 80}), "QUEUED")
+                a.approve("r", "ana", execute=False)
+                b = w.inbox()
+                self.assertEqual(list(b.approved), ["r"])
+                w.hand(10)
+                self.assertEqual(a.execute("r"), "REFUSED:stale_premise")
+                self.assertEqual(a.approve("r", "ana", execute=False), "APPROVED")
+                self.assertNotEqual(b.execute_approved().get("r"), "REFUSED:stale_premise")
+                a.refresh()
+                self.assertEqual((list(a.queue), a.execute_approved()), ([], {"r": "COMMITTED"}))
+                self.assertEqual(w.api.refunded_total("1"), 90)
+                self.assertEqual(scoreboard(a.gate.journal)["stale_approvals_caught"], 1)
+
+
+class TickAfterOutage(unittest.TestCase):
+    """An inbox down past several SLAs moves the item all the way in one tick, on the chain's own deadlines."""
+
+    def world(self):
+        return World(groups={"a": {"ana"}, "b": {"bo"}}, routes=[Route("d", ["a", "b"], sla=4 * HOUR)])
+
+    def test_outage_past_every_deadline(self):
+        w = self.world()
+        w.ibx.submit({"id": "r", "order": "1", "amount": 80})
+        t0 = w.now[0]
+        w.now[0] = t0 + 12 * HOUR
+        ibx = w.inbox()
+        self.assertEqual(ibx.tick(), {"r": "b"})
+        self.assertEqual(ibx.tick(), {})
+        es = [x for x in ibx.gate.journal.entries(eid("r")) if x["kind"] == "ESCALATED"]
+        self.assertEqual([(x["level"], x["due"], x["breach"]) for x in es],
+                         [(0, t0 + 4 * HOUR, False), (1, t0 + 8 * HOUR, True), (1, None, True)])
+        self.assertEqual(ibx.queue["r"]["group"], "b")
+
+    def test_late_tick_keeps_the_next_deadline(self):
+        w = self.world()
+        w.ibx.submit({"id": "r", "order": "1", "amount": 80})
+        t0 = w.now[0]
+        w.now[0] = t0 + 5 * HOUR
+        self.assertEqual(w.ibx.tick(), {"r": "b"})
+        self.assertEqual(w.ibx.queue["r"]["due"], t0 + 8 * HOUR)
+
+
+class ConfirmationPayment(unittest.TestCase):
+    """A refund on another payment is never recorded as confirming this effect, whatever target the caller built."""
+
+    def test_refund_on_other_payment_is_refused(self):
+        client = Client()
+        target = StripeRefunds(client, "pi_A")
+        leases = Leases()
+        leases.grant("L")
+        gate = Gate(target, tempfile.mktemp(suffix=".jsonl"), leases)
+        P = {"agent": "bot", "lease": "L", "request_id": "case-1", "premises": target.capture(), "effect": {"amount": 5000}}
+        with self.assertRaises(SimulatedCrash):
+            gate.submit(P, crash_before_effect=True)
+        foreign = {"id": "re_other", "object": "refund", "amount": 5000, "status": "succeeded", "payment_intent": "pi_B",
+                   "metadata": {"interlock_effect_id": effect_id_for(P)}, "created": T}
+        p = event(foreign)
+        self.assertEqual(confirm_event(gate.journal, StripeRefunds(client, "pi_B"), p, header(p), SECRET, now=T),
+                         "REFUSED:mismatch")
+        gate.recover()
+        self.assertTrue(verify(gate.receipt_bundle(P))["valid"])
+
+
+class RepairChildIsNotCleared(unittest.TestCase):
+    """A repair a person accepted is not 'cleared with no person', live or after a restart."""
+
+    def test_cleared_matches_scoreboard(self):
+        w = World(tier=1, approvers={"ann"})
+        w.ibx.submit({"id": "r1", "order": "1", "amount": 60})
+        w.ibx.approve("r1", "ann", execute=False)
+        w.hand(60)
+        self.assertEqual(w.ibx.execute("r1"), "REFUSED:stale_premise")
+        self.assertEqual(w.ibx.repair("r1", "ann"), "COMMITTED")
+        self.assertEqual((w.ibx.cleared, w.inbox().cleared), ([], []))
+        self.assertEqual(scoreboard(w.ibx.gate.journal)["cleared_no_person"], 0)
+
+
+class RepairAutoApprovalWait(unittest.TestCase):
+    """A repair child approved at once by the person who accepted the repair is not a wait for a decision."""
+
+    def test_time_to_decision_skips_it(self):
+        w = World(approvers={"ana"})
+        w.ibx.submit({"id": "r1", "order": "1", "amount": 80})
+        w.now[0] += 100
+        w.ibx.approve("r1", "ana", execute=False)
+        w.hand(30)
+        self.assertEqual(w.ibx.execute("r1"), "REFUSED:stale_premise")
+        w.now[0] += 200
+        self.assertEqual(w.ibx.repair("r1", "ana"), "COMMITTED")
+        t = scoreboard(w.ibx.gate.journal)["time_to_decision"]
+        self.assertEqual((t["n"], t["median"], t["max"]), (2, 150, 200))
+
+
 class ReadmeMatchesResults(unittest.TestCase):
     """README's approval numbers are the ones results/approval_inbox.md reports."""
 
@@ -500,7 +679,8 @@ class ReadmeMatchesResults(unittest.TestCase):
         rows = lambda text: {m[0].split(" (")[0]: (int(m[1]), int(m[2])) for m in
                              re.findall(r"^\| ([A-Za-z+ ]+(?: \(.*?\))?) \| (\d+) \| \**(\d+)\** \|$", text, re.M)}
         with open(os.path.join(ROOT, "results", "approval_inbox.md")) as f:
-            results = rows(f.read())
+            md = f.read()
+        results = rows(md)
         with open(os.path.join(ROOT, "README.md")) as f:
             readme = f.read()
         self.assertEqual(len(results), 3)
@@ -508,7 +688,14 @@ class ReadmeMatchesResults(unittest.TestCase):
         reviews, _ = results["rules + Interlock"]
         self.assertIn(f"from 100 to {reviews} with zero wrong payouts, where rules alone paid out wrong "
                       f"{results['rules only'][1]} times", readme)
-        self.assertIn(f"The {reviews - results['rules only'][0]} extra reviews", readme)
+        extra = reviews - results["rules only"][0]
+        why = md.split("## Why rules + Interlock")[1].split("Escalations by reason")[0]
+        stopped = sum(int(v) for k, v in re.findall(r"^- (\w+): (\d+)$", why, re.M) if k != "needs_judgment")
+        repairs = int(re.search(r"^- of those, deciding the new amount of an accepted repair: (\d+)$", why, re.M)[1])
+        self.assertEqual(stopped + repairs, extra)          # every extra judgment review is a repair's new amount
+        self.assertIn(f"Of the {extra} extra reviews, {stopped} are people closing or repairing refunds the gate "
+                      f"stopped, not re-deciding them, and {repairs} is a person deciding the new, smaller amount "
+                      f"of an accepted repair.", readme)
 
 
 if __name__ == "__main__":

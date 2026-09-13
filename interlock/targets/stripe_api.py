@@ -14,7 +14,7 @@ re-approves.
 Standard library only, like the rest of the repo.
 """
 import base64, json, urllib.error, urllib.parse, urllib.request
-from ..gate import SimulatedCrash
+from ..gate import Rejected, SimulatedCrash
 from .payments import fits
 
 API = "https://api.stripe.com/v1"
@@ -22,6 +22,10 @@ API = "https://api.stripe.com/v1"
 
 class StripeError(RuntimeError):
     pass
+
+
+class StripeRejected(StripeError, Rejected):
+    """A 400, 402 or 404: Stripe answered and did nothing. A 409 may still be in progress, and 429 or 5xx may retry."""
 
 
 def _form(params, prefix=""):
@@ -59,7 +63,7 @@ class StripeClient:
                 return obj
         except urllib.error.HTTPError as e:
             message = json.loads(e.read() or b"{}").get("error", {}).get("message")
-            raise StripeError(f"{e.code} {method} {path}: {message}") from None
+            raise (StripeRejected if e.code in (400, 402, 404) else StripeError)(f"{e.code} {method} {path}: {message}") from None
 
     def test_payment(self, amount_cents):
         """A confirmed test-mode card payment to refund against."""

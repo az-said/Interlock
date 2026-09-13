@@ -76,8 +76,11 @@ def explain(entries, of=None):
     """
     The last refusal or unverifiable outcome, unless the effect committed after it. Old entries read as 'refused'.
     `of` is the status a caller was handed, so a later unrelated refusal can't explain it. Without it, a
-    refusal that only says a person owns the effect is passed over, as the inbox's state reading does.
+    refusal that only says a person owns the effect is passed over, as the inbox's state reading does. An
+    AMBIGUOUS entry outranks any later refusal: a retry refused afterwards can't make a crash case verifiable.
     """
+    if not of and any(x["kind"] == "AMBIGUOUS" for x in entries):
+        of = "AMBIGUOUS"
     for i in range(len(entries) - 1, -1, -1):
         e = entries[i]
         if e["kind"] in ("REFUSED", "AMBIGUOUS"):
