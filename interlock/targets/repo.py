@@ -12,7 +12,7 @@ Tier 1 with lookup: durable per-effect postimages make retries idempotent. Keep
 may be retried. Pre-upgrade unresolved effects need manual reconciliation before
 using this adapter: older versions did not record their postimages.
 """
-import ast, hashlib, os, stat, tempfile
+import ast, hashlib, os, stat, uuid
 from ..gate import SimulatedCrash
 from ..journal import Journal
 
@@ -27,13 +27,17 @@ def _read(path, mode="r"):
 
 def _write(path, content):
     """Replace a whole file durably; a crash must not leave half a postimage."""
-    fd, tmp = tempfile.mkstemp(dir=os.path.dirname(path), prefix=".interlock-write-")
+    path = os.path.realpath(path)             # write through a symlink, as open(path, "w") would, never replace it
+    existed = os.path.exists(path)
+    tmp = os.path.join(os.path.dirname(path), f".interlock-write-{uuid.uuid4().hex}")
+    # 0o666 under the umask, as a plain open() creates it (mkstemp would make a new file 0600)
+    fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_BINARY", 0), 0o666)
     try:
         with os.fdopen(fd, "w", encoding="utf-8", newline="") as f:
             f.write(content)
             f.flush()
             os.fsync(f.fileno())
-        if os.path.exists(path):
+        if existed:
             os.chmod(tmp, stat.S_IMODE(os.stat(path).st_mode))
         os.replace(tmp, path)
         if os.name != "nt":
@@ -103,7 +107,14 @@ class LocalRepo:
         return _read(fp) if os.path.exists(fp) else None
 
     def _plan(self, eid):
-        return next((e for e in self.effects.entries(eid) if e["kind"] == "PREPARED"), None)
+        """The first PREPARED since the last DISCARDED: a plan a lookup proved never landed is not reused."""
+        plan = None
+        for e in self.effects.entries(eid):
+            if e["kind"] == "PREPARED" and plan is None:
+                plan = e
+            elif e["kind"] == "DISCARDED":
+                plan = None
+        return plan
 
     def _check(self, plan, effect):
         if plan["effect"] != effect:
@@ -145,4 +156,7 @@ class LocalRepo:
                 return True
             if any(self._current(p) != plan["before"][p] for p in plan["after"]):
                 raise RuntimeError("repository effect is partially applied; outcome is not absence")
+            # Nothing was written. A later send (a re-approved retry, after files moved on) prepares
+            # from the files as they are then, instead of failing against this plan's preimage.
+            self.effects.append("DISCARDED", eid)
             return False

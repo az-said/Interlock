@@ -94,7 +94,10 @@ class Envelope:
         if not isinstance(approval, dict) or not approval.get("id"):
             return ["no approval for this action"]
         out, aid = [], approval["id"]
-        if approval.get("expires") is not None and self.clock() > approval["expires"]:
+        expires = approval.get("expires")
+        if expires is not None and not _finite_number(expires):     # NaN compares False, so it would never expire
+            out.append(f"approval {aid} expiry must be a finite number")
+        elif expires is not None and self.clock() > expires:
             out.append(f"approval {aid} has expired")
         with self._db() as db:
             if db.execute("SELECT 1 FROM revoked WHERE approval = ?", (aid,)).fetchone():
@@ -108,7 +111,8 @@ class Envelope:
                 out.append(f"approval {aid} has had its {self.attempts} attempts")
         if effect is not None:
             f = self.fields(effect)
-            out += [f"{k} must be {v!r}, not {f.get(k)!r}" for k, v in (approval.get("match") or {}).items() if f.get(k) != v]
+            out += [f"{k} must be {v!r}, not {f.get(k)!r}" for k, v in (approval.get("match") or {}).items()
+                    if f.get(k) != v or isinstance(f.get(k), bool) != isinstance(v, bool)]   # True == 1 is not a match
             for k, maximum in (approval.get("max") or {}).items():
                 value = f.get(k)
                 if not _finite_number(value) or not _finite_number(maximum):

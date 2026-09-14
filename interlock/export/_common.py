@@ -53,10 +53,12 @@ def states(entries):
 
 
 def who(entries):
-    """Authority of the committed send, or the latest decision if it has not committed."""
+    """Authority of the committed send, else of the latest send, else the latest decision if nothing was sent."""
     values = identities(entries)
-    return next((value for e, value in zip(entries, values) if e["kind"] == "COMMITTED"),
-                values[-1] if values else (None, None))
+    pairs = list(zip(entries, values))
+    return next((value for e, value in pairs if e["kind"] == "COMMITTED"),
+                next((value for e, value in reversed(pairs) if e["kind"] == "DISPATCHED"),
+                     values[-1] if values else (None, None)))
 
 
 def identities(entries):

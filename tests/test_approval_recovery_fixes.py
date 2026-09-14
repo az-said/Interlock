@@ -146,7 +146,9 @@ class ApprovalRecoveryFixes(unittest.TestCase):
                 with self.assertRaises(SimulatedCrash):
                     send.gate.submit(proposal, crash_before_effect=not crash_after,
                                      crash_after_effect=crash_after)
-                self.assertEqual(send("order", 30), ("REFUSED:conflicting_payload", None))
+                # This call's recovery settled the recorded $20: it reports that, not "refused, nothing happened".
+                self.assertEqual(send("order", 30),
+                                 ("COMMITTED_ON_QUERY" if crash_after else "REAPPLIED_AFTER_QUERY", 20))
                 self.assertEqual(sent, [20])
                 self.assertEqual(send.gate.journal.in_flight(), [])
                 entries = send.gate.journal.entries(effect_id_for(proposal))

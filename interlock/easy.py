@@ -79,6 +79,19 @@ def _redecidable(entries):
             and not any(e["kind"] == "DISPATCHED" for e in entries))
 
 
+def _settled(entries):
+    """The status of an effect recovery had nothing to do for: settled by someone else, or still in flight."""
+    if open_dispatch(entries):
+        return "IN_FLIGHT"
+    kinds = [e["kind"] for e in entries]
+    if "COMMITTED" in kinds:
+        return "DUPLICATE_IGNORED"
+    if "AMBIGUOUS" in kinds:
+        return "AMBIGUOUS"
+    refused = next((e for e in reversed(entries) if e["kind"] == "REFUSED" and e.get("resolves")), None)
+    return f"REFUSED:{refused['code']}" if refused else "IN_FLIGHT"
+
+
 class _Allowed:
     """An `allowed(*args)` callable, in the shape of the lease store the gate checks."""
     def __init__(self, allowed):
@@ -150,17 +163,20 @@ class Interlock:
 
             def recover_call(request, args):
                 eid = effect_id_for({"request_id": request})
-                status = gate.recover(only={eid}).get(eid, "IN_FLIGHT")
+                recovered = gate.recover(only={eid}).get(eid)
                 entries = gate.journal.entries(eid)
+                status = recovered or _settled(entries)      # another worker may have settled it meanwhile
                 recorded = next(e for e in entries if e["kind"] == "PROPOSED")
                 effect = {"args": json.loads(json.dumps(list(args)))}
                 if recorded["effect"] != effect and not open_dispatch(entries):
                     # Settle the original send, then refuse the caller's different payload.
                     # This only records a conflict; no fresh facts or approval are needed.
-                    status = gate.submit({"agent": name, "request_id": request,
-                                          "lease": recorded["lease"], "premises": recorded["premises"],
-                                          "effect": effect})
-                    return status, None
+                    refused = gate.submit({"agent": name, "request_id": request,
+                                           "lease": recorded["lease"], "premises": recorded["premises"],
+                                           "effect": effect})
+                    if not recovered:
+                        return refused, None
+                    # This call's recovery sent or settled the recorded payload: say so, never "refused, nothing happened".
                 return status, target.results.get(eid)
 
             @functools.wraps(fn)

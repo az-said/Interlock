@@ -366,7 +366,7 @@ class SqliteJournal(_Queries):
             cur = db.execute(
                 "INSERT INTO claims (effect_id, owner, expires) VALUES (?, ?, ?) "
                 "ON CONFLICT (effect_id) DO UPDATE SET owner = excluded.owner, expires = excluded.expires "
-                "WHERE claims.owner = excluded.owner OR claims.expires < ?",
+                "WHERE claims.owner = excluded.owner OR claims.expires <= ?",   # expired at expires == now, as in Journal.claim
                 (effect_id, owner, now + ttl, now))
             return cur.rowcount == 1
 

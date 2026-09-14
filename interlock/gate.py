@@ -200,12 +200,19 @@ class Gate:
         return {"lease_live": bool(allows(lease, effect) if allows else self.leases.is_live(lease)),
                 "lease": describe_effect(lease, effect) if describe_effect else describe(lease) if describe else None}
 
-    def _resend(self, eid, effect, status, owner, **commit):
+    def _resend(self, eid, effect, status, owner, requery=False, **commit):
         """status once the resend commits; a target's rejection is settled here, so no later pass sends it again."""
         if not self.journal.claim(eid, owner, self.claim_ttl):
             return "IN_FLIGHT"                  # a slow lookup outlived our claim and another recovery took over
         if not open_dispatch(self.journal.entries(eid)):
             return None                         # a previous owner finished while the lookup was running
+        if requery:
+            # Our claim may have expired during the lookup, and another recovery may have sent and then lost
+            # its own claim without resolving. A lookup made while we hold the claim again is the one to act on.
+            found = self.target.query(eid, effect)
+            if found:
+                self.journal.append("COMMITTED", eid, via="recovery-query", rechecked=commit.get("rechecked"), found=found)
+                return "COMMITTED_ON_QUERY"
         try:
             result = self.target.apply(eid, effect)
         except Rejected as e:
@@ -299,7 +306,7 @@ class Gate:
             self.journal.append("REFUSED", eid, code=f"{stale}_at_recovery", reason=f"{stale} at recovery", resolves=True, rechecked=checks,
                                 **_nonempty(changes=changes, repairs=repairs))   # the lookup found nothing landed
             return f"REFUSED:{stale}_at_recovery"
-        return self._resend(eid, effect, "REAPPLIED_AFTER_QUERY", owner, via="recovery-reapply", rechecked=checks)
+        return self._resend(eid, effect, "REAPPLIED_AFTER_QUERY", owner, requery=True, via="recovery-reapply", rechecked=checks)
 
     def settle_failed(self, eid, reason):
         """
@@ -311,7 +318,11 @@ class Gate:
         if not open_dispatch(es):
             return None
         d = [e for e in es if e["kind"] == "DISPATCHED"][-1]
-        if self._queryable and self.target.query(eid, d["effect"]):
+        try:
+            landed = self._queryable and self.target.query(eid, d["effect"])
+        except Exception as e:                  # the lookup failed: take the target at its word, never leave it open
+            landed, reason = False, f"{reason} (lookup failed: {e})"
+        if landed:
             self.journal.append("COMMITTED", eid, via="failed-but-landed")
             status = "COMMITTED_ON_QUERY"
         else:
