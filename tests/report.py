@@ -306,6 +306,9 @@ def main():
     assert not broken, broken
     versions, steps = ci()
     before = check_bugs()
+    proof, nfiles = read("docs/proof.md"), len({t.id().split(".")[0] for t in cases})
+    for quoted in ("%d tests across %d files" % (res["run"], nfiles), "%d passed, %d skipped" % (res["passed"], res["skipped"])):
+        assert quoted in proof, "docs/proof.md is stale, expected: " + quoted
     inbox = read("results/approval_inbox.md")
     board = dict((c[0].strip(), c[1].strip()) for c in
                  (l.strip("|").split("|") for l in dict(tables(inbox))["Scoreboard (derived from the journal)"][2:]))

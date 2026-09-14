@@ -254,7 +254,7 @@
   .dm-tabs { display: flex; flex-wrap: wrap; gap: .4rem 1.1rem; padding: .55rem .9rem; border-top: 1px solid var(--line); }
   .dm-tabs button { padding: .2rem 0; border: 0; border-bottom: 2px solid transparent; background: none; font: 11.5px ui-monospace, Menlo, monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); }
   .dm-tabs button:hover { color: var(--dim); }
-  .dm-tabs button[aria-pressed="true"], .dm-tabs button[aria-selected="true"] { color: var(--text); border-color: var(--good); }
+  .dm-tabs button[aria-pressed="true"] { color: var(--text); border-color: var(--good); }
   .dm-console { height: 10.5rem; overflow-y: auto; padding: .8rem .9rem; font: 12.5px/1.65 ui-monospace, Menlo, monospace; color: var(--dim); }
   .dm-console p { animation: fadeIn .3s var(--ease) both; }
   .dm-console .dim { color: var(--faint); } .dm-console .bad { color: var(--bad); } .dm-console .warn { color: var(--warn); } .dm-console .good { color: var(--good); }
@@ -483,6 +483,7 @@
   .add-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 1.2rem; margin-top: 1.2rem; }
   .add-card { padding: 1.5rem; min-width: 0; }
   .add-card p { margin: .6rem 0 1.1rem; color: var(--dim); font-size: 15px; }
+  @media (min-width: 960px) { .add-card:not([data-embed]) { display: grid; grid-template-columns: 1fr auto; column-gap: 1.5rem; align-items: center; padding-block: .9rem; } .add-card:not([data-embed]) h3 { grid-column: 1; } .add-card:not([data-embed]) p { grid-column: 1; margin: .3rem 0 0; } .add-card:not([data-embed]) .cta-row { grid-column: 2; grid-row: 1 / span 2; margin: 0; } }
   .add-card .dm-head { border: 1px solid var(--line); border-bottom: 0; border-radius: 12px 12px 0 0; }
   .add-card .add-code { border: 1px solid var(--line); border-radius: 0 0 12px 12px; background: rgba(0,0,0,.28); }
 
@@ -1122,12 +1123,12 @@
 
       <div class="glass win add in" style="--d:250">
         <div class="win-bar"><i></i><i></i><i></i><span class="title">Add Interlock</span></div>
-        <div class="dm-tabs" role="tablist" aria-label="Integration">
-          <button type="button" role="tab" aria-selected="true" data-add-tab="python">Python</button>
-          <button type="button" role="tab" aria-selected="false" data-add-tab="temporal">Temporal</button>
-          <button type="button" role="tab" aria-selected="false" data-add-tab="mcp">MCP proxy</button>
-          <button type="button" role="tab" aria-selected="false" data-add-tab="tools">Tool calling</button>
-          <button type="button" role="tab" aria-selected="false" data-add-tab="adk">Google ADK</button>
+        <div class="dm-tabs" role="group" aria-label="Integration">
+          <button type="button" aria-pressed="true" data-add-tab="python">Python</button>
+          <button type="button" aria-pressed="false" data-add-tab="temporal">Temporal</button>
+          <button type="button" aria-pressed="false" data-add-tab="mcp">MCP proxy</button>
+          <button type="button" aria-pressed="false" data-add-tab="tools">Tool calling</button>
+          <button type="button" aria-pressed="false" data-add-tab="adk">Google ADK</button>
         </div>
         <div data-add-pane="python">
           <div class="dm-head"><span>shell</span><button type="button" class="dm-copy" data-copy="add-pip">Copy</button></div>
@@ -1184,8 +1185,9 @@ tools.recover()</pre>
 guard = Guard(&quot;.interlock/adk&quot;, leases)
 guard.gate(&quot;issue_refund&quot;,
            target_for=lambda effect: refunds,           # an EffectTarget: capture, validate_premises, apply, query
+           # ctx.state[&quot;premises&quot;] is set when the agent decides (the tool that reads the order), not at send time
            proposal=lambda args, ctx: {&quot;lease&quot;: &quot;case-4471&quot;, &quot;request_id&quot;: &quot;case-4471&quot;,
-                                       &quot;premises&quot;: refunds.capture(args[&quot;order_id&quot;]),
+                                       &quot;premises&quot;: ctx.state[&quot;premises&quot;],
                                        &quot;effect&quot;: {&quot;order&quot;: args[&quot;order_id&quot;], &quot;amount&quot;: args[&quot;amount&quot;]}})
 agent = LlmAgent(name=&quot;support&quot;, model=&quot;gemini-2.5-flash&quot;, tools=[issue_refund],
                  before_tool_callback=guard.before_tool_callback)
@@ -1196,7 +1198,7 @@ guard.recover()                                         # once, when the process
       <div class="add-grid">
         <div class="glass add-card in" style="--d:350">
           <h3>Install with your AI</h3>
-          <p>Paste this prompt into Claude Code, Cursor, Codex, Copilot or any coding agent. It finds your side effects, picks the key, premises and tier for each, wraps them, adds a crash test, and reports what it could not wrap.</p>
+          <p>Paste into Claude Code, Cursor, Codex or Copilot. It wraps your side effects, adds a crash test, and reports what it skipped.</p>
           <div class="cta-row"><button type="button" class="btn btn-sm" data-copy="ai-prompt">Copy prompt</button><a class="btn btn-sm btn-ghost" href="https://github.com/az-said/Interlock/blob/main/docs/install-with-ai.md">Read it</a></div>
           <pre id="ai-prompt" hidden>Install Interlock (https://github.com/az-said/Interlock) into this codebase. Interlock journals each external side effect before it is sent, re-checks the facts the decision relied on right before the send and again after a crash, and recovers by what the target service supports. Work in small, reviewable steps.
 
@@ -1680,7 +1682,7 @@ Finish with a report: each effect you wrapped (file, function, key, premises, ti
     document.querySelector("[data-embed]").hidden = false;
   }
   document.querySelectorAll("[data-add-tab]").forEach((tab, _, all) => tab.addEventListener("click", () => {
-    all.forEach((o) => o.setAttribute("aria-selected", String(o === tab)));
+    all.forEach((o) => o.setAttribute("aria-pressed", String(o === tab)));
     document.querySelectorAll("[data-add-pane]").forEach((p) => (p.hidden = p.dataset.addPane !== tab.dataset.addTab));
   }));
   document.querySelectorAll("button[data-copy]:not([data-copy=''])").forEach((b) => b.addEventListener("click", () => {

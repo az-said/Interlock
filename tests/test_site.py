@@ -37,9 +37,26 @@ class Site(unittest.TestCase):
         for shell in ("add-pip", "add-mcp"):
             self.assertEqual(len(self.pre(shell).strip().splitlines()), 1, shell)
 
-    def test_selected_tab_is_styled(self):
-        self.assertIn('role="tab" aria-selected="true" data-add-tab', self.page)
-        self.assertRegex(self.page, r'\.dm-tabs button\[aria-selected="true"\][^{]*\{[^}]*border-color')
+    def test_tabs_use_the_pressed_button_pattern(self):
+        # Buttons with aria-pressed, like the other .dm-tabs; role=tab would promise arrow keys we do not handle.
+        self.assertNotRegex(self.page, r'role="tab"[^>]*data-add-tab')
+        self.assertIn('aria-pressed="true" data-add-tab="python"', self.page)
+        self.assertIn('o.setAttribute("aria-pressed", String(o === tab))', self.page)
+        self.assertRegex(self.page, r'\.dm-tabs button\[aria-pressed="true"\][^{]*\{[^}]*border-color')
+
+    def test_adk_premises_come_from_decision_time(self):
+        # Premises captured inside the proposal are always fresh, so the stale-decision check could never fire.
+        adk = self.pre("add-adk")
+        self.assertIn('"premises": ctx.state["premises"]', adk)
+        self.assertNotIn("capture(", adk)
+
+    def test_proof_test_counts_match_tests_readme(self):
+        run, files, passed, skipped = re.search(
+            r"Tests: (\d+) in (\d+) files; (\d+) passed, (\d+) skipped", read("tests", "README.md")).groups()
+        proof = read("docs", "proof.md")
+        self.assertIn(f"{run} tests across {files} files", proof)
+        self.assertIn(f"{passed} passed, {skipped} skipped, 0 failed", proof)
+        self.assertIn(f"{run} tests in {files} files, {passed} passed and {skipped} skipped", proof)
 
     def test_live_demo_url_is_one_constant(self):
         self.assertEqual(len(re.findall(r"const LIVE_DEMO_URL = ", self.page)), 1)
