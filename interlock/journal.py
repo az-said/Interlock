@@ -131,6 +131,8 @@ def dispatch_blocker(entries, effect, lease=None, premises=None):
     person's approval of the latest escalation, in the group it was routed to, on the facts it
     showed, sends it (I7); a closed effect never goes (I8). The lease's group decides whose
     membership is_live checks, so it must be the escalation's, not whatever the caller names.
+    lease and premises default to None so a journal override can call it with two arguments
+    (scenarios/shared_cap/cap.py); I7 is then not enforced on that journal.
     """
     kinds = [e["kind"] for e in entries]
     if open_dispatch(entries):

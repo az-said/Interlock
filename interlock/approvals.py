@@ -26,13 +26,93 @@ restarted inbox (or a second one) rebuilds them and never loses or duplicates an
                   routes=[Route("large", ["controller", "finance-manager"], lambda i: i["request"]["amount"] > 200, sla=4 * 3600)])
     inbox.submit(request)             # runs now, or waits for a person
     inbox.approve(request_id, "alice")
+
+Two lease stores, never mixed on one chain: Authority (a person approved this exact payload) backs
+Inbox; Envelope (the system of record bounds a payload the agent picks) backs easy and tools.
 """
-import time
+import contextlib, sqlite3, time
 from .escalation import WHY, closed, diff, explain, latest, record
 from .journal import _plain, effect_id_for, open_dispatch
 
 DONE = ("COMMITTED", "DUPLICATE_IGNORED")
 ITEM = ("why", "detail", "facts", "reason", "changes", "repairs", "route", "group", "routed_to", "level", "due", "breach")
+
+
+class Envelope:
+    """
+    One approval, several attempts, at most one of them sent.
+
+    A refused effect keeps its identity, so an agent cannot re-decide it (gate.py, I5). Under an
+    Envelope each distinct decision is its own effect id, all bound to one approval: the agent may
+    correct itself after a refusal, and the gate still sends only what fits the approval, once.
+
+        {"id": "case-4471", "match": {"order_id": "881"}, "max": {"amount": 20}, "expires": 1789000000}
+
+    The approval comes from the system of record, never from the model. `max` is what may still be
+    sent, so compute it from the world (approved minus already refunded), not from the case alone.
+    The gate asks, as a lease store:
+
+        allows(approval, effect)   live (not expired, not revoked) and the effect fits match and max
+        authority(approval)        the approval id, so premises bind to it, not to one attempt
+        reserve(approval, eid, e)  the first attempt to reach dispatch takes the approval; any other is
+                                   refused. A reservation is never given back: once something may have
+                                   been sent, a different attempt needs a new approval
+
+    `fields(effect)` returns the effect's named values (default: the effect itself).
+    """
+    def __init__(self, path, fields=lambda effect: effect, clock=time.time):
+        self.path, self.fields, self.clock = path, fields, clock
+        with self._db() as db:
+            db.execute("CREATE TABLE IF NOT EXISTS sends (approval TEXT PRIMARY KEY, effect_id TEXT NOT NULL, at REAL NOT NULL)")
+            db.execute("CREATE TABLE IF NOT EXISTS revoked (approval TEXT PRIMARY KEY, at REAL NOT NULL, by TEXT)")
+
+    @contextlib.contextmanager
+    def _db(self):
+        with contextlib.closing(sqlite3.connect(self.path, timeout=30)) as db, db:   # commits on success
+            yield db
+
+    def authority(self, approval):
+        return approval.get("id") if isinstance(approval, dict) else approval
+
+    def problems(self, approval, effect=None):
+        """Why the approval does not cover this effect (or, with no effect, is not live). Empty means it does."""
+        if not isinstance(approval, dict) or not approval.get("id"):
+            return ["no approval for this action"]
+        out, aid = [], approval["id"]
+        if approval.get("expires") is not None and self.clock() > approval["expires"]:
+            out.append(f"approval {aid} has expired")
+        with self._db() as db:
+            if db.execute("SELECT 1 FROM revoked WHERE approval = ?", (aid,)).fetchone():
+                out.append(f"approval {aid} was revoked")
+        if effect is not None:
+            f = self.fields(effect)
+            out += [f"{k} must be {v!r}, not {f.get(k)!r}" for k, v in (approval.get("match") or {}).items() if f.get(k) != v]
+            out += [f"{k} {f.get(k)!r} is over the {v!r} approved" for k, v in (approval.get("max") or {}).items()
+                    if not isinstance(f.get(k), (int, float)) or f.get(k) > v]
+        return out
+
+    def allows(self, approval, effect):
+        return not self.problems(approval, effect)
+
+    def is_live(self, approval):
+        return not self.problems(approval)
+
+    def reserve(self, approval, effect_id, effect):
+        aid = approval["id"]
+        with self._db() as db:                  # the primary key picks one winner, across processes
+            db.execute("INSERT OR IGNORE INTO sends VALUES (?, ?, ?)", (aid, effect_id, self.clock()))
+            holder = db.execute("SELECT effect_id FROM sends WHERE approval = ?", (aid,)).fetchone()[0]
+        return [] if holder == effect_id else [f"approval {aid} was already used by effect {holder}"]
+
+    def describe(self, approval):
+        aid = self.authority(approval)
+        with self._db() as db:
+            row = db.execute("SELECT effect_id FROM sends WHERE approval = ?", (aid,)).fetchone()
+        return {"approval": approval, "used_by": row[0] if row else None, "problems": self.problems(approval)}
+
+    def revoke(self, approval_id, by=None):
+        with self._db() as db:
+            db.execute("INSERT OR IGNORE INTO revoked VALUES (?, ?, ?)", (approval_id, self.clock(), by))
 
 
 class Rule:

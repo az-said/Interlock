@@ -221,6 +221,8 @@ def _lease_held(checks, effect):
     grant, amount = checks.get("lease"), effect.get("amount")
     if checks.get("lease_live") is not True:
         return False
+    if checks.get("use_problems") or (grant.get("problems") if isinstance(grant, dict) else None):
+        return False                                       # an Envelope said the approval was used or did not cover it
     if isinstance(grant, dict):
         if grant.get("revoked") is not None:
             return False

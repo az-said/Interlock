@@ -22,7 +22,8 @@ Invariants (the correctness contract):
     I2  no duplicate effect (an effect id reaches COMMITTED at most once, and is never sent
         while an earlier send of it is unresolved, by this worker or any other)
     I3  no stale premise lands (premises re-validated against the target at commit)
-    I4  no effect under a dead lease (lease checked at dispatch, not just proposal)
+    I4  no effect under a dead lease (lease checked at dispatch, not just proposal); a store with
+        reserve() binds one approval to one effect id after premises and before dispatch, never after
     I5  payload binding: once a decision is recorded for an effect id, a later proposal
         with the same id and a different payload is rejected, never silently applied.
         (A model that re-decides "$30" on retry cannot replace the recorded "$20".)
@@ -130,7 +131,11 @@ class Gate:
 
         # A retry under the same authority is checked against the premises it was decided on;
         # re-reading the world at retry time would bless a change the decision never saw.
-        decided_on = next((e["premises"] for e in prior if e["kind"] == "PROPOSED" and e.get("lease") == lease),
+        # A store whose leases are closings of one approval (AP2: many closed mandates per open
+        # mandate) names that approval with authority(lease), so re-closing it is not a new decision.
+        authority = getattr(self.leases, "authority", lambda lease: lease)
+        decided_on = next((e["premises"] for e in prior
+                           if e["kind"] == "PROPOSED" and authority(e.get("lease")) == authority(lease)),
                           proposal["premises"])
         self.journal.append("PROPOSED", eid, agent=proposal["agent"], lease=lease,
                             premises=proposal["premises"], effect=effect, **request)
@@ -152,6 +157,13 @@ class Gate:
             self.journal.append("REFUSED", eid, code="stale_premise", reason=checks["violations"], checks=checks,
                                 **_nonempty(changes=changes, repairs=repairs))
             return "REFUSED:stale_premise"
+
+        reserve = getattr(self.leases, "reserve", None)                 # a store that counts uses binds the lease to this effect
+        if reserve:
+            checks["use_problems"] = used = reserve(lease, eid, effect)
+            if used:
+                self.journal.append("REFUSED", eid, code="lease_used", reason="lease already used: " + "; ".join(used), checks=checks)
+                return "REFUSED:lease_used"
 
         blocker = self.journal.dispatch(eid, effect, self.sender, self.claim_ttl, lease=lease, premises=decided_on,
                                         checks=checks)                  # I1, I7, I8: atomic across workers

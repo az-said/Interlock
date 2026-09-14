@@ -24,7 +24,8 @@ id, so `premises` can leave the effect's own result out of its facts. Arguments 
 must be JSON-serializable: they are written to the journal.
 """
 import functools, inspect, json, os, re
-from .escalation import diff
+from .approvals import Envelope
+from .escalation import diff, render
 from .gate import Gate, SimulatedCrash
 from .journal import CLAIM_TTL, effect_id_for
 
@@ -49,12 +50,12 @@ class _FunctionTarget:
         return json.loads(json.dumps(raw, default=str))    # compare exactly what the journal stores
 
     def validate_premises(self, premises, eid=None):
-        return self.explain(premises, eid)["violations"]
+        return [render(c) for c in diff(premises["facts"], self.facts(premises["args"], eid))]
 
     def explain(self, premises, eid=None, effect=None):
-        changes = diff(premises["facts"], self.facts(premises["args"], eid))
-        return {"violations": [f"{c['field']}: was {c['was']!r}, now {c['now']!r}" for c in changes],
-                "changes": changes, "repairs": []}
+        """Violations through validate_premises, so a check patched onto the instance still runs."""
+        return {"violations": self.validate_premises(premises, eid),
+                "changes": diff(premises["facts"], self.facts(premises["args"], eid)), "repairs": []}
 
     def apply(self, eid, effect, crash_after_effect=False):
         self.results[eid] = _call(self.fn, effect["args"], eid)
@@ -81,20 +82,43 @@ class Interlock:
         self.directory, self.claim_ttl = directory, claim_ttl
         self.gates = {}
 
-    def effect(self, key, premises=None, lookup=None, dedupes=False, allowed=None, dedup_window=24 * 3600):
+    def effect(self, key, premises=None, lookup=None, dedupes=False, allowed=None, dedup_window=24 * 3600,
+               approval=None, fields=None):
+        """
+        `approval(*args)` returns the approval this call runs under (see approvals.Envelope), read from
+        the system of record. With it, the agent may re-decide after a refusal: each distinct set of
+        arguments is its own attempt, only one that fits the approval is sent, and only once.
+        `fields(args)` names the arguments for its match and max (default: by parameter name).
+        """
+        if approval and allowed:
+            raise ValueError("approval= and allowed= both authorize the call; give one")
+
         def wrap(fn):
             name = re.sub(r"[^A-Za-z0-9_.-]", "_", f"{fn.__module__}.{fn.__qualname__}")
             if name in self.gates:                     # one journal per function: recovery must call the right one
                 raise ValueError(f"an effect named {name} is already registered; give the function a distinct name")
             target = _FunctionTarget(fn, premises, lookup, dedupes, dedup_window)
-            gate = Gate(target, os.path.join(self.directory, f"{name}.jsonl"), _Allowed(allowed), claim_ttl=self.claim_ttl)
+            if approval:
+                names = [p for p in inspect.signature(fn).parameters if p != "idempotency_key"]
+                named = fields or (lambda args: dict(zip(names, args)))
+                leases = Envelope(os.path.join(self.directory, f"{name}.approvals.db"), fields=lambda effect: named(effect["args"]))
+            else:
+                leases = _Allowed(allowed)
+            gate = Gate(target, os.path.join(self.directory, f"{name}.jsonl"), leases, claim_ttl=self.claim_ttl)
             self.gates[name] = gate
+
+            def request_id(*args):
+                args = json.loads(json.dumps(list(args)))
+                if approval:                           # one attempt per distinct decision, all under one approval
+                    return f"{key(*args)}:{json.dumps(args, sort_keys=True)}"
+                return key(*args)
 
             def proposal(*args):
                 args = json.loads(json.dumps(list(args)))
-                request = key(*args)
+                request = request_id(*args)
                 eid = effect_id_for({"request_id": request})
-                return {"agent": name, "lease": args, "request_id": request,
+                return {"agent": name, "lease": json.loads(json.dumps(approval(*args))) if approval else args,
+                        "request_id": request,
                         "premises": {"args": args, "facts": target.facts(args, eid)},
                         "effect": {"args": args}}
 
@@ -104,7 +128,7 @@ class Interlock:
                 status = gate.submit(p)
                 return status, target.results.get(effect_id_for(p))
 
-            call.gate, call.proposal = gate, proposal
+            call.gate, call.proposal, call.request_id = gate, proposal, request_id
             return call
         return wrap
 

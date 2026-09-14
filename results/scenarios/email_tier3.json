@@ -1,0 +1,1776 @@
+{
+ "key": "email_tier3",
+ "generated": "2026-09-13 22:47 UTC",
+ "model": "claude-haiku-4-5-20251001",
+ "tier_evidence": {
+  "dedupes": {
+   "key": "interlock-sandbox-evidence/095cd3d3f3/a",
+   "first": {
+    "id": "bc81630f-fd70-4ecc-bb88-d90ef650ab94",
+    "replayed": false
+   },
+   "second_same_body": {
+    "id": "bc81630f-fd70-4ecc-bb88-d90ef650ab94",
+    "replayed": true
+   },
+   "holds": true
+  },
+  "payload_bound": {
+   "key": "interlock-sandbox-evidence/095cd3d3f3/a",
+   "status": 409,
+   "name": "invalid_idempotent_request",
+   "holds": true
+  },
+  "probe": {
+   "used_key": true,
+   "fresh_key": false,
+   "send_after_probe": {
+    "key": "interlock-sandbox-evidence/095cd3d3f3/b",
+    "id": "06a1c769-1c11-4fa5-a529-ed701fbebbd0",
+    "replayed": false
+   },
+   "same_key_after_send": true,
+   "holds": true
+  },
+  "read_api": {
+   "/emails/bc81630f-fd70-4ecc-bb88-d90ef650ab94": {
+    "status": 401,
+    "name": "restricted_api_key",
+    "message": "This API key is restricted to only send emails"
+   },
+   "/emails?limit=1": {
+    "status": 401,
+    "name": "restricted_api_key",
+    "message": "This API key is restricted to only send emails"
+   }
+  }
+ },
+ "cells": [
+  {
+   "system": "no_check",
+   "fault": "crash_after_send",
+   "outcome": "SENT_REPLAYED",
+   "answer": "matches Resend",
+   "ground_truth": "Resend: 1 email under Idempotency-Key refund-email/case-4471-98a18f707d (id 16ee9986-2227-4ce5-b062-9c255c8773e6, replay confirmed); Stripe refund re_3UFMBM88KhIqqdFL1u2k3TsE succeeded",
+   "emails": 1,
+   "want": 1,
+   "invariant_held": true,
+   "can_prove_what_happened": false,
+   "ids": "case case-4471-98a18f707d; PaymentIntent pi_3UFMBM88KhIqqdFL1DuFAEnN; refund re_3UFMBM88KhIqqdFL1u2k3TsE; Idempotency-Key refund-email/case-4471-98a18f707d; email 16ee9986-2227-4ce5-b062-9c255c8773e6",
+   "seconds_to_settle": 0.2,
+   "outage_seconds": 0.0,
+   "refund_failed_event_at": null,
+   "last_refund_check_before_send_at": null,
+   "failure_margin_seconds": null,
+   "emulated": null,
+   "worker_exit_codes": [
+    -9,
+    0
+   ],
+   "decision": {
+    "refund_cents": 2000,
+    "email_text": "Your refund of $20.00 has been approved and is on the way. We appreciate your patience while we resolved this issue with the blender's glass jar. Thank you for your business.",
+    "model": "claude-haiku-4-5-20251001"
+   },
+   "reported_email_id": "16ee9986-2227-4ce5-b062-9c255c8773e6",
+   "submitted": null,
+   "receipt": null,
+   "journal": null,
+   "app_log": [
+    {
+     "ts": 1789339655.340773,
+     "case": "case-4471-98a18f707d",
+     "sent": "16ee9986-2227-4ce5-b062-9c255c8773e6",
+     "replayed": true
+    }
+   ],
+   "attempts": 1,
+   "discarded_attempts": []
+  },
+  {
+   "system": "hand_check",
+   "fault": "crash_after_send",
+   "outcome": "ALREADY_SENT",
+   "answer": "matches Resend",
+   "ground_truth": "Resend: 1 email under Idempotency-Key refund-email/case-4471-3bef6db623 (id cf6e4589-a7ba-4d11-9230-14e541439211, replay confirmed); Stripe refund re_3UFMBQ88KhIqqdFL1oxm2fMC succeeded",
+   "emails": 1,
+   "want": 1,
+   "invariant_held": true,
+   "can_prove_what_happened": true,
+   "ids": "case case-4471-3bef6db623; PaymentIntent pi_3UFMBQ88KhIqqdFL1dGYD1bu; refund re_3UFMBQ88KhIqqdFL1oxm2fMC; Idempotency-Key refund-email/case-4471-3bef6db623; email cf6e4589-a7ba-4d11-9230-14e541439211",
+   "seconds_to_settle": 0.8,
+   "outage_seconds": 0.0,
+   "refund_failed_event_at": null,
+   "last_refund_check_before_send_at": 1789339659.9946182,
+   "failure_margin_seconds": null,
+   "emulated": null,
+   "worker_exit_codes": [
+    -9,
+    0
+   ],
+   "decision": {
+    "refund_cents": 2000,
+    "email_text": "Your $20.00 refund for the cracked glass jar has been approved and is on the way to you. You can keep the blender as part of this resolution. Thank you for your patience.",
+    "model": "claude-haiku-4-5-20251001"
+   },
+   "reported_email_id": "cf6e4589-a7ba-4d11-9230-14e541439211",
+   "submitted": null,
+   "receipt": null,
+   "journal": null,
+   "app_log": [
+    {
+     "ts": 1789339659.741002,
+     "case": "case-4471-3bef6db623",
+     "check": "idempotency_key_used",
+     "result": false
+    },
+    {
+     "ts": 1789339659.9946182,
+     "case": "case-4471-3bef6db623",
+     "check": "refund_status",
+     "result": "succeeded"
+    },
+    {
+     "ts": 1789339660.5841768,
+     "case": "case-4471-3bef6db623",
+     "check": "idempotency_key_used",
+     "result": true
+    },
+    {
+     "ts": 1789339661.1270778,
+     "case": "case-4471-3bef6db623",
+     "already_sent": "cf6e4589-a7ba-4d11-9230-14e541439211",
+     "replayed": true
+    }
+   ],
+   "attempts": 1,
+   "discarded_attempts": []
+  },
+  {
+   "system": "hand_check_noprobe",
+   "fault": "crash_after_send",
+   "outcome": "SENT_REPLAYED",
+   "answer": "matches Resend",
+   "ground_truth": "Resend: 1 email under Idempotency-Key refund-email/case-4471-f7868f875b (id c4b18d85-4a48-487f-a273-a9946694b260, replay confirmed); Stripe refund re_3UFMBW88KhIqqdFL1SV99qmE succeeded",
+   "emails": 1,
+   "want": 1,
+   "invariant_held": true,
+   "can_prove_what_happened": true,
+   "ids": "case case-4471-f7868f875b; PaymentIntent pi_3UFMBW88KhIqqdFL15YQ8PdV; refund re_3UFMBW88KhIqqdFL1SV99qmE; Idempotency-Key refund-email/case-4471-f7868f875b; email c4b18d85-4a48-487f-a273-a9946694b260",
+   "seconds_to_settle": 0.5,
+   "outage_seconds": 0.0,
+   "refund_failed_event_at": null,
+   "last_refund_check_before_send_at": 1789339665.7586691,
+   "failure_margin_seconds": null,
+   "emulated": null,
+   "worker_exit_codes": [
+    -9,
+    0
+   ],
+   "decision": {
+    "refund_cents": 2000,
+    "email_text": "Your refund of $20.00 has been approved and is on the way. We apologize that the glass jar arrived cracked, and we appreciate your patience as we've worked through this with you. Thank you for your business.",
+    "model": "claude-haiku-4-5-20251001"
+   },
+   "reported_email_id": "c4b18d85-4a48-487f-a273-a9946694b260",
+   "submitted": null,
+   "receipt": null,
+   "journal": null,
+   "app_log": [
+    {
+     "ts": 1789339665.7586691,
+     "case": "case-4471-f7868f875b",
+     "check": "refund_status",
+     "result": "succeeded"
+    },
+    {
+     "ts": 1789339666.161036,
+     "case": "case-4471-f7868f875b",
+     "check": "refund_status",
+     "result": "succeeded"
+    },
+    {
+     "ts": 1789339666.3300219,
+     "case": "case-4471-f7868f875b",
+     "sent": "c4b18d85-4a48-487f-a273-a9946694b260",
+     "replayed": true
+    }
+   ],
+   "attempts": 1,
+   "discarded_attempts": []
+  },
+  {
+   "system": "interlock",
+   "fault": "crash_after_send",
+   "outcome": "COMMITTED_BY_RETRY",
+   "answer": "matches Resend",
+   "ground_truth": "Resend: 1 email under Idempotency-Key 7ee564943fe5 (id bec0e2e9-b3ae-46b1-b084-56c8ac686676, replay confirmed); Stripe refund re_3UFMBb88KhIqqdFL00Zhw85i succeeded",
+   "emails": 1,
+   "want": 1,
+   "invariant_held": true,
+   "can_prove_what_happened": true,
+   "ids": "case case-4471-6cb17b3724; PaymentIntent pi_3UFMBb88KhIqqdFL0edGHCFD; refund re_3UFMBb88KhIqqdFL00Zhw85i; Idempotency-Key 7ee564943fe5; email bec0e2e9-b3ae-46b1-b084-56c8ac686676",
+   "seconds_to_settle": 35.9,
+   "outage_seconds": 0.0,
+   "refund_failed_event_at": null,
+   "last_refund_check_before_send_at": 1789339671.167221,
+   "failure_margin_seconds": null,
+   "emulated": null,
+   "worker_exit_codes": [
+    -9,
+    0
+   ],
+   "decision": {
+    "refund_cents": 2000,
+    "email_text": "Your $20.00 refund for the cracked glass jar has been approved and is on the way. You can continue to use the blender with the damaged jar, or you may contact us if you need assistance. Thank you for your patience.",
+    "model": "claude-haiku-4-5-20251001"
+   },
+   "reported_email_id": "bec0e2e9-b3ae-46b1-b084-56c8ac686676",
+   "submitted": "DUPLICATE_IGNORED",
+   "receipt": {
+    "valid": true,
+    "tamper_evident": true,
+    "signed": null,
+    "happened": true,
+    "happened_once": true,
+    "authorized_when_fired": true,
+    "assumptions_held": true,
+    "refused": null,
+    "evidence": {
+     "status": "already_processed",
+     "email_id": "bec0e2e9-b3ae-46b1-b084-56c8ac686676"
+    },
+    "rechecked_at_recovery": {
+     "lease_live": true,
+     "lease": null,
+     "violations": []
+    },
+    "problems": []
+   },
+   "journal": [
+    {
+     "ts": 1789339670.885717,
+     "kind": "PROPOSED",
+     "effect_id": "7ee564943fe5",
+     "agent": "refund-email-agent",
+     "lease": "case-4471-6cb17b3724",
+     "premises": {
+      "refund_id": "re_3UFMBb88KhIqqdFL00Zhw85i",
+      "refund_status": "succeeded"
+     },
+     "effect": {
+      "email": {
+       "from": "Interlock Sandbox <onboarding@resend.dev>",
+       "to": [
+        "delivered@resend.dev"
+       ],
+       "subject": "Your refund is on the way (case-4471-6cb17b3724)",
+       "text": "Your $20.00 refund for the cracked glass jar has been approved and is on the way. You can continue to use the blender with the damaged jar, or you may contact us if you need assistance. Thank you for your patience.",
+       "tags": [
+        {
+         "name": "case",
+         "value": "case-4471-6cb17b3724"
+        }
+       ]
+      }
+     },
+     "prev": null,
+     "hash": "e60597fb3d3defe0f921ef56b4727592b01461abe4c25689814e8bba3f6f05a4"
+    },
+    {
+     "ts": 1789339670.886382,
+     "kind": "AUTHORIZED",
+     "effect_id": "7ee564943fe5",
+     "lease": "case-4471-6cb17b3724",
+     "prev": "e60597fb3d3defe0f921ef56b4727592b01461abe4c25689814e8bba3f6f05a4",
+     "hash": "6044b4e20bc22fc3c6afe0c17f2ec468c48c0aba1dc72b572d4ab9a3ac6f2ce9"
+    },
+    {
+     "ts": 1789339671.167221,
+     "kind": "DISPATCHED",
+     "effect_id": "7ee564943fe5",
+     "effect": {
+      "email": {
+       "from": "Interlock Sandbox <onboarding@resend.dev>",
+       "to": [
+        "delivered@resend.dev"
+       ],
+       "subject": "Your refund is on the way (case-4471-6cb17b3724)",
+       "text": "Your $20.00 refund for the cracked glass jar has been approved and is on the way. You can continue to use the blender with the damaged jar, or you may contact us if you need assistance. Thank you for your patience.",
+       "tags": [
+        {
+         "name": "case",
+         "value": "case-4471-6cb17b3724"
+        }
+       ]
+      }
+     },
+     "lease": "case-4471-6cb17b3724",
+     "premises": {
+      "refund_id": "re_3UFMBb88KhIqqdFL00Zhw85i",
+      "refund_status": "succeeded"
+     },
+     "checks": {
+      "lease_live": true,
+      "lease": null,
+      "violations": []
+     },
+     "prev": "6044b4e20bc22fc3c6afe0c17f2ec468c48c0aba1dc72b572d4ab9a3ac6f2ce9",
+     "hash": "1d73cfa60cf39687284be7b1d510ea0e6818045bef8f7a0e411f962b6e8f14fa"
+    },
+    {
+     "ts": 1789339706.916022,
+     "kind": "COMMITTED",
+     "effect_id": "7ee564943fe5",
+     "via": "retry-idempotent",
+     "rechecked": {
+      "lease_live": true,
+      "lease": null,
+      "violations": []
+     },
+     "result": {
+      "status": "already_processed",
+      "email_id": "bec0e2e9-b3ae-46b1-b084-56c8ac686676"
+     },
+     "prev": "1d73cfa60cf39687284be7b1d510ea0e6818045bef8f7a0e411f962b6e8f14fa",
+     "hash": "6f75fa02a496a435ce261d7d305a91f602b5e968ecb7f47f53f9ca41707c7327"
+    }
+   ],
+   "app_log": [],
+   "attempts": 1,
+   "discarded_attempts": []
+  },
+  {
+   "system": "interlock_noprobe",
+   "fault": "crash_after_send",
+   "outcome": "COMMITTED_BY_RETRY",
+   "answer": "matches Resend",
+   "ground_truth": "Resend: 1 email under Idempotency-Key c263f4c70222 (id 4d2aba90-a641-437c-b1e8-59eae2caacc2, replay confirmed); Stripe refund re_3UFMCG88KhIqqdFL0K1MeewA succeeded",
+   "emails": 1,
+   "want": 1,
+   "invariant_held": true,
+   "can_prove_what_happened": true,
+   "ids": "case case-4471-6a08f4fd87; PaymentIntent pi_3UFMCG88KhIqqdFL0xNWqtVx; refund re_3UFMCG88KhIqqdFL0K1MeewA; Idempotency-Key c263f4c70222; email 4d2aba90-a641-437c-b1e8-59eae2caacc2",
+   "seconds_to_settle": 35.8,
+   "outage_seconds": 0.0,
+   "refund_failed_event_at": null,
+   "last_refund_check_before_send_at": 1789339711.895469,
+   "failure_margin_seconds": null,
+   "emulated": null,
+   "worker_exit_codes": [
+    -9,
+    0
+   ],
+   "decision": {
+    "refund_cents": 2000,
+    "email_text": "Your refund of $20.00 has been approved and is on the way to your account. We appreciate your patience, and we're sorry the glass jar arrived damaged. Thank you for your business.",
+    "model": "claude-haiku-4-5-20251001"
+   },
+   "reported_email_id": "4d2aba90-a641-437c-b1e8-59eae2caacc2",
+   "submitted": "DUPLICATE_IGNORED",
+   "receipt": {
+    "valid": true,
+    "tamper_evident": true,
+    "signed": null,
+    "happened": true,
+    "happened_once": true,
+    "authorized_when_fired": true,
+    "assumptions_held": true,
+    "refused": null,
+    "evidence": {
+     "status": "already_processed",
+     "email_id": "4d2aba90-a641-437c-b1e8-59eae2caacc2"
+    },
+    "rechecked_at_recovery": {
+     "lease_live": true,
+     "lease": null,
+     "violations": []
+    },
+    "problems": []
+   },
+   "journal": [
+    {
+     "ts": 1789339711.664999,
+     "kind": "PROPOSED",
+     "effect_id": "c263f4c70222",
+     "agent": "refund-email-agent",
+     "lease": "case-4471-6a08f4fd87",
+     "premises": {
+      "refund_id": "re_3UFMCG88KhIqqdFL0K1MeewA",
+      "refund_status": "succeeded"
+     },
+     "effect": {
+      "email": {
+       "from": "Interlock Sandbox <onboarding@resend.dev>",
+       "to": [
+        "delivered@resend.dev"
+       ],
+       "subject": "Your refund is on the way (case-4471-6a08f4fd87)",
+       "text": "Your refund of $20.00 has been approved and is on the way to your account. We appreciate your patience, and we're sorry the glass jar arrived damaged. Thank you for your business.",
+       "tags": [
+        {
+         "name": "case",
+         "value": "case-4471-6a08f4fd87"
+        }
+       ]
+      }
+     },
+     "prev": null,
+     "hash": "a1a712c27ed79b2cfa42e8091826ad084dae7bfa3d88424d50e43f59213a2641"
+    },
+    {
+     "ts": 1789339711.665576,
+     "kind": "AUTHORIZED",
+     "effect_id": "c263f4c70222",
+     "lease": "case-4471-6a08f4fd87",
+     "prev": "a1a712c27ed79b2cfa42e8091826ad084dae7bfa3d88424d50e43f59213a2641",
+     "hash": "548a20ceb8e2ca0b919949efa38a34fecd28e54d8bc5f7b15277e77d51d12d6d"
+    },
+    {
+     "ts": 1789339711.895469,
+     "kind": "DISPATCHED",
+     "effect_id": "c263f4c70222",
+     "effect": {
+      "email": {
+       "from": "Interlock Sandbox <onboarding@resend.dev>",
+       "to": [
+        "delivered@resend.dev"
+       ],
+       "subject": "Your refund is on the way (case-4471-6a08f4fd87)",
+       "text": "Your refund of $20.00 has been approved and is on the way to your account. We appreciate your patience, and we're sorry the glass jar arrived damaged. Thank you for your business.",
+       "tags": [
+        {
+         "name": "case",
+         "value": "case-4471-6a08f4fd87"
+        }
+       ]
+      }
+     },
+     "lease": "case-4471-6a08f4fd87",
+     "premises": {
+      "refund_id": "re_3UFMCG88KhIqqdFL0K1MeewA",
+      "refund_status": "succeeded"
+     },
+     "checks": {
+      "lease_live": true,
+      "lease": null,
+      "violations": []
+     },
+     "prev": "548a20ceb8e2ca0b919949efa38a34fecd28e54d8bc5f7b15277e77d51d12d6d",
+     "hash": "2fad9c227aa83e6035a21e00442923fca6f760e7ecda9bc252e8d161348b7a7d"
+    },
+    {
+     "ts": 1789339747.6553721,
+     "kind": "COMMITTED",
+     "effect_id": "c263f4c70222",
+     "via": "retry-idempotent",
+     "rechecked": {
+      "lease_live": true,
+      "lease": null,
+      "violations": []
+     },
+     "result": {
+      "status": "already_processed",
+      "email_id": "4d2aba90-a641-437c-b1e8-59eae2caacc2"
+     },
+     "prev": "2fad9c227aa83e6035a21e00442923fca6f760e7ecda9bc252e8d161348b7a7d",
+     "hash": "a890cb730f015c13a0208d311b9ddcdcd5f48203db14c5739700d853b6cadf3b"
+    }
+   ],
+   "app_log": [],
+   "attempts": 1,
+   "discarded_attempts": []
+  },
+  {
+   "system": "interlock_tier3",
+   "fault": "crash_after_send",
+   "outcome": "AMBIGUOUS",
+   "answer": "cannot know (said so)",
+   "ground_truth": "Resend: 1 email under Idempotency-Key 8f2890ae41fc (id 213e5f20-8942-417f-b92f-697e129b47b8, replay confirmed); Stripe refund re_3UFMCv88KhIqqdFL0Euck9a4 succeeded",
+   "emails": 1,
+   "want": 1,
+   "invariant_held": true,
+   "can_prove_what_happened": false,
+   "ids": "case case-4471-2e140620c9; PaymentIntent pi_3UFMCv88KhIqqdFL0Y7QstEs; refund re_3UFMCv88KhIqqdFL0Euck9a4; Idempotency-Key 8f2890ae41fc; email 213e5f20-8942-417f-b92f-697e129b47b8",
+   "seconds_to_settle": 35.4,
+   "outage_seconds": 0.0,
+   "refund_failed_event_at": null,
+   "last_refund_check_before_send_at": 1789339753.174022,
+   "failure_margin_seconds": null,
+   "emulated": "Nothing about Resend is emulated; the gate is told Resend has no dedup and no lookup (ResendEmail tier=3, queryable=False), the README's assumption for most email and what a sending-only key leaves after Resend's 24h key window. The send still carries an Idempotency-Key only so the harness can read it back; the gate never resends at tier 3, so Resend's dedup is never exercised.",
+   "worker_exit_codes": [
+    -9,
+    0
+   ],
+   "decision": {
+    "refund_cents": 2000,
+    "email_text": "Your refund of $20.00 has been approved and is on the way to you. We apologize for the cracked glass jar on your blender. Thank you for your patience, and please enjoy your blender.",
+    "model": "claude-haiku-4-5-20251001"
+   },
+   "reported_email_id": null,
+   "submitted": "AMBIGUOUS",
+   "receipt": {
+    "valid": true,
+    "tamper_evident": true,
+    "signed": null,
+    "happened": "unknown",
+    "happened_once": true,
+    "authorized_when_fired": true,
+    "assumptions_held": true,
+    "refused": null,
+    "evidence": null,
+    "rechecked_at_recovery": null,
+    "problems": []
+   },
+   "journal": [
+    {
+     "ts": 1789339752.966558,
+     "kind": "PROPOSED",
+     "effect_id": "8f2890ae41fc",
+     "agent": "refund-email-agent",
+     "lease": "case-4471-2e140620c9",
+     "premises": {
+      "refund_id": "re_3UFMCv88KhIqqdFL0Euck9a4",
+      "refund_status": "succeeded"
+     },
+     "effect": {
+      "email": {
+       "from": "Interlock Sandbox <onboarding@resend.dev>",
+       "to": [
+        "delivered@resend.dev"
+       ],
+       "subject": "Your refund is on the way (case-4471-2e140620c9)",
+       "text": "Your refund of $20.00 has been approved and is on the way to you. We apologize for the cracked glass jar on your blender. Thank you for your patience, and please enjoy your blender.",
+       "tags": [
+        {
+         "name": "case",
+         "value": "case-4471-2e140620c9"
+        }
+       ]
+      }
+     },
+     "prev": null,
+     "hash": "0e23e6e9f9acd11b3d5a1c5fed3ffe72c4206268e73e68fbff9a2b8082bcdcb4"
+    },
+    {
+     "ts": 1789339752.967598,
+     "kind": "AUTHORIZED",
+     "effect_id": "8f2890ae41fc",
+     "lease": "case-4471-2e140620c9",
+     "prev": "0e23e6e9f9acd11b3d5a1c5fed3ffe72c4206268e73e68fbff9a2b8082bcdcb4",
+     "hash": "990b891a26d594aa166fa441beaa85b4f40b90f80a735277b453a0792b1b5b29"
+    },
+    {
+     "ts": 1789339753.174022,
+     "kind": "DISPATCHED",
+     "effect_id": "8f2890ae41fc",
+     "effect": {
+      "email": {
+       "from": "Interlock Sandbox <onboarding@resend.dev>",
+       "to": [
+        "delivered@resend.dev"
+       ],
+       "subject": "Your refund is on the way (case-4471-2e140620c9)",
+       "text": "Your refund of $20.00 has been approved and is on the way to you. We apologize for the cracked glass jar on your blender. Thank you for your patience, and please enjoy your blender.",
+       "tags": [
+        {
+         "name": "case",
+         "value": "case-4471-2e140620c9"
+        }
+       ]
+      }
+     },
+     "lease": "case-4471-2e140620c9",
+     "premises": {
+      "refund_id": "re_3UFMCv88KhIqqdFL0Euck9a4",
+      "refund_status": "succeeded"
+     },
+     "checks": {
+      "lease_live": true,
+      "lease": null,
+      "violations": []
+     },
+     "prev": "990b891a26d594aa166fa441beaa85b4f40b90f80a735277b453a0792b1b5b29",
+     "hash": "e47bfa70ce8d01243aaaf85bc8a8e297dc1a3bc98a6a0d0130369e42fa594502"
+    },
+    {
+     "ts": 1789339788.632138,
+     "kind": "AMBIGUOUS",
+     "effect_id": "8f2890ae41fc",
+     "prev": "e47bfa70ce8d01243aaaf85bc8a8e297dc1a3bc98a6a0d0130369e42fa594502",
+     "hash": "3ea69506da572e0d3d9cad10240be3ad9638b2cecdaa2b1affb7c3cf9f1c2e2a"
+    }
+   ],
+   "app_log": [],
+   "attempts": 1,
+   "discarded_attempts": []
+  },
+  {
+   "system": "no_check",
+   "fault": "refused_before_send",
+   "outcome": "SENT",
+   "answer": "matches Resend",
+   "ground_truth": "Resend: 1 email under Idempotency-Key refund-email/case-4471-8c0a8d2ee3 (id 975b92da-a61f-4c9e-a385-656d26f89411, replay confirmed); Stripe refund re_3UFMDa88KhIqqdFL1t15Orcy failed",
+   "emails": 1,
+   "want": 0,
+   "invariant_held": false,
+   "can_prove_what_happened": false,
+   "ids": "case case-4471-8c0a8d2ee3; PaymentIntent pi_3UFMDa88KhIqqdFL1pSpO6ZB; refund re_3UFMDa88KhIqqdFL1t15Orcy; Idempotency-Key refund-email/case-4471-8c0a8d2ee3; email 975b92da-a61f-4c9e-a385-656d26f89411",
+   "seconds_to_settle": 2.0,
+   "outage_seconds": 1.7,
+   "refund_failed_event_at": 1789339796,
+   "last_refund_check_before_send_at": null,
+   "failure_margin_seconds": null,
+   "emulated": null,
+   "worker_exit_codes": [
+    -9,
+    0
+   ],
+   "decision": {
+    "refund_cents": 2000,
+    "email_text": "Your refund of $20.00 has been approved and is on the way to your account. We appreciate your patience as we work to make this right, and we hope you'll continue to enjoy using your blender despite the damaged glass jar. Thank you for your business.",
+    "model": "claude-haiku-4-5-20251001"
+   },
+   "reported_email_id": "975b92da-a61f-4c9e-a385-656d26f89411",
+   "submitted": null,
+   "receipt": null,
+   "journal": null,
+   "app_log": [
+    {
+     "ts": 1789339796.0358698,
+     "case": "case-4471-8c0a8d2ee3",
+     "sent": "975b92da-a61f-4c9e-a385-656d26f89411",
+     "replayed": false
+    }
+   ],
+   "attempts": 1,
+   "discarded_attempts": []
+  },
+  {
+   "system": "hand_check",
+   "fault": "refused_before_send",
+   "outcome": "SKIPPED:refund_failed",
+   "answer": "matches Resend",
+   "ground_truth": "Resend: 0 email under Idempotency-Key refund-email/case-4471-da5bd8cb43; Stripe refund re_3UFMDh88KhIqqdFL1wM9F5Gt failed",
+   "emails": 0,
+   "want": 0,
+   "invariant_held": true,
+   "can_prove_what_happened": true,
+   "ids": "case case-4471-da5bd8cb43; PaymentIntent pi_3UFMDh88KhIqqdFL1V7bCcdi; refund re_3UFMDh88KhIqqdFL1wM9F5Gt; Idempotency-Key refund-email/case-4471-da5bd8cb43; email none",
+   "seconds_to_settle": 4.6,
+   "outage_seconds": 4.2,
+   "refund_failed_event_at": 1789339805,
+   "last_refund_check_before_send_at": 1789339801.547851,
+   "failure_margin_seconds": 3.45,
+   "emulated": null,
+   "worker_exit_codes": [
+    -9,
+    0
+   ],
+   "decision": {
+    "refund_cents": 2000,
+    "email_text": "Your refund of $20.00 has been approved and is on the way. We apologize for the damaged glass jar and appreciate your patience. Thank you for your business.",
+    "model": "claude-haiku-4-5-20251001"
+   },
+   "reported_email_id": null,
+   "submitted": null,
+   "receipt": null,
+   "journal": null,
+   "app_log": [
+    {
+     "ts": 1789339800.793699,
+     "case": "case-4471-da5bd8cb43",
+     "check": "idempotency_key_used",
+     "result": false
+    },
+    {
+     "ts": 1789339801.547851,
+     "case": "case-4471-da5bd8cb43",
+     "check": "refund_status",
+     "result": "succeeded"
+    },
+    {
+     "ts": 1789339805.9567401,
+     "case": "case-4471-da5bd8cb43",
+     "check": "idempotency_key_used",
+     "result": false
+    },
+    {
+     "ts": 1789339806.1593778,
+     "case": "case-4471-da5bd8cb43",
+     "check": "refund_status",
+     "result": "failed"
+    },
+    {
+     "ts": 1789339806.159553,
+     "case": "case-4471-da5bd8cb43",
+     "skipped": "refund failed"
+    }
+   ],
+   "attempts": 1,
+   "discarded_attempts": []
+  },
+  {
+   "system": "hand_check_noprobe",
+   "fault": "refused_before_send",
+   "outcome": "SKIPPED:refund_failed",
+   "answer": "matches Resend",
+   "ground_truth": "Resend: 0 email under Idempotency-Key refund-email/case-4471-22eec7418a; Stripe refund re_3UFMDr88KhIqqdFL0AWNccdD failed",
+   "emails": 0,
+   "want": 0,
+   "invariant_held": true,
+   "can_prove_what_happened": true,
+   "ids": "case case-4471-22eec7418a; PaymentIntent pi_3UFMDr88KhIqqdFL0fr6h9aQ; refund re_3UFMDr88KhIqqdFL0AWNccdD; Idempotency-Key refund-email/case-4471-22eec7418a; email none",
+   "seconds_to_settle": 1.6,
+   "outage_seconds": 1.3,
+   "refund_failed_event_at": 1789339812,
+   "last_refund_check_before_send_at": 1789339810.2126458,
+   "failure_margin_seconds": 1.79,
+   "emulated": null,
+   "worker_exit_codes": [
+    -9,
+    0
+   ],
+   "decision": {
+    "refund_cents": 2000,
+    "email_text": "Your refund of $20.00 has been approved and is on the way to your account. We appreciate your patience as we resolve this matter, and we apologize for the inconvenience with the cracked glass jar. Thank you for your business.",
+    "model": "claude-haiku-4-5-20251001"
+   },
+   "reported_email_id": null,
+   "submitted": null,
+   "receipt": null,
+   "journal": null,
+   "app_log": [
+    {
+     "ts": 1789339810.2126458,
+     "case": "case-4471-22eec7418a",
+     "check": "refund_status",
+     "result": "succeeded"
+    },
+    {
+     "ts": 1789339811.829874,
+     "case": "case-4471-22eec7418a",
+     "check": "refund_status",
+     "result": "failed"
+    },
+    {
+     "ts": 1789339811.830058,
+     "case": "case-4471-22eec7418a",
+     "skipped": "refund failed"
+    }
+   ],
+   "attempts": 1,
+   "discarded_attempts": []
+  },
+  {
+   "system": "interlock",
+   "fault": "refused_before_send",
+   "outcome": "REFUSED:stale_premise_at_recovery",
+   "answer": "matches Resend",
+   "ground_truth": "Resend: 0 email under Idempotency-Key 4592c0d7a73d; Stripe refund re_3UFMDw88KhIqqdFL0of52L5x failed",
+   "emails": 0,
+   "want": 0,
+   "invariant_held": true,
+   "can_prove_what_happened": true,
+   "ids": "case case-4471-8cc19e775b; PaymentIntent pi_3UFMDw88KhIqqdFL0qNynx37; refund re_3UFMDw88KhIqqdFL0of52L5x; Idempotency-Key 4592c0d7a73d; email none",
+   "seconds_to_settle": 36.7,
+   "outage_seconds": 2.4,
+   "refund_failed_event_at": 1789339819,
+   "last_refund_check_before_send_at": 1789339816.405081,
+   "failure_margin_seconds": 2.59,
+   "emulated": null,
+   "worker_exit_codes": [
+    -9,
+    0
+   ],
+   "decision": {
+    "refund_cents": 2000,
+    "email_text": "Your $20.00 refund has been approved and is on its way to you. We appreciate your patience as we worked through the issue with your blender's cracked glass jar. Thank you for your understanding, and we hope you enjoy using the blender.",
+    "model": "claude-haiku-4-5-20251001"
+   },
+   "reported_email_id": null,
+   "submitted": "REFUSED:stale_premise",
+   "receipt": {
+    "valid": true,
+    "tamper_evident": true,
+    "signed": null,
+    "happened": false,
+    "happened_once": true,
+    "authorized_when_fired": null,
+    "assumptions_held": null,
+    "refused": [
+     "refund re_3UFMDw88KhIqqdFL0of52L5x is failed"
+    ],
+    "evidence": null,
+    "rechecked_at_recovery": {
+     "lease_live": true,
+     "lease": null,
+     "violations": [
+      "refund re_3UFMDw88KhIqqdFL0of52L5x is failed"
+     ]
+    },
+    "problems": []
+   },
+   "journal": [
+    {
+     "ts": 1789339816.227194,
+     "kind": "PROPOSED",
+     "effect_id": "4592c0d7a73d",
+     "agent": "refund-email-agent",
+     "lease": "case-4471-8cc19e775b",
+     "premises": {
+      "refund_id": "re_3UFMDw88KhIqqdFL0of52L5x",
+      "refund_status": "succeeded"
+     },
+     "effect": {
+      "email": {
+       "from": "Interlock Sandbox <onboarding@resend.dev>",
+       "to": [
+        "delivered@resend.dev"
+       ],
+       "subject": "Your refund is on the way (case-4471-8cc19e775b)",
+       "text": "Your $20.00 refund has been approved and is on its way to you. We appreciate your patience as we worked through the issue with your blender's cracked glass jar. Thank you for your understanding, and we hope you enjoy using the blender.",
+       "tags": [
+        {
+         "name": "case",
+         "value": "case-4471-8cc19e775b"
+        }
+       ]
+      }
+     },
+     "prev": null,
+     "hash": "970a19a6ce575bed2d2bc9e7f7b9737d5598ac18c878d018e067dfd7eb48e177"
+    },
+    {
+     "ts": 1789339816.227817,
+     "kind": "AUTHORIZED",
+     "effect_id": "4592c0d7a73d",
+     "lease": "case-4471-8cc19e775b",
+     "prev": "970a19a6ce575bed2d2bc9e7f7b9737d5598ac18c878d018e067dfd7eb48e177",
+     "hash": "de35a52095866e9ad5d5d80648ed13b127eed2b05f9272b1bf7ce7e5cb04b5c0"
+    },
+    {
+     "ts": 1789339816.405081,
+     "kind": "DISPATCHED",
+     "effect_id": "4592c0d7a73d",
+     "effect": {
+      "email": {
+       "from": "Interlock Sandbox <onboarding@resend.dev>",
+       "to": [
+        "delivered@resend.dev"
+       ],
+       "subject": "Your refund is on the way (case-4471-8cc19e775b)",
+       "text": "Your $20.00 refund has been approved and is on its way to you. We appreciate your patience as we worked through the issue with your blender's cracked glass jar. Thank you for your understanding, and we hope you enjoy using the blender.",
+       "tags": [
+        {
+         "name": "case",
+         "value": "case-4471-8cc19e775b"
+        }
+       ]
+      }
+     },
+     "lease": "case-4471-8cc19e775b",
+     "premises": {
+      "refund_id": "re_3UFMDw88KhIqqdFL0of52L5x",
+      "refund_status": "succeeded"
+     },
+     "checks": {
+      "lease_live": true,
+      "lease": null,
+      "violations": []
+     },
+     "prev": "de35a52095866e9ad5d5d80648ed13b127eed2b05f9272b1bf7ce7e5cb04b5c0",
+     "hash": "cafae73d4c94d00755cbffdb33af5dc3928705023de464e9424e30e5cd30dea2"
+    },
+    {
+     "ts": 1789339852.591079,
+     "kind": "REFUSED",
+     "effect_id": "4592c0d7a73d",
+     "reason": "stale_premise at recovery",
+     "resolves": true,
+     "rechecked": {
+      "lease_live": true,
+      "lease": null,
+      "violations": [
+       "refund re_3UFMDw88KhIqqdFL0of52L5x is failed"
+      ]
+     },
+     "prev": "cafae73d4c94d00755cbffdb33af5dc3928705023de464e9424e30e5cd30dea2",
+     "hash": "a41214498ac93846a915c0c8177a083ead1d6082be0ef4c20a1b15f186214995"
+    },
+    {
+     "ts": 1789339852.785616,
+     "kind": "PROPOSED",
+     "effect_id": "4592c0d7a73d",
+     "agent": "refund-email-agent",
+     "lease": "case-4471-8cc19e775b",
+     "premises": {
+      "refund_id": "re_3UFMDw88KhIqqdFL0of52L5x",
+      "refund_status": "failed"
+     },
+     "effect": {
+      "email": {
+       "from": "Interlock Sandbox <onboarding@resend.dev>",
+       "to": [
+        "delivered@resend.dev"
+       ],
+       "subject": "Your refund is on the way (case-4471-8cc19e775b)",
+       "text": "Your $20.00 refund has been approved and is on its way to you. We appreciate your patience as we worked through the issue with your blender's cracked glass jar. Thank you for your understanding, and we hope you enjoy using the blender.",
+       "tags": [
+        {
+         "name": "case",
+         "value": "case-4471-8cc19e775b"
+        }
+       ]
+      }
+     },
+     "prev": "a41214498ac93846a915c0c8177a083ead1d6082be0ef4c20a1b15f186214995",
+     "hash": "88608975e8196ada1e740d514f1535cc43e03d8a3d485acfbb5cc53c6d1241b4"
+    },
+    {
+     "ts": 1789339852.787091,
+     "kind": "AUTHORIZED",
+     "effect_id": "4592c0d7a73d",
+     "lease": "case-4471-8cc19e775b",
+     "prev": "88608975e8196ada1e740d514f1535cc43e03d8a3d485acfbb5cc53c6d1241b4",
+     "hash": "4bb2d9c56f2b0f7c8c6e5c88324126540cb85075ff06927efc27aa94c50d47ca"
+    },
+    {
+     "ts": 1789339853.059538,
+     "kind": "REFUSED",
+     "effect_id": "4592c0d7a73d",
+     "reason": [
+      "refund re_3UFMDw88KhIqqdFL0of52L5x is failed"
+     ],
+     "checks": {
+      "lease_live": true,
+      "lease": null,
+      "violations": [
+       "refund re_3UFMDw88KhIqqdFL0of52L5x is failed"
+      ]
+     },
+     "prev": "4bb2d9c56f2b0f7c8c6e5c88324126540cb85075ff06927efc27aa94c50d47ca",
+     "hash": "231deaa1b92e9d0be19c136cca02c4f5313f8267e2bbe0f5f9aabd8bbbee7b1c"
+    }
+   ],
+   "app_log": [],
+   "attempts": 1,
+   "discarded_attempts": []
+  },
+  {
+   "system": "interlock_noprobe",
+   "fault": "refused_before_send",
+   "outcome": "AMBIGUOUS",
+   "answer": "cannot know (said so)",
+   "ground_truth": "Resend: 0 email under Idempotency-Key d47fa11ee2cd; Stripe refund re_3UFMEc88KhIqqdFL0LDRVi9m failed",
+   "emails": 0,
+   "want": 0,
+   "invariant_held": true,
+   "can_prove_what_happened": false,
+   "ids": "case case-4471-f091eda2bd; PaymentIntent pi_3UFMEc88KhIqqdFL0n9DWEGS; refund re_3UFMEc88KhIqqdFL0LDRVi9m; Idempotency-Key d47fa11ee2cd; email none",
+   "seconds_to_settle": 36.0,
+   "outage_seconds": 3.2,
+   "refund_failed_event_at": 1789339860,
+   "last_refund_check_before_send_at": 1789339857.6452532,
+   "failure_margin_seconds": 2.35,
+   "emulated": null,
+   "worker_exit_codes": [
+    -9,
+    0
+   ],
+   "decision": {
+    "refund_cents": 2000,
+    "email_text": "We've processed a $20.00 refund to your original payment method for the cracked glass jar on your blender. The refund should appear in your account within 2-3 business days. Thank you for your patience while we resolved this issue.",
+    "model": "claude-haiku-4-5-20251001"
+   },
+   "reported_email_id": null,
+   "submitted": "AMBIGUOUS",
+   "receipt": {
+    "valid": true,
+    "tamper_evident": true,
+    "signed": null,
+    "happened": "unknown",
+    "happened_once": true,
+    "authorized_when_fired": true,
+    "assumptions_held": true,
+    "refused": null,
+    "evidence": null,
+    "rechecked_at_recovery": {
+     "lease_live": true,
+     "lease": null,
+     "violations": [
+      "refund re_3UFMEc88KhIqqdFL0LDRVi9m is failed"
+     ]
+    },
+    "problems": []
+   },
+   "journal": [
+    {
+     "ts": 1789339857.394303,
+     "kind": "PROPOSED",
+     "effect_id": "d47fa11ee2cd",
+     "agent": "refund-email-agent",
+     "lease": "case-4471-f091eda2bd",
+     "premises": {
+      "refund_id": "re_3UFMEc88KhIqqdFL0LDRVi9m",
+      "refund_status": "succeeded"
+     },
+     "effect": {
+      "email": {
+       "from": "Interlock Sandbox <onboarding@resend.dev>",
+       "to": [
+        "delivered@resend.dev"
+       ],
+       "subject": "Your refund is on the way (case-4471-f091eda2bd)",
+       "text": "We've processed a $20.00 refund to your original payment method for the cracked glass jar on your blender. The refund should appear in your account within 2-3 business days. Thank you for your patience while we resolved this issue.",
+       "tags": [
+        {
+         "name": "case",
+         "value": "case-4471-f091eda2bd"
+        }
+       ]
+      }
+     },
+     "prev": null,
+     "hash": "9e0e3463af245d73857cf3d05cb69d4ae60ec50d528f4b6266f3d8788a99d35d"
+    },
+    {
+     "ts": 1789339857.3952389,
+     "kind": "AUTHORIZED",
+     "effect_id": "d47fa11ee2cd",
+     "lease": "case-4471-f091eda2bd",
+     "prev": "9e0e3463af245d73857cf3d05cb69d4ae60ec50d528f4b6266f3d8788a99d35d",
+     "hash": "c0891a79856d68d75e15204075cd850da675e01ff4d1576bd131a434fc931053"
+    },
+    {
+     "ts": 1789339857.6452532,
+     "kind": "DISPATCHED",
+     "effect_id": "d47fa11ee2cd",
+     "effect": {
+      "email": {
+       "from": "Interlock Sandbox <onboarding@resend.dev>",
+       "to": [
+        "delivered@resend.dev"
+       ],
+       "subject": "Your refund is on the way (case-4471-f091eda2bd)",
+       "text": "We've processed a $20.00 refund to your original payment method for the cracked glass jar on your blender. The refund should appear in your account within 2-3 business days. Thank you for your patience while we resolved this issue.",
+       "tags": [
+        {
+         "name": "case",
+         "value": "case-4471-f091eda2bd"
+        }
+       ]
+      }
+     },
+     "lease": "case-4471-f091eda2bd",
+     "premises": {
+      "refund_id": "re_3UFMEc88KhIqqdFL0LDRVi9m",
+      "refund_status": "succeeded"
+     },
+     "checks": {
+      "lease_live": true,
+      "lease": null,
+      "violations": []
+     },
+     "prev": "c0891a79856d68d75e15204075cd850da675e01ff4d1576bd131a434fc931053",
+     "hash": "315c860b1121751e58a23f51fd4970ea7526f284b0d319f59c020e7876e10694"
+    },
+    {
+     "ts": 1789339893.373313,
+     "kind": "AMBIGUOUS",
+     "effect_id": "d47fa11ee2cd",
+     "reason": "stale_premise at recovery, no lookup",
+     "rechecked": {
+      "lease_live": true,
+      "lease": null,
+      "violations": [
+       "refund re_3UFMEc88KhIqqdFL0LDRVi9m is failed"
+      ]
+     },
+     "prev": "315c860b1121751e58a23f51fd4970ea7526f284b0d319f59c020e7876e10694",
+     "hash": "647136d03c629f14abce8097d5a9cbc9de66d960016fd4943edffdb090335ec6"
+    }
+   ],
+   "app_log": [],
+   "attempts": 1,
+   "discarded_attempts": []
+  },
+  {
+   "system": "interlock_tier3",
+   "fault": "refused_before_send",
+   "outcome": "AMBIGUOUS",
+   "answer": "cannot know (said so)",
+   "ground_truth": "Resend: 0 email under Idempotency-Key 860631a9e0f8; Stripe refund re_3UFMFG88KhIqqdFL1MWvaBlJ failed",
+   "emails": 0,
+   "want": 0,
+   "invariant_held": true,
+   "can_prove_what_happened": false,
+   "ids": "case case-4471-3461cc4603; PaymentIntent pi_3UFMFG88KhIqqdFL1zZJFi7k; refund re_3UFMFG88KhIqqdFL1MWvaBlJ; Idempotency-Key 860631a9e0f8; email none",
+   "seconds_to_settle": 35.9,
+   "outage_seconds": 3.5,
+   "refund_failed_event_at": 1789339901,
+   "last_refund_check_before_send_at": 1789339897.576004,
+   "failure_margin_seconds": 3.42,
+   "emulated": "Nothing about Resend is emulated; the gate is told Resend has no dedup and no lookup (ResendEmail tier=3, queryable=False), the README's assumption for most email and what a sending-only key leaves after Resend's 24h key window. The send still carries an Idempotency-Key only so the harness can read it back; the gate never resends at tier 3, so Resend's dedup is never exercised.",
+   "worker_exit_codes": [
+    -9,
+    0
+   ],
+   "decision": {
+    "refund_cents": 2000,
+    "email_text": "We've processed your $20.00 refund for the damaged glass jar on your blender order. The refund will appear in your account within 3-5 business days. We appreciate your patience and apologize for the inconvenience.",
+    "model": "claude-haiku-4-5-20251001"
+   },
+   "reported_email_id": null,
+   "submitted": "AMBIGUOUS",
+   "receipt": {
+    "valid": true,
+    "tamper_evident": true,
+    "signed": null,
+    "happened": "unknown",
+    "happened_once": true,
+    "authorized_when_fired": true,
+    "assumptions_held": true,
+    "refused": null,
+    "evidence": null,
+    "rechecked_at_recovery": null,
+    "problems": []
+   },
+   "journal": [
+    {
+     "ts": 1789339897.35327,
+     "kind": "PROPOSED",
+     "effect_id": "860631a9e0f8",
+     "agent": "refund-email-agent",
+     "lease": "case-4471-3461cc4603",
+     "premises": {
+      "refund_id": "re_3UFMFG88KhIqqdFL1MWvaBlJ",
+      "refund_status": "succeeded"
+     },
+     "effect": {
+      "email": {
+       "from": "Interlock Sandbox <onboarding@resend.dev>",
+       "to": [
+        "delivered@resend.dev"
+       ],
+       "subject": "Your refund is on the way (case-4471-3461cc4603)",
+       "text": "We've processed your $20.00 refund for the damaged glass jar on your blender order. The refund will appear in your account within 3-5 business days. We appreciate your patience and apologize for the inconvenience.",
+       "tags": [
+        {
+         "name": "case",
+         "value": "case-4471-3461cc4603"
+        }
+       ]
+      }
+     },
+     "prev": null,
+     "hash": "5512bfa0ed228c60abf0bd97dd41dcf9904e81eec510638b25b254d6a350af94"
+    },
+    {
+     "ts": 1789339897.3540008,
+     "kind": "AUTHORIZED",
+     "effect_id": "860631a9e0f8",
+     "lease": "case-4471-3461cc4603",
+     "prev": "5512bfa0ed228c60abf0bd97dd41dcf9904e81eec510638b25b254d6a350af94",
+     "hash": "1a6ba5946fa10e7d43fb683449bba1276ded15f556761ed896e4d3652963f15e"
+    },
+    {
+     "ts": 1789339897.576004,
+     "kind": "DISPATCHED",
+     "effect_id": "860631a9e0f8",
+     "effect": {
+      "email": {
+       "from": "Interlock Sandbox <onboarding@resend.dev>",
+       "to": [
+        "delivered@resend.dev"
+       ],
+       "subject": "Your refund is on the way (case-4471-3461cc4603)",
+       "text": "We've processed your $20.00 refund for the damaged glass jar on your blender order. The refund will appear in your account within 3-5 business days. We appreciate your patience and apologize for the inconvenience.",
+       "tags": [
+        {
+         "name": "case",
+         "value": "case-4471-3461cc4603"
+        }
+       ]
+      }
+     },
+     "lease": "case-4471-3461cc4603",
+     "premises": {
+      "refund_id": "re_3UFMFG88KhIqqdFL1MWvaBlJ",
+      "refund_status": "succeeded"
+     },
+     "checks": {
+      "lease_live": true,
+      "lease": null,
+      "violations": []
+     },
+     "prev": "1a6ba5946fa10e7d43fb683449bba1276ded15f556761ed896e4d3652963f15e",
+     "hash": "0d1cecc700334ab308687283c975f6d02ce8dc3df170c5ce92cb0fe010331e71"
+    },
+    {
+     "ts": 1789339933.27376,
+     "kind": "AMBIGUOUS",
+     "effect_id": "860631a9e0f8",
+     "prev": "0d1cecc700334ab308687283c975f6d02ce8dc3df170c5ce92cb0fe010331e71",
+     "hash": "a2ff693ae6907ebc588f6a84588c08577873cd64aa0de511219269ca6ef8765d"
+    }
+   ],
+   "app_log": [],
+   "attempts": 1,
+   "discarded_attempts": []
+  },
+  {
+   "system": "no_check",
+   "fault": "refused_after_send",
+   "outcome": "SENT_REPLAYED",
+   "answer": "matches Resend",
+   "ground_truth": "Resend: 1 email under Idempotency-Key refund-email/case-4471-a3b2caddf1 (id f0a3e930-f598-4b76-a6fa-23e8ee08e3e4, replay confirmed); Stripe refund re_3UFMFu88KhIqqdFL1awhldRi failed",
+   "emails": 1,
+   "want": 1,
+   "invariant_held": true,
+   "can_prove_what_happened": false,
+   "ids": "case case-4471-a3b2caddf1; PaymentIntent pi_3UFMFu88KhIqqdFL1rZHwnR8; refund re_3UFMFu88KhIqqdFL1awhldRi; Idempotency-Key refund-email/case-4471-a3b2caddf1; email f0a3e930-f598-4b76-a6fa-23e8ee08e3e4",
+   "seconds_to_settle": 2.5,
+   "outage_seconds": 2.4,
+   "refund_failed_event_at": 1789339940,
+   "last_refund_check_before_send_at": null,
+   "failure_margin_seconds": null,
+   "emulated": null,
+   "worker_exit_codes": [
+    -9,
+    0
+   ],
+   "decision": {
+    "refund_cents": 2000,
+    "email_text": "Your refund of $20.00 has been approved and is on the way to your account. We apologize for the cracked glass jar on your blender and appreciate your patience. Thank you for your business.",
+    "model": "claude-haiku-4-5-20251001"
+   },
+   "reported_email_id": "f0a3e930-f598-4b76-a6fa-23e8ee08e3e4",
+   "submitted": null,
+   "receipt": null,
+   "journal": null,
+   "app_log": [
+    {
+     "ts": 1789339940.2000709,
+     "case": "case-4471-a3b2caddf1",
+     "sent": "f0a3e930-f598-4b76-a6fa-23e8ee08e3e4",
+     "replayed": true
+    }
+   ],
+   "attempts": 1,
+   "discarded_attempts": []
+  },
+  {
+   "system": "hand_check",
+   "fault": "refused_after_send",
+   "outcome": "ALREADY_SENT",
+   "answer": "matches Resend",
+   "ground_truth": "Resend: 1 email under Idempotency-Key refund-email/case-4471-3c4eabc10d (id 89eb8c8f-1742-4e4a-902a-fda721a1384d, replay confirmed); Stripe refund re_3UFMG188KhIqqdFL0DKdSJHA failed",
+   "emails": 1,
+   "want": 1,
+   "invariant_held": true,
+   "can_prove_what_happened": true,
+   "ids": "case case-4471-3c4eabc10d; PaymentIntent pi_3UFMG188KhIqqdFL00SyZCUl; refund re_3UFMG188KhIqqdFL0DKdSJHA; Idempotency-Key refund-email/case-4471-3c4eabc10d; email 89eb8c8f-1742-4e4a-902a-fda721a1384d",
+   "seconds_to_settle": 2.6,
+   "outage_seconds": 1.7,
+   "refund_failed_event_at": 1789339947,
+   "last_refund_check_before_send_at": 1789339945.4916291,
+   "failure_margin_seconds": 1.51,
+   "emulated": null,
+   "worker_exit_codes": [
+    -9,
+    0
+   ],
+   "decision": {
+    "refund_cents": 2000,
+    "email_text": "Your refund of $20.00 has been approved and is on the way to your account. We appreciate your patience and apologize for the inconvenience with the cracked glass jar. Thank you for your understanding.",
+    "model": "claude-haiku-4-5-20251001"
+   },
+   "reported_email_id": "89eb8c8f-1742-4e4a-902a-fda721a1384d",
+   "submitted": null,
+   "receipt": null,
+   "journal": null,
+   "app_log": [
+    {
+     "ts": 1789339945.2870479,
+     "case": "case-4471-3c4eabc10d",
+     "check": "idempotency_key_used",
+     "result": false
+    },
+    {
+     "ts": 1789339945.4916291,
+     "case": "case-4471-3c4eabc10d",
+     "check": "refund_status",
+     "result": "succeeded"
+    },
+    {
+     "ts": 1789339947.795756,
+     "case": "case-4471-3c4eabc10d",
+     "check": "idempotency_key_used",
+     "result": true
+    },
+    {
+     "ts": 1789339948.4701078,
+     "case": "case-4471-3c4eabc10d",
+     "already_sent": "89eb8c8f-1742-4e4a-902a-fda721a1384d",
+     "replayed": true
+    }
+   ],
+   "attempts": 1,
+   "discarded_attempts": []
+  },
+  {
+   "system": "hand_check_noprobe",
+   "fault": "refused_after_send",
+   "outcome": "SKIPPED:refund_failed",
+   "answer": "CONTRADICTS Resend",
+   "ground_truth": "Resend: 1 email under Idempotency-Key refund-email/case-4471-b74bb6205f (id 83da934e-696e-4c21-a566-92a166120518, replay confirmed); Stripe refund re_3UFMG988KhIqqdFL13cD4271 failed",
+   "emails": 1,
+   "want": 1,
+   "invariant_held": true,
+   "can_prove_what_happened": false,
+   "ids": "case case-4471-b74bb6205f; PaymentIntent pi_3UFMG988KhIqqdFL1ICG2C1N; refund re_3UFMG988KhIqqdFL13cD4271; Idempotency-Key refund-email/case-4471-b74bb6205f; email 83da934e-696e-4c21-a566-92a166120518",
+   "seconds_to_settle": 6.1,
+   "outage_seconds": 5.8,
+   "refund_failed_event_at": 1789339959,
+   "last_refund_check_before_send_at": 1789339953.1661718,
+   "failure_margin_seconds": 5.83,
+   "emulated": null,
+   "worker_exit_codes": [
+    -9,
+    0
+   ],
+   "decision": {
+    "refund_cents": 2000,
+    "email_text": "Your refund of $20.00 has been approved and is on the way to your account. We apologize for the cracked glass jar on your blender. Thank you for your patience as we resolved this matter.",
+    "model": "claude-haiku-4-5-20251001"
+   },
+   "reported_email_id": null,
+   "submitted": null,
+   "receipt": null,
+   "journal": null,
+   "app_log": [
+    {
+     "ts": 1789339953.1661718,
+     "case": "case-4471-b74bb6205f",
+     "check": "refund_status",
+     "result": "succeeded"
+    },
+    {
+     "ts": 1789339959.439296,
+     "case": "case-4471-b74bb6205f",
+     "check": "refund_status",
+     "result": "failed"
+    },
+    {
+     "ts": 1789339959.439879,
+     "case": "case-4471-b74bb6205f",
+     "skipped": "refund failed"
+    }
+   ],
+   "attempts": 1,
+   "discarded_attempts": []
+  },
+  {
+   "system": "interlock",
+   "fault": "refused_after_send",
+   "outcome": "COMMITTED_ON_QUERY",
+   "answer": "matches Resend",
+   "ground_truth": "Resend: 1 email under Idempotency-Key 5a7cbf44d786 (id bfed89f9-a943-41c1-81cf-071d67222ef4, replay confirmed); Stripe refund re_3UFMGK88KhIqqdFL1M9yVSZL failed",
+   "emails": 1,
+   "want": 1,
+   "invariant_held": true,
+   "can_prove_what_happened": true,
+   "ids": "case case-4471-0d354c4e51; PaymentIntent pi_3UFMGK88KhIqqdFL1py2wPzS; refund re_3UFMGK88KhIqqdFL1M9yVSZL; Idempotency-Key 5a7cbf44d786; email bfed89f9-a943-41c1-81cf-071d67222ef4",
+   "seconds_to_settle": 36.8,
+   "outage_seconds": 1.4,
+   "refund_failed_event_at": 1789339966,
+   "last_refund_check_before_send_at": 1789339964.1681511,
+   "failure_margin_seconds": 1.83,
+   "emulated": null,
+   "worker_exit_codes": [
+    -9,
+    0
+   ],
+   "decision": {
+    "refund_cents": 2000,
+    "email_text": "We've processed a $20.00 refund for the cracked glass jar on your blender order. The refund should appear in your account within 1-2 business days. Thank you for your patience, and we apologize for the inconvenience.",
+    "model": "claude-haiku-4-5-20251001"
+   },
+   "reported_email_id": "bfed89f9-a943-41c1-81cf-071d67222ef4",
+   "submitted": "DUPLICATE_IGNORED",
+   "receipt": {
+    "valid": true,
+    "tamper_evident": true,
+    "signed": null,
+    "happened": true,
+    "happened_once": true,
+    "authorized_when_fired": true,
+    "assumptions_held": true,
+    "refused": null,
+    "evidence": "bfed89f9-a943-41c1-81cf-071d67222ef4",
+    "rechecked_at_recovery": {
+     "lease_live": true,
+     "lease": null,
+     "violations": [
+      "refund re_3UFMGK88KhIqqdFL1M9yVSZL is failed"
+     ]
+    },
+    "problems": []
+   },
+   "journal": [
+    {
+     "ts": 1789339963.953452,
+     "kind": "PROPOSED",
+     "effect_id": "5a7cbf44d786",
+     "agent": "refund-email-agent",
+     "lease": "case-4471-0d354c4e51",
+     "premises": {
+      "refund_id": "re_3UFMGK88KhIqqdFL1M9yVSZL",
+      "refund_status": "succeeded"
+     },
+     "effect": {
+      "email": {
+       "from": "Interlock Sandbox <onboarding@resend.dev>",
+       "to": [
+        "delivered@resend.dev"
+       ],
+       "subject": "Your refund is on the way (case-4471-0d354c4e51)",
+       "text": "We've processed a $20.00 refund for the cracked glass jar on your blender order. The refund should appear in your account within 1-2 business days. Thank you for your patience, and we apologize for the inconvenience.",
+       "tags": [
+        {
+         "name": "case",
+         "value": "case-4471-0d354c4e51"
+        }
+       ]
+      }
+     },
+     "prev": null,
+     "hash": "436eaff3ea36e27eb4ec84416e4464438a8ded84382625469c02f9c361e342a1"
+    },
+    {
+     "ts": 1789339963.9540522,
+     "kind": "AUTHORIZED",
+     "effect_id": "5a7cbf44d786",
+     "lease": "case-4471-0d354c4e51",
+     "prev": "436eaff3ea36e27eb4ec84416e4464438a8ded84382625469c02f9c361e342a1",
+     "hash": "109b9905cfc3c714ce3b059770e855396e4ae537fa467d27e13b4720f3680b4e"
+    },
+    {
+     "ts": 1789339964.1681511,
+     "kind": "DISPATCHED",
+     "effect_id": "5a7cbf44d786",
+     "effect": {
+      "email": {
+       "from": "Interlock Sandbox <onboarding@resend.dev>",
+       "to": [
+        "delivered@resend.dev"
+       ],
+       "subject": "Your refund is on the way (case-4471-0d354c4e51)",
+       "text": "We've processed a $20.00 refund for the cracked glass jar on your blender order. The refund should appear in your account within 1-2 business days. Thank you for your patience, and we apologize for the inconvenience.",
+       "tags": [
+        {
+         "name": "case",
+         "value": "case-4471-0d354c4e51"
+        }
+       ]
+      }
+     },
+     "lease": "case-4471-0d354c4e51",
+     "premises": {
+      "refund_id": "re_3UFMGK88KhIqqdFL1M9yVSZL",
+      "refund_status": "succeeded"
+     },
+     "checks": {
+      "lease_live": true,
+      "lease": null,
+      "violations": []
+     },
+     "prev": "109b9905cfc3c714ce3b059770e855396e4ae537fa467d27e13b4720f3680b4e",
+     "hash": "a72aeab42231a33e07214addcb2d60a99d39dd142b35deac00711fa9cdaa61b4"
+    },
+    {
+     "ts": 1789340000.939231,
+     "kind": "COMMITTED",
+     "effect_id": "5a7cbf44d786",
+     "via": "recovery-query",
+     "rechecked": {
+      "lease_live": true,
+      "lease": null,
+      "violations": [
+       "refund re_3UFMGK88KhIqqdFL1M9yVSZL is failed"
+      ]
+     },
+     "found": "bfed89f9-a943-41c1-81cf-071d67222ef4",
+     "prev": "a72aeab42231a33e07214addcb2d60a99d39dd142b35deac00711fa9cdaa61b4",
+     "hash": "e4fdd8891e776e406907160be7a850a24ff2a7e2376ab957132c8ee6e7d5b784"
+    }
+   ],
+   "app_log": [],
+   "attempts": 1,
+   "discarded_attempts": []
+  },
+  {
+   "system": "interlock_noprobe",
+   "fault": "refused_after_send",
+   "outcome": "AMBIGUOUS",
+   "answer": "cannot know (said so)",
+   "ground_truth": "Resend: 1 email under Idempotency-Key c50d768c0526 (id 56ca5ec0-fe0d-45ea-afbe-cc90e023fe5d, replay confirmed); Stripe refund re_3UFMH088KhIqqdFL0QMja2z4 failed",
+   "emails": 1,
+   "want": 1,
+   "invariant_held": true,
+   "can_prove_what_happened": false,
+   "ids": "case case-4471-b92372710b; PaymentIntent pi_3UFMH088KhIqqdFL0t8EmrsK; refund re_3UFMH088KhIqqdFL0QMja2z4; Idempotency-Key c50d768c0526; email 56ca5ec0-fe0d-45ea-afbe-cc90e023fe5d",
+   "seconds_to_settle": 35.8,
+   "outage_seconds": 1.1,
+   "refund_failed_event_at": 1789340007,
+   "last_refund_check_before_send_at": 1789340006.097755,
+   "failure_margin_seconds": 0.9,
+   "emulated": null,
+   "worker_exit_codes": [
+    -9,
+    0
+   ],
+   "decision": {
+    "refund_cents": 2000,
+    "email_text": "We've processed a $20.00 refund for the cracked glass jar on your blender purchase. The refund should appear in your account within 1-2 business days. Thank you for your patience as we resolved this issue.",
+    "model": "claude-haiku-4-5-20251001"
+   },
+   "reported_email_id": null,
+   "submitted": "AMBIGUOUS",
+   "receipt": {
+    "valid": true,
+    "tamper_evident": true,
+    "signed": null,
+    "happened": "unknown",
+    "happened_once": true,
+    "authorized_when_fired": true,
+    "assumptions_held": true,
+    "refused": null,
+    "evidence": null,
+    "rechecked_at_recovery": {
+     "lease_live": true,
+     "lease": null,
+     "violations": [
+      "refund re_3UFMH088KhIqqdFL0QMja2z4 is failed"
+     ]
+    },
+    "problems": []
+   },
+   "journal": [
+    {
+     "ts": 1789340005.9160051,
+     "kind": "PROPOSED",
+     "effect_id": "c50d768c0526",
+     "agent": "refund-email-agent",
+     "lease": "case-4471-b92372710b",
+     "premises": {
+      "refund_id": "re_3UFMH088KhIqqdFL0QMja2z4",
+      "refund_status": "succeeded"
+     },
+     "effect": {
+      "email": {
+       "from": "Interlock Sandbox <onboarding@resend.dev>",
+       "to": [
+        "delivered@resend.dev"
+       ],
+       "subject": "Your refund is on the way (case-4471-b92372710b)",
+       "text": "We've processed a $20.00 refund for the cracked glass jar on your blender purchase. The refund should appear in your account within 1-2 business days. Thank you for your patience as we resolved this issue.",
+       "tags": [
+        {
+         "name": "case",
+         "value": "case-4471-b92372710b"
+        }
+       ]
+      }
+     },
+     "prev": null,
+     "hash": "f308826839eb77cd36ae5ca8734f70e86d6d186897c6315ecd4b94eea7d82469"
+    },
+    {
+     "ts": 1789340005.916955,
+     "kind": "AUTHORIZED",
+     "effect_id": "c50d768c0526",
+     "lease": "case-4471-b92372710b",
+     "prev": "f308826839eb77cd36ae5ca8734f70e86d6d186897c6315ecd4b94eea7d82469",
+     "hash": "4e318f561a87c389d02a449d9f7239ae60967e2957837ea16c706db2c4d9fae7"
+    },
+    {
+     "ts": 1789340006.097755,
+     "kind": "DISPATCHED",
+     "effect_id": "c50d768c0526",
+     "effect": {
+      "email": {
+       "from": "Interlock Sandbox <onboarding@resend.dev>",
+       "to": [
+        "delivered@resend.dev"
+       ],
+       "subject": "Your refund is on the way (case-4471-b92372710b)",
+       "text": "We've processed a $20.00 refund for the cracked glass jar on your blender purchase. The refund should appear in your account within 1-2 business days. Thank you for your patience as we resolved this issue.",
+       "tags": [
+        {
+         "name": "case",
+         "value": "case-4471-b92372710b"
+        }
+       ]
+      }
+     },
+     "lease": "case-4471-b92372710b",
+     "premises": {
+      "refund_id": "re_3UFMH088KhIqqdFL0QMja2z4",
+      "refund_status": "succeeded"
+     },
+     "checks": {
+      "lease_live": true,
+      "lease": null,
+      "violations": []
+     },
+     "prev": "4e318f561a87c389d02a449d9f7239ae60967e2957837ea16c706db2c4d9fae7",
+     "hash": "c3e73277444f6c09d90244424cd02101cf8015b439922cc235488891b93762db"
+    },
+    {
+     "ts": 1789340041.792734,
+     "kind": "AMBIGUOUS",
+     "effect_id": "c50d768c0526",
+     "reason": "stale_premise at recovery, no lookup",
+     "rechecked": {
+      "lease_live": true,
+      "lease": null,
+      "violations": [
+       "refund re_3UFMH088KhIqqdFL0QMja2z4 is failed"
+      ]
+     },
+     "prev": "c3e73277444f6c09d90244424cd02101cf8015b439922cc235488891b93762db",
+     "hash": "c481594254e7371af499ef66d1b187a06fe437db584635a0472c4ec5d9d5d736"
+    }
+   ],
+   "app_log": [],
+   "attempts": 1,
+   "discarded_attempts": []
+  },
+  {
+   "system": "interlock_tier3",
+   "fault": "refused_after_send",
+   "outcome": "AMBIGUOUS",
+   "answer": "cannot know (said so)",
+   "ground_truth": "Resend: 1 email under Idempotency-Key f344da1cd554 (id 60891138-ae49-4913-b8d1-de02b1ca3aee, replay confirmed); Stripe refund re_3UFMHf88KhIqqdFL194OHZXu failed",
+   "emails": 1,
+   "want": 1,
+   "invariant_held": true,
+   "can_prove_what_happened": false,
+   "ids": "case case-4471-254aaeb33d; PaymentIntent pi_3UFMHf88KhIqqdFL17E3R3ub; refund re_3UFMHf88KhIqqdFL194OHZXu; Idempotency-Key f344da1cd554; email 60891138-ae49-4913-b8d1-de02b1ca3aee",
+   "seconds_to_settle": 35.9,
+   "outage_seconds": 1.3,
+   "refund_failed_event_at": 1789340049,
+   "last_refund_check_before_send_at": 1789340047.2035599,
+   "failure_margin_seconds": 1.8,
+   "emulated": "Nothing about Resend is emulated; the gate is told Resend has no dedup and no lookup (ResendEmail tier=3, queryable=False), the README's assumption for most email and what a sending-only key leaves after Resend's 24h key window. The send still carries an Idempotency-Key only so the harness can read it back; the gate never resends at tier 3, so Resend's dedup is never exercised.",
+   "worker_exit_codes": [
+    -9,
+    0
+   ],
+   "decision": {
+    "refund_cents": 2000,
+    "email_text": "Your $20.00 refund has been approved and is on the way to your account. We apologize that the glass jar arrived cracked, and we appreciate your patience as we resolve this. Thank you for your business.",
+    "model": "claude-haiku-4-5-20251001"
+   },
+   "reported_email_id": null,
+   "submitted": "AMBIGUOUS",
+   "receipt": {
+    "valid": true,
+    "tamper_evident": true,
+    "signed": null,
+    "happened": "unknown",
+    "happened_once": true,
+    "authorized_when_fired": true,
+    "assumptions_held": true,
+    "refused": null,
+    "evidence": null,
+    "rechecked_at_recovery": null,
+    "problems": []
+   },
+   "journal": [
+    {
+     "ts": 1789340047.0027149,
+     "kind": "PROPOSED",
+     "effect_id": "f344da1cd554",
+     "agent": "refund-email-agent",
+     "lease": "case-4471-254aaeb33d",
+     "premises": {
+      "refund_id": "re_3UFMHf88KhIqqdFL194OHZXu",
+      "refund_status": "succeeded"
+     },
+     "effect": {
+      "email": {
+       "from": "Interlock Sandbox <onboarding@resend.dev>",
+       "to": [
+        "delivered@resend.dev"
+       ],
+       "subject": "Your refund is on the way (case-4471-254aaeb33d)",
+       "text": "Your $20.00 refund has been approved and is on the way to your account. We apologize that the glass jar arrived cracked, and we appreciate your patience as we resolve this. Thank you for your business.",
+       "tags": [
+        {
+         "name": "case",
+         "value": "case-4471-254aaeb33d"
+        }
+       ]
+      }
+     },
+     "prev": null,
+     "hash": "29dae1e5612d595ee273675672b95ebecc1561d47bfb850738be3855558a574a"
+    },
+    {
+     "ts": 1789340047.00769,
+     "kind": "AUTHORIZED",
+     "effect_id": "f344da1cd554",
+     "lease": "case-4471-254aaeb33d",
+     "prev": "29dae1e5612d595ee273675672b95ebecc1561d47bfb850738be3855558a574a",
+     "hash": "df886deeb2513f2805c92c7652f4dfcad325f2bb18202bbb77e7a86f4d0b35ee"
+    },
+    {
+     "ts": 1789340047.2035599,
+     "kind": "DISPATCHED",
+     "effect_id": "f344da1cd554",
+     "effect": {
+      "email": {
+       "from": "Interlock Sandbox <onboarding@resend.dev>",
+       "to": [
+        "delivered@resend.dev"
+       ],
+       "subject": "Your refund is on the way (case-4471-254aaeb33d)",
+       "text": "Your $20.00 refund has been approved and is on the way to your account. We apologize that the glass jar arrived cracked, and we appreciate your patience as we resolve this. Thank you for your business.",
+       "tags": [
+        {
+         "name": "case",
+         "value": "case-4471-254aaeb33d"
+        }
+       ]
+      }
+     },
+     "lease": "case-4471-254aaeb33d",
+     "premises": {
+      "refund_id": "re_3UFMHf88KhIqqdFL194OHZXu",
+      "refund_status": "succeeded"
+     },
+     "checks": {
+      "lease_live": true,
+      "lease": null,
+      "violations": []
+     },
+     "prev": "df886deeb2513f2805c92c7652f4dfcad325f2bb18202bbb77e7a86f4d0b35ee",
+     "hash": "d4a925e7763ed987dea9fc636bcc5369bf442e2fee9e5f2e5fd6582a29cb36e9"
+    },
+    {
+     "ts": 1789340082.900213,
+     "kind": "AMBIGUOUS",
+     "effect_id": "f344da1cd554",
+     "prev": "d4a925e7763ed987dea9fc636bcc5369bf442e2fee9e5f2e5fd6582a29cb36e9",
+     "hash": "ab17e35ec2979a7284b68d8aabc10562dca7c87075ccc1c945a32705c6ad7392"
+    }
+   ],
+   "app_log": [],
+   "attempts": 1,
+   "discarded_attempts": []
+  }
+ ]
+}

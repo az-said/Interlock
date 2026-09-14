@@ -1,0 +1,15 @@
+{
+  "key": "connect_payout",
+  "status": "BLOCKED",
+  "generated": "2026-09-13 22:22 UTC",
+  "platform": "acct_1TJzu288KhIqqdFL",
+  "error": "400 POST /accounts: You can only create new accounts if you've signed up for Connect, which you can do at https://dashboard.stripe.com/connect.",
+  "probe": {
+    "POST /v1/accounts type=express": "400 POST /accounts: You can only create new accounts if you've signed up for Connect, which you can do at https://dashboard.stripe.com/connect.",
+    "POST /v1/accounts type=standard": "400 POST /accounts: You can only create new accounts if you've signed up for Connect, which you can do at https://dashboard.stripe.com/connect.",
+    "POST /v1/accounts type=custom": "400 POST /accounts: You can only create new accounts if you've signed up for Connect, which you can do at https://dashboard.stripe.com/connect.",
+    "POST /v2/core/accounts recipient": "400: Some fields in the request were invalid: 'configuration.recipient.capabilities.stripe_balance: You must have Connect enabled to use this field.'",
+    "GET /v1/accounts": "0 existing connected accounts"
+  },
+  "cells": []
+}

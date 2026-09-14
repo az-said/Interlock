@@ -1,0 +1,158 @@
+{
+  "no gate": {
+    "total": {
+      "no person": 100,
+      "person": 0,
+      "wrong payout": 40,
+      "overpaid": 558
+    },
+    "by_kind": {
+      "routine": {
+        "no person": 60,
+        "person": 0,
+        "wrong payout": 0,
+        "overpaid": 0
+      },
+      "partial_hand": {
+        "no person": 12,
+        "person": 0,
+        "wrong payout": 12,
+        "overpaid": 128
+      },
+      "full_hand": {
+        "no person": 5,
+        "person": 0,
+        "wrong payout": 5,
+        "overpaid": 100
+      },
+      "overshoot": {
+        "no person": 10,
+        "person": 0,
+        "wrong payout": 10,
+        "overpaid": 100
+      },
+      "stubborn": {
+        "no person": 3,
+        "person": 0,
+        "wrong payout": 3,
+        "overpaid": 30
+      },
+      "crash": {
+        "no person": 5,
+        "person": 0,
+        "wrong payout": 5,
+        "overpaid": 100
+      },
+      "duplicate": {
+        "no person": 5,
+        "person": 0,
+        "wrong payout": 5,
+        "overpaid": 100
+      }
+    }
+  },
+  "interlock": {
+    "total": {
+      "no person": 83,
+      "person": 17,
+      "wrong payout": 13,
+      "overpaid": 130
+    },
+    "by_kind": {
+      "routine": {
+        "no person": 60,
+        "person": 0,
+        "wrong payout": 0,
+        "overpaid": 0
+      },
+      "partial_hand": {
+        "no person": 0,
+        "person": 12,
+        "wrong payout": 0,
+        "overpaid": 0
+      },
+      "full_hand": {
+        "no person": 0,
+        "person": 5,
+        "wrong payout": 0,
+        "overpaid": 0
+      },
+      "overshoot": {
+        "no person": 10,
+        "person": 0,
+        "wrong payout": 10,
+        "overpaid": 100
+      },
+      "stubborn": {
+        "no person": 3,
+        "person": 0,
+        "wrong payout": 3,
+        "overpaid": 30
+      },
+      "crash": {
+        "no person": 5,
+        "person": 0,
+        "wrong payout": 0,
+        "overpaid": 0
+      },
+      "duplicate": {
+        "no person": 5,
+        "person": 0,
+        "wrong payout": 0,
+        "overpaid": 0
+      }
+    }
+  },
+  "interlock+repair": {
+    "total": {
+      "no person": 97,
+      "person": 3,
+      "wrong payout": 0,
+      "overpaid": 0
+    },
+    "by_kind": {
+      "routine": {
+        "no person": 60,
+        "person": 0,
+        "wrong payout": 0,
+        "overpaid": 0
+      },
+      "partial_hand": {
+        "no person": 12,
+        "person": 0,
+        "wrong payout": 0,
+        "overpaid": 0
+      },
+      "full_hand": {
+        "no person": 5,
+        "person": 0,
+        "wrong payout": 0,
+        "overpaid": 0
+      },
+      "overshoot": {
+        "no person": 10,
+        "person": 0,
+        "wrong payout": 0,
+        "overpaid": 0
+      },
+      "stubborn": {
+        "no person": 0,
+        "person": 3,
+        "wrong payout": 0,
+        "overpaid": 0
+      },
+      "crash": {
+        "no person": 5,
+        "person": 0,
+        "wrong payout": 0,
+        "overpaid": 0
+      },
+      "duplicate": {
+        "no person": 5,
+        "person": 0,
+        "wrong payout": 0,
+        "overpaid": 0
+      }
+    }
+  }
+}

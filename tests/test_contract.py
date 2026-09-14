@@ -158,7 +158,7 @@ class Shapes(unittest.TestCase):
                             "changes": [{"field": "refunded", "was": 0, "now": 30}],
                             "repairs": [{"code": "remaining", "set": {"amount": 70}, "why": "refund the remaining $70"}]}]
         text = describe(explain(stale))
-        self.assertIn("refunded was 0, now 30", text)
+        self.assertIn("refunded: was 0, now 30", text)
         self.assertIn("Suggested, needs rules or a person: refund the remaining $70", text)
         self.assertIsNone(explain(stale + [{"kind": "COMMITTED", "effect_id": "e"}]))
 

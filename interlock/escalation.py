@@ -18,6 +18,7 @@ WHY = {
     "stale_premise": "a fact this action depends on changed since it was decided",
     "stale_premise_at_recovery": "a fact this action depends on changed while the agent was down",
     "lease": "the authority it was decided under is not live",
+    "lease_used": "its approval was already used by another attempt",
     "lease_at_recovery": "the authority it was decided under lapsed while the agent was down",
     "approval_expired": "the approval is older than the approval window, so the facts were read again",
     "approver_removed": "the approver no longer belongs to the group this was routed to",
@@ -112,10 +113,15 @@ def sent_refund(entries):
     return None
 
 
+def render(change):
+    """One change as the agent and a person read it; the same words in the proxy, tools, Temporal and targets."""
+    return f"{change['field']}: was {change['was']!r}, now {change['now']!r}"
+
+
 def describe(esc):
     parts = [esc["why"]]
     if esc.get("changes"):
-        parts.append("Changed: " + "; ".join(f"{c['field']} was {c['was']}, now {c['now']}" for c in esc["changes"]))
+        parts.append("Changed: " + "; ".join(render(c) for c in esc["changes"]))
     if esc.get("repairs"):
         parts.append("Suggested, needs rules or a person: " + "; ".join(r["why"] for r in esc["repairs"]))
     return ". ".join(parts)

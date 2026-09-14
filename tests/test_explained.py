@@ -194,7 +194,7 @@ class Explained(unittest.TestCase):
             self.assertEqual(esc["changes"][0]["field"], "refunded_total")
             self.assertEqual(esc["repairs"], [])
             self.assertIn("changed", retry["content"][0]["text"])
-            self.assertIn("refunded_total was 0, now 20", retry["content"][0]["text"])
+            self.assertIn("refunded_total: was 0, now 20", retry["content"][0]["text"])
         finally:
             s.close()
 
@@ -206,7 +206,7 @@ class Explained(unittest.TestCase):
             gated(self.gate, self.P)
         msg = str(cm.exception)
         self.assertTrue(msg.startswith("interlock: REFUSED:stale_premise"), msg)
-        self.assertIn("refunded was 0, now 30", msg)
+        self.assertIn("refunded: was 0, now 30", msg)
         self.assertTrue(cm.exception.escalation["repairs"])
 
         self.setup()
