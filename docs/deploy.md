@@ -22,7 +22,7 @@ The image is `python:3.12-slim` with `temporalio==1.32.0` installed and the Temp
 |---|---|---|
 | `INTERLOCK_PUBLIC` | `1` in the image, unset otherwise | `1` turns public mode on. Any other value is off. |
 | `INTERLOCK_ALLOWED_HOSTS` | none, required | Comma-separated hostnames the server answers to, exact match, case-insensitive, port ignored. Example: `interlock-demo.example.azurecontainerapps.io`. The server refuses to start in public mode without it. |
-| `PORT` | `8080` in the image, else `8787` | Listening port. `INTERLOCK_API_PORT` wins if both are set. Binds `0.0.0.0`. |
+| `PORT` | `8080` in the image, else `8787` | Listening port. Under `demo/serve.py` (the image) `PORT` is used; `INTERLOCK_API_PORT` wins only when `backend/api.py` runs directly. Binds `0.0.0.0`. |
 | `INTERLOCK_TRUSTED_PROXY_HOPS` | `0` | How many reverse proxies you run in front of the server. Set `1` on Azure Container Apps (its ingress appends one `X-Forwarded-For` entry). With `0` the header is ignored and the socket peer is the client. Do not set it higher than the proxies you actually have: each extra hop lets a client choose its own address. |
 | `INTERLOCK_LIVE_PER_IP_HOUR` | `3` | Live runs one visitor may start in any 60 minutes. |
 | `INTERLOCK_LIVE_PER_IP_DAY` | `6` | Live runs one visitor may start in one UTC day. Keep it well under `INTERLOCK_LIVE_PER_DAY`, so one visitor cannot use up the day. |

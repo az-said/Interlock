@@ -93,8 +93,9 @@ from interlock.integrations.adk import Guard
 guard = Guard(".interlock/adk", leases)
 guard.gate("issue_refund",
            target_for=lambda effect: refunds,           # an EffectTarget: capture, validate_premises, apply, query
+           # ctx.state["premises"] is set when the agent decides (the tool that reads the order), not at send time
            proposal=lambda args, ctx: {"lease": "case-4471", "request_id": "case-4471",
-                                       "premises": refunds.capture(args["order_id"]),
+                                       "premises": ctx.state["premises"],
                                        "effect": {"order": args["order_id"], "amount": args["amount"]}})
 agent = LlmAgent(name="support", model="gemini-2.5-flash", tools=[issue_refund],
                  before_tool_callback=guard.before_tool_callback)

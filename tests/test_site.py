@@ -46,9 +46,18 @@ class Site(unittest.TestCase):
 
     def test_adk_premises_come_from_decision_time(self):
         # Premises captured inside the proposal are always fresh, so the stale-decision check could never fire.
-        adk = self.pre("add-adk")
-        self.assertIn('"premises": ctx.state["premises"]', adk)
-        self.assertNotIn("capture(", adk)
+        doc = read("docs", "integrations.md").split("## Google ADK")[1].split("```python\n")[1].split("```")[0]
+        for adk in (self.pre("add-adk"), doc):
+            self.assertIn('"premises": ctx.state["premises"]', adk)
+            self.assertNotIn("capture(", adk)
+
+    def test_report_rewrites_proof_counts(self):
+        import report
+        text = "415 tests across 40 files; 363 passed, 52 skipped, 0 failed. 415 tests in 40 files, 363 passed and 52 skipped"
+        self.assertEqual(report.sync_proof(text, 9, 2, 7, 2),
+                         "9 tests across 2 files; 7 passed, 2 skipped, 0 failed. 9 tests in 2 files, 7 passed and 2 skipped")
+        with self.assertRaises(AssertionError):
+            report.sync_proof("no counts here", 9, 2, 7, 2)
 
     def test_proof_test_counts_match_tests_readme(self):
         run, files, passed, skipped = re.search(

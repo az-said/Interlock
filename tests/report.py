@@ -301,14 +301,27 @@ def check_bugs():
 
 # ---- page ----------------------------------------------------------------------------------------
 
+def sync_proof(text, run, files, passed, skipped):
+    """Rewrite the three test-count phrases in docs/proof.md to this run's numbers; fails if a phrase is missing."""
+    for pattern, new in ((r"\d+ tests across \d+ files", "%d tests across %d files" % (run, files)),
+                         (r"\d+ passed, \d+ skipped, 0 failed", "%d passed, %d skipped, 0 failed" % (passed, skipped)),
+                         (r"\d+ tests in \d+ files, \d+ passed and \d+ skipped",
+                          "%d tests in %d files, %d passed and %d skipped" % (run, files, passed, skipped))):
+        text, n = re.subn(pattern, new, text)
+        assert n, "docs/proof.md no longer quotes: " + pattern
+    return text
+
+
 def main():
     cases, broken, res = run_suite()
     assert not broken, broken
     versions, steps = ci()
     before = check_bugs()
-    proof, nfiles = read("docs/proof.md"), len({t.id().split(".")[0] for t in cases})
-    for quoted in ("%d tests across %d files" % (res["run"], nfiles), "%d passed, %d skipped" % (res["passed"], res["skipped"])):
-        assert quoted in proof, "docs/proof.md is stale, expected: " + quoted
+    nfiles = len({t.id().split(".")[0] for t in cases})
+    if res["failed"] == 0:
+        proof = sync_proof(read("docs/proof.md"), res["run"], nfiles, res["passed"], res["skipped"])
+        with open(os.path.join(ROOT, "docs/proof.md"), "w", encoding="utf-8") as f:
+            f.write(proof)
     inbox = read("results/approval_inbox.md")
     board = dict((c[0].strip(), c[1].strip()) for c in
                  (l.strip("|").split("|") for l in dict(tables(inbox))["Scoreboard (derived from the journal)"][2:]))
