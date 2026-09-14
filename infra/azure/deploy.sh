@@ -86,7 +86,8 @@ ACR="${AZURE_ACR_NAME:-interlockdemo$(printf '%s' "$SUB_ID" | { sha256sum 2>/dev
 TAG="${IMAGE_TAG:-$(git rev-parse --short HEAD)-$(date -u +%Y%m%d%H%M%S)}"
 
 status "resource group $RG in $LOCATION"
-run az group create -n "$RG" -l "$LOCATION"
+# An existing group keeps its region; resources below still go to $LOCATION (az group create errors on a mismatch).
+exists az group show -n "$RG" || run az group create -n "$RG" -l "$LOCATION"
 
 status "container registry $ACR"
 exists az acr show -n "$ACR" -g "$RG" || run az acr create -n "$ACR" -g "$RG" -l "$LOCATION" --sku Basic --admin-enabled false
@@ -113,6 +114,12 @@ exists az monitor log-analytics workspace show -n "$LOGS" -g "$RG" ||
   run az monitor log-analytics workspace create -n "$LOGS" -g "$RG" -l "$LOCATION"
 
 status "container apps environment $ENV_NAME"
+# A failed create (for example regional capacity) leaves an environment that exists but cannot host apps: replace it.
+if exists az containerapp env show -n "$ENV_NAME" -g "$RG" &&
+   [ "$(az containerapp env show -n "$ENV_NAME" -g "$RG" --query properties.provisioningState -o tsv)" != Succeeded ]; then
+  status "environment $ENV_NAME is not Succeeded, deleting it"
+  run az containerapp env delete -n "$ENV_NAME" -g "$RG" --yes
+fi
 if ! exists az containerapp env show -n "$ENV_NAME" -g "$RG"; then
   LOGS_ID="$(query "<workspace-customer-id>" az monitor log-analytics workspace show -n "$LOGS" -g "$RG" --query customerId -o tsv)"
   LOGS_KEY="$(query "<workspace-shared-key>" az monitor log-analytics workspace get-shared-keys -n "$LOGS" -g "$RG" --query primarySharedKey -o tsv)"

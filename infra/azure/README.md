@@ -34,7 +34,9 @@ placeholders.
 | Container Apps environment | `interlock-demo-env` | `AZURE_CONTAINERAPPS_ENV` |
 | Container app | `interlock-demo` | `AZURE_APP_NAME` |
 
-Region is `eastus` unless `AZURE_LOCATION` is set. The image tag is `<short commit>-<UTC timestamp>` unless `IMAGE_TAG` is set.
+Region is `eastus` unless `AZURE_LOCATION` is set. If a region is out of Container Apps capacity, rerun with another
+`AZURE_LOCATION`: an existing resource group keeps its region, and an environment whose provisioning state is not
+`Succeeded` is deleted and created again in the new region. The image tag is `<short commit>-<UTC timestamp>` unless `IMAGE_TAG` is set.
 
 ## The container app
 

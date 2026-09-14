@@ -22,6 +22,7 @@ case "$*" in
   *"--query properties.configuration.ingress.fqdn"*) echo "$STUB_FQDN" ;;
   *"--query properties.latestRevisionName"*) echo interlock-demo--rev1 ;;
   "role assignment list"*) echo "${STUB_ROLE_ID:-}" ;;
+  *"--query properties.provisioningState"*) echo "${STUB_ENV_STATE:-Succeeded}" ;;
   *"--query"*) echo "/subscriptions/x/resourceGroups/rg/providers/p/$2" ;;
   "containerapp show -n interlock-demo -g interlock-demo-rg") exit "$STUB_APP_MISSING" ;;
   "containerapp create"*|"containerapp update"*)
@@ -138,6 +139,18 @@ class AzureDeployScript(unittest.TestCase):
         self.assertEqual(sum(l.startswith("containerapp update") for l in lines), 1)
         self.assertEqual(sum(l.startswith("containerapp create") for l in lines), 0)
         self.assertEqual(sum(l.startswith("role assignment create") for l in lines), 0)
+
+    def test_failed_environment_is_replaced_and_existing_group_kept(self):
+        repo = self.make_repo()
+        fqdn = "interlock-demo.predicted.eastus.azurecontainerapps.io"
+        p, calls = self.deploy(repo, fqdn, app_missing=True, STUB_ENV_STATE="Failed")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        lines = calls.splitlines()
+        self.assertEqual(sum(l.startswith("group create") for l in lines), 0)
+        self.assertEqual(sum(l.startswith("containerapp env delete") for l in lines), 1)
+        os.remove(os.path.join(repo, "az.log"))
+        p, calls = self.deploy(repo, fqdn, app_missing=True)
+        self.assertEqual(sum(l.startswith("containerapp env delete") for l in calls.splitlines()), 0)
 
     def test_empty_fqdn_stops(self):
         repo = self.make_repo()
