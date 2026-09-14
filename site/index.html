@@ -564,6 +564,7 @@
       <nav class="links" aria-label="Sections">
         <a href="#tested">Tested</a>
         <a href="#problem">The problem</a>
+        <a href="#dataflow">Two journals</a>
         <a href="#fix">How Interlock works</a>
         <a href="#approvals">Approvals</a>
         <a href="#compare">Other tools</a>
@@ -779,6 +780,71 @@
       </article>
     </div>
   </section>
+
+  <!-- The two journals. The one-picture argument: a journal on disk records what YOU did,
+       never what the WORLD did while you were down. Same crash twice, side by side; the lanes
+       diverge at recovery. This is the divergence every results table measures. -->
+  <section id="dataflow" class="dark pad" data-play>
+    <span class="blob" style="--tone:var(--bad);width:640px;height:640px;left:-160px;top:0;opacity:.22"></span>
+    <span class="blob" style="--tone:var(--good);width:640px;height:640px;right:-160px;bottom:-120px;opacity:.2;animation-delay:-7s"></span>
+    <style>
+      .flow2 { display:grid; grid-template-columns:1fr minmax(190px,230px) 1fr; gap:1.1rem; margin-top:2.2rem; align-items:start; }
+      .flow2 .lane { display:flex; flex-direction:column; }
+      .flow2 .lane-h { font-size:.8rem; letter-spacing:.12em; text-transform:uppercase; color:var(--dim); margin:0 0 .9rem; }
+      .flow2 .lane-h b { color:#e8eaee; }
+      .flow2 .fnode { position:relative; background:rgba(255,255,255,.04); border:1px solid var(--line); border-radius:12px; padding:.7rem .95rem; font-size:.95rem; }
+      .flow2 .fnode + .fnode { margin-top:1.35rem; }
+      .flow2 .fnode + .fnode::before { content:""; position:absolute; left:50%; top:-1.35rem; height:1.35rem; width:1px; background:var(--line); }
+      .flow2 .fk { display:block; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--dim); margin-bottom:.25rem; }
+      .flow2 .f-bad { border-color:rgba(248,113,113,.45); }
+      .flow2 .f-good { border-color:rgba(52,211,153,.45); }
+      .flow2 .f-end { font-weight:600; font-size:1.02rem; }
+      .flow2 .f-end.f-bad { background:rgba(248,113,113,.09); }
+      .flow2 .f-end.f-good { background:rgba(52,211,153,.09); }
+      .flow2 .f-end small { display:block; font-weight:400; font-size:.8rem; color:var(--dim); margin-top:.3rem; }
+      .flow2 .fmid { align-self:center; border:1px solid rgba(245,165,36,.5); background:rgba(245,165,36,.08); border-radius:12px; padding:.8rem .95rem; font-size:.92rem; }
+      .flow2 .fmid .fk { color:var(--warn); }
+      @media (max-width: 900px) { .flow2 { grid-template-columns:1fr; } .flow2 .fmid { align-self:stretch; } }
+    </style>
+    <div class="wrap">
+      <h2 class="in" style="--d:80">Two ways to write it down. <em>Only one survives the world moving.</em></h2>
+      <p class="lede in" style="--d:160">Writing your intent to disk before you act is the obvious fix, and it is real progress: after a crash you know what you were doing. But a journal records what <b>you</b> did. It cannot record what the <b>world</b> did while you were down. Same crash, twice.</p>
+
+      <div class="flow2">
+        <div class="lane" aria-label="The obvious fix: journal the intent">
+          <p class="lane-h in" style="--d:250">The obvious fix · <b>write down what</b> · request IDs, durable workflows</p>
+          <div class="fnode in" style="--d:350"><span class="fk">0:00 · agent</span>Decides to refund $20</div>
+          <div class="fnode in" style="--d:700"><span class="fk">0:01 · disk</span>Journal: "sending $20." Safe on disk before the call</div>
+          <div class="fnode in" style="--d:1050"><span class="fk">0:02 · crash</span>Sends, and dies before the answer comes back</div>
+          <div class="fnode f-bad in" style="--d:2200"><span class="fk">1:10 · restart</span>Reads its journal: my $20 never landed, my permission is still live. Resends.</div>
+          <div class="fnode f-end f-bad in" style="--d:2700"><svg width="17" height="17" aria-hidden="true" style="vertical-align:-3px;color:var(--bad)"><use href="#i-x"/></svg> $40 refunded on a $20 approval<small>Its books balance. Nothing alerts.</small></div>
+        </div>
+        <div class="fmid in" style="--d:1600" aria-label="What happened during the outage">
+          <span class="fk">0:40 · meanwhile</span>Support refunds the $20 by hand. A different request, no ID, no journal entry. Invisible to both lanes' logs.
+        </div>
+        <div class="lane" aria-label="Interlock: journal the reasons">
+          <p class="lane-h in" style="--d:250">Interlock · <b>write down why</b> · the same journal, carrying the reasons</p>
+          <div class="fnode in" style="--d:350"><span class="fk">0:00 · agent</span>Decides to refund $20</div>
+          <div class="fnode in" style="--d:700"><span class="fk">0:01 · disk</span>Journal: "$20 <b>because</b> nothing is refunded yet, case 4471 approves it, permission live"</div>
+          <div class="fnode in" style="--d:1050"><span class="fk">0:02 · crash</span>Sends, and dies before the answer comes back</div>
+          <div class="fnode f-good in" style="--d:3300"><span class="fk">1:10 · restart</span>Re-reads the <b>world</b> first: refunded total is now $20. The reason is gone.</div>
+          <div class="fnode f-end f-good in" style="--d:3800"><svg width="17" height="17" aria-hidden="true" style="vertical-align:-3px;color:var(--good)"><use href="#i-check"/></svg> Refused. $20 total, receipt names the change<small>Measured on real Stripe, ids listed in the repo.</small></div>
+        </div>
+      </div>
+
+      <p class="lede in" style="--d:4500;margin-top:2rem">Recovery can only re-check what was written down. That single line is the difference between the two lanes, and it is what every results table on this page measures.</p>
+      <p style="margin-top:1.4rem"><button class="replay" type="button" id="flow2-replay" style="display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .7rem;border-radius:999px;border:1px solid var(--line);background:transparent;font-size:12px;color:var(--dim);cursor:pointer"><svg width="10" height="10" aria-hidden="true"><use href="#i-play"/></svg>Replay the crash</button></p>
+    </div>
+  </section>
+  <script>
+    (function () {
+      var s = document.getElementById('dataflow');
+      var b = document.getElementById('flow2-replay');
+      if (s && b) b.addEventListener('click', function () {
+        s.classList.remove('on', 'seen'); void s.offsetWidth; s.classList.add('on');
+      });
+    })();
+  </script>
 
   <!-- The fix, shown working. The trace replays the recovery run: the saved fact is re-checked,
        it comes back false, the second refund never goes out. Ported from the video's Scene4. -->
