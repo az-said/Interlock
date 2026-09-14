@@ -5,104 +5,209 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Interlock: one crash, the same refund</title>
 <style>
+/* Tokens from the landing page (site/index.html): dark ink, frosted glass, one cyan accent.
+   Status colors match the video: green = held, amber = a person stepped in or mock, red = money went wrong. */
 :root {
-  --bg: #f6f6f3; --fg: #15171c; --muted: #555c6b; --card: #ffffff; --line: #d9dce3;
-  --bad: #b3261e; --bad-bg: #fdeceb; --good: #0b6b3a; --good-bg: #e6f5ec;
-  --accent: #1f47c9; --accent-fg: #ffffff; --warn: #7a4d00; --warn-bg: #fff1cc;
-  --crash: #b3261e; --code-bg: #eef0f4;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0e1014; --fg: #eceef3; --muted: #a0a7b4; --card: #171a21; --line: #2b303b;
-    --bad: #ff8f86; --bad-bg: #3b1714; --good: #74e0a2; --good-bg: #10301f;
-    --accent: #8fb0ff; --accent-fg: #0e1014; --warn: #ffd37a; --warn-bg: #3a2c08;
-    --crash: #ff8f86; --code-bg: #232733;
-  }
+  color-scheme: dark;
+  --ink: #0c0e12; --text: #e8eaee; --dim: rgba(232, 234, 238, .72); --faint: rgba(232, 234, 238, .5);
+  --line: rgba(255, 255, 255, .1); --glass: rgba(14, 16, 20, .5);
+  --accent: #a8f0f6; --good: #34d399; --warn: #f5a524; --bad: #f87171;
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  --font: Arial, Helvetica, sans-serif; --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--fg); font: 18px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
-.wrap { max-width: 1480px; margin: 0 auto; padding: 28px 16px 48px; }
-h1 { font-size: clamp(1.6rem, 3.2vw, 2.4rem); line-height: 1.15; margin: 0 0 10px; letter-spacing: -0.01em; }
-.eyebrow { margin: 0 0 6px; color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
-.lede { margin: 0; max-width: 70ch; color: var(--fg); }
-.controls { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: end; margin: 22px 0 14px; padding: 16px;
-  background: var(--card); border: 1px solid var(--line); border-radius: 10px; }
-.controls label { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; color: var(--muted); font-weight: 600; }
-.controls label.check { flex-direction: row; align-items: center; gap: 8px; font-weight: 500; color: var(--fg); font-size: 0.95rem; }
-select { font: inherit; font-size: 1rem; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); max-width: 100%; }
-input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--accent); }
-.buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-left: auto; }
-button { font: inherit; font-weight: 650; border-radius: 8px; padding: 12px 20px; cursor: pointer; border: 2px solid transparent; }
-button.primary { background: var(--accent); color: var(--accent-fg); font-size: 1.15rem; padding: 12px 28px; }
-button.secondary { background: transparent; color: var(--warn); border-color: var(--warn); font-size: 0.95rem; }
-button:disabled { opacity: 0.45; cursor: not-allowed; }
-button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-.notice { flex-basis: 100%; margin: 0; color: var(--bad); font-size: 0.95rem; }
+html { background: var(--ink); overflow-x: clip; }
+body { margin: 0; background: var(--ink); color: var(--text); font: 16px/1.6 var(--font); -webkit-font-smoothing: antialiased; }
+button, a, select, label.check { cursor: pointer; }
+a { color: inherit; }
+p { margin: 0; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+::selection { background: var(--accent); color: var(--ink); }
+.wrap { max-width: 88rem; margin: 0 auto; padding-inline: 1.5rem; position: relative; z-index: 1; }
+
+/* Drifting color behind the glass, the landing page's no-photo sections */
+.backdrop { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.blob { position: absolute; border-radius: 5rem 2rem 5rem 50%; filter: blur(120px); opacity: .55; background: var(--tone);
+  animation: drift 18s ease-in-out infinite alternate; }
+@keyframes drift { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(50px, -30px) scale(1.08); } 100% { transform: translate(-40px, 40px) scale(.95); } }
+@media (prefers-reduced-motion: reduce) { .blob, .dot.on { animation: none !important; } }
+
+.glass { background: var(--glass); border: 1px solid var(--line); border-radius: 16px;
+  -webkit-backdrop-filter: blur(24px) saturate(130%); backdrop-filter: blur(24px) saturate(130%);
+  box-shadow: 0 30px 60px -24px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .07); }
+
+/* Nav */
+.nav { position: sticky; top: 0; z-index: 50; padding-top: 1rem; }
+.nav .glass { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .5rem .5rem .5rem 1rem; border-radius: 999px; }
+.brand { display: flex; align-items: center; gap: .55rem; font-size: 14px; font-weight: 700; letter-spacing: .06em; text-decoration: none; }
+.mark { width: 26px; height: 26px; flex: none; }
+.links { display: flex; align-items: center; gap: 1.4rem; font-size: 14px; color: var(--dim); }
+.links a { text-decoration: none; transition: color .2s var(--ease); }
+.links a:hover, .links a[aria-current] { color: var(--text); }
+.links a[aria-current] { font-weight: 700; }
+@media (max-width: 720px) { .links .hide-sm { display: none; } }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: .55rem; padding: .85rem 1.5rem; border-radius: 999px; background: var(--text); color: var(--ink);
+  font: 700 15px/1 var(--font); text-decoration: none; border: 1px solid var(--text); transition: transform .25s var(--ease), background .25s var(--ease), opacity .2s; }
+.btn:hover:not(:disabled) { transform: translateY(-2px); background: #fff; }
+.btn-sm { padding: .6rem 1rem; font-size: 13.5px; }
+.btn-ghost { background: transparent; color: var(--warn); border-color: rgba(245, 165, 36, .55); }
+.btn-ghost:hover:not(:disabled) { background: rgba(245, 165, 36, .1); }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.micro { font-size: 11px; line-height: 1.5; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); }
+
+/* Hero */
+header.hero { padding-block: 4rem 2.2rem; display: grid; gap: 1.1rem; }
+h1, h2 { font-weight: 700; letter-spacing: -.03em; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2.3rem, 5vw, 4rem); line-height: 1.04; max-width: 20ch; }
+h1 em { font-style: normal; color: var(--accent); }
+.lede { max-width: 44rem; color: var(--dim); font-size: 1.12rem; }
+.other { font-size: 14px; color: var(--dim); }
+.other a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(168, 240, 246, .35); }
+.unavailable { color: var(--warn); font-size: 14.5px; }
+.unavailable a { color: var(--accent); }
+
+/* Window chrome */
+.win { overflow: hidden; }
+.win-bar { display: flex; align-items: center; gap: .4rem; min-height: 2.6rem; padding: .35rem .9rem; border-bottom: 1px solid var(--line); }
+.win-bar i { width: 9px; height: 9px; border-radius: 50%; background: rgba(255, 255, 255, .2); flex: none; }
+.win-bar .title { margin-left: .5rem; font-size: 12px; color: var(--faint); }
+.win-body { padding: 1.2rem; }
+
+/* Controls */
+.controls .win-body { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; align-items: end; }
+.field { display: grid; gap: .4rem; font-size: 12px; color: var(--faint); letter-spacing: .1em; text-transform: uppercase; }
+select { font: 15px var(--font); color: var(--text); background: rgba(0, 0, 0, .35); border: 1px solid var(--line); border-radius: 10px; padding: .7rem 2.2rem .7rem .85rem; max-width: 100%;
+  appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--dim) 50%), linear-gradient(135deg, var(--dim) 50%, transparent 50%);
+  background-position: calc(100% - 17px) 50%, calc(100% - 12px) 50%; background-size: 5px 5px; background-repeat: no-repeat; }
+select option { background: #15181e; }
+label.check { display: flex; align-items: center; gap: .6rem; font-size: 14.5px; color: var(--dim); padding-bottom: .7rem; }
+input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--good); margin: 0; }
+.buttons { display: flex; flex-wrap: wrap; gap: .7rem; margin-left: auto; }
+.notice { flex-basis: 100%; color: var(--bad); font-size: 14.5px; }
 .notice:empty { display: none; }
-.banner { margin: 0 0 12px; padding: 12px 16px; border-radius: 10px; font-weight: 600; }
-.banner.live { background: var(--good-bg); color: var(--good); border: 1px solid currentColor; }
-.banner.mock { background: repeating-linear-gradient(-45deg, var(--warn-bg) 0 14px, transparent 14px 28px), var(--card);
-  color: var(--warn); border: 2px dashed var(--warn); font-size: 1.05rem; }
-.status { margin: 0 0 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.columns { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); align-items: start; }
-.col { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; min-width: 0; }
-.col.mock { border: 2px dashed var(--warn); }
-.col h2 { font-size: 1.2rem; margin: 0 0 4px; line-height: 1.25; }
-.col .sub { margin: 0 0 12px; color: var(--muted); font-size: 0.9rem; }
-.badge { display: inline-block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; padding: 2px 7px; border-radius: 5px;
-  background: var(--warn); color: var(--bg); vertical-align: middle; margin-right: 6px; }
-.result { border-radius: 10px; padding: 14px; margin-bottom: 12px; border: 2px solid var(--line); }
-.result.pending { color: var(--muted); border-style: dashed; }
-.result.bad { background: var(--bad-bg); border-color: var(--bad); }
-.result.good { background: var(--good-bg); border-color: var(--good); }
-.result p { margin: 0 0 6px; }
-.result .verdict { font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.9rem; }
+
+/* Run banner and status */
+.runbar { display: grid; gap: .6rem; margin-block: 1.4rem 1rem; }
+.banner { display: flex; align-items: center; gap: .75rem; padding: .85rem 1.1rem; border-radius: 14px; font-size: 14.5px; line-height: 1.45; }
+.banner.live { border-color: rgba(52, 211, 153, .4); }
+.banner.live::before { content: "LIVE"; flex: none; padding: .15rem .55rem; border-radius: 999px; background: var(--good); color: var(--ink); font-size: 11px; font-weight: 700; letter-spacing: .12em; }
+.banner.mock { color: var(--warn); border: 1.5px dashed var(--warn); font-weight: 700;
+  background: repeating-linear-gradient(-45deg, rgba(245, 165, 36, .12) 0 14px, transparent 14px 28px), var(--glass); }
+.status { font-family: var(--mono); font-size: 12.5px; color: var(--faint); font-variant-numeric: tabular-nums; display: flex; align-items: center; gap: .55rem; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--faint); flex: none; }
+.dot.on { background: var(--accent); animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .3; } }
+
+/* Columns */
+.columns { display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); align-items: start; }
+.col { min-width: 0; }
+.col.mock { border: 1.5px dashed rgba(245, 165, 36, .6); }
+.col h2 { margin-left: .5rem; font-size: 14.5px; letter-spacing: -.01em; line-height: 1.3; }
+.state { margin-left: auto; padding: .12rem .6rem; border-radius: 999px; border: 1px solid var(--line); font-size: 11.5px; color: var(--dim); white-space: nowrap; }
+.col[data-tone="good"] .state { color: var(--ink); background: var(--good); border-color: var(--good); font-weight: 700; }
+.col[data-tone="bad"] .state { color: var(--ink); background: var(--bad); border-color: var(--bad); font-weight: 700; }
+.col .sub { color: var(--dim); font-size: 14px; margin-bottom: 1rem; }
+.badge { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .1em; padding: .1rem .45rem; border-radius: 4px;
+  background: var(--warn); color: var(--ink); vertical-align: middle; margin-right: .45rem; }
+
+.result { border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: 1rem; border: 1px solid var(--line); background: rgba(0, 0, 0, .22); display: grid; gap: .45rem; }
+.result.pending { color: var(--faint); border-style: dashed; font-size: 14px; }
+.result.bad { border-color: rgba(248, 113, 113, .45); background: rgba(248, 113, 113, .07); }
+.result.good { border-color: rgba(52, 211, 153, .45); background: rgba(52, 211, 153, .07); }
+.result > .badge { justify-self: start; }
+.result .verdict { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; }
 .result.bad .verdict { color: var(--bad); }
 .result.good .verdict { color: var(--good); }
-.result .big { font-size: 1.7rem; font-weight: 800; line-height: 1.15; }
-.result .why { font-size: 0.98rem; }
-.result ul { margin: 8px 0; padding-left: 20px; font-size: 0.92rem; }
-.result .meta, .result .receipt { font-size: 0.85rem; color: var(--muted); }
-.result .receipt { border-top: 1px solid var(--line); margin-top: 8px; padding-top: 8px; }
+.result .big { font-size: clamp(1.6rem, 2.4vw, 2.1rem); font-weight: 700; letter-spacing: -.03em; line-height: 1.08; }
+.result .want { font-size: 14px; color: var(--dim); }
+.result .why { font-size: 14.5px; }
+.refunds { list-style: none; margin: .3rem 0 0; padding: 0; display: grid; gap: .3rem; font-size: 13px; }
+.refunds li { display: flex; flex-wrap: wrap; gap: .2rem .6rem; padding: .45rem .6rem; border-radius: 8px; background: rgba(255, 255, 255, .04); }
+.refunds b { font-variant-numeric: tabular-nums; }
+.result .meta { font-size: 12.5px; color: var(--faint); }
 .result a { color: var(--accent); }
-code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.86em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
-ol.events { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(--line); }
-.ev { position: relative; padding: 6px 0 8px 14px; font-size: 0.9rem; overflow-wrap: anywhere; }
-.ev .t { color: var(--muted); font-variant-numeric: tabular-nums; margin-right: 6px; font-size: 0.8rem; }
-.ev .k { font-weight: 800; font-size: 0.72rem; letter-spacing: 0.06em; margin-right: 6px; color: var(--muted); }
-.ev.crash .k, .ev.error .k { color: var(--crash); }
-.ev.crash, .ev.error { color: var(--crash); font-weight: 600; }
-.ev.hand_refund .k, .ev.revoke .k { color: var(--warn); }
-.ev.decision .k { color: var(--accent); }
-.ev.stripe .k { color: var(--good); }
+code { font-family: var(--mono); font-size: .88em; color: var(--text); overflow-wrap: anywhere; }
+
+.receipt { margin-top: .5rem; padding-top: .8rem; border-top: 1px solid var(--line); display: grid; gap: .5rem; }
+.receipt .rhead { font-size: 12.5px; color: var(--dim); }
+.proof { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12.5rem), 1fr)); gap: .15rem .9rem; }
+.proof li { display: flex; gap: .5rem; align-items: center; font-size: 13px; padding: .2rem 0; }
+.proof svg { width: 16px; height: 16px; flex: none; }
+.proof .yes svg { color: var(--good); }
+.proof .no svg { color: var(--faint); }
+.proof .other svg { color: var(--warn); }
+.receipt .note { font-size: 12.5px; color: var(--faint); }
+
+ol.events { list-style: none; margin: 0; padding: 0; display: grid; }
+.ev { display: grid; grid-template-columns: 3.2rem auto 1fr; gap: .15rem .6rem; align-items: baseline; padding: .5rem .2rem; font-size: 13.5px; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
+.ev .t { font-family: var(--mono); font-size: 11.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
+.ev .k { font-size: 10.5px; font-weight: 700; letter-spacing: .1em; padding: .05rem .4rem; border-radius: 4px; border: 1px solid var(--line); color: var(--dim); white-space: nowrap; }
+.ev .badge { grid-column: 1 / -1; justify-self: start; }
+.ev.crash, .ev.error { color: var(--bad); }
+.ev.crash .k, .ev.error .k { color: var(--bad); border-color: rgba(248, 113, 113, .5); }
+.ev.hand_refund .k, .ev.revoke .k { color: var(--warn); border-color: rgba(245, 165, 36, .5); }
+.ev.decision .k { color: var(--accent); border-color: rgba(168, 240, 246, .45); }
+.ev.stripe .k { color: var(--good); border-color: rgba(52, 211, 153, .45); }
 .ev a { color: var(--accent); }
-.other { margin: 14px 0 0; font-size: 0.95rem; }
-.other a { color: var(--accent); font-weight: 600; }
-footer { margin-top: 28px; color: var(--muted); font-size: 0.9rem; max-width: 90ch; }
-footer p { margin: 0 0 8px; }
+
+footer { margin-block: 3rem 4rem; display: grid; gap: .6rem; max-width: 60rem; font-size: 13.5px; color: var(--faint); }
+@media (max-width: 560px) { .buttons { margin-left: 0; width: 100%; } .buttons .btn { flex: 1 1 auto; } .ev { grid-template-columns: 2.8rem 1fr; } .ev > span:last-child { grid-column: 1 / -1; } }
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/></g></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></g></symbol>
+  <symbol id="i-q" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></g></symbol>
+</svg>
+<div class="backdrop" aria-hidden="true">
+  <div class="blob" style="--tone:#1d4ed8;width:38rem;height:30rem;left:-10rem;top:-8rem"></div>
+  <div class="blob" style="--tone:#0e7490;width:32rem;height:28rem;right:-8rem;top:18rem;animation-delay:-6s"></div>
+  <div class="blob" style="--tone:#065f46;width:30rem;height:24rem;left:30%;bottom:-12rem;animation-delay:-11s"></div>
+</div>
+
+<nav class="nav" aria-label="Interlock">
+  <div class="wrap">
+    <div class="glass">
+      <a class="brand" href="https://interlock-self.vercel.app/" aria-label="Interlock home">
+        <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><circle cx="62" cy="50" r="22" fill="none" stroke="#34d399" stroke-width="7"/><circle cx="38" cy="50" r="22" fill="none" stroke="#e8eaee" stroke-width="7"/><path d="M 57.8 71.6 A 22 22 0 0 1 43.98 62.62" fill="none" stroke="#1b1e24" stroke-width="13"/><path d="M 57.8 71.6 A 22 22 0 0 1 43.98 62.62" fill="none" stroke="#34d399" stroke-width="7"/></svg>
+        Interlock
+      </a>
+      <div class="links">
+        <a href="/" aria-current="page">Live demo</a>
+        <a href="/demo">On Temporal</a>
+        <a class="btn btn-sm hide-sm" href="https://github.com/az-said/Interlock">Get Interlock</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
 <div class="wrap">
-  <header>
-    <p class="eyebrow">Interlock demo</p>
-    <h1>One crash, the same refund, two workers</h1>
+  <header class="hero">
+    <p class="micro">Live demo · real Stripe test mode · real model · real crash · no Temporal</p>
+    <h1>One crash. The same refund. <em>Two workers.</em></h1>
     <p class="lede" id="story">Loading scenarios.</p>
     <p class="other"><a href="/demo">Already on Temporal? See the Temporal demo</a></p>
   </header>
 
-  <section class="controls" aria-label="Run controls">
-    <label>Scenario <select id="scenario"></select></label>
-    <label class="check"><input type="checkbox" id="handcheck"> Live only: add a worker with a hand-written re-check</label>
-    <div class="buttons">
-      <button id="live" class="primary" type="button">Run live</button>
-      <button id="mock" class="secondary" type="button">Run mock (simulated, no Stripe)</button>
+  <section class="controls glass win" aria-label="Run controls">
+    <div class="win-bar"><i></i><i></i><i></i><span class="title">support · case #4471 · $20 approved on a $100 payment</span></div>
+    <div class="win-body">
+      <label class="field">Scenario <select id="scenario"></select></label>
+      <label class="check"><input type="checkbox" id="handcheck"> Live only: add a worker with a hand-written re-check</label>
+      <div class="buttons">
+        <button id="mock" class="btn btn-ghost" type="button">Run mock (simulated, no Stripe)</button>
+        <button id="live" class="btn" type="button">Run live</button>
+      </div>
+      <p class="notice" id="notice" role="alert"></p>
     </div>
-    <p class="notice" id="notice" role="alert"></p>
   </section>
 
-  <p class="banner" id="banner" hidden></p>
-  <p class="status" id="status" aria-live="polite">No run yet. Run live creates real Stripe test payments and refunds, calls a real model, and kills a real worker process. No Temporal needed.</p>
+  <div class="runbar">
+    <p class="banner glass" id="banner" hidden></p>
+    <p class="status"><span class="dot" id="dot"></span><span id="status" aria-live="polite">No run yet. Run live creates real Stripe test payments and refunds, calls a real model, and kills a real worker process. No Temporal needed.</span></p>
+  </div>
   <main class="columns" id="columns"></main>
 
   <footer>
@@ -117,6 +222,7 @@ const API = "/demo/standalone";
 const $ = (s) => document.querySelector(s);
 const LABELS = { case: "CASE", worker: "WORKER", decision: "LLM", crash: "CRASH", hand_refund: "HAND REFUND", revoke: "REVOKED",
   retry: "RETRY", journal: "JOURNAL", stripe: "STRIPE", error: "ERROR", sim: "SIMULATED" };
+const RUNNING_TEXT = "Running. The result appears here when the restarted worker is done.";
 let info = null, run = null, after = 0, cols = {}, timer = null;
 const TITLE = document.title;
 
@@ -128,6 +234,10 @@ function el(tag, cls, text) {
 }
 function link(href, text) { const a = el("a", "", text); a.href = href; a.target = "_blank"; a.rel = "noopener"; return a; }
 function badge() { return el("span", "badge", "MOCK"); }
+function icon(id) {
+  const s = document.createElementNS("http://www.w3.org/2000/svg", "svg"), u = document.createElementNS("http://www.w3.org/2000/svg", "use");
+  s.setAttribute("aria-hidden", "true"); u.setAttribute("href", "#" + id); s.append(u); return s;
+}
 const money = (c) => "$" + (c / 100).toFixed(2);
 
 async function call(method, path, body) {
@@ -137,7 +247,7 @@ async function call(method, path, body) {
   return j;
 }
 
-function busy(on) { $("#live").disabled = on || !!(info && info.live_missing.length); $("#mock").disabled = on; }
+function busy(on) { $("#live").disabled = on || !!(info && info.live_missing.length); $("#mock").disabled = on; $("#dot").classList.toggle("on", on); }
 
 async function init() {
   info = await call("GET", `${API}/info`);
@@ -191,7 +301,7 @@ function build(v) {
   main.replaceChildren();
   const banner = $("#banner");
   banner.hidden = false;
-  banner.className = "banner " + (v.mock ? "mock" : "live");
+  banner.className = "banner glass " + (v.mock ? "mock" : "live");
   banner.textContent = v.mock
     ? "MOCK RUN: simulated in this process by experiments/refund_agent.py. No Stripe, no model, no worker process, no real crash. Not a live result."
     : `LIVE RUN: Stripe test mode, ${info.model}, a separate worker process killed with SIGKILL and restarted. No Temporal. Scenario: ${info.scenarios[v.scenario].title}.`;
@@ -199,16 +309,22 @@ function build(v) {
   document.title = (v.mock ? "MOCK: " : "") + TITLE;
   $("#settings").hidden = $("#livenote").hidden = v.mock;     // live settings, not used by a mock run
   for (const c of v.columns) {
-    const sec = el("section", "col" + (v.mock ? " mock" : ""));
+    const sec = el("section", "col glass win" + (v.mock ? " mock" : ""));
     sec.dataset.mode = c.mode;
+    const bar = el("div", "win-bar");
+    bar.append(el("i"), el("i"), el("i"));
     const h = el("h2");
     if (v.mock) h.append(badge());
     h.append(c.title);
-    const result = el("div", "result pending", v.mock ? "MOCK: waiting for the simulation." : "Running. The result appears here when the restarted worker is done.");
+    const state = el("span", "state", v.mock ? "Simulating" : "Running");
+    bar.append(h, state);
+    const body = el("div", "win-body");
+    const result = el("div", "result pending", v.mock ? "MOCK: waiting for the simulation." : RUNNING_TEXT);
     const list = el("ol", "events");
-    sec.append(h, el("p", "sub", c.sub), result, list);
+    body.append(el("p", "sub", c.sub), result, list);
+    sec.append(bar, body);
     main.append(sec);
-    cols[c.mode] = { result, list };
+    cols[c.mode] = { result, list, state, sec };
   }
 }
 
@@ -217,7 +333,7 @@ function apply(v) {
     after = ev.seq + 1;
     const col = cols[ev.col];
     if (!col) continue;
-    if (ev.kind === "result") renderResult(col.result, ev, v.mock);
+    if (ev.kind === "result") renderResult(col, ev, v.mock);
     else addEvent(col.list, ev, v.mock);
   }
   document.body.dataset.runDone = String(v.done);
@@ -232,27 +348,37 @@ function apply(v) {
 function addEvent(list, ev, mock) {
   const li = el("li", "ev " + ev.kind);
   if (mock) li.append(badge());
-  li.append(el("span", "t", ev.t.toFixed(1) + "s"), el("span", "k", LABELS[ev.kind] || ev.kind.toUpperCase()), el("span", "", ev.text));
-  if (ev.data && ev.data.dashboard) { li.append(" "); li.append(link(ev.data.dashboard, "Open in Stripe")); }
+  const text = el("span", "", ev.text);
+  if (ev.data && ev.data.dashboard) { text.append(" "); text.append(link(ev.data.dashboard, "Open in Stripe")); }
+  li.append(el("span", "t", ev.t.toFixed(1) + "s"), el("span", "k", LABELS[ev.kind] || ev.kind.toUpperCase()), text);
   list.append(li);
 }
 
-function renderResult(box, ev, mock) {
-  const d = ev.data;
+function proofItem(label, value) {
+  const cls = value === true ? "yes" : value === false ? "no" : "other";
+  const li = el("li", cls);
+  li.append(icon(value === true ? "i-check" : value === false ? "i-x" : "i-q"), el("span", "", `${label}: ${value === null ? "n/a" : value}`));
+  return li;
+}
+
+function renderResult(col, ev, mock) {
+  const d = ev.data, box = col.result;
   box.replaceChildren();
   box.className = "result " + (d.held ? "good" : "bad");
+  col.sec.dataset.tone = d.held ? "good" : "bad";
+  col.state.textContent = (mock ? "MOCK · " : "") + (d.held ? "Held" : "Went wrong");
   if (mock) box.append(badge());
-  box.append(el("p", "verdict", d.verdict), el("p", "big", d.headline), el("p", "", "Wanted: " + d.want_text), el("p", "why", d.why));
+  box.append(el("p", "verdict", d.verdict), el("p", "big", d.headline), el("p", "want", "Wanted: " + d.want_text), el("p", "why", d.why));
   const meta = el("p", "meta");
   meta.append("Outcome ", el("code", "", String(d.outcome)));
   if (mock) { box.append(meta); return; }
 
   box.dataset.paymentIntent = d.payment_intent;
   box.dataset.refundIds = (d.refunds || []).map((r) => r.id).join(",");
-  const ul = el("ul");
+  const ul = el("ul", "refunds");
   for (const r of d.refunds || []) {
     const li = el("li");
-    li.append(el("code", "", r.id), ` ${money(r.amount)}, ${r.by}`);
+    li.append(el("b", "", money(r.amount)), el("code", "", r.id), el("span", "", r.by));
     ul.append(li);
   }
   if (!(d.refunds || []).length) ul.append(el("li", "", "No refund objects in Stripe for this payment."));
@@ -263,10 +389,13 @@ function renderResult(box, ev, mock) {
   box.append(meta);
   if (d.receipt) {
     const v = d.receipt.verification, rc = el("div", "receipt");
-    rc.append(el("p", "", `Interlock receipt for effect ${d.receipt.effect_id}: ${d.receipt.entries.join(", ")}.`));
-    rc.append(el("p", "", `Verified from its entries: valid ${v.valid}, chain intact ${v.tamper_evident}, happened ${v.happened}, ` +
-      `this effect committed at most once ${v.happened_once}, authorized when fired ${v.authorized_when_fired}, assumptions held ${v.assumptions_held}` +
-      (v.refused ? `, refused "${v.refused}"` : "") + `, signed ${v.signed === null ? "no (no key configured)" : v.signed}.`));
+    rc.append(el("p", "rhead", `Interlock receipt for effect ${d.receipt.effect_id}: ${d.receipt.entries.join(", ")}.`));
+    const proof = el("ul", "proof");
+    proof.append(proofItem("valid", v.valid), proofItem("chain intact", v.tamper_evident), proofItem("happened", v.happened),
+      proofItem("committed at most once", v.happened_once), proofItem("authorized when fired", v.authorized_when_fired),
+      proofItem("assumptions held", v.assumptions_held));
+    rc.append(proof);
+    rc.append(el("p", "note", (v.refused ? `Refused: "${v.refused}". ` : "") + `Signed: ${v.signed === null ? "no (no key configured)" : v.signed}.`));
     box.append(rc);
   }
 }
