@@ -1,0 +1,15 @@
+interlock_runtime borrows designs, not code, from these projects. Nothing is vendored.
+
+- Absurd (earendil-works/absurd, Apache-2.0): SKIP LOCKED claims with takeover on an expired lease,
+  the database clock for timers and leases, eager fencing of stale writers.
+- DBOS Transact (dbos-inc, MIT): steps keyed by call order, fork of a workflow at a step,
+  first-writer-wins recording of decisions.
+- Temporal (temporalio, MIT): retry policy defaults (initial 1s, backoff 2.0, max interval 100x initial,
+  unlimited attempts), patched() semantics, loud non-determinism.
+- Restate (restatedev, design only; server is BSL 1.1 and is not used): pinning a running workflow to
+  the code version it started on.
+
+Dependency: psycopg (psycopg/psycopg) is LGPL-3.0. It is imported unmodified as a separate package,
+which the LGPL permits without affecting this package's license.
+
+Receipts and the effect journal format come from the interlock package in this repository (MIT).
