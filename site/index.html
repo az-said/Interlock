@@ -165,21 +165,16 @@
     85% { transform: translate(70px, 18px) scale(.82); }
     100% { opacity: 1; transform: translate(70px, 18px) scale(1); }
   }
-  .alert { margin-top: .8rem; display: flex; gap: .7rem; align-items: flex-start; padding: .8rem 1rem; border-radius: 12px; border: 1px solid rgba(248, 113, 113, .35); background: rgba(248, 113, 113, .08); transition: opacity .5s var(--ease), transform .6s var(--ease); }
-  .alert svg { flex: none; width: 18px; height: 18px; margin-top: 1px; color: var(--bad); }
-  .alert b { display: block; color: var(--bad); font-size: 14px; }
-  .alert span { display: block; color: var(--dim); font-size: 13px; margin-top: .15rem; }
-  .js .hero-run:not(.crashed) .alert { opacity: 0; transform: translateY(10px); }
-  /* After the crash: the same moment with and without Interlock. */
-  .outcomes { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: .6rem; }
-  @media (max-width: 560px) { .outcomes { grid-template-columns: 1fr; } }
-  .oc { padding: .75rem .95rem; border-radius: 12px; border: 1px solid rgba(248, 113, 113, .35); background: rgba(0, 0, 0, .2); transition: opacity .5s var(--ease), transform .6s var(--ease); }
-  .oc.good { border-color: rgba(52, 211, 153, .45); background: rgba(52, 211, 153, .07); transition-delay: .35s; }
-  .oc-k { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); }
-  .oc-v { margin-top: .2rem; font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .oc.bad .oc-v { color: var(--bad); } .oc.good .oc-v { color: var(--good); }
-  .oc-s { margin-top: .2rem; font-size: 13.5px; line-height: 1.4; color: var(--dim); }
-  .js .hero-run:not(.resolved) .oc { opacity: 0; transform: translateY(10px); transition-delay: 0s; }
+  /* Two tabs: the same crash without and with Interlock. The status line narrates the step. */
+  .hero-tabs { display: flex; gap: .25rem; width: max-content; max-width: 100%; margin-bottom: .9rem; padding: .25rem; border-radius: 999px; border: 1px solid var(--line); background: rgba(0, 0, 0, .22); }
+  .hero-tabs button { padding: .45rem .9rem; border: 0; border-radius: 999px; background: transparent; font-size: 13px; font-weight: 700; color: var(--dim); transition: background .25s var(--ease), color .25s var(--ease); }
+  .hero-tabs button:hover { color: var(--text); }
+  .hero-tabs button[aria-selected="true"] { background: var(--text); color: var(--ink); }
+  .hero-tabs button[data-flow="with"][aria-selected="true"] { background: var(--good); color: #05261a; }
+  .hero-note { margin-top: .8rem; min-height: 3.3rem; padding: .7rem .95rem; border-radius: 12px; border: 1px solid var(--line); background: rgba(0, 0, 0, .2); font-size: 14px; line-height: 1.45; color: var(--dim); transition: border-color .3s var(--ease), background-color .3s var(--ease); }
+  .hero-note b { color: var(--text); }
+  .hero-note.bad { border-color: rgba(248, 113, 113, .35); background: rgba(248, 113, 113, .08); } .hero-note.bad b { color: var(--bad); }
+  .hero-note.good { border-color: rgba(52, 211, 153, .45); background: rgba(52, 211, 153, .07); } .hero-note.good b { color: var(--good); }
 
   /* Agent trace, ported from agent-trace.tsx. Rows are real HTML so the end state renders
      without JavaScript; the script only drives --p, --t and the text. */
@@ -275,7 +270,8 @@
   .dm-note { margin-top: .9rem; font-size: 13px; color: var(--faint); }
   /* Touch screens: every small control gets a 44px tap target. */
   @media (pointer: coarse) {
-    .btn, .dm-steps button, .dm-tabs button, .dm-copy, .replay, .dm-play, .dm-reset, .dm-pick, .calc-in input { min-height: 44px; }
+    .btn, .hero-tabs button, .dm-steps button, .dm-tabs button, .dm-copy, .replay, .dm-play, .dm-reset, .dm-pick, .calc-assume input { min-height: 44px; }
+    .calc-slider input { height: 44px; }   /* native sliders ignore min-height */
     .dm-copy, .replay { min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }
     .brand { padding-block: .6rem; }
   }
@@ -410,19 +406,37 @@
   .js [data-play]:not(.on) .bar i { width: 0; }
   .on .bar i { animation: grow 1s var(--ease) backwards; animation-delay: calc(var(--d, 0) * 1ms); }
   @keyframes grow { from { width: 0; } }
-  .loss { margin-top: 1rem; padding: 1.6rem 1.8rem; }
-  .loss-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .8rem 1rem; }
-  .loss-title { font-size: 15px; color: var(--dim); }
-  .loss-title b { color: var(--text); }
-  .loss-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.3rem; }
-  @media (max-width: 720px) { .loss-grid { grid-template-columns: 1fr; } }
-  .loss-card { padding: 1.2rem 1.3rem; border-radius: 12px; border: 1px solid var(--line); background: rgba(0,0,0,.18); }
-  .loss-card.us { border-color: rgba(52, 211, 153, .4); background: rgba(52, 211, 153, .07); }
-  .loss-who { font-size: 13px; color: var(--faint); }
-  .loss-n { margin-top: .35rem; font-size: clamp(1.9rem, 3.4vw, 2.6rem); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
-  .loss-n.bad { color: var(--bad); } .loss-n.good { color: var(--good); }
-  .loss-sub { margin-top: .35rem; font-size: 15px; line-height: 1.45; color: var(--dim); }
   /* The money: sourced stats in two columns, then the approval calculator. */
+  .calc { margin-top: 1rem; padding: 1.8rem; }
+  .calc-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 2rem; align-items: start; }
+  @media (max-width: 860px) { .calc-grid { grid-template-columns: 1fr; gap: 1.6rem; } .calc { padding: 1.4rem; } }
+  .calc-k { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--warn); }
+  .calc-slider { display: block; margin-top: 1.3rem; }
+  .calc-slider span { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; font-size: 15px; color: var(--dim); }
+  .calc-slider output { font-size: 1.2rem; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .calc-slider input { width: 100%; margin-top: .55rem; accent-color: var(--accent); cursor: pointer; }
+  .calc-more { margin-top: 1.5rem; font-size: 14px; color: var(--faint); }
+  .calc-more summary { color: var(--dim); }
+  .calc-more summary:hover { color: var(--text); }
+  .calc-assume { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin-top: .8rem; }
+  .calc-assume label { display: flex; flex-direction: column; justify-content: space-between; gap: .35rem; font-size: 12.5px; }
+  .calc-assume input { width: 100%; padding: .5rem .7rem; border-radius: 10px; border: 1px solid var(--line); background: rgba(0,0,0,.25); color: var(--text); font: 15px var(--font); font-variant-numeric: tabular-nums; }
+  .calc-more p { margin-top: .8rem; font-size: 13px; line-height: 1.5; }
+  .calc-more code { color: var(--dim); overflow-wrap: anywhere; }
+  .calc-result { padding: 1.4rem 1.5rem; border-radius: 14px; border: 1px solid var(--line); background: rgba(0,0,0,.2); }
+  .calc-save { margin-top: .5rem; font-size: clamp(1.8rem, 3.4vw, 2.6rem); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
+  .calc-save b { color: var(--good); font-variant-numeric: tabular-nums; }
+  .calc-sub { margin-top: .45rem; font-size: 16px; color: var(--dim); }
+  .calc-sub b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .calc-bar { margin-top: 1.3rem; }
+  .calc-bar-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; font-size: 15px; color: var(--dim); }
+  .calc-bar-head b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .calc-track { height: 10px; margin-top: .5rem; border-radius: 99px; background: rgba(255,255,255,.08); overflow: hidden; }
+  .calc-track i { display: block; height: 100%; transform-origin: left; transform: scaleX(var(--w, 1)); transition: transform .4s var(--ease); }
+  .calc-track i.bad { background: var(--bad); } .calc-track i.good { background: var(--good); }
+  .calc-bar p { margin-top: .35rem; font-size: 13.5px; color: var(--faint); }
+  .calc-per { margin-top: 1.3rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: 14px; color: var(--dim); }
+  .calc-per b { color: var(--text); }
   .money-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 3.5rem; }
   @media (max-width: 860px) { .money-grid { grid-template-columns: 1fr; } }
   .money { padding: 1.6rem 1.8rem; }
@@ -434,15 +448,6 @@
   .stat cite { display: block; margin-top: .4rem; font-size: 13px; font-style: normal; color: var(--faint); }
   .stat cite a { text-decoration-color: rgba(232, 234, 238, .3); text-underline-offset: 2px; }
   .stat cite a:hover { color: var(--text); }
-  .calc-line { margin-top: .6rem; font-size: 15px; color: var(--dim); max-width: 48rem; }
-  .calc-line b { color: var(--text); font-variant-numeric: tabular-nums; }
-  .calc-in { display: grid; grid-template-columns: repeat(5, 1fr); gap: .8rem; margin-top: 1.2rem; }
-  @media (max-width: 860px) { .calc-in { grid-template-columns: repeat(2, 1fr); } }
-  .calc-in label { display: flex; flex-direction: column; justify-content: space-between; gap: .35rem; font-size: 12px; color: var(--faint); }
-  .calc-in input { width: 100%; padding: .5rem .7rem; border-radius: 10px; border: 1px solid var(--line); background: rgba(0,0,0,.25); color: var(--text); font: 15px var(--font); font-variant-numeric: tabular-nums; }
-  .calc-in input:hover { border-color: rgba(255,255,255,.25); }
-  .calc-note { margin-top: 1rem; font-size: 13px; color: var(--faint); }
-  .calc-note code { color: var(--dim); overflow-wrap: anywhere; }
   .score-row .n { font-size: 1.5rem; font-weight: 700; text-align: right; color: var(--bad); }
   .score-row.us .n { color: var(--good); }
   .score-row.us .name { font-weight: 700; }
@@ -572,7 +577,7 @@
 <main id="top">
 
   <!-- Hero. The whole problem in one moment: the agent runs, the refund call goes out,
-       the agent dies. The run card replays the video's crash scene with real HTML. -->
+       the agent dies. Two tabs play that crash without and with Interlock, in turn on first view. -->
   <section class="scene scene-night hero" data-play>
     <div class="wrap hero-grid">
       <div>
@@ -584,11 +589,15 @@
         </div>
       </div>
 
-      <div class="glass win hero-run busy crashed resolved in" style="--d:200" data-hero>
+      <div class="glass win hero-run busy crashed in" style="--d:200" data-hero>
         <div class="win-bar"><i></i><i></i><i></i><span class="title">support · case #4471</span>
           <button class="replay" type="button" data-replay aria-label="Replay the crash"><svg width="10" height="10" aria-hidden="true"><use href="#i-play"/></svg>Replay</button>
         </div>
         <div class="win-body">
+          <div class="hero-tabs" role="tablist" aria-label="Replay the crash">
+            <button type="button" role="tab" aria-selected="false" data-flow="without">Without Interlock</button>
+            <button type="button" role="tab" aria-selected="true" data-flow="with">With Interlock</button>
+          </div>
           <p class="ticket">customer · 2 min ago</p>
           <p class="msg">I paid $100 and support approved a $20 refund. Can you send it?</p>
           <p class="order">order_881 · paid $100 · approved refund $20</p>
@@ -601,31 +610,43 @@
             <svg class="cursor" viewBox="0 0 28 36" aria-hidden="true"><path d="M2 2 L2 28 L9 21 L14 33 L19 31 L14 19 L24 19 Z" fill="#e8eaee" stroke="#0c0e12" stroke-width="2" stroke-linejoin="round"/></svg>
           </div>
 
-          <div class="trace" data-trace data-total="3600" data-stop="3200" data-real="2600" data-done="Crashed" data-end-tone="bad" role="img" aria-label="Agent run: read the case, decided to refund $20, called the payment service, got no response, never updated the order record.">
-            <div class="tr-head"><span class="dot"></span><b>run_881</b><span class="muted">refund-agent</span><span class="pill" data-status>Crashed</span></div>
+          <div class="trace" data-flow-trace="without" data-total="7000" data-stop="7000" data-real="5600" data-done="Paid twice" data-end-tone="bad" role="img" aria-label="Without Interlock: the agent decided to refund $20 and called the payment service, which took the refund but never answered. The agent crashed, restarted, decided again and sent the refund a second time." hidden>
+            <div class="tr-head"><span class="dot"></span><b>run_881</b><span class="muted">refund-agent</span><span class="pill" data-status>Paid twice</span></div>
             <div class="tr-body">
               <div class="tr-grid"></div>
               <ol class="tr-rows">
-                <li class="tr-row" data-kind="agent" data-start="0" data-end="3200" data-err data-detail="" data-state="error" style="--p:1"><span class="tr-label">refund-agent</span><span class="tr-track"><span class="tr-bar" style="left:0%;width:88.9%"><i></i></span></span><span class="tr-meta"><em></em><time>3.20s</time></span></li>
-                <li class="tr-row" data-kind="io" data-start="120" data-end="520" data-detail="approved $20" data-state="done" style="--p:1;--depth:1"><span class="tr-label">read_case</span><span class="tr-track"><span class="tr-bar" style="left:3.3%;width:11.1%"><i></i></span></span><span class="tr-meta"><em>approved $20</em><time>400ms</time></span></li>
-                <li class="tr-row" data-kind="model" data-start="600" data-end="1650" data-detail="refund $20" data-state="done" style="--p:1;--depth:1"><span class="tr-label">decide_refund</span><span class="tr-track"><span class="tr-bar" style="left:16.7%;width:29.2%"><i></i></span></span><span class="tr-meta"><em>refund $20</em><time>1.05s</time></span></li>
-                <li class="tr-row" data-kind="tool" data-start="1750" data-end="3200" data-err data-detail="no response" data-state="error" style="--p:1;--depth:1"><span class="tr-label">payments.refund</span><span class="tr-track"><span class="tr-bar" style="left:48.6%;width:40.3%"><i></i></span></span><span class="tr-meta"><em>no response</em><time>1.45s</time></span></li>
-                <li class="tr-row" data-kind="io" data-start="3300" data-end="3600" data-detail="saved" data-state="queued" style="--p:0;--depth:1"><span class="tr-label">orders.update</span><span class="tr-track"><span class="tr-bar" style="left:91.7%;width:8.3%"><i></i></span></span><span class="tr-meta"><em></em><time></time></span></li>
+                <li class="tr-row" data-kind="agent" data-start="0" data-end="3200" data-err data-detail="crashed" data-state="error" style="--p:1"><span class="tr-label">refund-agent</span><span class="tr-track"><span class="tr-bar" style="left:0.0%;width:45.7%"><i></i></span></span><span class="tr-meta"><em>crashed</em><time>3.20s</time></span></li>
+                <li class="tr-row" data-kind="io" data-start="120" data-end="520" data-detail="approved $20" data-state="done" style="--p:1;--depth:1"><span class="tr-label">read_case</span><span class="tr-track"><span class="tr-bar" style="left:1.7%;width:5.7%"><i></i></span></span><span class="tr-meta"><em>approved $20</em><time>400ms</time></span></li>
+                <li class="tr-row" data-kind="model" data-start="600" data-end="1650" data-detail="refund $20" data-state="done" style="--p:1;--depth:1"><span class="tr-label">decide_refund</span><span class="tr-track"><span class="tr-bar" style="left:8.6%;width:15.0%"><i></i></span></span><span class="tr-meta"><em>refund $20</em><time>1.05s</time></span></li>
+                <li class="tr-row" data-kind="tool" data-start="1750" data-end="3200" data-err data-detail="no response" data-state="error" style="--p:1;--depth:1"><span class="tr-label">payments.refund</span><span class="tr-track"><span class="tr-bar" style="left:25.0%;width:20.7%"><i></i></span></span><span class="tr-meta"><em>no response</em><time>1.45s</time></span></li>
+                <li class="tr-row" data-kind="agent" data-start="3600" data-end="6900" data-detail="" data-state="done" style="--p:1"><span class="tr-label">restart</span><span class="tr-track"><span class="tr-bar" style="left:51.4%;width:47.1%"><i></i></span></span><span class="tr-meta"><em></em><time>3.30s</time></span></li>
+                <li class="tr-row" data-kind="model" data-start="3800" data-end="4700" data-detail="refund $20" data-state="done" style="--p:1;--depth:1"><span class="tr-label">decide_refund</span><span class="tr-track"><span class="tr-bar" style="left:54.3%;width:12.9%"><i></i></span></span><span class="tr-meta"><em>refund $20</em><time>900ms</time></span></li>
+                <li class="tr-row" data-kind="tool" data-start="4800" data-end="5900" data-err data-detail="sent again" data-state="error" style="--p:1;--depth:1"><span class="tr-label">payments.refund</span><span class="tr-track"><span class="tr-bar" style="left:68.6%;width:15.7%"><i></i></span></span><span class="tr-meta"><em>sent again</em><time>1.10s</time></span></li>
+                <li class="tr-row" data-kind="io" data-start="6000" data-end="6800" data-detail="saved" data-state="done" style="--p:1;--depth:1"><span class="tr-label">orders.update</span><span class="tr-track"><span class="tr-bar" style="left:85.7%;width:11.4%"><i></i></span></span><span class="tr-meta"><em>saved</em><time>800ms</time></span></li>
               </ol>
               <div class="tr-play"><div></div></div>
             </div>
           </div>
 
-          <div class="alert" role="status">
-            <svg aria-hidden="true"><use href="#i-alert"/></svg>
-            <div><b>Agent crashed mid-refund</b><span>The payment service got the request. Your records never heard back.</span></div>
+          <div class="trace" data-flow-trace="with" data-total="7000" data-stop="7000" data-real="5600" data-done="Refund found" data-end-tone="good" role="img" aria-label="With Interlock: the same crash. On restart Interlock read its journal, looked the refund up, found it had already landed, sent nothing and wrote a receipt.">
+            <div class="tr-head"><span class="dot"></span><b>run_881</b><span class="muted">refund-agent + interlock</span><span class="pill" data-status>Refund found</span></div>
+            <div class="tr-body">
+              <div class="tr-grid"></div>
+              <ol class="tr-rows">
+                <li class="tr-row" data-kind="agent" data-start="0" data-end="3200" data-err data-detail="crashed" data-state="error" style="--p:1"><span class="tr-label">refund-agent</span><span class="tr-track"><span class="tr-bar" style="left:0.0%;width:45.7%"><i></i></span></span><span class="tr-meta"><em>crashed</em><time>3.20s</time></span></li>
+                <li class="tr-row" data-kind="io" data-start="120" data-end="520" data-detail="approved $20" data-state="done" style="--p:1;--depth:1"><span class="tr-label">read_case</span><span class="tr-track"><span class="tr-bar" style="left:1.7%;width:5.7%"><i></i></span></span><span class="tr-meta"><em>approved $20</em><time>400ms</time></span></li>
+                <li class="tr-row" data-kind="model" data-start="600" data-end="1650" data-detail="refund $20" data-state="done" style="--p:1;--depth:1"><span class="tr-label">decide_refund</span><span class="tr-track"><span class="tr-bar" style="left:8.6%;width:15.0%"><i></i></span></span><span class="tr-meta"><em>refund $20</em><time>1.05s</time></span></li>
+                <li class="tr-row" data-kind="tool" data-start="1750" data-end="3200" data-err data-detail="no response" data-state="error" style="--p:1;--depth:1"><span class="tr-label">payments.refund</span><span class="tr-track"><span class="tr-bar" style="left:25.0%;width:20.7%"><i></i></span></span><span class="tr-meta"><em>no response</em><time>1.45s</time></span></li>
+                <li class="tr-row" data-kind="agent" data-start="3600" data-end="6900" data-detail="" data-state="done" style="--p:1"><span class="tr-label">interlock.recover</span><span class="tr-track"><span class="tr-bar" style="left:51.4%;width:47.1%"><i></i></span></span><span class="tr-meta"><em></em><time>3.30s</time></span></li>
+                <li class="tr-row" data-kind="tool" data-start="3800" data-end="5000" data-detail="refund found" data-state="done" style="--p:1;--depth:1"><span class="tr-label">lookup</span><span class="tr-track"><span class="tr-bar" style="left:54.3%;width:17.1%"><i></i></span></span><span class="tr-meta"><em>refund found</em><time>1.20s</time></span></li>
+                <li class="tr-row" data-kind="good" data-start="5100" data-end="5700" data-detail="not resent" data-state="done" style="--p:1;--depth:1"><span class="tr-label">payments.refund</span><span class="tr-track"><span class="tr-bar" style="left:72.9%;width:8.6%"><i></i></span></span><span class="tr-meta"><em>not resent</em><time>600ms</time></span></li>
+                <li class="tr-row" data-kind="io" data-start="5800" data-end="6800" data-detail="COMMITTED" data-state="done" style="--p:1;--depth:1"><span class="tr-label">write_receipt</span><span class="tr-track"><span class="tr-bar" style="left:82.9%;width:14.3%"><i></i></span></span><span class="tr-meta"><em>COMMITTED</em><time>1.00s</time></span></li>
+              </ol>
+              <div class="tr-play"><div></div></div>
+            </div>
           </div>
 
-          <!-- What happens next, both ways. The "crash after sending, before the reply" row of results/refund_agent.md. -->
-          <div class="outcomes">
-            <div class="oc bad"><p class="oc-k">Without Interlock</p><p class="oc-v">$40 refunded</p><p class="oc-s">The agent restarts and sends the refund again.</p></div>
-            <div class="oc good"><p class="oc-k">With Interlock</p><p class="oc-v">$20 refunded</p><p class="oc-s">Interlock finds the refund already landed and sends nothing.</p></div>
-          </div>
+          <p class="hero-note good" data-note role="status"><b>$20 refunded.</b> Interlock found the refund already landed and sent nothing.</p>
         </div>
       </div>
     </div>
@@ -1007,24 +1028,41 @@
         </div>
       </div>
 
-      <div class="glass loss in" style="--d:300" data-calc>
-        <div class="loss-head">
-          <p class="loss-title">What approving every agent action costs a year</p>
+      <!-- Approval calculator: the three things a team knows on the left, the answer on the right, told as
+           money and as reviewers. Same math and defaults as experiments/approval_cost.py. -->
+      <div class="glass calc in" style="--d:300" data-calc>
+        <div class="calc-grid">
+          <div class="calc-inputs">
+            <p class="calc-k">Your agents today</p>
+            <label class="calc-slider"><span>Agent actions a person approves each day <output data-show="actions">2,000</output></span><input type="range" name="actions" min="100" max="10000" step="100" value="2000"></label>
+            <label class="calc-slider"><span>Minutes per approval <output data-show="minutes">5 min</output></span><input type="range" name="minutes" min="1" max="15" step="0.5" value="5"></label>
+            <label class="calc-slider"><span>Loaded cost of a reviewer <output data-show="hourly">$50/hr</output></span><input type="range" name="hourly" min="20" max="150" step="5" value="50"></label>
+            <details class="calc-more">
+              <summary>Assumptions</summary>
+              <div class="calc-assume">
+                <label>Working days a year<input type="number" name="days" value="250" min="1" max="366" inputmode="numeric"></label>
+                <label>Still reviewed with Interlock (%)<input type="number" name="share" value="33" min="0" max="100" inputmode="numeric"></label>
+              </div>
+              <p>The 33% comes from a synthetic day of 100 refund requests (results/approval_inbox.md), so change it if your mix differs. A full-time reviewer is 8 hours of approving a day. Labor only; recovered duplicate payments are not counted. The same math, with every assumption as a flag: <code>python3 experiments/approval_cost.py</code></p>
+            </details>
+          </div>
+          <div class="calc-result" aria-live="polite">
+            <p class="calc-k">What that costs a year</p>
+            <p class="calc-save">Save <b data-out="saved">$1,395,833</b> a year</p>
+            <p class="calc-sub">That's <b data-out="fte-saved">14</b> full-time reviewers' worth of time.</p>
+            <div class="calc-bar">
+              <div class="calc-bar-head"><span>Every action approved</span><b data-out="all">$2,083,333</b></div>
+              <div class="calc-track"><i class="bad"></i></div>
+              <p data-out="fte-all">about 21 full-time reviewers</p>
+            </div>
+            <div class="calc-bar">
+              <div class="calc-bar-head"><span>With Interlock, <b data-out="share">33%</b> still reviewed</span><b data-out="with">$687,500</b></div>
+              <div class="calc-track"><i class="good" data-bar="with" style="--w:.33"></i></div>
+              <p data-out="fte-with">about 6.9 full-time reviewers</p>
+            </div>
+            <p class="calc-per">One approval costs <b data-out="per">$4.17</b>. A receipt takes no reviewer time.</p>
+          </div>
         </div>
-        <p class="calc-line">A person's approval costs <b data-out="per">$4.17</b> and grows with every action. A receipt takes no reviewer time. With rules plus Interlock, a person reviews <b data-out="share">33%</b> of actions, the ones that need judgment.</p>
-        <div class="calc-in">
-          <label>Agent actions a day<input type="number" name="actions" value="2000" min="0" step="100" inputmode="numeric"></label>
-          <label>Minutes per review<input type="number" name="minutes" value="5" min="0" step="0.5" inputmode="decimal"></label>
-          <label>Loaded cost per hour ($)<input type="number" name="hourly" value="50" min="0" step="5" inputmode="decimal"></label>
-          <label>Working days a year<input type="number" name="days" value="250" min="0" step="10" inputmode="numeric"></label>
-          <label>Still reviewed with Interlock (%)<input type="number" name="share" value="33" min="0" max="100" step="1" inputmode="numeric"></label>
-        </div>
-        <div class="loss-grid">
-          <div class="loss-card"><p class="loss-who">Every action approved</p><p class="loss-n bad" data-out="all">$2,083,333</p><p class="loss-sub">in review time a year</p></div>
-          <div class="loss-card"><p class="loss-who">Rules plus Interlock</p><p class="loss-n" data-out="with">$687,500</p><p class="loss-sub">in review time a year</p></div>
-          <div class="loss-card us"><p class="loss-who">Saved</p><p class="loss-n good" data-out="saved">$1,395,833</p><p class="loss-sub">a year, before recovered duplicate payments</p></div>
-        </div>
-        <p class="calc-note">Labor only. The 33% comes from a synthetic day of 100 refund requests (results/approval_inbox.md), so treat it as an assumption and change it. The same math, with every assumption as a flag: <code>python3 experiments/approval_cost.py</code></p>
       </div>
 
       <div class="events three">
@@ -1222,6 +1260,7 @@
     return {
       paint,
       end() { cancelAnimationFrame(raf); paint(stop); root.classList.add("done"); },
+      stop() { cancelAnimationFrame(raf); },
       play(onDone) {
         cancelAnimationFrame(raf);
         root.classList.remove("done");
@@ -1237,29 +1276,50 @@
     };
   }
 
-  // Hero: the video's crash scene. Cursor clicks, agent runs, the payment call never returns.
+  // Hero: the same crash twice. "Without Interlock" restarts and pays again; "With Interlock" looks the
+  // refund up and sends nothing (the crash-before-reply row of results/refund_agent.md). On first view the
+  // two play in turn; a tab click replays just that one, Replay runs both again.
   const hero = document.querySelector("[data-hero]");
   if (hero) {
-    const tr = Trace(hero.querySelector("[data-trace]"));
+    const note = hero.querySelector("[data-note]"), tabs = [...hero.querySelectorAll("[data-flow]")];
+    const flows = {};
+    hero.querySelectorAll("[data-flow-trace]").forEach((el) => (flows[el.dataset.flowTrace] = { el, tr: Trace(el) }));
+    const LINES = {
+      without: { next: ["", "<b>The agent restarts.</b> Nothing says the refund already went out, so it decides again."],
+                 end: ["bad", "<b>$40 refunded.</b> The agent sent the refund a second time."] },
+      with: { next: ["", "<b>Interlock recovers.</b> Its journal shows a refund sent but never confirmed, so it looks it up first."],
+              end: ["good", "<b>$20 refunded.</b> Interlock found the refund already landed and sent nothing."] },
+    };
     let timers = [];
-    const run = () => {
-      timers.forEach(clearTimeout);
-      hero.classList.remove("busy", "crashed", "resolved", "go");
+    const say = ([tone, html]) => { note.className = "hero-note " + tone; note.innerHTML = html; };
+    const show = (flow) => {
+      tabs.forEach((t) => t.setAttribute("aria-selected", String(t.dataset.flow === flow)));
+      for (const [name, f] of Object.entries(flows)) { f.el.hidden = name !== flow; f.tr.stop(); }
+      timers.forEach(clearTimeout); timers = [];
+    };
+    const finish = (flow) => { show(flow); flows[flow].tr.end(); hero.classList.add("busy", "crashed"); say(LINES[flow].end); };
+    const play = (flow, then) => {
+      if (reduce) return finish(flow);
+      show(flow);
+      const { tr, el } = flows[flow], real = +el.dataset.real, at = (ms) => (ms / +el.dataset.total) * real;
+      hero.classList.remove("busy", "crashed", "go");
       tr.paint(0);
       void hero.offsetWidth;
       hero.classList.add("go");
-      timers = [setTimeout(() => {
+      say(["", "<b>Support case #4471.</b> The agent is about to refund $20."]);
+      timers.push(setTimeout(() => {
         hero.classList.add("busy");
-        tr.play(() => timers.push(
-          setTimeout(() => hero.classList.add("crashed"), 250),
-          setTimeout(() => hero.classList.add("resolved"), 1100)));   // then both outcomes, once the alert has landed
-      }, 1300)];
+        tr.play(() => { say(LINES[flow].end); if (then) timers.push(setTimeout(then, 2400)); });
+        timers.push(setTimeout(() => { hero.classList.add("crashed"); say(["bad", "<b>Agent crashed mid-refund.</b> The payment service got the request. Your records never heard back."]); }, at(3200)));
+        timers.push(setTimeout(() => say(LINES[flow].next), at(3600) + 700));
+      }, 1300));
     };
-    // Runs when the hero first shows; a reload that lands below it finds the run already over.
+    const both = () => play("without", () => play("with"));
+    tabs.forEach((t) => t.addEventListener("click", () => play(t.dataset.flow)));
+    hero.querySelector("[data-replay]").addEventListener("click", both);
     const section = hero.closest("[data-play]");
-    if (reduce) tr.end();
-    else { section.addEventListener("play", run, { once: true }); section.addEventListener("seen", () => tr.end(), { once: true }); }
-    hero.querySelector("[data-replay]").addEventListener("click", run);
+    if (reduce) finish("with");
+    else { section.addEventListener("play", both, { once: true }); section.addEventListener("seen", () => finish("with"), { once: true }); }
   }
 
   // Recovery trace plays when it scrolls into view, then reveals its result badge.
@@ -1449,20 +1509,32 @@
     }, +el.dataset.delay);
   };
 
-  // Approval cost: the same arithmetic and defaults as experiments/approval_cost.py.
+  // Approval cost: the same arithmetic and defaults as experiments/approval_cost.py, also told as
+  // full-time reviewers (8 hours of approving a day) because headcount reads faster than dollars.
   document.querySelectorAll("[data-calc]").forEach((box) => {
     const val = (name) => Math.max(0, +box.querySelector(`[name="${name}"]`).value || 0);
     const usd = (v) => "$" + Math.round(v).toLocaleString("en-US");
-    const out = (key, text) => (box.querySelector(`[data-out="${key}"]`).textContent = text);
+    const out = (key, text) => box.querySelectorAll(`[data-out="${key}"]`).forEach((el) => (el.textContent = text));
+    const show = (key, text) => (box.querySelector(`[data-show="${key}"]`).textContent = text);
+    const count = (n) => (n < 10 ? n.toFixed(1).replace(/\.0$/, "") : Math.round(n).toLocaleString("en-US"));
+    const people = (n) => (n < 1 ? "less than one full-time reviewer" : `about ${count(n)} full-time reviewer${n >= 1.5 ? "s" : ""}`);
     const update = () => {
-      const perReview = val("minutes") / 60 * val("hourly");
-      const allHuman = val("actions") * val("days") * perReview;
+      const actions = val("actions"), minutes = val("minutes"), hourly = val("hourly");
       const share = Math.min(100, val("share")) / 100;
+      const perReview = (minutes / 60) * hourly, allHuman = actions * val("days") * perReview;
+      const reviewers = (actions * minutes) / 60 / 8;
+      show("actions", actions.toLocaleString("en-US"));
+      show("minutes", `${minutes} min`);
+      show("hourly", `$${hourly}/hr`);
       out("per", "$" + perReview.toFixed(2));
       out("share", Math.round(share * 100) + "%");
       out("all", usd(allHuman));
       out("with", usd(allHuman * share));
       out("saved", usd(allHuman * (1 - share)));
+      out("fte-all", people(reviewers));
+      out("fte-with", people(reviewers * share));
+      out("fte-saved", count(reviewers * (1 - share)));
+      box.querySelector('[data-bar="with"]').style.setProperty("--w", share.toFixed(3));
     };
     box.addEventListener("input", update);
     update();
