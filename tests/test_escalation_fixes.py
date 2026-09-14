@@ -681,7 +681,7 @@ class RepairAutoApprovalWait(unittest.TestCase):
 
 
 class ReadmeMatchesResults(unittest.TestCase):
-    """README's approval numbers are the ones results/approval_inbox.md reports."""
+    """docs/proof.md's approval numbers are the ones results/approval_inbox.md reports."""
 
     def test_table_and_headline(self):
         import re
@@ -690,7 +690,7 @@ class ReadmeMatchesResults(unittest.TestCase):
         with open(os.path.join(ROOT, "results", "approval_inbox.md")) as f:
             md = f.read()
         results = rows(md)
-        with open(os.path.join(ROOT, "README.md")) as f:
+        with open(os.path.join(ROOT, "docs", "proof.md")) as f:
             readme = f.read()
         self.assertEqual(len(results), 3)
         self.assertEqual({k: v for k, v in rows(readme).items() if k in results}, results)

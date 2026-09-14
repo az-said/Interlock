@@ -1331,7 +1331,7 @@ Each scenario runs one agent step against the standard setup, a fair hand-writte
 
 Every fix below has a test in `tests/` that failed before the fix.
 
-### Before the escalation build (15, from README.md)
+### Before the escalation build (15, from docs/proof.md)
 
 The first six were found writing the tests; the other nine by an adversarial review of the package.
 
