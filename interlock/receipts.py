@@ -6,7 +6,9 @@ the entry before it, so an edited, removed or reordered entry breaks the chain. 
 re-derives the claims from the entries themselves rather than reading a summary:
 
     happened             committed (True), refused or never sent (False), or nobody can know ("unknown")
-    happened_once        committed at most once, never sent while an earlier send was unresolved
+    happened_once        this effect id committed at most once, never sent while an earlier send was unresolved.
+                         True on an effect that never fired. It is about this one effect id: it does not show that
+                         no other effect id (another request, another integration, a hand refund) did the same thing
     authorized_when_fired  the lease check recorded immediately before every send passed, and the grant
                          record read with it (if any) shows it unrevoked and covering the amount
     assumptions_held     the premises were re-checked immediately before every send, with no violations

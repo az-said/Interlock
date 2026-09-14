@@ -22,4 +22,4 @@ interlock-mcp = "interlock.mcp_proxy:main"
 interlock-verify = "interlock.receipts:main"
 
 [tool.setuptools]
-packages = ["interlock", "interlock.targets"]
+packages = ["interlock", "interlock.targets", "interlock.integrations", "interlock.export"]

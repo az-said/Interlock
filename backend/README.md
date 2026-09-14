@@ -20,7 +20,7 @@ with Interlock differ, with nothing simulated in-process.
   workflow's own refund is already in Stripe, report it (`FOUND_BY_LOOKUP`) and stop; otherwise the approval
   must be live and cover the amount, and the payment's refunds must be unchanged since the decision. What a
   careful Temporal user can write. It matches Interlock's Stripe outcome in the chaos rows; see
-  `results/e2e_live.md` for where the two still differ (packaging, a claim across workers, AMBIGUOUS, receipts, speed).
+  `results/e2e_live.md` for where the two still differ (packaging, a claim across worker processes on one machine, AMBIGUOUS, receipts, speed).
 - `interlock`: `interlock.temporal.gated(gate, proposal)` as the activity body, a shared SQLite journal
   (`journal.db`), durable leases, and premises captured when the model decided.
 

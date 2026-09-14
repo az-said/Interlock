@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interlock: one crash, two setups</title>
+<style>
+:root {
+  --bg: #f6f6f3; --fg: #15171c; --muted: #555c6b; --card: #ffffff; --line: #d9dce3;
+  --bad: #b3261e; --bad-bg: #fdeceb; --good: #0b6b3a; --good-bg: #e6f5ec;
+  --accent: #1f47c9; --accent-fg: #ffffff; --warn: #7a4d00; --warn-bg: #fff1cc;
+  --crash: #b3261e; --code-bg: #eef0f4;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1014; --fg: #eceef3; --muted: #a0a7b4; --card: #171a21; --line: #2b303b;
+    --bad: #ff8f86; --bad-bg: #3b1714; --good: #74e0a2; --good-bg: #10301f;
+    --accent: #8fb0ff; --accent-fg: #0e1014; --warn: #ffd37a; --warn-bg: #3a2c08;
+    --crash: #ff8f86; --code-bg: #232733;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 18px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+.wrap { max-width: 1480px; margin: 0 auto; padding: 28px 16px 48px; }
+h1 { font-size: clamp(1.6rem, 3.2vw, 2.4rem); line-height: 1.15; margin: 0 0 10px; letter-spacing: -0.01em; }
+.eyebrow { margin: 0 0 6px; color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+.lede { margin: 0; max-width: 70ch; color: var(--fg); }
+.controls { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: end; margin: 22px 0 14px; padding: 16px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 10px; }
+.controls label { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; color: var(--muted); font-weight: 600; }
+.controls label.check { flex-direction: row; align-items: center; gap: 8px; font-weight: 500; color: var(--fg); font-size: 0.95rem; }
+select { font: inherit; font-size: 1rem; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); max-width: 100%; }
+input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--accent); }
+.buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-left: auto; }
+button { font: inherit; font-weight: 650; border-radius: 8px; padding: 12px 20px; cursor: pointer; border: 2px solid transparent; }
+button.primary { background: var(--accent); color: var(--accent-fg); font-size: 1.15rem; padding: 12px 28px; }
+button.secondary { background: transparent; color: var(--warn); border-color: var(--warn); font-size: 0.95rem; }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.notice { flex-basis: 100%; margin: 0; color: var(--bad); font-size: 0.95rem; }
+.notice:empty { display: none; }
+.banner { margin: 0 0 12px; padding: 12px 16px; border-radius: 10px; font-weight: 600; }
+.banner.live { background: var(--good-bg); color: var(--good); border: 1px solid currentColor; }
+.banner.mock { background: repeating-linear-gradient(-45deg, var(--warn-bg) 0 14px, transparent 14px 28px), var(--card);
+  color: var(--warn); border: 2px dashed var(--warn); font-size: 1.05rem; }
+.status { margin: 0 0 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.columns { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); align-items: start; }
+.col { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; min-width: 0; }
+.col.mock { border: 2px dashed var(--warn); }
+.col h2 { font-size: 1.2rem; margin: 0 0 4px; line-height: 1.25; }
+.col .sub { margin: 0 0 12px; color: var(--muted); font-size: 0.9rem; }
+.badge { display: inline-block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; padding: 2px 7px; border-radius: 5px;
+  background: var(--warn); color: var(--bg); vertical-align: middle; margin-right: 6px; }
+.result { border-radius: 10px; padding: 14px; margin-bottom: 12px; border: 2px solid var(--line); }
+.result.pending { color: var(--muted); border-style: dashed; }
+.result.bad { background: var(--bad-bg); border-color: var(--bad); }
+.result.good { background: var(--good-bg); border-color: var(--good); }
+.result p { margin: 0 0 6px; }
+.result .verdict { font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.9rem; }
+.result.bad .verdict { color: var(--bad); }
+.result.good .verdict { color: var(--good); }
+.result .big { font-size: 1.7rem; font-weight: 800; line-height: 1.15; }
+.result .why { font-size: 0.98rem; }
+.result ul { margin: 8px 0; padding-left: 20px; font-size: 0.92rem; }
+.result .meta, .result .receipt { font-size: 0.85rem; color: var(--muted); }
+.result .receipt { border-top: 1px solid var(--line); margin-top: 8px; padding-top: 8px; }
+.result a { color: var(--accent); }
+code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.86em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+ol.events { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(--line); }
+.ev { position: relative; padding: 6px 0 8px 14px; font-size: 0.9rem; overflow-wrap: anywhere; }
+.ev .t { color: var(--muted); font-variant-numeric: tabular-nums; margin-right: 6px; font-size: 0.8rem; }
+.ev .k { font-weight: 800; font-size: 0.72rem; letter-spacing: 0.06em; margin-right: 6px; color: var(--muted); }
+.ev.crash .k, .ev.error .k { color: var(--crash); }
+.ev.crash, .ev.error { color: var(--crash); font-weight: 600; }
+.ev.hand_refund .k, .ev.revoke .k { color: var(--warn); }
+.ev.decision .k { color: var(--accent); }
+.ev.stripe .k { color: var(--good); }
+.ev a { color: var(--accent); }
+footer { margin-top: 28px; color: var(--muted); font-size: 0.9rem; max-width: 90ch; }
+footer p { margin: 0 0 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Interlock demo</p>
+    <h1>One crash, the same refund, two setups</h1>
+    <p class="lede" id="story">Loading scenarios.</p>
+  </header>
+
+  <section class="controls" aria-label="Run controls">
+    <label>Scenario <select id="scenario"></select></label>
+    <label class="check"><input type="checkbox" id="handcheck"> Live only: add Temporal plus a hand-written check</label>
+    <div class="buttons">
+      <button id="live" class="primary" type="button">Run live</button>
+      <button id="mock" class="secondary" type="button">Run mock (simulated, no Stripe)</button>
+    </div>
+    <p class="notice" id="notice" role="alert"></p>
+  </section>
+
+  <p class="banner" id="banner" hidden></p>
+  <p class="status" id="status" aria-live="polite">No run yet. Run live creates real Stripe test payments and refunds, calls a real model, and kills real worker processes.</p>
+  <main class="columns" id="columns"></main>
+
+  <footer>
+    <p id="settings"></p>
+    <p id="livenote">Live runs: every payment, refund and refund list is Stripe test mode; the refund decision is a real model call; each column is a Temporal workflow on the local dev server with its own worker process, which SIGKILLs itself at the crash point and is restarted. Each number on a live result is re-read from Stripe, Temporal or the Interlock journal at the end of that run.</p>
+    <p>Interlock refuses because the payment's refunds changed after the model decided. It does not recognize the hand refund as the same action, so an unrelated refund would stop it too, and a person decides. Receipts here are hash-chained and unsigned.</p>
+  </footer>
+</div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const LABELS = { case: "CASE", worker: "WORKER", decision: "LLM", crash: "CRASH", hand_refund: "HAND REFUND", revoke: "REVOKED",
+  retry: "TEMPORAL", journal: "JOURNAL", stripe: "STRIPE", error: "ERROR", sim: "SIMULATED" };
+let info = null, run = null, after = 0, cols = {}, timer = null;
+const TITLE = document.title;
+
+function el(tag, cls, text) {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text != null) n.textContent = text;
+  return n;
+}
+function link(href, text) { const a = el("a", "", text); a.href = href; a.target = "_blank"; a.rel = "noopener"; return a; }
+function badge() { return el("span", "badge", "MOCK"); }
+const money = (c) => "$" + (c / 100).toFixed(2);
+
+async function call(method, path, body) {
+  const r = await fetch(path, { method, headers: { "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || ("HTTP " + r.status));
+  return j;
+}
+
+function busy(on) { $("#live").disabled = on || !!(info && info.live_missing.length); $("#mock").disabled = on; }
+
+async function init() {
+  info = await call("GET", "/demo/info");
+  for (const [key, s] of Object.entries(info.scenarios)) $("#scenario").append(Object.assign(el("option", "", s.title), { value: key }));
+  $("#scenario").onchange = () => { $("#story").textContent = info.scenarios[$("#scenario").value].story; };
+  $("#scenario").onchange();
+  $("#settings").textContent = `Model ${info.model}. Interlock claim TTL ${info.claim_ttl}s, Stripe request timeout ${info.stripe_timeout}s (the backend defaults are 40s and 30s; the timeout always stays inside the claim).`;
+  if (info.live_missing.length) $("#notice").textContent = "Run live is off on this server: it needs " + info.live_missing.join(" and ") + ". Run mock still works and is labeled MOCK.";
+  busy(false);
+  $("#live").onclick = () => start("live");
+  $("#mock").onclick = () => start("mock");
+  if (info.latest) { run = { id: info.latest }; schedule(0); }
+}
+
+// One poll timer. A response for any run but the current one is dropped, so a slow poll of an old run can
+// never repaint the page over a run that was just started.
+function schedule(ms) { clearTimeout(timer); timer = setTimeout(poll, ms); }
+
+async function start(kind) {
+  busy(true);
+  clearTimeout(timer);
+  $("#notice").textContent = "";
+  try {
+    const v = await call("POST", "/demo/runs", { kind, scenario: $("#scenario").value, hand_check: $("#handcheck").checked });
+    run = v; build(v); apply(v); schedule(800);
+  } catch (e) {
+    $("#notice").textContent = e.message;
+    busy(false);
+  }
+}
+
+async function poll() {
+  const id = run.id;
+  try {
+    const v = await call("GET", `/demo/runs/${id}/${cols.__id === id ? after : 0}`);
+    if (!run || v.id !== run.id) return;       // a new run started while this request was out
+    if (cols.__id !== v.id) build(v);
+    apply(v);
+    if (!v.done) schedule(800);
+  } catch (e) {
+    if (run.id !== id) return;
+    $("#notice").textContent = "Lost the run: " + e.message;
+    schedule(2000);
+  }
+}
+
+function build(v) {
+  cols = { __id: v.id };
+  after = 0;
+  const main = $("#columns");
+  main.replaceChildren();
+  const banner = $("#banner");
+  banner.hidden = false;
+  banner.className = "banner " + (v.mock ? "mock" : "live");
+  banner.textContent = v.mock
+    ? "MOCK RUN: simulated in this process by experiments/refund_agent.py. No Stripe, no model, no Temporal, no real crash. Not a live result."
+    : `LIVE RUN: Stripe test mode, ${info.model}, Temporal dev server, worker processes killed with SIGKILL. Scenario: ${info.scenarios[v.scenario].title}.`;
+  document.body.dataset.runKind = v.kind;
+  document.title = (v.mock ? "MOCK: " : "") + TITLE;
+  $("#settings").hidden = $("#livenote").hidden = v.mock;     // live settings, not used by a mock run
+  for (const c of v.columns) {
+    const sec = el("section", "col" + (v.mock ? " mock" : ""));
+    sec.dataset.mode = c.mode;
+    const h = el("h2");
+    if (v.mock) h.append(badge());
+    h.append(c.title);
+    const result = el("div", "result pending", v.mock ? "MOCK: waiting for the simulation." : "Running. The result appears here when Temporal closes the workflow.");
+    const list = el("ol", "events");
+    sec.append(h, el("p", "sub", c.sub), result, list);
+    main.append(sec);
+    cols[c.mode] = { result, list };
+  }
+}
+
+function apply(v) {
+  for (const ev of v.events) {
+    after = ev.seq + 1;
+    const col = cols[ev.col];
+    if (!col) continue;
+    if (ev.kind === "result") renderResult(col.result, ev, v.mock);
+    else addEvent(col.list, ev, v.mock);
+  }
+  document.body.dataset.runDone = String(v.done);
+  document.body.dataset.runId = v.id;
+  const run = `Run ${v.id}` + (v.mock ? " (MOCK)" : "");
+  $("#status").textContent = v.done
+    ? (v.error ? `${run} ended with an error after ${v.elapsed}s: ${v.error}` : `${run} finished in ${v.elapsed}s.`)
+    : `Run ${v.id} (${v.mock ? "MOCK" : "live"}) running: ${v.elapsed}s`;
+  busy(!v.done);
+}
+
+function addEvent(list, ev, mock) {
+  const li = el("li", "ev " + ev.kind);
+  if (mock) li.append(badge());
+  li.append(el("span", "t", ev.t.toFixed(1) + "s"), el("span", "k", LABELS[ev.kind] || ev.kind.toUpperCase()), el("span", "", ev.text));
+  if (ev.data && ev.data.dashboard) { li.append(" "); li.append(link(ev.data.dashboard, "Open in Stripe")); }
+  list.append(li);
+}
+
+function renderResult(box, ev, mock) {
+  const d = ev.data;
+  box.replaceChildren();
+  box.className = "result " + (d.held ? "good" : "bad");
+  if (mock) box.append(badge());
+  box.append(el("p", "verdict", d.verdict), el("p", "big", d.headline), el("p", "", "Wanted: " + d.want_text), el("p", "why", d.why));
+  const meta = el("p", "meta");
+  meta.append("Outcome ", el("code", "", String(d.outcome)));
+  if (mock) { box.append(meta); return; }
+
+  box.dataset.paymentIntent = d.payment_intent;
+  box.dataset.refundIds = d.refunds.map((r) => r.id).join(",");
+  const ul = el("ul");
+  for (const r of d.refunds) {
+    const li = el("li");
+    li.append(el("code", "", r.id), ` ${money(r.amount)}, ${r.by}`);
+    ul.append(li);
+  }
+  if (!d.refunds.length) ul.append(el("li", "", "No refund objects in Stripe for this payment."));
+  box.append(ul);
+  meta.append(`, refund attempt ${d.refund_attempts}, ${d.crash_to_close}s from crash to close. `, link(d.dashboard, "Payment in Stripe"));
+  if (info.temporal_ui) { meta.append(" "); meta.append(link(`${info.temporal_ui}/namespaces/default/workflows/${d.workflow_id}`, "Workflow in Temporal")); }
+  box.append(meta);
+  if (d.receipt) {
+    const v = d.receipt.verification, rc = el("div", "receipt");
+    rc.append(el("p", "", `Interlock receipt for effect ${d.receipt.effect_id}: ${d.receipt.entries.join(", ")}.`));
+    rc.append(el("p", "", `Verified from its entries: valid ${v.valid}, chain intact ${v.tamper_evident}, happened ${v.happened}, ` +
+      `this effect committed at most once ${v.happened_once}, authorized when fired ${v.authorized_when_fired}, assumptions held ${v.assumptions_held}` +
+      (v.refused ? `, refused "${v.refused}"` : "") + `, signed ${v.signed === null ? "no (no key configured)" : v.signed}.`));
+    box.append(rc);
+  }
+}
+
+init().catch((e) => { $("#notice").textContent = "Could not load the demo: " + e.message; });
+</script>
+</body>
+</html>

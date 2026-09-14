@@ -20,7 +20,7 @@ import argparse, asyncio, contextlib, json, os, re, sqlite3, sys, threading, tim
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from temporalio.client import Client, WorkflowExecutionStatus
-from backend import config
+from backend import config, demo
 from backend.leases import DurableLeases
 from interlock import receipts
 from interlock.journal import effect_id_for, open_journal
@@ -54,7 +54,7 @@ def load(case_id):
     return dict(row)
 
 
-def create(body):
+def create(body, task_queue=None):
     mode, text, paid, approved = (body.get(k) for k in ("mode", "customer_text", "paid_cents", "approved_cents"))
     if mode not in MODES or not isinstance(text, str) or not text.strip() or len(text) > MAX_TEXT \
             or type(paid) is not int or type(approved) is not int or not 0 < approved <= paid:
@@ -69,7 +69,7 @@ def create(body):
         db.execute("INSERT INTO cases VALUES (:case_id, :mode, :payment_intent, :workflow_id, :lease_id, "
                    ":customer_text, :paid_cents, :approved_cents, :created)", row)
     arg = {k: row[k] for k in ("case_id", "mode", "payment_intent", "lease_id", "customer_text")}
-    wait(TEMPORAL.start_workflow("RefundCase", arg, id=row["workflow_id"], task_queue=config.TASK_QUEUE))
+    wait(TEMPORAL.start_workflow("RefundCase", arg, id=row["workflow_id"], task_queue=task_queue or config.TASK_QUEUE))
     return row
 
 
@@ -132,8 +132,12 @@ def health(body):
     return {"ok": True, "temporal": config.TEMPORAL, "temporal_serving": wait(TEMPORAL.service_client.check_health())}
 
 
+API = sys.modules[__name__]        # demo.py drives cases through this module's functions
+PAGE = os.path.join(config.ROOT, "demo", "index.html")
 ROUTES = [("GET", r"/health", health), ("POST", r"/cases", create), ("GET", r"/cases/([\w-]+)", show),
-          ("POST", r"/cases/([\w-]+)/revoke", revoke), ("POST", r"/cases/([\w-]+)/manual-refund", manual_refund)]
+          ("POST", r"/cases/([\w-]+)/revoke", revoke), ("POST", r"/cases/([\w-]+)/manual-refund", manual_refund),
+          ("GET", r"/demo/info", lambda body: demo.info()), ("POST", r"/demo/runs", lambda body: demo.start(body, API)),
+          ("GET", r"/demo/runs/(\w+)/(\d+)", lambda body, run_id, after: demo.view(run_id, int(after)))]
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -146,9 +150,26 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
     def _route(self, method):
+        if method == "GET" and self.path.split("?")[0] in ("/", "/demo", "/demo/"):
+            with open(PAGE, "rb") as f:
+                data = f.read()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            return self.wfile.write(data)
         try:
+            host = self.headers.get("Host", "")
+            if host not in (f"127.0.0.1:{self.server.server_port}", f"localhost:{self.server.server_port}"):
+                return self._send(403, {"error": "Host must be this server (127.0.0.1 or localhost)"})   # DNS rebinding
             body = {}
             if method == "POST":
+                # A cross-site page can POST text/plain without a preflight; application/json forces one, and a
+                # browser always names the page's origin, which must be this server.
+                origin = self.headers.get("Origin")
+                if (self.headers.get("Content-Type") or "").split(";")[0].strip() != "application/json" \
+                        or (origin is not None and origin != f"http://{host}"):
+                    return self._send(403, {"error": "POST needs Content-Type application/json from this page's origin"})
                 length = self.headers.get("Content-Length") or "0"
                 if not (length.isascii() and length.isdigit()) or int(length) > MAX_BODY:     # rejects "-1", "abc", "²"
                     raise BadRequest(f"Content-Length must be an integer from 0 to {MAX_BODY}")
@@ -164,6 +185,8 @@ class Handler(BaseHTTPRequestHandler):
             self._send(400, {"error": str(e)})
         except LookupError as e:
             self._send(404, {"error": str(e)})
+        except demo.Busy as e:
+            self._send(409, {"error": str(e)})
         except StripeError as e:
             self._send(502, {"error": str(e)})
         except Exception as e:

@@ -1,0 +1,151 @@
+{
+  "generated": "2026-09-13 23:48 UTC",
+  "rerun_after_refusal": {
+    "payment_intent": "pi_3UFN7y88KhIqqdFL0eahEQMS",
+    "steps": [
+      "agent dies right before the refund POST (DISPATCHED is on disk)",
+      "support refunds $20 by hand: re_3UFN7y88KhIqqdFL0NL6ieyK",
+      "restart, recover(): {'c02b21e3ced1': 'REFUSED:stale_premise_at_recovery'}",
+      "agent calls authorize_refund again: a new closed mandate QddwtfIivW7Bk7dQbxd8VGBhsNIKBizCFHBUf0P9GmQ (differs: True), same open mandate",
+      "agent calls issue_refund again, same request id: REFUSED:stale_premise",
+      "Finance reviews the case and issues a NEW open mandate; issue_refund under it: COMMITTED"
+    ],
+    "resubmit_status": "REFUSED:stale_premise",
+    "entries_before_new_approval": [
+      "PROPOSED",
+      "AUTHORIZED",
+      "DISPATCHED",
+      "REFUSED",
+      "PROPOSED",
+      "AUTHORIZED",
+      "REFUSED"
+    ],
+    "verify_before_new_approval": {
+      "valid": true,
+      "happened": false,
+      "happened_once": true,
+      "refused": [
+        "refunded by others: was 0, now 2000"
+      ]
+    },
+    "stripe_before_new_approval": {
+      "refunds": [
+        {
+          "id": "re_3UFN7y88KhIqqdFL0NL6ieyK",
+          "amount": 2000,
+          "interlock_effect_id": null
+        }
+      ],
+      "total_cents": 2000
+    },
+    "new_approval_status": "COMMITTED",
+    "stripe_after_new_approval": {
+      "refunds": [
+        {
+          "id": "re_3UFN7y88KhIqqdFL0NL6ieyK",
+          "amount": 2000,
+          "interlock_effect_id": null
+        },
+        {
+          "id": "re_3UFN7y88KhIqqdFL0nqy9i31",
+          "amount": 2000,
+          "interlock_effect_id": "c02b21e3ced1"
+        }
+      ],
+      "total_cents": 4000
+    },
+    "held": true
+  },
+  "one_mandate_many_refunds": {
+    "payment_intent": "pi_3UFN8988KhIqqdFL181PSkWS",
+    "submits": [
+      [
+        "refund:case-1-707c29f6",
+        "same closed mandate",
+        "COMMITTED"
+      ],
+      [
+        "refund:case-1-707c29f6-retry-by-new-invocation",
+        "same closed mandate",
+        "REFUSED:lease_used"
+      ],
+      [
+        "refund:case-2-707c29f6",
+        "second closing of the same open mandate",
+        "REFUSED:lease_used"
+      ]
+    ],
+    "nonce": {
+      "agent-picked nonce": "refused: nonce was not issued by this verifier, or was already used"
+    },
+    "stripe": {
+      "refunds": [
+        {
+          "id": "re_3UFN8988KhIqqdFL1TljAvMR",
+          "amount": 2000,
+          "interlock_effect_id": "f111c251938e"
+        }
+      ],
+      "total_cents": 2000
+    },
+    "held": true
+  },
+  "other_customers_payment": {
+    "payment_intent_a": "pi_3UFN8F88KhIqqdFL1SKccWiM",
+    "payment_intent_b": "pi_3UFN8G88KhIqqdFL0CFpa2jP",
+    "customer_b": "cus_VFsunt8ddrxInU",
+    "attempts": [
+      {
+        "how": "effect names B's PaymentIntent; its transaction_id, payee and card are A's",
+        "gate": "REFUSED:lease",
+        "problems": [
+          "system of record: transaction_id is 'pi_3UFN8G88KhIqqdFL0CFpa2jP', the mandate says 'pi_3UFN8F88KhIqqdFL1SKccWiM'",
+          "system of record: payee is 'cus_VFsunt8ddrxInU', the mandate says 'cus_VFsugESyOKLTR1'",
+          "system of record: instrument is 'pm_1UFN8G88KhIqqdFLlFlhCqur', the mandate says 'pm_1UFN8F88KhIqqdFLBBnUR8Ij'"
+        ]
+      },
+      {
+        "how": "the agent closes the mandate with B's PaymentIntent as the transaction; payee and card are A's",
+        "gate": "REFUSED:lease",
+        "problems": [
+          "system of record: payee is 'cus_VFsunt8ddrxInU', the mandate says 'cus_VFsugESyOKLTR1'",
+          "system of record: instrument is 'pm_1UFN8G88KhIqqdFLlFlhCqur', the mandate says 'pm_1UFN8F88KhIqqdFLBBnUR8Ij'"
+        ]
+      }
+    ],
+    "stripe_a": {
+      "refunds": [],
+      "total_cents": 0
+    },
+    "stripe_b": {
+      "refunds": [],
+      "total_cents": 0
+    },
+    "held": true
+  },
+  "no_amount_cap": {
+    "payment_intent": "pi_3UFN8N88KhIqqdFL02DdEeQt",
+    "submits": [
+      [
+        "refund:no-cap-707c29f6-0",
+        "REFUSED:lease"
+      ],
+      [
+        "refund:no-cap-707c29f6-1",
+        "REFUSED:lease"
+      ],
+      [
+        "refund:no-cap-707c29f6-2",
+        "REFUSED:lease"
+      ]
+    ],
+    "problems": [
+      "open mandate has no amount range with a max, so its closings have no cap to count against"
+    ],
+    "stripe": {
+      "refunds": [],
+      "total_cents": 0
+    },
+    "held": true
+  }
+}

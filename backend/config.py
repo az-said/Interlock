@@ -1,14 +1,19 @@
 """Settings shared by the API, the worker and the harness. Standard library only."""
-import os, signal, subprocess, sys
+import json, os, signal, subprocess, sys, time, urllib.error, urllib.parse, urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
-from interlock.targets.stripe_api import StripeClient
+from interlock.targets.stripe_api import API, StripeClient, StripeError, _form
 
 DATA = os.environ.get("INTERLOCK_DATA") or os.path.join(ROOT, ".interlock", "backend")
 TEMPORAL = os.environ.get("TEMPORAL_ADDRESS", "localhost:7233")
-TASK_QUEUE = "interlock-refunds"
-CLAIM_TTL = 40      # seconds: longer than the Stripe client's 30s request timeout, as the gate requires
+TASK_QUEUE = os.environ.get("INTERLOCK_TASK_QUEUE", "interlock-refunds")     # the demo gives each column its own
+# The gate requires every send to finish inside the claim, so the Stripe request timeout stays well under CLAIM_TTL.
+# Defaults 30s and 40s; demo/serve.py lowers both (10s and 15s) so a run fits on a projector.
+STRIPE_TIMEOUT = int(os.environ.get("INTERLOCK_STRIPE_TIMEOUT", 30))
+CLAIM_TTL = int(os.environ.get("INTERLOCK_CLAIM_TTL", 40))
+if not 0 < STRIPE_TIMEOUT <= CLAIM_TTL - 5:
+    raise ValueError(f"INTERLOCK_STRIPE_TIMEOUT ({STRIPE_TIMEOUT}s) must be at least 5s under INTERLOCK_CLAIM_TTL ({CLAIM_TTL}s)")
 REFUND_ATTEMPTS = 3 * CLAIM_TTL // 5    # retries 5s apart can wait out a dead worker's claim three times over
 # EMULATED, for the key-window cells only (Stripe cannot be made to forget a key, and nobody waits a day):
 #   INTERLOCK_EMULATE_24H=1  every refund POST from this worker uses '<key>/emulated-pruned', a key Stripe never
@@ -35,8 +40,27 @@ def stripe_key():
     return key
 
 
+class TimedStripeClient(StripeClient):
+    """StripeClient.request with STRIPE_TIMEOUT in place of its fixed 30s. Otherwise the same request."""
+    def request(self, method, path, params=None, idempotency_key=None):
+        query = urllib.parse.urlencode(_form(params or {}))
+        req = urllib.request.Request(f"{API}{path}" + (f"?{query}" if method == "GET" and query else ""),
+                                     data=query.encode() if method == "POST" else None, method=method)
+        req.add_header("Authorization", self._auth)
+        if idempotency_key:
+            req.add_header("Idempotency-Key", idempotency_key)
+        try:
+            with urllib.request.urlopen(req, timeout=STRIPE_TIMEOUT) as r:
+                obj = json.loads(r.read())
+                obj["_replayed"] = r.headers.get("Idempotent-Replayed") == "true"
+                return obj
+        except urllib.error.HTTPError as e:
+            message = json.loads(e.read() or b"{}").get("error", {}).get("message")
+            raise StripeError(f"{e.code} {method} {path}: {message}") from None
+
+
 def stripe():
-    return StripeClient(stripe_key())       # refuses anything but a test-mode key
+    return TimedStripeClient(stripe_key())       # refuses anything but a test-mode key
 
 
 def crash_once(point):
@@ -52,3 +76,7 @@ def crash_once(point):
         return
     print(f"crash injected: SIGKILL at {point} (pid {os.getpid()})", file=sys.stderr, flush=True)
     os.kill(os.getpid(), signal.SIGKILL)
+    # The kill is not synchronous for the thread that sends it (on macOS a gate running in asyncio.to_thread
+    # went on to write COMMITTED before the process died). Never run past the crash point.
+    while True:
+        time.sleep(1)

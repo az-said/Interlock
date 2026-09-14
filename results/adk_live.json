@@ -1,0 +1,2196 @@
+{
+  "generated": "2026-09-14 00:00 UTC",
+  "model": "anthropic/claude-haiku-4-5-20251001",
+  "adk": "2.9.0",
+  "ap2_commit": "e1ea56d",
+  "claim_ttl": 40,
+  "cells": [
+    {
+      "ran_at": "2026-09-13 23:48 UTC",
+      "crash_window_missed": [],
+      "scenario": "crash_after_commit",
+      "mode": "adk_nokey",
+      "case_id": "bfbfd58c9ae1",
+      "payment_intent": "pi_3UFN7v88KhIqqdFL0IQxhjZa",
+      "customer": "cus_VFstHyTyLpjF8l",
+      "payment_method": "pm_1UFN7v88KhIqqdFL4cYWR8st",
+      "open_mandate_id": "wyqijPeNdlLYHvRVtG4i8vwbW4H7KqNVkHWsPbmiLSw",
+      "mandate_exp": 1789346883,
+      "authorization": {
+        "ts": 1789343294.557878,
+        "ok": true,
+        "lease": "iC-2ak_95_coQbvbvE0bbvaCEmkmy-lWKh_s41F64Gk",
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer keeps blender",
+        "problems": []
+      },
+      "agent_exit_codes": [
+        -9,
+        0
+      ],
+      "sigkill": true,
+      "outage_action": null,
+      "outcome": "REFUNDED",
+      "answer": {
+        "status": "REFUNDED",
+        "refund_id": "re_3UFN7v88KhIqqdFL0mbIdAry",
+        "idempotency_key": null
+      },
+      "answer_sent": true,
+      "final_text": "The $20.00 partial refund has been successfully processed to the customer's card for the cracked glass jar in Order #881 (support case #4471).",
+      "recover_on_start": null,
+      "agent_refund_ids": [
+        "re_3UFN7v88KhIqqdFL0mbIdAry",
+        "re_3UFN7v88KhIqqdFL0hzeqXn6"
+      ],
+      "refund_ids": [
+        "re_3UFN7v88KhIqqdFL0mbIdAry",
+        "re_3UFN7v88KhIqqdFL0hzeqXn6"
+      ],
+      "refunded_cents": 4000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": false,
+      "answer_matches_stripe": false,
+      "seconds_crash_to_done": 7.6,
+      "receipt": null
+    },
+    {
+      "ran_at": "2026-09-13 23:48 UTC",
+      "crash_window_missed": [],
+      "scenario": "crash_after_commit",
+      "mode": "adk",
+      "case_id": "389c3883377b",
+      "payment_intent": "pi_3UFN8J88KhIqqdFL0W6cSqDU",
+      "customer": "cus_VFsux8TZX4bPAV",
+      "payment_method": "pm_1UFN8J88KhIqqdFLe0mxX5Cb",
+      "open_mandate_id": "DrWiW9eil9xgeZu6RhS6EarEOzYre1lcBuYy8QjtKL4",
+      "mandate_exp": 1789346907,
+      "authorization": {
+        "ts": 1789343316.948129,
+        "ok": true,
+        "lease": "V6SU_T6N_HEWOUjSEOZVlIs9Yk7TGup01_MX-sd6nKE",
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer keeps blender",
+        "problems": []
+      },
+      "agent_exit_codes": [
+        -9,
+        0
+      ],
+      "sigkill": true,
+      "outage_action": null,
+      "outcome": "REPLAYED_BY_STRIPE",
+      "answer": {
+        "status": "REPLAYED_BY_STRIPE",
+        "refund_id": "re_3UFN8J88KhIqqdFL01NPo1jJ",
+        "idempotency_key": "e-3184dcd6-d0cc-407c-8b5f-a8d98752428d/toolu_01BSPNqQ5rsgsq2idenXNT5m"
+      },
+      "answer_sent": true,
+      "final_text": "A $20.00 partial refund for the cracked glass jar has been successfully issued to the customer's card (refund ID: re_3UFN8J88KhIqqdFL01NPo1jJ), and the customer retains the blender.",
+      "recover_on_start": null,
+      "agent_refund_ids": [
+        "re_3UFN8J88KhIqqdFL01NPo1jJ"
+      ],
+      "refund_ids": [
+        "re_3UFN8J88KhIqqdFL01NPo1jJ"
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 7.3,
+      "receipt": null
+    },
+    {
+      "ran_at": "2026-09-13 23:49 UTC",
+      "crash_window_missed": [],
+      "scenario": "crash_after_commit",
+      "mode": "adk_checked",
+      "case_id": "f5dff98e9cfe",
+      "payment_intent": "pi_3UFN8f88KhIqqdFL0nrW0R1K",
+      "customer": "cus_VFsueb8lURvByt",
+      "payment_method": "pm_1UFN8f88KhIqqdFLOtuGtApL",
+      "open_mandate_id": "8z-o9_k9f60cZ-Su_NJYgt8um2AfVlok7RV4DQwhxSk",
+      "mandate_exp": 1789346929,
+      "authorization": {
+        "ts": 1789343339.167139,
+        "ok": true,
+        "lease": "MPaiAqrHTqLAm_5Y-vl3pqAvba1w59T3GYdxxFEpWLA",
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar; customer keeps blender",
+        "problems": []
+      },
+      "agent_exit_codes": [
+        -9,
+        0
+      ],
+      "sigkill": true,
+      "outage_action": null,
+      "outcome": "FOUND_BY_LOOKUP",
+      "answer": {
+        "status": "FOUND_BY_LOOKUP",
+        "refund_id": "re_3UFN8f88KhIqqdFL0K3XsdaI"
+      },
+      "answer_sent": true,
+      "final_text": "The $20.00 partial refund for the cracked jar has been successfully issued to the customer's card (refund ID: re_3UFN8f88KhIqqdFL0K3XsdaI).",
+      "recover_on_start": null,
+      "agent_refund_ids": [
+        "re_3UFN8f88KhIqqdFL0K3XsdaI"
+      ],
+      "refund_ids": [
+        "re_3UFN8f88KhIqqdFL0K3XsdaI"
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 7.9,
+      "receipt": null
+    },
+    {
+      "ran_at": "2026-09-13 23:49 UTC",
+      "crash_window_missed": [],
+      "scenario": "crash_after_commit",
+      "mode": "interlock",
+      "case_id": "e1ccf4ed73fd",
+      "payment_intent": "pi_3UFN9288KhIqqdFL1hKNZlT8",
+      "customer": "cus_VFsu10ZBkeiNl0",
+      "payment_method": "pm_1UFN9288KhIqqdFLVVzAzppd",
+      "open_mandate_id": "fFXWWsURDATklLENnN6ndbG8jHKHPsUxku75r-24WeY",
+      "mandate_exp": 1789346953,
+      "authorization": {
+        "ts": 1789343362.3224058,
+        "ok": true,
+        "lease": "5OtKAYIRfUdT7QZfkrxRaQ63qVQpzQUt2leS-eXn1yo",
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar; customer keeps blender",
+        "problems": []
+      },
+      "agent_exit_codes": [
+        -9,
+        0
+      ],
+      "sigkill": true,
+      "outage_action": null,
+      "outcome": "COMMITTED_BY_RETRY",
+      "answer": {
+        "interlock": "COMMITTED_BY_RETRY",
+        "effect_id": "5039ce161ff5",
+        "sent": true,
+        "result": {
+          "status": "already_processed",
+          "refund": "re_3UFN9288KhIqqdFL1vwVmYyF",
+          "amount": 2000
+        }
+      },
+      "answer_sent": true,
+      "final_text": "The $20.00 refund for the cracked jar has been successfully issued to the customer's card for Order #881.",
+      "recover_on_start": {},
+      "agent_refund_ids": [
+        "re_3UFN9288KhIqqdFL1vwVmYyF"
+      ],
+      "refund_ids": [
+        "re_3UFN9288KhIqqdFL1vwVmYyF"
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 45.1,
+      "receipt": {
+        "bundle": {
+          "effect_id": "5039ce161ff5",
+          "entries": [
+            {
+              "ts": 1789343363.10641,
+              "kind": "PROPOSED",
+              "effect_id": "5039ce161ff5",
+              "agent": "adk:support/e-aa06814e-5f82-4e9d-9dd1-a1ca7f89ced4/toolu_012is5d7UnqXJtXWHua71sZB",
+              "lease": "5OtKAYIRfUdT7QZfkrxRaQ63qVQpzQUt2leS-eXn1yo",
+              "premises": {
+                "payment_intent": "pi_3UFN9288KhIqqdFL1hKNZlT8",
+                "refunded_by_others": 0
+              },
+              "effect": {
+                "payment_intent": "pi_3UFN9288KhIqqdFL1hKNZlT8",
+                "amount": 2000,
+                "currency": "USD",
+                "payee": "cus_VFsu10ZBkeiNl0",
+                "instrument": "pm_1UFN9288KhIqqdFLVVzAzppd",
+                "transaction_id": "pi_3UFN9288KhIqqdFL1hKNZlT8"
+              },
+              "prev": null,
+              "hash": "7e4a132fe680837cbf02df973457c0a248959d66fcd2bad1552a58aac8e9a7d4"
+            },
+            {
+              "ts": 1789343363.3094132,
+              "kind": "AUTHORIZED",
+              "effect_id": "5039ce161ff5",
+              "lease": "5OtKAYIRfUdT7QZfkrxRaQ63qVQpzQUt2leS-eXn1yo",
+              "prev": "7e4a132fe680837cbf02df973457c0a248959d66fcd2bad1552a58aac8e9a7d4",
+              "hash": "b0dd9bc3c417ae7d87aac3d8529e509c8410de1eed9e4f08178019f5d47c2c19"
+            },
+            {
+              "ts": 1789343363.490002,
+              "kind": "DISPATCHED",
+              "effect_id": "5039ce161ff5",
+              "effect": {
+                "payment_intent": "pi_3UFN9288KhIqqdFL1hKNZlT8",
+                "amount": 2000,
+                "currency": "USD",
+                "payee": "cus_VFsu10ZBkeiNl0",
+                "instrument": "pm_1UFN9288KhIqqdFLVVzAzppd",
+                "transaction_id": "pi_3UFN9288KhIqqdFL1hKNZlT8"
+              },
+              "lease": "5OtKAYIRfUdT7QZfkrxRaQ63qVQpzQUt2leS-eXn1yo",
+              "premises": {
+                "payment_intent": "pi_3UFN9288KhIqqdFL1hKNZlT8",
+                "refunded_by_others": 0
+              },
+              "checks": {
+                "lease_live": true,
+                "lease": {
+                  "lease_id": "5OtKAYIRfUdT7QZfkrxRaQ63qVQpzQUt2leS-eXn1yo",
+                  "mandate_reference": "5OtKAYIRfUdT7QZfkrxRaQ63qVQpzQUt2leS-eXn1yo",
+                  "open_mandate_id": "fFXWWsURDATklLENnN6ndbG8jHKHPsUxku75r-24WeY",
+                  "checked_at": 1789343363.107084,
+                  "clock_skew_seconds": 0,
+                  "revoked": null,
+                  "max_cents": 2000,
+                  "problems": [],
+                  "verified": true,
+                  "vct": [
+                    "mandate.payment.open.1",
+                    "mandate.payment.1"
+                  ],
+                  "exp": 1789346953,
+                  "constraints": [
+                    {
+                      "type": "payment.amount_range",
+                      "currency": "USD",
+                      "max": 2000,
+                      "min": 1
+                    },
+                    {
+                      "type": "payment.allowed_payees",
+                      "allowed": [
+                        {
+                          "id": "cus_VFsu10ZBkeiNl0",
+                          "name": "Customer, order #881"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "payment.allowed_payment_instruments",
+                      "allowed": [
+                        {
+                          "id": "pm_1UFN9288KhIqqdFLVVzAzppd",
+                          "type": "card"
+                        }
+                      ]
+                    }
+                  ],
+                  "payee": {
+                    "id": "cus_VFsu10ZBkeiNl0",
+                    "name": "Customer, order #881"
+                  },
+                  "instrument": {
+                    "id": "pm_1UFN9288KhIqqdFLVVzAzppd",
+                    "type": "card"
+                  },
+                  "transaction_id": "pi_3UFN9288KhIqqdFL1hKNZlT8",
+                  "amount": {
+                    "amount": 2000,
+                    "currency": "USD"
+                  },
+                  "observed": {
+                    "transaction_id": "pi_3UFN9288KhIqqdFL1hKNZlT8",
+                    "payee": "cus_VFsu10ZBkeiNl0",
+                    "instrument": "pm_1UFN9288KhIqqdFLVVzAzppd",
+                    "currency": "USD"
+                  }
+                },
+                "violations": [],
+                "use_problems": []
+              },
+              "prev": "b0dd9bc3c417ae7d87aac3d8529e509c8410de1eed9e4f08178019f5d47c2c19",
+              "hash": "079b3315d8c100853a276f348e2d6922646982700cde617e90ecc6a513ae5026"
+            },
+            {
+              "ts": 1789343404.9504051,
+              "kind": "COMMITTED",
+              "effect_id": "5039ce161ff5",
+              "via": "retry-idempotent",
+              "rechecked": {
+                "lease_live": true,
+                "lease": {
+                  "lease_id": "5OtKAYIRfUdT7QZfkrxRaQ63qVQpzQUt2leS-eXn1yo",
+                  "mandate_reference": "5OtKAYIRfUdT7QZfkrxRaQ63qVQpzQUt2leS-eXn1yo",
+                  "open_mandate_id": "fFXWWsURDATklLENnN6ndbG8jHKHPsUxku75r-24WeY",
+                  "checked_at": 1789343404.273369,
+                  "clock_skew_seconds": 0,
+                  "revoked": null,
+                  "max_cents": 2000,
+                  "problems": [],
+                  "verified": true,
+                  "vct": [
+                    "mandate.payment.open.1",
+                    "mandate.payment.1"
+                  ],
+                  "exp": 1789346953,
+                  "constraints": [
+                    {
+                      "type": "payment.amount_range",
+                      "currency": "USD",
+                      "max": 2000,
+                      "min": 1
+                    },
+                    {
+                      "type": "payment.allowed_payees",
+                      "allowed": [
+                        {
+                          "id": "cus_VFsu10ZBkeiNl0",
+                          "name": "Customer, order #881"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "payment.allowed_payment_instruments",
+                      "allowed": [
+                        {
+                          "id": "pm_1UFN9288KhIqqdFLVVzAzppd",
+                          "type": "card"
+                        }
+                      ]
+                    }
+                  ],
+                  "payee": {
+                    "id": "cus_VFsu10ZBkeiNl0",
+                    "name": "Customer, order #881"
+                  },
+                  "instrument": {
+                    "id": "pm_1UFN9288KhIqqdFLVVzAzppd",
+                    "type": "card"
+                  },
+                  "transaction_id": "pi_3UFN9288KhIqqdFL1hKNZlT8",
+                  "amount": {
+                    "amount": 2000,
+                    "currency": "USD"
+                  },
+                  "observed": {
+                    "transaction_id": "pi_3UFN9288KhIqqdFL1hKNZlT8",
+                    "payee": "cus_VFsu10ZBkeiNl0",
+                    "instrument": "pm_1UFN9288KhIqqdFLVVzAzppd",
+                    "currency": "USD"
+                  }
+                },
+                "violations": []
+              },
+              "result": {
+                "status": "already_processed",
+                "refund": "re_3UFN9288KhIqqdFL1vwVmYyF",
+                "amount": 2000
+              },
+              "prev": "079b3315d8c100853a276f348e2d6922646982700cde617e90ecc6a513ae5026",
+              "hash": "d8b3c7130ce947de35d36ec22f4aee092aec25a4be3fcbac6cb3f53309fe6811"
+            }
+          ],
+          "summary": {
+            "effect_id": "5039ce161ff5",
+            "proposed": true,
+            "authorized": true,
+            "executed": true,
+            "recorded": true,
+            "final": "COMMITTED",
+            "authority": "5OtKAYIRfUdT7QZfkrxRaQ63qVQpzQUt2leS-eXn1yo"
+          }
+        },
+        "verification": {
+          "effect_id": "5039ce161ff5",
+          "valid": true,
+          "tamper_evident": true,
+          "signed": null,
+          "happened": true,
+          "happened_once": true,
+          "authorized_when_fired": true,
+          "assumptions_held": true,
+          "refused": null,
+          "evidence": {
+            "status": "already_processed",
+            "refund": "re_3UFN9288KhIqqdFL1vwVmYyF",
+            "amount": 2000
+          },
+          "rechecked_at_recovery": {
+            "lease_live": true,
+            "lease": {
+              "lease_id": "5OtKAYIRfUdT7QZfkrxRaQ63qVQpzQUt2leS-eXn1yo",
+              "mandate_reference": "5OtKAYIRfUdT7QZfkrxRaQ63qVQpzQUt2leS-eXn1yo",
+              "open_mandate_id": "fFXWWsURDATklLENnN6ndbG8jHKHPsUxku75r-24WeY",
+              "checked_at": 1789343404.273369,
+              "clock_skew_seconds": 0,
+              "revoked": null,
+              "max_cents": 2000,
+              "problems": [],
+              "verified": true,
+              "vct": [
+                "mandate.payment.open.1",
+                "mandate.payment.1"
+              ],
+              "exp": 1789346953,
+              "constraints": [
+                {
+                  "type": "payment.amount_range",
+                  "currency": "USD",
+                  "max": 2000,
+                  "min": 1
+                },
+                {
+                  "type": "payment.allowed_payees",
+                  "allowed": [
+                    {
+                      "id": "cus_VFsu10ZBkeiNl0",
+                      "name": "Customer, order #881"
+                    }
+                  ]
+                },
+                {
+                  "type": "payment.allowed_payment_instruments",
+                  "allowed": [
+                    {
+                      "id": "pm_1UFN9288KhIqqdFLVVzAzppd",
+                      "type": "card"
+                    }
+                  ]
+                }
+              ],
+              "payee": {
+                "id": "cus_VFsu10ZBkeiNl0",
+                "name": "Customer, order #881"
+              },
+              "instrument": {
+                "id": "pm_1UFN9288KhIqqdFLVVzAzppd",
+                "type": "card"
+              },
+              "transaction_id": "pi_3UFN9288KhIqqdFL1hKNZlT8",
+              "amount": {
+                "amount": 2000,
+                "currency": "USD"
+              },
+              "observed": {
+                "transaction_id": "pi_3UFN9288KhIqqdFL1hKNZlT8",
+                "payee": "cus_VFsu10ZBkeiNl0",
+                "instrument": "pm_1UFN9288KhIqqdFLVVzAzppd",
+                "currency": "USD"
+              }
+            },
+            "violations": []
+          },
+          "problems": []
+        }
+      }
+    },
+    {
+      "ran_at": "2026-09-13 23:50 UTC",
+      "crash_window_missed": [],
+      "scenario": "hand_refund_during_outage",
+      "mode": "adk",
+      "case_id": "7d543df12bbc",
+      "payment_intent": "pi_3UFNA088KhIqqdFL0utbCHel",
+      "customer": "cus_VFsvfpgWkmiRJ4",
+      "payment_method": "pm_1UFNA088KhIqqdFLSPDGbMWr",
+      "open_mandate_id": "u-hVW5mi75RAkp6YD6G9aA0En3h7gxNf6tniOOsSdlM",
+      "mandate_exp": 1789347013,
+      "authorization": {
+        "ts": 1789343422.767173,
+        "ok": true,
+        "lease": "TDwA_xpUZ0xBGHvwmOBlr_uxhrcHkeRso90Oy18CAm0",
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar; customer keeps blender",
+        "problems": []
+      },
+      "agent_exit_codes": [
+        -9,
+        0
+      ],
+      "sigkill": true,
+      "outage_action": {
+        "hand_refund": "re_3UFNA088KhIqqdFL0EHXlzlt"
+      },
+      "outcome": "REFUNDED",
+      "answer": {
+        "status": "REFUNDED",
+        "refund_id": "re_3UFNA088KhIqqdFL0Uis4JdG",
+        "idempotency_key": "e-420370e2-3378-4187-a664-3f52b780e0f4/toolu_01PiZ5U6TpHAiUz5GSFTK4sf"
+      },
+      "answer_sent": true,
+      "final_text": "The approved $20.00 partial refund for the cracked glass jar has been successfully issued to the customer's card.",
+      "recover_on_start": null,
+      "agent_refund_ids": [
+        "re_3UFNA088KhIqqdFL0Uis4JdG"
+      ],
+      "refund_ids": [
+        "re_3UFNA088KhIqqdFL0Uis4JdG",
+        "re_3UFNA088KhIqqdFL0EHXlzlt"
+      ],
+      "refunded_cents": 4000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": false,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 9.8,
+      "receipt": null
+    },
+    {
+      "ran_at": "2026-09-13 23:50 UTC",
+      "crash_window_missed": [],
+      "scenario": "hand_refund_during_outage",
+      "mode": "adk_checked",
+      "case_id": "9e7c23cdbf4d",
+      "payment_intent": "pi_3UFNAO88KhIqqdFL0psVdTRx",
+      "customer": "cus_VFswJiUBXVxKAb",
+      "payment_method": "pm_1UFNAO88KhIqqdFLoe1LuFfu",
+      "open_mandate_id": "g_Qc7kzQPCERLknfGUDA_uf2DgfQeIhsE8uIGM_z_uU",
+      "mandate_exp": 1789347037,
+      "authorization": {
+        "ts": 1789343446.868277,
+        "ok": true,
+        "lease": "yzNvLLhxzIvJ3fHzYc7nhjAsYicej3xehrsoncw3Eww",
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer keeps blender (Case #4471)",
+        "problems": []
+      },
+      "agent_exit_codes": [
+        -9,
+        0
+      ],
+      "sigkill": true,
+      "outage_action": {
+        "hand_refund": "re_3UFNAO88KhIqqdFL0peB66iO"
+      },
+      "outcome": "REFUSED:stale_premise",
+      "answer": {
+        "status": "REFUSED:stale_premise"
+      },
+      "answer_sent": false,
+      "final_text": "The refund was refused due to a stale premise error. This typically indicates a system issue. Let me check the current payment status to understand what happened.\n\nBased on the error, it appears there may be a temporary issue with processing the refund at this moment. The $20.00 refund was properly authorized for the cracked jar defect, but the system encountered an issue when attempting to issue it. You may need to retry the issue_refund call or contact the payments processing team to complete this transaction.",
+      "recover_on_start": null,
+      "agent_refund_ids": [],
+      "refund_ids": [
+        "re_3UFNAO88KhIqqdFL0peB66iO"
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 9.7,
+      "receipt": null
+    },
+    {
+      "ran_at": "2026-09-13 23:51 UTC",
+      "crash_window_missed": [],
+      "scenario": "hand_refund_during_outage",
+      "mode": "interlock",
+      "case_id": "021405ea332c",
+      "payment_intent": "pi_3UFNAn88KhIqqdFL1ZbtPNjY",
+      "customer": "cus_VFsw9b1xDRDKR7",
+      "payment_method": "pm_1UFNAn88KhIqqdFLfkALH3bY",
+      "open_mandate_id": "lzAzMOFD_7S_MzQ0Jbu0BjqbGVXVh1siFNgqlNn6-Yw",
+      "mandate_exp": 1789347061,
+      "authorization": {
+        "ts": 1789343470.477688,
+        "ok": true,
+        "lease": "RJZf0x3Q6W5fgBo4e5IEulWAJJYDlAGXTIhLXwvPiyU",
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar; customer keeps blender",
+        "problems": []
+      },
+      "agent_exit_codes": [
+        -9,
+        0
+      ],
+      "sigkill": true,
+      "outage_action": {
+        "hand_refund": "re_3UFNAn88KhIqqdFL1iiJRiF9"
+      },
+      "outcome": "REFUSED:stale_premise_at_recovery",
+      "answer": {
+        "interlock": "REFUSED:stale_premise_at_recovery",
+        "effect_id": "01692d72006b",
+        "sent": false,
+        "refused": "stale_premise at recovery",
+        "final": "Not a technical error. Do not retry: re-authorizing under the same approval is refused too. A person has to review the case and issue a new approval."
+      },
+      "answer_sent": false,
+      "final_text": "Unfortunately, the refund issuance was refused with a \"stale_premise_at_recovery\" error. This indicates a business logic issue that requires manual review\u2014the system cannot process this refund under the current authorization, and re-authorizing with the same approval won't work either. A person needs to review case #4471 and issue a fresh approval before the refund can be issued.",
+      "recover_on_start": {},
+      "agent_refund_ids": [],
+      "refund_ids": [
+        "re_3UFNAn88KhIqqdFL1iiJRiF9"
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 45.7,
+      "receipt": {
+        "bundle": {
+          "effect_id": "01692d72006b",
+          "entries": [
+            {
+              "ts": 1789343471.457613,
+              "kind": "PROPOSED",
+              "effect_id": "01692d72006b",
+              "agent": "adk:support/e-67dae88d-fdf5-4e41-a398-f38008d829fd/toolu_01LQveJGHorpdhqVTpECYv4c",
+              "lease": "RJZf0x3Q6W5fgBo4e5IEulWAJJYDlAGXTIhLXwvPiyU",
+              "premises": {
+                "payment_intent": "pi_3UFNAn88KhIqqdFL1ZbtPNjY",
+                "refunded_by_others": 0
+              },
+              "effect": {
+                "payment_intent": "pi_3UFNAn88KhIqqdFL1ZbtPNjY",
+                "amount": 2000,
+                "currency": "USD",
+                "payee": "cus_VFsw9b1xDRDKR7",
+                "instrument": "pm_1UFNAn88KhIqqdFLfkALH3bY",
+                "transaction_id": "pi_3UFNAn88KhIqqdFL1ZbtPNjY"
+              },
+              "prev": null,
+              "hash": "643a997ad4de2cb6789feaada4c2d7af14862e65e7cdf65527415c1f4cfc6304"
+            },
+            {
+              "ts": 1789343471.642567,
+              "kind": "AUTHORIZED",
+              "effect_id": "01692d72006b",
+              "lease": "RJZf0x3Q6W5fgBo4e5IEulWAJJYDlAGXTIhLXwvPiyU",
+              "prev": "643a997ad4de2cb6789feaada4c2d7af14862e65e7cdf65527415c1f4cfc6304",
+              "hash": "e78e0d7883f6cab819797d7a51f1596f448c11e736d13f2adc7dc85afee607a0"
+            },
+            {
+              "ts": 1789343471.818264,
+              "kind": "DISPATCHED",
+              "effect_id": "01692d72006b",
+              "effect": {
+                "payment_intent": "pi_3UFNAn88KhIqqdFL1ZbtPNjY",
+                "amount": 2000,
+                "currency": "USD",
+                "payee": "cus_VFsw9b1xDRDKR7",
+                "instrument": "pm_1UFNAn88KhIqqdFLfkALH3bY",
+                "transaction_id": "pi_3UFNAn88KhIqqdFL1ZbtPNjY"
+              },
+              "lease": "RJZf0x3Q6W5fgBo4e5IEulWAJJYDlAGXTIhLXwvPiyU",
+              "premises": {
+                "payment_intent": "pi_3UFNAn88KhIqqdFL1ZbtPNjY",
+                "refunded_by_others": 0
+              },
+              "checks": {
+                "lease_live": true,
+                "lease": {
+                  "lease_id": "RJZf0x3Q6W5fgBo4e5IEulWAJJYDlAGXTIhLXwvPiyU",
+                  "mandate_reference": "RJZf0x3Q6W5fgBo4e5IEulWAJJYDlAGXTIhLXwvPiyU",
+                  "open_mandate_id": "lzAzMOFD_7S_MzQ0Jbu0BjqbGVXVh1siFNgqlNn6-Yw",
+                  "checked_at": 1789343471.4585862,
+                  "clock_skew_seconds": 0,
+                  "revoked": null,
+                  "max_cents": 2000,
+                  "problems": [],
+                  "verified": true,
+                  "vct": [
+                    "mandate.payment.open.1",
+                    "mandate.payment.1"
+                  ],
+                  "exp": 1789347061,
+                  "constraints": [
+                    {
+                      "type": "payment.amount_range",
+                      "currency": "USD",
+                      "max": 2000,
+                      "min": 1
+                    },
+                    {
+                      "type": "payment.allowed_payees",
+                      "allowed": [
+                        {
+                          "id": "cus_VFsw9b1xDRDKR7",
+                          "name": "Customer, order #881"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "payment.allowed_payment_instruments",
+                      "allowed": [
+                        {
+                          "id": "pm_1UFNAn88KhIqqdFLfkALH3bY",
+                          "type": "card"
+                        }
+                      ]
+                    }
+                  ],
+                  "payee": {
+                    "id": "cus_VFsw9b1xDRDKR7",
+                    "name": "Customer, order #881"
+                  },
+                  "instrument": {
+                    "id": "pm_1UFNAn88KhIqqdFLfkALH3bY",
+                    "type": "card"
+                  },
+                  "transaction_id": "pi_3UFNAn88KhIqqdFL1ZbtPNjY",
+                  "amount": {
+                    "amount": 2000,
+                    "currency": "USD"
+                  },
+                  "observed": {
+                    "transaction_id": "pi_3UFNAn88KhIqqdFL1ZbtPNjY",
+                    "payee": "cus_VFsw9b1xDRDKR7",
+                    "instrument": "pm_1UFNAn88KhIqqdFLfkALH3bY",
+                    "currency": "USD"
+                  }
+                },
+                "violations": [],
+                "use_problems": []
+              },
+              "prev": "e78e0d7883f6cab819797d7a51f1596f448c11e736d13f2adc7dc85afee607a0",
+              "hash": "db0f636856871c6db9f78ea64e759980c052a0b39d0693293ef818e2197706ac"
+            },
+            {
+              "ts": 1789343512.7549372,
+              "kind": "REFUSED",
+              "effect_id": "01692d72006b",
+              "reason": "stale_premise at recovery",
+              "resolves": true,
+              "rechecked": {
+                "lease_live": true,
+                "lease": {
+                  "lease_id": "RJZf0x3Q6W5fgBo4e5IEulWAJJYDlAGXTIhLXwvPiyU",
+                  "mandate_reference": "RJZf0x3Q6W5fgBo4e5IEulWAJJYDlAGXTIhLXwvPiyU",
+                  "open_mandate_id": "lzAzMOFD_7S_MzQ0Jbu0BjqbGVXVh1siFNgqlNn6-Yw",
+                  "checked_at": 1789343512.091435,
+                  "clock_skew_seconds": 0,
+                  "revoked": null,
+                  "max_cents": 2000,
+                  "problems": [],
+                  "verified": true,
+                  "vct": [
+                    "mandate.payment.open.1",
+                    "mandate.payment.1"
+                  ],
+                  "exp": 1789347061,
+                  "constraints": [
+                    {
+                      "type": "payment.amount_range",
+                      "currency": "USD",
+                      "max": 2000,
+                      "min": 1
+                    },
+                    {
+                      "type": "payment.allowed_payees",
+                      "allowed": [
+                        {
+                          "id": "cus_VFsw9b1xDRDKR7",
+                          "name": "Customer, order #881"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "payment.allowed_payment_instruments",
+                      "allowed": [
+                        {
+                          "id": "pm_1UFNAn88KhIqqdFLfkALH3bY",
+                          "type": "card"
+                        }
+                      ]
+                    }
+                  ],
+                  "payee": {
+                    "id": "cus_VFsw9b1xDRDKR7",
+                    "name": "Customer, order #881"
+                  },
+                  "instrument": {
+                    "id": "pm_1UFNAn88KhIqqdFLfkALH3bY",
+                    "type": "card"
+                  },
+                  "transaction_id": "pi_3UFNAn88KhIqqdFL1ZbtPNjY",
+                  "amount": {
+                    "amount": 2000,
+                    "currency": "USD"
+                  },
+                  "observed": {
+                    "transaction_id": "pi_3UFNAn88KhIqqdFL1ZbtPNjY",
+                    "payee": "cus_VFsw9b1xDRDKR7",
+                    "instrument": "pm_1UFNAn88KhIqqdFLfkALH3bY",
+                    "currency": "USD"
+                  }
+                },
+                "violations": [
+                  "refunded by others: was 0, now 2000"
+                ]
+              },
+              "prev": "db0f636856871c6db9f78ea64e759980c052a0b39d0693293ef818e2197706ac",
+              "hash": "c48a482352fbcd90c23f3a7e3134bcf2fe1f7ca0d39bdfd0137b8bfdabf95236"
+            }
+          ],
+          "summary": {
+            "effect_id": "01692d72006b",
+            "proposed": true,
+            "authorized": true,
+            "executed": false,
+            "recorded": false,
+            "final": "REFUSED",
+            "authority": "RJZf0x3Q6W5fgBo4e5IEulWAJJYDlAGXTIhLXwvPiyU"
+          }
+        },
+        "verification": {
+          "effect_id": "01692d72006b",
+          "valid": true,
+          "tamper_evident": true,
+          "signed": null,
+          "happened": false,
+          "happened_once": true,
+          "authorized_when_fired": null,
+          "assumptions_held": null,
+          "refused": "stale_premise at recovery",
+          "evidence": null,
+          "rechecked_at_recovery": {
+            "lease_live": true,
+            "lease": {
+              "lease_id": "RJZf0x3Q6W5fgBo4e5IEulWAJJYDlAGXTIhLXwvPiyU",
+              "mandate_reference": "RJZf0x3Q6W5fgBo4e5IEulWAJJYDlAGXTIhLXwvPiyU",
+              "open_mandate_id": "lzAzMOFD_7S_MzQ0Jbu0BjqbGVXVh1siFNgqlNn6-Yw",
+              "checked_at": 1789343512.091435,
+              "clock_skew_seconds": 0,
+              "revoked": null,
+              "max_cents": 2000,
+              "problems": [],
+              "verified": true,
+              "vct": [
+                "mandate.payment.open.1",
+                "mandate.payment.1"
+              ],
+              "exp": 1789347061,
+              "constraints": [
+                {
+                  "type": "payment.amount_range",
+                  "currency": "USD",
+                  "max": 2000,
+                  "min": 1
+                },
+                {
+                  "type": "payment.allowed_payees",
+                  "allowed": [
+                    {
+                      "id": "cus_VFsw9b1xDRDKR7",
+                      "name": "Customer, order #881"
+                    }
+                  ]
+                },
+                {
+                  "type": "payment.allowed_payment_instruments",
+                  "allowed": [
+                    {
+                      "id": "pm_1UFNAn88KhIqqdFLfkALH3bY",
+                      "type": "card"
+                    }
+                  ]
+                }
+              ],
+              "payee": {
+                "id": "cus_VFsw9b1xDRDKR7",
+                "name": "Customer, order #881"
+              },
+              "instrument": {
+                "id": "pm_1UFNAn88KhIqqdFLfkALH3bY",
+                "type": "card"
+              },
+              "transaction_id": "pi_3UFNAn88KhIqqdFL1ZbtPNjY",
+              "amount": {
+                "amount": 2000,
+                "currency": "USD"
+              },
+              "observed": {
+                "transaction_id": "pi_3UFNAn88KhIqqdFL1ZbtPNjY",
+                "payee": "cus_VFsw9b1xDRDKR7",
+                "instrument": "pm_1UFNAn88KhIqqdFLfkALH3bY",
+                "currency": "USD"
+              }
+            },
+            "violations": [
+              "refunded by others: was 0, now 2000"
+            ]
+          },
+          "problems": []
+        }
+      }
+    },
+    {
+      "ran_at": "2026-09-13 23:52 UTC",
+      "crash_window_missed": [],
+      "scenario": "mandate_revoked_during_outage",
+      "mode": "adk",
+      "case_id": "be722c21c1ca",
+      "payment_intent": "pi_3UFNBk88KhIqqdFL05nIe1mZ",
+      "customer": "cus_VFsxSWUV2eXwpV",
+      "payment_method": "pm_1UFNBk88KhIqqdFLqW4lbaQg",
+      "open_mandate_id": "xtR6gBQTXu1OUvWiONVVmo0yZjx_ftUCOGGp6N6Ya5c",
+      "mandate_exp": 1789347121,
+      "authorization": {
+        "ts": 1789343530.966254,
+        "ok": true,
+        "lease": "m28O_p2kkiyp4WYH2XYtVAkfQMn57f5V7Akk8jA5TDw",
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar; customer keeps blender",
+        "problems": []
+      },
+      "agent_exit_codes": [
+        -9,
+        0
+      ],
+      "sigkill": true,
+      "outage_action": {
+        "revoked_open_mandate": "xtR6gBQTXu1OUvWiONVVmo0yZjx_ftUCOGGp6N6Ya5c",
+        "at": 1789343531.975316
+      },
+      "outcome": "REFUNDED",
+      "answer": {
+        "status": "REFUNDED",
+        "refund_id": "re_3UFNBk88KhIqqdFL04Q6wCl8",
+        "idempotency_key": "e-01b6f67c-3469-49e4-a6ae-6610257f2640/toolu_01Krr9PDwmDfjzaoU88r5vmQ"
+      },
+      "answer_sent": true,
+      "final_text": "The $20.00 partial refund for the cracked jar has been successfully processed and credited back to the customer's card for Order #881.",
+      "recover_on_start": null,
+      "agent_refund_ids": [
+        "re_3UFNBk88KhIqqdFL04Q6wCl8"
+      ],
+      "refund_ids": [
+        "re_3UFNBk88KhIqqdFL04Q6wCl8"
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 0,
+      "expected_refunds": 0,
+      "invariant_held": false,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 7.8,
+      "receipt": null
+    },
+    {
+      "ran_at": "2026-09-13 23:52 UTC",
+      "crash_window_missed": [],
+      "scenario": "mandate_revoked_during_outage",
+      "mode": "adk_checked",
+      "case_id": "405ac7dc6171",
+      "payment_intent": "pi_3UFNC688KhIqqdFL18XeWmPs",
+      "customer": "cus_VFsyOD7TiaTNp6",
+      "payment_method": "pm_1UFNC688KhIqqdFLsYzykz1j",
+      "open_mandate_id": "pNf4X4WwufU36lqGErlOhw9hNTyU0moW4Cm6UeTkiiA",
+      "mandate_exp": 1789347143,
+      "authorization": {
+        "ts": 1789343552.665959,
+        "ok": true,
+        "lease": "FzbOns3cFcw-K66W0J294AIBXQ7PnQTwvMEoUn2Ytuw",
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer keeps blender",
+        "problems": []
+      },
+      "agent_exit_codes": [
+        -9,
+        0
+      ],
+      "sigkill": true,
+      "outage_action": {
+        "revoked_open_mandate": "pNf4X4WwufU36lqGErlOhw9hNTyU0moW4Cm6UeTkiiA",
+        "at": 1789343554.0179121
+      },
+      "outcome": "REFUSED:mandate",
+      "answer": {
+        "status": "REFUSED:mandate",
+        "problems": [
+          "open mandate revoked"
+        ]
+      },
+      "answer_sent": false,
+      "final_text": "I'm encountering a system issue where the refund mandate keeps getting revoked. This appears to be a backend system problem preventing the $20.00 refund from being processed at this time. You may need to escalate this to the Finance team or check if there are any system locks or issues with the payment processor for this order.",
+      "recover_on_start": null,
+      "agent_refund_ids": [],
+      "refund_ids": [],
+      "refunded_cents": 0,
+      "expected_cents": 0,
+      "expected_refunds": 0,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 10.4,
+      "receipt": null
+    },
+    {
+      "ran_at": "2026-09-13 23:52 UTC",
+      "crash_window_missed": [],
+      "scenario": "mandate_revoked_during_outage",
+      "mode": "interlock",
+      "case_id": "b3c8e5fc1dc0",
+      "payment_intent": "pi_3UFNCV88KhIqqdFL06ZvR42b",
+      "customer": "cus_VFsy4LWDk3qsw4",
+      "payment_method": "pm_1UFNCV88KhIqqdFLfEFdXYT1",
+      "open_mandate_id": "NT7CpA0GCeSqDYXSOWGlo9QZHe1v6rTdT4TVE4tm_2Y",
+      "mandate_exp": 1789347168,
+      "authorization": {
+        "ts": 1789343577.712933,
+        "ok": true,
+        "lease": "_-BjB4dxwSQzI4me9msQlSx4GtAig90SCuSJn8kYO7I",
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer retains blender",
+        "problems": []
+      },
+      "agent_exit_codes": [
+        -9,
+        0
+      ],
+      "sigkill": true,
+      "outage_action": {
+        "revoked_open_mandate": "NT7CpA0GCeSqDYXSOWGlo9QZHe1v6rTdT4TVE4tm_2Y",
+        "at": 1789343579.011335
+      },
+      "outcome": "REFUSED:lease_at_recovery",
+      "answer": {
+        "interlock": "REFUSED:lease_at_recovery",
+        "effect_id": "2a3f745fd8e2",
+        "sent": false,
+        "refused": "lease at recovery",
+        "final": "Not a technical error. Do not retry: re-authorizing under the same approval is refused too. A person has to review the case and issue a new approval."
+      },
+      "answer_sent": false,
+      "final_text": "I've hit an issue: the refund authorization was successful, but the system has refused to issue it due to a \"lease at recovery\" status, which appears to be a special account state. The system indicates this isn't a technical error and requires manual review and a new approval from a person rather than a retry.\n\n**Summary:** The $20.00 refund for Order #881 was authorized by Finance, but the payment processing system refused to issue the refund due to the account being in \"lease at recovery\" status, requiring manual intervention from your Finance or Operations team to resolve.",
+      "recover_on_start": {},
+      "agent_refund_ids": [],
+      "refund_ids": [],
+      "refunded_cents": 0,
+      "expected_cents": 0,
+      "expected_refunds": 0,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 46.3,
+      "receipt": {
+        "bundle": {
+          "effect_id": "2a3f745fd8e2",
+          "entries": [
+            {
+              "ts": 1789343578.616555,
+              "kind": "PROPOSED",
+              "effect_id": "2a3f745fd8e2",
+              "agent": "adk:support/e-5e0611af-1e80-423c-8b88-a6f05227689f/toolu_01TM82m4Jk1ZUfhshC4E8nCL",
+              "lease": "_-BjB4dxwSQzI4me9msQlSx4GtAig90SCuSJn8kYO7I",
+              "premises": {
+                "payment_intent": "pi_3UFNCV88KhIqqdFL06ZvR42b",
+                "refunded_by_others": 0
+              },
+              "effect": {
+                "payment_intent": "pi_3UFNCV88KhIqqdFL06ZvR42b",
+                "amount": 2000,
+                "currency": "USD",
+                "payee": "cus_VFsy4LWDk3qsw4",
+                "instrument": "pm_1UFNCV88KhIqqdFLfEFdXYT1",
+                "transaction_id": "pi_3UFNCV88KhIqqdFL06ZvR42b"
+              },
+              "prev": null,
+              "hash": "cc93dfcb6ae99e7bc49ec78c2f0af143d3bb0c10af82216f7ccbd2956cc4bc85"
+            },
+            {
+              "ts": 1789343578.815895,
+              "kind": "AUTHORIZED",
+              "effect_id": "2a3f745fd8e2",
+              "lease": "_-BjB4dxwSQzI4me9msQlSx4GtAig90SCuSJn8kYO7I",
+              "prev": "cc93dfcb6ae99e7bc49ec78c2f0af143d3bb0c10af82216f7ccbd2956cc4bc85",
+              "hash": "b9cf1f21ffcb1b57c28f105ca56996ef6a6b6ee5915212039478f1ba6e8981a1"
+            },
+            {
+              "ts": 1789343578.993593,
+              "kind": "DISPATCHED",
+              "effect_id": "2a3f745fd8e2",
+              "effect": {
+                "payment_intent": "pi_3UFNCV88KhIqqdFL06ZvR42b",
+                "amount": 2000,
+                "currency": "USD",
+                "payee": "cus_VFsy4LWDk3qsw4",
+                "instrument": "pm_1UFNCV88KhIqqdFLfEFdXYT1",
+                "transaction_id": "pi_3UFNCV88KhIqqdFL06ZvR42b"
+              },
+              "lease": "_-BjB4dxwSQzI4me9msQlSx4GtAig90SCuSJn8kYO7I",
+              "premises": {
+                "payment_intent": "pi_3UFNCV88KhIqqdFL06ZvR42b",
+                "refunded_by_others": 0
+              },
+              "checks": {
+                "lease_live": true,
+                "lease": {
+                  "lease_id": "_-BjB4dxwSQzI4me9msQlSx4GtAig90SCuSJn8kYO7I",
+                  "mandate_reference": "_-BjB4dxwSQzI4me9msQlSx4GtAig90SCuSJn8kYO7I",
+                  "open_mandate_id": "NT7CpA0GCeSqDYXSOWGlo9QZHe1v6rTdT4TVE4tm_2Y",
+                  "checked_at": 1789343578.61791,
+                  "clock_skew_seconds": 0,
+                  "revoked": null,
+                  "max_cents": 2000,
+                  "problems": [],
+                  "verified": true,
+                  "vct": [
+                    "mandate.payment.open.1",
+                    "mandate.payment.1"
+                  ],
+                  "exp": 1789347168,
+                  "constraints": [
+                    {
+                      "type": "payment.amount_range",
+                      "currency": "USD",
+                      "max": 2000,
+                      "min": 1
+                    },
+                    {
+                      "type": "payment.allowed_payees",
+                      "allowed": [
+                        {
+                          "id": "cus_VFsy4LWDk3qsw4",
+                          "name": "Customer, order #881"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "payment.allowed_payment_instruments",
+                      "allowed": [
+                        {
+                          "id": "pm_1UFNCV88KhIqqdFLfEFdXYT1",
+                          "type": "card"
+                        }
+                      ]
+                    }
+                  ],
+                  "payee": {
+                    "id": "cus_VFsy4LWDk3qsw4",
+                    "name": "Customer, order #881"
+                  },
+                  "instrument": {
+                    "id": "pm_1UFNCV88KhIqqdFLfEFdXYT1",
+                    "type": "card"
+                  },
+                  "transaction_id": "pi_3UFNCV88KhIqqdFL06ZvR42b",
+                  "amount": {
+                    "amount": 2000,
+                    "currency": "USD"
+                  },
+                  "observed": {
+                    "transaction_id": "pi_3UFNCV88KhIqqdFL06ZvR42b",
+                    "payee": "cus_VFsy4LWDk3qsw4",
+                    "instrument": "pm_1UFNCV88KhIqqdFLfEFdXYT1",
+                    "currency": "USD"
+                  }
+                },
+                "violations": [],
+                "use_problems": []
+              },
+              "prev": "b9cf1f21ffcb1b57c28f105ca56996ef6a6b6ee5915212039478f1ba6e8981a1",
+              "hash": "011cee7e8dd4822d6c5355b830ad8c40fe9037fcbd055df815dfa3e596fdbb58"
+            },
+            {
+              "ts": 1789343619.862051,
+              "kind": "REFUSED",
+              "effect_id": "2a3f745fd8e2",
+              "reason": "lease at recovery",
+              "resolves": true,
+              "rechecked": {
+                "lease_live": false,
+                "lease": {
+                  "lease_id": "_-BjB4dxwSQzI4me9msQlSx4GtAig90SCuSJn8kYO7I",
+                  "mandate_reference": "_-BjB4dxwSQzI4me9msQlSx4GtAig90SCuSJn8kYO7I",
+                  "open_mandate_id": "NT7CpA0GCeSqDYXSOWGlo9QZHe1v6rTdT4TVE4tm_2Y",
+                  "checked_at": 1789343619.403842,
+                  "clock_skew_seconds": 0,
+                  "revoked": {
+                    "id": "NT7CpA0GCeSqDYXSOWGlo9QZHe1v6rTdT4TVE4tm_2Y",
+                    "at": 1789343579.010698,
+                    "by": "finance"
+                  },
+                  "max_cents": 2000,
+                  "problems": [
+                    "open mandate revoked"
+                  ],
+                  "verified": true,
+                  "vct": [
+                    "mandate.payment.open.1",
+                    "mandate.payment.1"
+                  ],
+                  "exp": 1789347168,
+                  "constraints": [
+                    {
+                      "type": "payment.amount_range",
+                      "currency": "USD",
+                      "max": 2000,
+                      "min": 1
+                    },
+                    {
+                      "type": "payment.allowed_payees",
+                      "allowed": [
+                        {
+                          "id": "cus_VFsy4LWDk3qsw4",
+                          "name": "Customer, order #881"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "payment.allowed_payment_instruments",
+                      "allowed": [
+                        {
+                          "id": "pm_1UFNCV88KhIqqdFLfEFdXYT1",
+                          "type": "card"
+                        }
+                      ]
+                    }
+                  ],
+                  "payee": {
+                    "id": "cus_VFsy4LWDk3qsw4",
+                    "name": "Customer, order #881"
+                  },
+                  "instrument": {
+                    "id": "pm_1UFNCV88KhIqqdFLfEFdXYT1",
+                    "type": "card"
+                  },
+                  "transaction_id": "pi_3UFNCV88KhIqqdFL06ZvR42b",
+                  "amount": {
+                    "amount": 2000,
+                    "currency": "USD"
+                  },
+                  "observed": {
+                    "transaction_id": "pi_3UFNCV88KhIqqdFL06ZvR42b",
+                    "payee": "cus_VFsy4LWDk3qsw4",
+                    "instrument": "pm_1UFNCV88KhIqqdFLfEFdXYT1",
+                    "currency": "USD"
+                  }
+                }
+              },
+              "prev": "011cee7e8dd4822d6c5355b830ad8c40fe9037fcbd055df815dfa3e596fdbb58",
+              "hash": "95079025db49496fade8a23292fdd687ee545942c8d4a253bf5c7f56de1364a5"
+            }
+          ],
+          "summary": {
+            "effect_id": "2a3f745fd8e2",
+            "proposed": true,
+            "authorized": true,
+            "executed": false,
+            "recorded": false,
+            "final": "REFUSED",
+            "authority": "_-BjB4dxwSQzI4me9msQlSx4GtAig90SCuSJn8kYO7I"
+          }
+        },
+        "verification": {
+          "effect_id": "2a3f745fd8e2",
+          "valid": true,
+          "tamper_evident": true,
+          "signed": null,
+          "happened": false,
+          "happened_once": true,
+          "authorized_when_fired": null,
+          "assumptions_held": null,
+          "refused": "lease at recovery",
+          "evidence": null,
+          "rechecked_at_recovery": {
+            "lease_live": false,
+            "lease": {
+              "lease_id": "_-BjB4dxwSQzI4me9msQlSx4GtAig90SCuSJn8kYO7I",
+              "mandate_reference": "_-BjB4dxwSQzI4me9msQlSx4GtAig90SCuSJn8kYO7I",
+              "open_mandate_id": "NT7CpA0GCeSqDYXSOWGlo9QZHe1v6rTdT4TVE4tm_2Y",
+              "checked_at": 1789343619.403842,
+              "clock_skew_seconds": 0,
+              "revoked": {
+                "id": "NT7CpA0GCeSqDYXSOWGlo9QZHe1v6rTdT4TVE4tm_2Y",
+                "at": 1789343579.010698,
+                "by": "finance"
+              },
+              "max_cents": 2000,
+              "problems": [
+                "open mandate revoked"
+              ],
+              "verified": true,
+              "vct": [
+                "mandate.payment.open.1",
+                "mandate.payment.1"
+              ],
+              "exp": 1789347168,
+              "constraints": [
+                {
+                  "type": "payment.amount_range",
+                  "currency": "USD",
+                  "max": 2000,
+                  "min": 1
+                },
+                {
+                  "type": "payment.allowed_payees",
+                  "allowed": [
+                    {
+                      "id": "cus_VFsy4LWDk3qsw4",
+                      "name": "Customer, order #881"
+                    }
+                  ]
+                },
+                {
+                  "type": "payment.allowed_payment_instruments",
+                  "allowed": [
+                    {
+                      "id": "pm_1UFNCV88KhIqqdFLfEFdXYT1",
+                      "type": "card"
+                    }
+                  ]
+                }
+              ],
+              "payee": {
+                "id": "cus_VFsy4LWDk3qsw4",
+                "name": "Customer, order #881"
+              },
+              "instrument": {
+                "id": "pm_1UFNCV88KhIqqdFLfEFdXYT1",
+                "type": "card"
+              },
+              "transaction_id": "pi_3UFNCV88KhIqqdFL06ZvR42b",
+              "amount": {
+                "amount": 2000,
+                "currency": "USD"
+              },
+              "observed": {
+                "transaction_id": "pi_3UFNCV88KhIqqdFL06ZvR42b",
+                "payee": "cus_VFsy4LWDk3qsw4",
+                "instrument": "pm_1UFNCV88KhIqqdFLfEFdXYT1",
+                "currency": "USD"
+              }
+            }
+          },
+          "problems": []
+        }
+      }
+    },
+    {
+      "ran_at": "2026-09-13 23:53 UTC",
+      "crash_window_missed": [],
+      "scenario": "mandate_expired_during_outage",
+      "mode": "adk",
+      "case_id": "d8c31f0d64e8",
+      "payment_intent": "pi_3UFNDU88KhIqqdFL1c7HEbIv",
+      "customer": "cus_VFszxTDBRunJLn",
+      "payment_method": "pm_1UFNDT88KhIqqdFL25fU7Hed",
+      "open_mandate_id": "l1imd2iRSqpIEqFVVX7MB7dNEnQiBCNoPZrsEK9LHuo",
+      "mandate_exp": 1789343718,
+      "authorization": {
+        "ts": 1789343636.94671,
+        "ok": true,
+        "lease": "ZjGrOLFvy2uF5iZRfpJT9vsHmNd-GudjtMn1sMhpj4U",
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer keeps blender",
+        "problems": []
+      },
+      "agent_exit_codes": [
+        -9,
+        0
+      ],
+      "sigkill": true,
+      "outage_action": {
+        "waited_seconds": 82.1,
+        "mandate_exp": 1789343718,
+        "restarted_at": 1789343720.003496
+      },
+      "outcome": "REFUNDED",
+      "answer": {
+        "status": "REFUNDED",
+        "refund_id": "re_3UFNDU88KhIqqdFL1nnnjADf",
+        "idempotency_key": "e-078d6d80-be9c-4140-9eb7-d30133aea612/toolu_0158xKEWDVXthmMh2WfV6CNM"
+      },
+      "answer_sent": true,
+      "final_text": "A $20.00 partial refund has been successfully issued to the customer's card for the cracked glass jar.",
+      "recover_on_start": null,
+      "agent_refund_ids": [
+        "re_3UFNDU88KhIqqdFL1nnnjADf"
+      ],
+      "refund_ids": [
+        "re_3UFNDU88KhIqqdFL1nnnjADf"
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 0,
+      "expected_refunds": 0,
+      "invariant_held": false,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 88.9,
+      "receipt": null
+    },
+    {
+      "ran_at": "2026-09-13 23:55 UTC",
+      "crash_window_missed": [],
+      "scenario": "mandate_expired_during_outage",
+      "mode": "adk_checked",
+      "case_id": "86aa98b94b92",
+      "payment_intent": "pi_3UFNF788KhIqqdFL0ye75Rft",
+      "customer": "cus_VFt1ltXN2wpQUZ",
+      "payment_method": "pm_1UFNF788KhIqqdFLW6pelm60",
+      "open_mandate_id": "gkK3ubziyj3F01wtdjMAUimLIXpbqheWOau4VhzaXCg",
+      "mandate_exp": 1789343820,
+      "authorization": {
+        "ts": 1789343738.8509068,
+        "ok": true,
+        "lease": "y-ERLRPAwBg8xIS6Ne_hhi2JYPVZ1z71IOAiD-JQrTI",
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer keeps blender (Order #881, Case #4471)",
+        "problems": []
+      },
+      "agent_exit_codes": [
+        -9,
+        0
+      ],
+      "sigkill": true,
+      "outage_action": {
+        "waited_seconds": 81.9,
+        "mandate_exp": 1789343820,
+        "restarted_at": 1789343822.004569
+      },
+      "outcome": "REFUSED:mandate",
+      "answer": {
+        "status": "REFUSED:mandate",
+        "problems": [
+          "mandate did not verify: ValueError: Token 0 expired at 1789343820"
+        ]
+      },
+      "answer_sent": false,
+      "final_text": "I encountered a technical issue with the refund mandate verification. The mandate token has expired during processing. Please contact the Finance team to re-authorize the refund or check if there's a system issue preventing the mandate from being verified. The $20.00 refund for the cracked jar was approved (Case #4471) but could not be issued due to mandate verification failure.",
+      "recover_on_start": null,
+      "agent_refund_ids": [],
+      "refund_ids": [],
+      "refunded_cents": 0,
+      "expected_cents": 0,
+      "expected_refunds": 0,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 90.3,
+      "receipt": null
+    },
+    {
+      "ran_at": "2026-09-13 23:57 UTC",
+      "crash_window_missed": [],
+      "scenario": "mandate_expired_during_outage",
+      "mode": "interlock",
+      "case_id": "d6c8e6f319f9",
+      "payment_intent": "pi_3UFNGn88KhIqqdFL05MHlRKc",
+      "customer": "cus_VFt2VZJqaev35h",
+      "payment_method": "pm_1UFNGn88KhIqqdFLMqXW2Rve",
+      "open_mandate_id": "0CG1twO_25FzSnjeJ9KedQj9LVJkLYLuqnB5cAIrMJA",
+      "mandate_exp": 1789343923,
+      "authorization": {
+        "ts": 1789343841.7755709,
+        "ok": true,
+        "lease": "sDz9RdSqecablPgsD1KXnok6hiVm0xKDMpqPzRjobbI",
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - case #4471",
+        "problems": []
+      },
+      "agent_exit_codes": [
+        -9,
+        0
+      ],
+      "sigkill": true,
+      "outage_action": {
+        "waited_seconds": 82.0,
+        "mandate_exp": 1789343923,
+        "restarted_at": 1789343925.006175
+      },
+      "outcome": "REFUSED:lease",
+      "answer": {
+        "interlock": "REFUSED:lease",
+        "effect_id": "3a5c831e781d",
+        "sent": false,
+        "refused": "lease not live, or it does not cover this effect",
+        "final": "Not a technical error. Do not retry: re-authorizing under the same approval is refused too. A person has to review the case and issue a new approval."
+      },
+      "answer_sent": false,
+      "final_text": "I encountered an issue: the refund authorization was rejected because the lease is not active or doesn't cover this refund. This is not a technical error\u2014it indicates that the approval from Finance may need to be re-reviewed, or there may be a system configuration issue with the current lease/approval mandate. A person needs to review case #4471 and issue a new approval before the refund can be processed.",
+      "recover_on_start": {
+        "3a5c831e781d": "REFUSED:lease_at_recovery"
+      },
+      "agent_refund_ids": [],
+      "refund_ids": [],
+      "refunded_cents": 0,
+      "expected_cents": 0,
+      "expected_refunds": 0,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 89.9,
+      "receipt": {
+        "bundle": {
+          "effect_id": "3a5c831e781d",
+          "entries": [
+            {
+              "ts": 1789343842.521897,
+              "kind": "PROPOSED",
+              "effect_id": "3a5c831e781d",
+              "agent": "adk:support/e-5ec05c62-822f-492c-b8a0-24a8892867bb/toolu_01V4HQoLiCCV592ztGqRbF3m",
+              "lease": "sDz9RdSqecablPgsD1KXnok6hiVm0xKDMpqPzRjobbI",
+              "premises": {
+                "payment_intent": "pi_3UFNGn88KhIqqdFL05MHlRKc",
+                "refunded_by_others": 0
+              },
+              "effect": {
+                "payment_intent": "pi_3UFNGn88KhIqqdFL05MHlRKc",
+                "amount": 2000,
+                "currency": "USD",
+                "payee": "cus_VFt2VZJqaev35h",
+                "instrument": "pm_1UFNGn88KhIqqdFLMqXW2Rve",
+                "transaction_id": "pi_3UFNGn88KhIqqdFL05MHlRKc"
+              },
+              "prev": null,
+              "hash": "d355ac4354d79acb97333a018741f0122ad5eb3c956e1189d7537e495c174bbf"
+            },
+            {
+              "ts": 1789343842.717688,
+              "kind": "AUTHORIZED",
+              "effect_id": "3a5c831e781d",
+              "lease": "sDz9RdSqecablPgsD1KXnok6hiVm0xKDMpqPzRjobbI",
+              "prev": "d355ac4354d79acb97333a018741f0122ad5eb3c956e1189d7537e495c174bbf",
+              "hash": "1f6b7036fe82914a94466ac739c9d9009bdcd4828e29f5a77b8f39fd3235eaa0"
+            },
+            {
+              "ts": 1789343843.009394,
+              "kind": "DISPATCHED",
+              "effect_id": "3a5c831e781d",
+              "effect": {
+                "payment_intent": "pi_3UFNGn88KhIqqdFL05MHlRKc",
+                "amount": 2000,
+                "currency": "USD",
+                "payee": "cus_VFt2VZJqaev35h",
+                "instrument": "pm_1UFNGn88KhIqqdFLMqXW2Rve",
+                "transaction_id": "pi_3UFNGn88KhIqqdFL05MHlRKc"
+              },
+              "lease": "sDz9RdSqecablPgsD1KXnok6hiVm0xKDMpqPzRjobbI",
+              "premises": {
+                "payment_intent": "pi_3UFNGn88KhIqqdFL05MHlRKc",
+                "refunded_by_others": 0
+              },
+              "checks": {
+                "lease_live": true,
+                "lease": {
+                  "lease_id": "sDz9RdSqecablPgsD1KXnok6hiVm0xKDMpqPzRjobbI",
+                  "mandate_reference": "sDz9RdSqecablPgsD1KXnok6hiVm0xKDMpqPzRjobbI",
+                  "open_mandate_id": "0CG1twO_25FzSnjeJ9KedQj9LVJkLYLuqnB5cAIrMJA",
+                  "checked_at": 1789343842.52304,
+                  "clock_skew_seconds": 0,
+                  "revoked": null,
+                  "max_cents": 2000,
+                  "problems": [],
+                  "verified": true,
+                  "vct": [
+                    "mandate.payment.open.1",
+                    "mandate.payment.1"
+                  ],
+                  "exp": 1789343923,
+                  "constraints": [
+                    {
+                      "type": "payment.amount_range",
+                      "currency": "USD",
+                      "max": 2000,
+                      "min": 1
+                    },
+                    {
+                      "type": "payment.allowed_payees",
+                      "allowed": [
+                        {
+                          "id": "cus_VFt2VZJqaev35h",
+                          "name": "Customer, order #881"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "payment.allowed_payment_instruments",
+                      "allowed": [
+                        {
+                          "id": "pm_1UFNGn88KhIqqdFLMqXW2Rve",
+                          "type": "card"
+                        }
+                      ]
+                    }
+                  ],
+                  "payee": {
+                    "id": "cus_VFt2VZJqaev35h",
+                    "name": "Customer, order #881"
+                  },
+                  "instrument": {
+                    "id": "pm_1UFNGn88KhIqqdFLMqXW2Rve",
+                    "type": "card"
+                  },
+                  "transaction_id": "pi_3UFNGn88KhIqqdFL05MHlRKc",
+                  "amount": {
+                    "amount": 2000,
+                    "currency": "USD"
+                  },
+                  "observed": {
+                    "transaction_id": "pi_3UFNGn88KhIqqdFL05MHlRKc",
+                    "payee": "cus_VFt2VZJqaev35h",
+                    "instrument": "pm_1UFNGn88KhIqqdFLMqXW2Rve",
+                    "currency": "USD"
+                  }
+                },
+                "violations": [],
+                "use_problems": []
+              },
+              "prev": "1f6b7036fe82914a94466ac739c9d9009bdcd4828e29f5a77b8f39fd3235eaa0",
+              "hash": "f1c012bf1bc1d3cf76f61cccdbd08607491110da22b9b5979e28978998190a6c"
+            },
+            {
+              "ts": 1789343927.046449,
+              "kind": "REFUSED",
+              "effect_id": "3a5c831e781d",
+              "reason": "lease at recovery",
+              "resolves": true,
+              "rechecked": {
+                "lease_live": false,
+                "lease": {
+                  "lease_id": "sDz9RdSqecablPgsD1KXnok6hiVm0xKDMpqPzRjobbI",
+                  "mandate_reference": "sDz9RdSqecablPgsD1KXnok6hiVm0xKDMpqPzRjobbI",
+                  "open_mandate_id": "0CG1twO_25FzSnjeJ9KedQj9LVJkLYLuqnB5cAIrMJA",
+                  "checked_at": 1789343926.716724,
+                  "clock_skew_seconds": 0,
+                  "revoked": null,
+                  "max_cents": null,
+                  "problems": [
+                    "mandate did not verify: ValueError: Token 0 expired at 1789343923"
+                  ]
+                }
+              },
+              "prev": "f1c012bf1bc1d3cf76f61cccdbd08607491110da22b9b5979e28978998190a6c",
+              "hash": "15a2ea65fdf821554fe921b279f67ad7acadd0e639fa8bc304eb37a40eb82b63"
+            },
+            {
+              "ts": 1789343927.855998,
+              "kind": "PROPOSED",
+              "effect_id": "3a5c831e781d",
+              "agent": "adk:support/e-5ec05c62-822f-492c-b8a0-24a8892867bb/toolu_01V4HQoLiCCV592ztGqRbF3m",
+              "lease": "sDz9RdSqecablPgsD1KXnok6hiVm0xKDMpqPzRjobbI",
+              "premises": {
+                "payment_intent": "pi_3UFNGn88KhIqqdFL05MHlRKc",
+                "refunded_by_others": 0
+              },
+              "effect": {
+                "payment_intent": "pi_3UFNGn88KhIqqdFL05MHlRKc",
+                "amount": 2000,
+                "currency": "USD",
+                "payee": "cus_VFt2VZJqaev35h",
+                "instrument": "pm_1UFNGn88KhIqqdFLMqXW2Rve",
+                "transaction_id": "pi_3UFNGn88KhIqqdFL05MHlRKc"
+              },
+              "prev": "15a2ea65fdf821554fe921b279f67ad7acadd0e639fa8bc304eb37a40eb82b63",
+              "hash": "fadc04818948705a38e5253794c50f57051b2d3484921dc9a3dbe476b0e949db"
+            },
+            {
+              "ts": 1789343927.859367,
+              "kind": "REFUSED",
+              "effect_id": "3a5c831e781d",
+              "reason": "lease not live, or it does not cover this effect",
+              "checks": {
+                "lease_live": false,
+                "lease": {
+                  "lease_id": "sDz9RdSqecablPgsD1KXnok6hiVm0xKDMpqPzRjobbI",
+                  "mandate_reference": "sDz9RdSqecablPgsD1KXnok6hiVm0xKDMpqPzRjobbI",
+                  "open_mandate_id": "0CG1twO_25FzSnjeJ9KedQj9LVJkLYLuqnB5cAIrMJA",
+                  "checked_at": 1789343927.857286,
+                  "clock_skew_seconds": 0,
+                  "revoked": null,
+                  "max_cents": null,
+                  "problems": [
+                    "mandate did not verify: ValueError: Token 0 expired at 1789343923"
+                  ]
+                }
+              },
+              "prev": "fadc04818948705a38e5253794c50f57051b2d3484921dc9a3dbe476b0e949db",
+              "hash": "0bc1d32c69532a3c01e47a93e13eb2afe36d644e7cbac56f514a8b6505af2e97"
+            }
+          ],
+          "summary": {
+            "effect_id": "3a5c831e781d",
+            "proposed": true,
+            "authorized": true,
+            "executed": false,
+            "recorded": false,
+            "final": "REFUSED",
+            "authority": "sDz9RdSqecablPgsD1KXnok6hiVm0xKDMpqPzRjobbI"
+          }
+        },
+        "verification": {
+          "effect_id": "3a5c831e781d",
+          "valid": true,
+          "tamper_evident": true,
+          "signed": null,
+          "happened": false,
+          "happened_once": true,
+          "authorized_when_fired": null,
+          "assumptions_held": null,
+          "refused": "lease not live, or it does not cover this effect",
+          "evidence": null,
+          "rechecked_at_recovery": {
+            "lease_live": false,
+            "lease": {
+              "lease_id": "sDz9RdSqecablPgsD1KXnok6hiVm0xKDMpqPzRjobbI",
+              "mandate_reference": "sDz9RdSqecablPgsD1KXnok6hiVm0xKDMpqPzRjobbI",
+              "open_mandate_id": "0CG1twO_25FzSnjeJ9KedQj9LVJkLYLuqnB5cAIrMJA",
+              "checked_at": 1789343926.716724,
+              "clock_skew_seconds": 0,
+              "revoked": null,
+              "max_cents": null,
+              "problems": [
+                "mandate did not verify: ValueError: Token 0 expired at 1789343923"
+              ]
+            }
+          },
+          "problems": []
+        }
+      }
+    },
+    {
+      "ran_at": "2026-09-13 23:59 UTC",
+      "crash_window_missed": [],
+      "scenario": "mandate_revoked_after_commit",
+      "mode": "adk",
+      "case_id": "165e9fb3945e",
+      "payment_intent": "pi_3UFNIR88KhIqqdFL1MGPB4Bg",
+      "customer": "cus_VFt4XOZDuAiYjb",
+      "payment_method": "pm_1UFNIR88KhIqqdFLOLW5AxyQ",
+      "open_mandate_id": "tLK01Nxmr1QhMdxYCJMfrxwJVlAzvXFoWbqpzPHsOrI",
+      "mandate_exp": 1789347536,
+      "authorization": {
+        "ts": 1789343945.591607,
+        "ok": true,
+        "lease": "E8HHvxs_RJ33tqitkzsMOkHQupVRKwgc46c99dWxInQ",
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar; customer keeps blender (Case #4471)",
+        "problems": []
+      },
+      "agent_exit_codes": [
+        -9,
+        0
+      ],
+      "sigkill": true,
+      "outage_action": {
+        "revoked_open_mandate": "tLK01Nxmr1QhMdxYCJMfrxwJVlAzvXFoWbqpzPHsOrI",
+        "at": 1789343947.4546719
+      },
+      "outcome": "REPLAYED_BY_STRIPE",
+      "answer": {
+        "status": "REPLAYED_BY_STRIPE",
+        "refund_id": "re_3UFNIR88KhIqqdFL1SfiJIeW",
+        "idempotency_key": "e-6553e252-69ed-40e8-95bd-2e8df4323d5e/toolu_01BkKK5BK7TzPgDg65poHf5G"
+      },
+      "answer_sent": true,
+      "final_text": "A $20.00 refund for the cracked glass jar has been successfully issued to the customer's card for order #881.",
+      "recover_on_start": null,
+      "agent_refund_ids": [
+        "re_3UFNIR88KhIqqdFL1SfiJIeW"
+      ],
+      "refund_ids": [
+        "re_3UFNIR88KhIqqdFL1SfiJIeW"
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 6.6,
+      "receipt": null
+    },
+    {
+      "ran_at": "2026-09-13 23:59 UTC",
+      "crash_window_missed": [],
+      "scenario": "mandate_revoked_after_commit",
+      "mode": "adk_checked",
+      "case_id": "ca706f1bde38",
+      "payment_intent": "pi_3UFNIn88KhIqqdFL1rcY9c2d",
+      "customer": "cus_VFt42Oslo6uQuX",
+      "payment_method": "pm_1UFNIn88KhIqqdFLahHW92yn",
+      "open_mandate_id": "1Z7qqYQakWQGV_SDj_yRije3oGps9-TYHAol05ag3Ks",
+      "mandate_exp": 1789347557,
+      "authorization": {
+        "ts": 1789343966.824042,
+        "ok": true,
+        "lease": "TtLImuWRIQ1MOcFWp4nfG757pYH1k25X1crjXhs4qoE",
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer retains blender",
+        "problems": []
+      },
+      "agent_exit_codes": [
+        -9,
+        0
+      ],
+      "sigkill": true,
+      "outage_action": {
+        "revoked_open_mandate": "1Z7qqYQakWQGV_SDj_yRije3oGps9-TYHAol05ag3Ks",
+        "at": 1789343969.235604
+      },
+      "outcome": "FOUND_BY_LOOKUP",
+      "answer": {
+        "status": "FOUND_BY_LOOKUP",
+        "refund_id": "re_3UFNIn88KhIqqdFL1qr9JZjM"
+      },
+      "answer_sent": true,
+      "final_text": "The $20.00 partial refund for the cracked glass jar has been successfully issued to the customer's card for Order #881 (case #4471).",
+      "recover_on_start": null,
+      "agent_refund_ids": [
+        "re_3UFNIn88KhIqqdFL1qr9JZjM"
+      ],
+      "refund_ids": [
+        "re_3UFNIn88KhIqqdFL1qr9JZjM"
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 6.9,
+      "receipt": null
+    },
+    {
+      "ran_at": "2026-09-13 23:59 UTC",
+      "crash_window_missed": [],
+      "scenario": "mandate_revoked_after_commit",
+      "mode": "interlock",
+      "case_id": "e10d664e9692",
+      "payment_intent": "pi_3UFNJ988KhIqqdFL0LqpL1VX",
+      "customer": "cus_VFt5Un3FnxZMJZ",
+      "payment_method": "pm_1UFNJ988KhIqqdFL4ouydGSE",
+      "open_mandate_id": "yDPpZRzgMI-hlC_41uARgLidc-I3xI5CFwZYJvR5xvA",
+      "mandate_exp": 1789347579,
+      "authorization": {
+        "ts": 1789343988.354883,
+        "ok": true,
+        "lease": "D3uOH9c2W5j9M6lOQMOmHbkOa55DRgB59udtRgVI_wM",
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer keeps blender",
+        "problems": []
+      },
+      "agent_exit_codes": [
+        -9,
+        0
+      ],
+      "sigkill": true,
+      "outage_action": {
+        "revoked_open_mandate": "yDPpZRzgMI-hlC_41uARgLidc-I3xI5CFwZYJvR5xvA",
+        "at": 1789343990.5532138
+      },
+      "outcome": "COMMITTED_ON_QUERY",
+      "answer": {
+        "interlock": "COMMITTED_ON_QUERY",
+        "effect_id": "93e04edcae02",
+        "sent": true,
+        "result": {
+          "found": "re_3UFNJ988KhIqqdFL090ZpGav"
+        }
+      },
+      "answer_sent": true,
+      "final_text": "The $20.00 partial refund for the cracked glass jar has been successfully processed and issued to the customer's card.",
+      "recover_on_start": {},
+      "agent_refund_ids": [
+        "re_3UFNJ988KhIqqdFL090ZpGav"
+      ],
+      "refund_ids": [
+        "re_3UFNJ988KhIqqdFL090ZpGav"
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 43.7,
+      "receipt": {
+        "bundle": {
+          "effect_id": "93e04edcae02",
+          "entries": [
+            {
+              "ts": 1789343989.268818,
+              "kind": "PROPOSED",
+              "effect_id": "93e04edcae02",
+              "agent": "adk:support/e-b8ccc059-ff6e-4fee-8fa1-e8de0a395a5f/toolu_01EkB9XXUBEqjcqRjyLeLmdE",
+              "lease": "D3uOH9c2W5j9M6lOQMOmHbkOa55DRgB59udtRgVI_wM",
+              "premises": {
+                "payment_intent": "pi_3UFNJ988KhIqqdFL0LqpL1VX",
+                "refunded_by_others": 0
+              },
+              "effect": {
+                "payment_intent": "pi_3UFNJ988KhIqqdFL0LqpL1VX",
+                "amount": 2000,
+                "currency": "USD",
+                "payee": "cus_VFt5Un3FnxZMJZ",
+                "instrument": "pm_1UFNJ988KhIqqdFL4ouydGSE",
+                "transaction_id": "pi_3UFNJ988KhIqqdFL0LqpL1VX"
+              },
+              "prev": null,
+              "hash": "c30912a146df8bd54a04dfcd81ad48f47b2f440331856506e9b1925e03ef5bd2"
+            },
+            {
+              "ts": 1789343989.4645271,
+              "kind": "AUTHORIZED",
+              "effect_id": "93e04edcae02",
+              "lease": "D3uOH9c2W5j9M6lOQMOmHbkOa55DRgB59udtRgVI_wM",
+              "prev": "c30912a146df8bd54a04dfcd81ad48f47b2f440331856506e9b1925e03ef5bd2",
+              "hash": "afa81ef538396356c4e07a1f2356618928cd784b131cac81a4c6d70700b71c47"
+            },
+            {
+              "ts": 1789343989.640142,
+              "kind": "DISPATCHED",
+              "effect_id": "93e04edcae02",
+              "effect": {
+                "payment_intent": "pi_3UFNJ988KhIqqdFL0LqpL1VX",
+                "amount": 2000,
+                "currency": "USD",
+                "payee": "cus_VFt5Un3FnxZMJZ",
+                "instrument": "pm_1UFNJ988KhIqqdFL4ouydGSE",
+                "transaction_id": "pi_3UFNJ988KhIqqdFL0LqpL1VX"
+              },
+              "lease": "D3uOH9c2W5j9M6lOQMOmHbkOa55DRgB59udtRgVI_wM",
+              "premises": {
+                "payment_intent": "pi_3UFNJ988KhIqqdFL0LqpL1VX",
+                "refunded_by_others": 0
+              },
+              "checks": {
+                "lease_live": true,
+                "lease": {
+                  "lease_id": "D3uOH9c2W5j9M6lOQMOmHbkOa55DRgB59udtRgVI_wM",
+                  "mandate_reference": "D3uOH9c2W5j9M6lOQMOmHbkOa55DRgB59udtRgVI_wM",
+                  "open_mandate_id": "yDPpZRzgMI-hlC_41uARgLidc-I3xI5CFwZYJvR5xvA",
+                  "checked_at": 1789343989.270306,
+                  "clock_skew_seconds": 0,
+                  "revoked": null,
+                  "max_cents": 2000,
+                  "problems": [],
+                  "verified": true,
+                  "vct": [
+                    "mandate.payment.open.1",
+                    "mandate.payment.1"
+                  ],
+                  "exp": 1789347579,
+                  "constraints": [
+                    {
+                      "type": "payment.amount_range",
+                      "currency": "USD",
+                      "max": 2000,
+                      "min": 1
+                    },
+                    {
+                      "type": "payment.allowed_payees",
+                      "allowed": [
+                        {
+                          "id": "cus_VFt5Un3FnxZMJZ",
+                          "name": "Customer, order #881"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "payment.allowed_payment_instruments",
+                      "allowed": [
+                        {
+                          "id": "pm_1UFNJ988KhIqqdFL4ouydGSE",
+                          "type": "card"
+                        }
+                      ]
+                    }
+                  ],
+                  "payee": {
+                    "id": "cus_VFt5Un3FnxZMJZ",
+                    "name": "Customer, order #881"
+                  },
+                  "instrument": {
+                    "id": "pm_1UFNJ988KhIqqdFL4ouydGSE",
+                    "type": "card"
+                  },
+                  "transaction_id": "pi_3UFNJ988KhIqqdFL0LqpL1VX",
+                  "amount": {
+                    "amount": 2000,
+                    "currency": "USD"
+                  },
+                  "observed": {
+                    "transaction_id": "pi_3UFNJ988KhIqqdFL0LqpL1VX",
+                    "payee": "cus_VFt5Un3FnxZMJZ",
+                    "instrument": "pm_1UFNJ988KhIqqdFL4ouydGSE",
+                    "currency": "USD"
+                  }
+                },
+                "violations": [],
+                "use_problems": []
+              },
+              "prev": "afa81ef538396356c4e07a1f2356618928cd784b131cac81a4c6d70700b71c47",
+              "hash": "9d2c230ab080f7e3b9972066b5c5c44a5c47cfee988dadc4b01e5cbcb4dcf61c"
+            },
+            {
+              "ts": 1789344030.524099,
+              "kind": "COMMITTED",
+              "effect_id": "93e04edcae02",
+              "via": "recovery-query",
+              "rechecked": {
+                "lease_live": false,
+                "lease": {
+                  "lease_id": "D3uOH9c2W5j9M6lOQMOmHbkOa55DRgB59udtRgVI_wM",
+                  "mandate_reference": "D3uOH9c2W5j9M6lOQMOmHbkOa55DRgB59udtRgVI_wM",
+                  "open_mandate_id": "yDPpZRzgMI-hlC_41uARgLidc-I3xI5CFwZYJvR5xvA",
+                  "checked_at": 1789344030.0110238,
+                  "clock_skew_seconds": 0,
+                  "revoked": {
+                    "id": "yDPpZRzgMI-hlC_41uARgLidc-I3xI5CFwZYJvR5xvA",
+                    "at": 1789343990.552626,
+                    "by": "finance"
+                  },
+                  "max_cents": 2000,
+                  "problems": [
+                    "open mandate revoked"
+                  ],
+                  "verified": true,
+                  "vct": [
+                    "mandate.payment.open.1",
+                    "mandate.payment.1"
+                  ],
+                  "exp": 1789347579,
+                  "constraints": [
+                    {
+                      "type": "payment.amount_range",
+                      "currency": "USD",
+                      "max": 2000,
+                      "min": 1
+                    },
+                    {
+                      "type": "payment.allowed_payees",
+                      "allowed": [
+                        {
+                          "id": "cus_VFt5Un3FnxZMJZ",
+                          "name": "Customer, order #881"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "payment.allowed_payment_instruments",
+                      "allowed": [
+                        {
+                          "id": "pm_1UFNJ988KhIqqdFL4ouydGSE",
+                          "type": "card"
+                        }
+                      ]
+                    }
+                  ],
+                  "payee": {
+                    "id": "cus_VFt5Un3FnxZMJZ",
+                    "name": "Customer, order #881"
+                  },
+                  "instrument": {
+                    "id": "pm_1UFNJ988KhIqqdFL4ouydGSE",
+                    "type": "card"
+                  },
+                  "transaction_id": "pi_3UFNJ988KhIqqdFL0LqpL1VX",
+                  "amount": {
+                    "amount": 2000,
+                    "currency": "USD"
+                  },
+                  "observed": {
+                    "transaction_id": "pi_3UFNJ988KhIqqdFL0LqpL1VX",
+                    "payee": "cus_VFt5Un3FnxZMJZ",
+                    "instrument": "pm_1UFNJ988KhIqqdFL4ouydGSE",
+                    "currency": "USD"
+                  }
+                }
+              },
+              "found": "re_3UFNJ988KhIqqdFL090ZpGav",
+              "prev": "9d2c230ab080f7e3b9972066b5c5c44a5c47cfee988dadc4b01e5cbcb4dcf61c",
+              "hash": "d9cb1d6a480f34b4c24d43bcd52b4b6583c8428ee98876763c7994f2c310f3aa"
+            }
+          ],
+          "summary": {
+            "effect_id": "93e04edcae02",
+            "proposed": true,
+            "authorized": true,
+            "executed": true,
+            "recorded": true,
+            "final": "COMMITTED",
+            "authority": "D3uOH9c2W5j9M6lOQMOmHbkOa55DRgB59udtRgVI_wM"
+          }
+        },
+        "verification": {
+          "effect_id": "93e04edcae02",
+          "valid": true,
+          "tamper_evident": true,
+          "signed": null,
+          "happened": true,
+          "happened_once": true,
+          "authorized_when_fired": true,
+          "assumptions_held": true,
+          "refused": null,
+          "evidence": "re_3UFNJ988KhIqqdFL090ZpGav",
+          "rechecked_at_recovery": {
+            "lease_live": false,
+            "lease": {
+              "lease_id": "D3uOH9c2W5j9M6lOQMOmHbkOa55DRgB59udtRgVI_wM",
+              "mandate_reference": "D3uOH9c2W5j9M6lOQMOmHbkOa55DRgB59udtRgVI_wM",
+              "open_mandate_id": "yDPpZRzgMI-hlC_41uARgLidc-I3xI5CFwZYJvR5xvA",
+              "checked_at": 1789344030.0110238,
+              "clock_skew_seconds": 0,
+              "revoked": {
+                "id": "yDPpZRzgMI-hlC_41uARgLidc-I3xI5CFwZYJvR5xvA",
+                "at": 1789343990.552626,
+                "by": "finance"
+              },
+              "max_cents": 2000,
+              "problems": [
+                "open mandate revoked"
+              ],
+              "verified": true,
+              "vct": [
+                "mandate.payment.open.1",
+                "mandate.payment.1"
+              ],
+              "exp": 1789347579,
+              "constraints": [
+                {
+                  "type": "payment.amount_range",
+                  "currency": "USD",
+                  "max": 2000,
+                  "min": 1
+                },
+                {
+                  "type": "payment.allowed_payees",
+                  "allowed": [
+                    {
+                      "id": "cus_VFt5Un3FnxZMJZ",
+                      "name": "Customer, order #881"
+                    }
+                  ]
+                },
+                {
+                  "type": "payment.allowed_payment_instruments",
+                  "allowed": [
+                    {
+                      "id": "pm_1UFNJ988KhIqqdFL4ouydGSE",
+                      "type": "card"
+                    }
+                  ]
+                }
+              ],
+              "payee": {
+                "id": "cus_VFt5Un3FnxZMJZ",
+                "name": "Customer, order #881"
+              },
+              "instrument": {
+                "id": "pm_1UFNJ988KhIqqdFL4ouydGSE",
+                "type": "card"
+              },
+              "transaction_id": "pi_3UFNJ988KhIqqdFL0LqpL1VX",
+              "amount": {
+                "amount": 2000,
+                "currency": "USD"
+              },
+              "observed": {
+                "transaction_id": "pi_3UFNJ988KhIqqdFL0LqpL1VX",
+                "payee": "cus_VFt5Un3FnxZMJZ",
+                "instrument": "pm_1UFNJ988KhIqqdFL4ouydGSE",
+                "currency": "USD"
+              }
+            }
+          },
+          "problems": []
+        }
+      }
+    }
+  ]
+}

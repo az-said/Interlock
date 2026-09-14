@@ -1,0 +1,600 @@
+{
+  "generated": "2026-09-13 23:50 UTC",
+  "project": "gen-lang-client-0277439345",
+  "source": "results/e2e_live.json",
+  "receipts": [
+    {
+      "effect_id": "8f071607fe8d",
+      "scenario": "crash_after_commit",
+      "kinds": [
+        "PROPOSED",
+        "AUTHORIZED",
+        "DISPATCHED",
+        "COMMITTED"
+      ],
+      "verifies_locally": true
+    },
+    {
+      "effect_id": "d61055b11d73",
+      "scenario": "hand_refund_before_decision",
+      "kinds": [
+        "PROPOSED",
+        "AUTHORIZED",
+        "DISPATCHED",
+        "COMMITTED"
+      ],
+      "verifies_locally": true
+    },
+    {
+      "effect_id": "74065bf0aafe",
+      "scenario": "hand_refund_during_outage",
+      "kinds": [
+        "PROPOSED",
+        "AUTHORIZED",
+        "DISPATCHED",
+        "REFUSED"
+      ],
+      "verifies_locally": true
+    },
+    {
+      "effect_id": "feafe9e2d080",
+      "scenario": "unrelated_refund_during_outage",
+      "kinds": [
+        "PROPOSED",
+        "AUTHORIZED",
+        "DISPATCHED",
+        "REFUSED"
+      ],
+      "verifies_locally": true
+    },
+    {
+      "effect_id": "ffa06094439c",
+      "scenario": "approval_revoked_during_outage",
+      "kinds": [
+        "PROPOSED",
+        "AUTHORIZED",
+        "DISPATCHED",
+        "REFUSED"
+      ],
+      "verifies_locally": true
+    },
+    {
+      "effect_id": "974833a0ea4a",
+      "scenario": "approval_revoked_after_commit",
+      "kinds": [
+        "PROPOSED",
+        "AUTHORIZED",
+        "DISPATCHED",
+        "COMMITTED"
+      ],
+      "verifies_locally": true
+    },
+    {
+      "effect_id": "3d085b1c0a0b",
+      "scenario": "key_pruned_after_24h",
+      "kinds": [
+        "PROPOSED",
+        "AUTHORIZED",
+        "DISPATCHED",
+        "COMMITTED"
+      ],
+      "verifies_locally": true
+    },
+    {
+      "effect_id": "6cce6c06a86a",
+      "scenario": "no_lookup_after_24h",
+      "kinds": [
+        "PROPOSED",
+        "AUTHORIZED",
+        "DISPATCHED",
+        "AMBIGUOUS"
+      ],
+      "verifies_locally": true
+    }
+  ],
+  "cloud_logging": {
+    "log_id": "interlock-receipts-run-1789343450",
+    "run_started": "2026-09-13T23:50:50Z",
+    "receive_timestamps": [
+      "2026-09-13T23:50:51.581429818Z",
+      "2026-09-13T23:50:51.581429818Z"
+    ],
+    "all_received_after_run_started": true,
+    "sent_per_export": [
+      40,
+      40
+    ],
+    "expected_entries": 40,
+    "returned": 40,
+    "waited_s": 8,
+    "distinct_insert_ids": 40,
+    "command": "gcloud logging read 'logName=\"projects/gen-lang-client-0277439345/logs/interlock-receipts-run-1789343450\" AND labels.interlock_effect_id=(\"8f071607fe8d\" OR \"d61055b11d73\" OR \"74065bf0aafe\" OR \"feafe9e2d080\" OR \"ffa06094439c\" OR \"974833a0ea4a\" OR \"3d085b1c0a0b\" OR \"6cce6c06a86a\")' --project=gen-lang-client-0277439345 --freshness=1d --order=asc --limit=1000 --format=json",
+    "kinds_by_effect": {
+      "8f071607fe8d": [
+        "PROPOSED",
+        "AUTHORIZED",
+        "DISPATCHED",
+        "COMMITTED",
+        "RECEIPT"
+      ],
+      "d61055b11d73": [
+        "PROPOSED",
+        "AUTHORIZED",
+        "DISPATCHED",
+        "COMMITTED",
+        "RECEIPT"
+      ],
+      "74065bf0aafe": [
+        "PROPOSED",
+        "AUTHORIZED",
+        "DISPATCHED",
+        "REFUSED",
+        "RECEIPT"
+      ],
+      "feafe9e2d080": [
+        "PROPOSED",
+        "AUTHORIZED",
+        "DISPATCHED",
+        "REFUSED",
+        "RECEIPT"
+      ],
+      "ffa06094439c": [
+        "PROPOSED",
+        "AUTHORIZED",
+        "DISPATCHED",
+        "REFUSED",
+        "RECEIPT"
+      ],
+      "974833a0ea4a": [
+        "PROPOSED",
+        "AUTHORIZED",
+        "DISPATCHED",
+        "COMMITTED",
+        "RECEIPT"
+      ],
+      "3d085b1c0a0b": [
+        "PROPOSED",
+        "AUTHORIZED",
+        "DISPATCHED",
+        "COMMITTED",
+        "RECEIPT"
+      ],
+      "6cce6c06a86a": [
+        "PROPOSED",
+        "AUTHORIZED",
+        "DISPATCHED",
+        "AMBIGUOUS",
+        "RECEIPT"
+      ]
+    },
+    "chain_verifies_from_logging": {
+      "8f071607fe8d": true,
+      "d61055b11d73": true,
+      "74065bf0aafe": true,
+      "feafe9e2d080": true,
+      "ffa06094439c": true,
+      "974833a0ea4a": true,
+      "3d085b1c0a0b": true,
+      "6cce6c06a86a": true
+    },
+    "receipt_entries": {
+      "8f071607fe8d": {
+        "valid": true,
+        "happened": true,
+        "happened_once": true,
+        "authorized_when_fired": true,
+        "assumptions_held": true
+      },
+      "d61055b11d73": {
+        "valid": true,
+        "happened": true,
+        "happened_once": true,
+        "authorized_when_fired": true,
+        "assumptions_held": true
+      },
+      "74065bf0aafe": {
+        "valid": true,
+        "happened": false,
+        "happened_once": true,
+        "authorized_when_fired": null,
+        "assumptions_held": null
+      },
+      "feafe9e2d080": {
+        "valid": true,
+        "happened": false,
+        "happened_once": true,
+        "authorized_when_fired": null,
+        "assumptions_held": null
+      },
+      "ffa06094439c": {
+        "valid": true,
+        "happened": false,
+        "happened_once": true,
+        "authorized_when_fired": null,
+        "assumptions_held": null
+      },
+      "974833a0ea4a": {
+        "valid": true,
+        "happened": true,
+        "happened_once": true,
+        "authorized_when_fired": true,
+        "assumptions_held": true
+      },
+      "3d085b1c0a0b": {
+        "valid": true,
+        "happened": true,
+        "happened_once": true,
+        "authorized_when_fired": true,
+        "assumptions_held": true
+      },
+      "6cce6c06a86a": {
+        "valid": true,
+        "happened": "unknown",
+        "happened_once": true,
+        "authorized_when_fired": true,
+        "assumptions_held": true
+      }
+    },
+    "sample": [
+      {
+        "insertId": "8f071607fe8d-4937a8d18b5eb513897c75131c5d7b6a0cafe776906362968ba6ab11a68d7c01",
+        "jsonPayload": {
+          "agent": "claude-haiku-4-5-20251001",
+          "effect": {
+            "amount": 2000
+          },
+          "effect_id": "8f071607fe8d",
+          "hash": "4937a8d18b5eb513897c75131c5d7b6a0cafe776906362968ba6ab11a68d7c01",
+          "kind": "PROPOSED",
+          "lease": "approval/case-2bec0a15821d",
+          "premises": {
+            "payment_intent": "pi_3UFLD488KhIqqdFL0yyILFry",
+            "refunded_by_others": 0
+          },
+          "prev": null,
+          "ts": 1789335918.6024919
+        },
+        "labels": {
+          "interlock_agent": "claude-haiku-4-5-20251001",
+          "interlock_effect_id": "8f071607fe8d",
+          "interlock_kind": "PROPOSED",
+          "interlock_lease": "approval/case-2bec0a15821d",
+          "interlock_state": "PROPOSED"
+        },
+        "logName": "projects/gen-lang-client-0277439345/logs/interlock-receipts-run-1789343450",
+        "operation": {
+          "first": true,
+          "id": "8f071607fe8d",
+          "producer": "interlock"
+        },
+        "receiveTimestamp": "2026-09-13T23:50:51.581429818Z",
+        "resource": {
+          "labels": {
+            "project_id": "gen-lang-client-0277439345"
+          },
+          "type": "global"
+        },
+        "severity": "INFO",
+        "spanId": "8ff9b9851d15111d",
+        "timestamp": "2026-09-13T21:45:18.602492Z",
+        "trace": "projects/gen-lang-client-0277439345/traces/d49501aa229c8249c8a1325bc7c7543c"
+      },
+      {
+        "insertId": "8f071607fe8d-cf4a1652d976fcab42103a8199010971f09c8ded5f32443db7eea1f98646bb21",
+        "jsonPayload": {
+          "effect_id": "8f071607fe8d",
+          "hash": "cf4a1652d976fcab42103a8199010971f09c8ded5f32443db7eea1f98646bb21",
+          "kind": "AUTHORIZED",
+          "lease": "approval/case-2bec0a15821d",
+          "prev": "4937a8d18b5eb513897c75131c5d7b6a0cafe776906362968ba6ab11a68d7c01",
+          "ts": 1789335918.604144
+        },
+        "labels": {
+          "interlock_agent": "claude-haiku-4-5-20251001",
+          "interlock_effect_id": "8f071607fe8d",
+          "interlock_kind": "AUTHORIZED",
+          "interlock_lease": "approval/case-2bec0a15821d",
+          "interlock_state": "AUTHORIZED"
+        },
+        "logName": "projects/gen-lang-client-0277439345/logs/interlock-receipts-run-1789343450",
+        "operation": {
+          "id": "8f071607fe8d",
+          "producer": "interlock"
+        },
+        "receiveTimestamp": "2026-09-13T23:50:51.581429818Z",
+        "resource": {
+          "labels": {
+            "project_id": "gen-lang-client-0277439345"
+          },
+          "type": "global"
+        },
+        "severity": "INFO",
+        "spanId": "8ff9b9851d15111d",
+        "timestamp": "2026-09-13T21:45:18.604144Z",
+        "trace": "projects/gen-lang-client-0277439345/traces/d49501aa229c8249c8a1325bc7c7543c"
+      }
+    ]
+  },
+  "bigquery": {
+    "table": "gen-lang-client-0277439345.interlock_audit.receipt_entries_run_1789343450",
+    "expected_rows": 32,
+    "dry_runs_ok": [
+      "Finance: what fired this month, under which approval",
+      "Platform Engineering / auditor: rebuild a chain and re-run the verifier",
+      "Risk and Compliance: every effect that ended refused or ambiguous, and why",
+      "merge"
+    ],
+    "merge_inserted_per_export": [
+      32,
+      0
+    ],
+    "merge_query": "MERGE `gen-lang-client-0277439345.interlock_audit.receipt_entries_run_1789343450` t\nUSING (\n  SELECT\n    JSON_VALUE(r, '$.effect_id') AS effect_id,\n    CAST(JSON_VALUE(r, '$.entry_index') AS INT64) AS entry_index,\n    JSON_VALUE(r, '$.kind') AS kind,\n    JSON_VALUE(r, '$.state') AS state,\n    TIMESTAMP(JSON_VALUE(r, '$.recorded_at')) AS recorded_at,\n    JSON_VALUE(r, '$.agent') AS agent,\n    JSON_VALUE(r, '$.lease') AS lease,\n    JSON_VALUE(r, '$.reason') AS reason,\n    JSON_VALUE(r, '$.via') AS via,\n    JSON_VALUE(r, '$.entry_hash') AS entry_hash,\n    JSON_VALUE(r, '$.prev_hash') AS prev_hash,\n    JSON_VALUE(r, '$.entry_json') AS entry_json\n  FROM UNNEST(JSON_QUERY_ARRAY(@rows)) AS r\n) s\nON t.entry_hash = s.entry_hash\nWHEN NOT MATCHED THEN INSERT ROW",
+    "count_query": "SELECT effect_id, COUNT(*) AS rows_, COUNT(DISTINCT entry_hash) AS distinct_hashes, STRING_AGG(kind, ' > ' ORDER BY entry_index) AS chain, ARRAY_REVERSE(ARRAY_AGG(state ORDER BY entry_index))[OFFSET(0)] AS final_state FROM `gen-lang-client-0277439345.interlock_audit.receipt_entries_run_1789343450` WHERE effect_id IN (\"8f071607fe8d\", \"d61055b11d73\", \"74065bf0aafe\", \"feafe9e2d080\", \"ffa06094439c\", \"974833a0ea4a\", \"3d085b1c0a0b\", \"6cce6c06a86a\") GROUP BY effect_id ORDER BY effect_id",
+    "count_rows": [
+      {
+        "effect_id": "3d085b1c0a0b",
+        "rows_": "4",
+        "distinct_hashes": "4",
+        "chain": "PROPOSED > AUTHORIZED > DISPATCHED > COMMITTED",
+        "final_state": "COMMITTED"
+      },
+      {
+        "effect_id": "6cce6c06a86a",
+        "rows_": "4",
+        "distinct_hashes": "4",
+        "chain": "PROPOSED > AUTHORIZED > DISPATCHED > AMBIGUOUS",
+        "final_state": "AMBIGUOUS"
+      },
+      {
+        "effect_id": "74065bf0aafe",
+        "rows_": "4",
+        "distinct_hashes": "4",
+        "chain": "PROPOSED > AUTHORIZED > DISPATCHED > REFUSED",
+        "final_state": "REFUSED"
+      },
+      {
+        "effect_id": "8f071607fe8d",
+        "rows_": "4",
+        "distinct_hashes": "4",
+        "chain": "PROPOSED > AUTHORIZED > DISPATCHED > COMMITTED",
+        "final_state": "COMMITTED"
+      },
+      {
+        "effect_id": "974833a0ea4a",
+        "rows_": "4",
+        "distinct_hashes": "4",
+        "chain": "PROPOSED > AUTHORIZED > DISPATCHED > COMMITTED",
+        "final_state": "COMMITTED"
+      },
+      {
+        "effect_id": "d61055b11d73",
+        "rows_": "4",
+        "distinct_hashes": "4",
+        "chain": "PROPOSED > AUTHORIZED > DISPATCHED > COMMITTED",
+        "final_state": "COMMITTED"
+      },
+      {
+        "effect_id": "feafe9e2d080",
+        "rows_": "4",
+        "distinct_hashes": "4",
+        "chain": "PROPOSED > AUTHORIZED > DISPATCHED > REFUSED",
+        "final_state": "REFUSED"
+      },
+      {
+        "effect_id": "ffa06094439c",
+        "rows_": "4",
+        "distinct_hashes": "4",
+        "chain": "PROPOSED > AUTHORIZED > DISPATCHED > REFUSED",
+        "final_state": "REFUSED"
+      }
+    ],
+    "rows_for_these_effects": 32,
+    "chain_verifies_from_bigquery": {
+      "3d085b1c0a0b": true,
+      "6cce6c06a86a": true,
+      "74065bf0aafe": true,
+      "8f071607fe8d": true,
+      "974833a0ea4a": true,
+      "d61055b11d73": true,
+      "feafe9e2d080": true,
+      "ffa06094439c": true
+    },
+    "audit_queries": {
+      "Finance: what fired this month, under which approval": {
+        "sql": "SELECT lease, effect_id,\n  COALESCE(JSON_VALUE(entry_json, '$.result.refund'), JSON_VALUE(entry_json, '$.found')) AS refund, recorded_at\nFROM `gen-lang-client-0277439345.interlock_audit.receipt_entries_run_1789343450`\nWHERE kind = 'COMMITTED' AND recorded_at >= TIMESTAMP_TRUNC(CURRENT_TIMESTAMP(), MONTH)",
+        "rows": 4,
+        "sample": [
+          {
+            "lease": "approval/case-2bec0a15821d",
+            "effect_id": "8f071607fe8d",
+            "refund": "re_3UFLD488KhIqqdFL0vZXMcLB",
+            "recorded_at": "1.789335963761114E9"
+          },
+          {
+            "lease": "approval/case-4c3b9ced729c",
+            "effect_id": "3d085b1c0a0b",
+            "refund": "re_3UFLMz88KhIqqdFL1ujDkkHe",
+            "recorded_at": "1.789336577452338E9"
+          },
+          {
+            "lease": "approval/case-6a860c8c08db",
+            "effect_id": "d61055b11d73",
+            "refund": "re_3UFLEl88KhIqqdFL1Baf5aiR",
+            "recorded_at": "1.789336068835754E9"
+          }
+        ]
+      },
+      "Risk and Compliance: every effect that ended refused or ambiguous, and why": {
+        "sql": "SELECT effect_id, state, reason, recorded_at\nFROM `gen-lang-client-0277439345.interlock_audit.receipt_entries_run_1789343450`\nWHERE kind IN ('REFUSED', 'AMBIGUOUS') ORDER BY recorded_at DESC",
+        "rows": 4,
+        "sample": [
+          {
+            "effect_id": "6cce6c06a86a",
+            "state": "AMBIGUOUS",
+            "reason": null,
+            "recorded_at": "1.789336628814369E9"
+          },
+          {
+            "effect_id": "ffa06094439c",
+            "state": "REFUSED",
+            "reason": "lease at recovery",
+            "recorded_at": "1.789336374050366E9"
+          },
+          {
+            "effect_id": "feafe9e2d080",
+            "state": "REFUSED",
+            "reason": "stale_premise at recovery",
+            "recorded_at": "1.789336271930688E9"
+          }
+        ]
+      },
+      "Platform Engineering / auditor: rebuild a chain and re-run the verifier": {
+        "sql": "SELECT entry_json\nFROM `gen-lang-client-0277439345.interlock_audit.receipt_entries_run_1789343450`\nWHERE effect_id = @effect ORDER BY entry_index",
+        "rows": 4,
+        "sample": [
+          {
+            "entry_json": "{\"ts\": 1789335918.6024919, \"kind\": \"PROPOSED\", \"effect_id\": \"8f071607fe8d\", \"agent\": \"claude-haiku-4-5-20251001\", \"lease\": \"approval/case-2bec0a15821d\", \"premises\": {\"payment_intent\": \"pi_3UFLD488KhIqqdFL0yyILFry\", \"refunded_by_others\": 0}, \"effect\": {\"amount\": 2000}, \"prev\": null, \"hash\": \"4937a8d18b5eb513897c75131c5d7b6a0cafe776906362968ba6ab11a68d7c01\"}"
+          },
+          {
+            "entry_json": "{\"ts\": 1789335918.604144, \"kind\": \"AUTHORIZED\", \"effect_id\": \"8f071607fe8d\", \"lease\": \"approval/case-2bec0a15821d\", \"prev\": \"4937a8d18b5eb513897c75131c5d7b6a0cafe776906362968ba6ab11a68d7c01\", \"hash\": \"cf4a1652d976fcab42103a8199010971f09c8ded5f32443db7eea1f98646bb21\"}"
+          },
+          {
+            "entry_json": "{\"ts\": 1789335918.776991, \"kind\": \"DISPATCHED\", \"effect_id\": \"8f071607fe8d\", \"effect\": {\"amount\": 2000}, \"lease\": \"approval/case-2bec0a15821d\", \"premises\": {\"payment_intent\": \"pi_3UFLD488KhIqqdFL0yyILFry\", \"refunded_by_others\": 0}, \"checks\": {\"lease_live\": true, \"lease\": {\"lease_id\": \"approval/case-2bec0a15821d\", \"max_cents\": 2000, \"revoked\": null, \"granted\": 1789335914.847429}, \"violations\": []}, \"prev\": \"cf4a1652d976fcab42103a8199010971f09c8ded5f32443db7eea1f98646bb21\", \"hash\": \"32aab2d73aae70232660736bb3e99722bd0ccffc89886490a5e55dff7f601175\"}"
+          }
+        ],
+        "effect": "8f071607fe8d",
+        "chain_verifies": true
+      }
+    },
+    "stream_table": "gen-lang-client-0277439345.interlock_audit.receipt_entries_stream_1789343450",
+    "stream_sent_per_export": [
+      32,
+      32,
+      32
+    ],
+    "stream_waited_s": 1,
+    "raw_query": "SELECT COUNT(*) AS raw_rows FROM `gen-lang-client-0277439345.interlock_audit.receipt_entries_stream_1789343450`",
+    "view_query": "SELECT COUNT(*) AS dedup_rows FROM (SELECT * FROM `gen-lang-client-0277439345.interlock_audit.receipt_entries_stream_1789343450`\nWHERE TRUE\nQUALIFY ROW_NUMBER() OVER (PARTITION BY entry_hash ORDER BY entry_index) = 1)",
+    "raw_after_two_back_to_back": 32,
+    "raw_after_third_export_75s_later": 64,
+    "dedup_view_after_third": 32
+  },
+  "cloud_trace": {
+    "read_url": "https://cloudtrace.googleapis.com/v1/projects/gen-lang-client-0277439345/traces/<traceId>",
+    "sent_per_export": [
+      8,
+      8
+    ],
+    "spans_per_trace_before": {
+      "8f071607fe8d": 8,
+      "d61055b11d73": 8,
+      "74065bf0aafe": 8,
+      "feafe9e2d080": 8,
+      "ffa06094439c": 8,
+      "974833a0ea4a": 8,
+      "3d085b1c0a0b": 8,
+      "6cce6c06a86a": 8
+    },
+    "steps": [
+      {
+        "after_export": 1,
+        "waited_s": 23,
+        "spans_per_trace": {
+          "8f071607fe8d": 9,
+          "d61055b11d73": 9,
+          "74065bf0aafe": 9,
+          "feafe9e2d080": 9,
+          "ffa06094439c": 9,
+          "974833a0ea4a": 9,
+          "3d085b1c0a0b": 9,
+          "6cce6c06a86a": 9
+        }
+      },
+      {
+        "after_export": 2,
+        "waited_s": 23,
+        "spans_per_trace": {
+          "8f071607fe8d": 10,
+          "d61055b11d73": 10,
+          "74065bf0aafe": 10,
+          "feafe9e2d080": 10,
+          "ffa06094439c": 10,
+          "974833a0ea4a": 10,
+          "3d085b1c0a0b": 10,
+          "6cce6c06a86a": 10
+        }
+      }
+    ],
+    "span_ids_per_trace": {
+      "8f071607fe8d": [
+        "10374527197994357021"
+      ],
+      "d61055b11d73": [
+        "3144185126503860898"
+      ],
+      "74065bf0aafe": [
+        "10221737042212537610"
+      ],
+      "feafe9e2d080": [
+        "18233310908049658865"
+      ],
+      "ffa06094439c": [
+        "10627760415038872486"
+      ],
+      "974833a0ea4a": [
+        "10918895094332521921"
+      ],
+      "3d085b1c0a0b": [
+        "14705258576842513745"
+      ],
+      "6cce6c06a86a": [
+        "1183209232657047995"
+      ]
+    },
+    "span_names": [
+      "interlock.effect"
+    ],
+    "labels_sample": {
+      "interlock.authorized_when_fired": "true",
+      "interlock.state": "COMMITTED",
+      "interlock.lease": "approval/case-2bec0a15821d",
+      "interlock.happened_once": "true",
+      "interlock.tamper_evident": "true",
+      "interlock.valid": "true",
+      "interlock.agent": "claude-haiku-4-5-20251001",
+      "interlock.assumptions_held": "true",
+      "interlock.happened": "True",
+      "interlock.entries": "4",
+      "interlock.effect_id": "8f071607fe8d"
+    },
+    "trace_ids": {
+      "8f071607fe8d": "d49501aa229c8249c8a1325bc7c7543c",
+      "d61055b11d73": "a4f9df10ee45c2aacd64e0b42c053cf1",
+      "74065bf0aafe": "d4a5058c1afabc5ed80154013b84d3e0",
+      "feafe9e2d080": "189bd9189bbb348e9baa70ea60e8beab",
+      "ffa06094439c": "325fa6289f1bd5f8e901db3113c5ae81",
+      "974833a0ea4a": "fb198961a549c5d2c714897d6040c50b",
+      "3d085b1c0a0b": "f6353d9fe1f245accc8341638731ae07",
+      "6cce6c06a86a": "0835e9ef5a9886e6c17dcf735415b39b"
+    }
+  },
+  "siem": {
+    "jsonl": {
+      "file": "results/export_live_siem.jsonl",
+      "written_per_export": [
+        32,
+        0
+      ],
+      "lines": 32
+    },
+    "cef": {
+      "file": "results/export_live_siem.cef",
+      "written_per_export": [
+        32,
+        0
+      ],
+      "lines": 32
+    },
+    "cef_sample": "CEF:0|Interlock|interlock-gate|0.2.0|PROPOSED|Interlock PROPOSED|1|rt=1789335918602 externalId=8f071607fe8d-4937a8d18b5eb513897c75131c5d7b6a0cafe776906362968ba6ab11a68d7c01 act=PROPOSED outcome=PROPOSED suser=claude-haiku-4-5-20251001 cs1Label=effectId cs1=8f071607fe8d cs2Label=lease cs2=approval/case-2bec0a15821d cs3Label=entryHash cs3=4937a8d18b5eb513897c75131c5d7b6a0cafe776906362968ba6ab11a68d7c01 cs4Label=prevHash cs5Label=via"
+  }
+}
