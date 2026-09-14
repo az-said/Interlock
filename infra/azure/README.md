@@ -1,13 +1,15 @@
 # Azure deployment for the public demo
 
-`deploy.sh` puts the standalone demo on Azure Container Apps. It creates what is missing and reuses what exists, so
-running it again rolls out a new image.
+`deploy.sh` puts the standalone demo on Azure Container Apps. It creates what is missing and reuses what exists. Every run builds a new
+image tag (short commit plus a UTC timestamp), so running it again rolls out a new revision even from the same commit.
 
 ## Before you run it
 
 - `az login`, with access to the subscription named `Azure subscription 1` (override with `AZURE_SUBSCRIPTION`).
 - The `containerapp` az extension installed and the `Microsoft.App` provider registered.
-- A `Dockerfile` at the repo root. The image is built remotely with `az acr build`; local Docker is not needed.
+- A committed `Dockerfile` at the repo root. The build context is `git archive HEAD`, so only committed files are
+  uploaded; ignored files (`.env*`, `.interlock/`, `site/.vercel/`, demo data) and uncommitted edits never reach the
+  registry. Commit before deploying. The image is built remotely with `az acr build`; local Docker is not needed.
 - `ANTHROPIC_API_KEY` and `STRIPE_SECRET_KEY` in your shell environment. The Stripe key must start with `sk_test_`;
   the script refuses anything else.
 
@@ -32,11 +34,11 @@ placeholders.
 | Container Apps environment | `interlock-demo-env` | `AZURE_CONTAINERAPPS_ENV` |
 | Container app | `interlock-demo` | `AZURE_APP_NAME` |
 
-Region is `eastus` unless `AZURE_LOCATION` is set. The image tag is the short git commit unless `IMAGE_TAG` is set.
+Region is `eastus` unless `AZURE_LOCATION` is set. The image tag is `<short commit>-<UTC timestamp>` unless `IMAGE_TAG` is set.
 
 ## The container app
 
-- External ingress on the container port (`INTERLOCK_PORT`, default 8787).
+- External ingress on port 8787, the same port the probes use and the container gets as `PORT`. It is fixed on purpose.
 - Exactly one replica (min 1, max 1). The demo keeps its state on local disk, so it must not scale out.
 - 2 vCPU and 4 GiB.
 - Liveness and readiness probes on `GET /healthz`.
@@ -46,9 +48,11 @@ Region is `eastus` unless `AZURE_LOCATION` is set. The image tag is the short gi
   so nothing it echoes back reaches the terminal.
 - `INTERLOCK_PUBLIC=1`, `INTERLOCK_TRUSTED_PROXY_HOPS=1`, and `INTERLOCK_ALLOWED_HOSTS` set to the app's FQDN. The
   script predicts the FQDN from the environment domain, reads the real one after the app is created, and applies the
-  spec again if they differ.
+  spec again if they differ. It stops with an error if the FQDN comes back empty.
 - Rate-limit defaults are set in the script. Any `INTERLOCK_RATE_*` variable in your environment is passed through to
-  the container, so the names must match what the server reads.
+  the container. Before touching Azure, the script checks that every `INTERLOCK_*` name it sets appears in the committed
+  `backend/` or `demo/` code and refuses to deploy if one does not, so a misspelled limit cannot silently switch
+  protection off. The dry run prints a warning instead.
 
 ## Tearing it down
 

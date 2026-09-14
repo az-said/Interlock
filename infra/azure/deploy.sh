@@ -20,10 +20,10 @@ APP="${AZURE_APP_NAME:-interlock-demo}"
 ENV_NAME="${AZURE_CONTAINERAPPS_ENV:-interlock-demo-env}"
 LOGS="${AZURE_LOG_WORKSPACE:-interlock-demo-logs}"
 IDENTITY="${AZURE_PULL_IDENTITY:-interlock-demo-pull}"
-PORT="${INTERLOCK_PORT:-8787}"
+# Fixed, not overridable: ingress, probes and the container PORT env must agree with what demo/serve.py listens on.
+PORT=8787
 IMAGE_REPO="interlock-demo"
 
-[ -f Dockerfile ] || [ "$DRY_RUN" = 1 ] || { echo "run from the repo root (no Dockerfile here)" >&2; exit 1; }
 : "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY must be set in the environment}"
 : "${STRIPE_SECRET_KEY:?STRIPE_SECRET_KEY must be set in the environment}"
 case "$STRIPE_SECRET_KEY" in
@@ -49,13 +49,40 @@ query() {
 }
 exists() { [ "$DRY_RUN" = 0 ] && "$@" >/dev/null 2>&1; }
 
+# Build context: committed files only (git archive HEAD), so ignored local secrets and demo state never reach ACR.
+[ "$(git rev-parse --show-toplevel 2>/dev/null)" = "$(pwd -P)" ] || { echo "run from the repo root" >&2; exit 1; }
+CTX="$(mktemp -d)"
+YAML="$(mktemp)"
+chmod 600 "$YAML"
+trap 'rm -rf "$CTX" "$YAML"' EXIT
+git archive HEAD | tar -x -C "$CTX"
+[ -f "$CTX/Dockerfile" ] || [ "$DRY_RUN" = 1 ] || { echo "no committed Dockerfile at the repo root" >&2; exit 1; }
+
+# Rate-limit defaults for the public demo. Any INTERLOCK_RATE_* set by the caller is forwarded too.
+: "${INTERLOCK_RATE_LIMIT_PER_MINUTE:=30}"
+: "${INTERLOCK_RATE_LIMIT_RUNS_PER_HOUR:=20}"
+export INTERLOCK_RATE_LIMIT_PER_MINUTE INTERLOCK_RATE_LIMIT_RUNS_PER_HOUR
+RATE_NAMES="$(compgen -e | grep '^INTERLOCK_RATE_' | sort)"
+
+# Every INTERLOCK_* name the app gets must be read by the committed server code; a misspelled name would silently
+# leave the public demo without its host check or rate limits.
+MISSING=""
+for name in INTERLOCK_PUBLIC INTERLOCK_ALLOWED_HOSTS INTERLOCK_TRUSTED_PROXY_HOPS $RATE_NAMES; do
+  grep -rqF "$name" "$CTX/backend" "$CTX/demo" 2>/dev/null || MISSING="$MISSING $name"
+done
+if [ -n "$MISSING" ]; then
+  if [ "$DRY_RUN" = 1 ]; then echo "warning: not read by backend/ or demo/:$MISSING (a real run refuses)" >&2
+  else echo "refusing: not read by backend/ or demo/:$MISSING" >&2; exit 1; fi
+fi
+
 status() { echo "== $*" >&2; }
 
 run az account set --subscription "$SUBSCRIPTION"
 SUB_ID="$(query 00000000-0000-0000-0000-000000000000 az account show --query id -o tsv)"
 # ACR names are global: derive one from the subscription id so reruns reuse the same registry.
 ACR="${AZURE_ACR_NAME:-interlockdemo$(printf '%s' "$SUB_ID" | { sha256sum 2>/dev/null || shasum -a 256; } | cut -c1-10)}"
-TAG="${IMAGE_TAG:-$(git rev-parse --short HEAD 2>/dev/null || date +%Y%m%d%H%M%S)}"
+# Unique per run: a rerun from the same commit still changes the template, so Container Apps makes a new revision.
+TAG="${IMAGE_TAG:-$(git rev-parse --short HEAD)-$(date -u +%Y%m%d%H%M%S)}"
 
 status "resource group $RG in $LOCATION"
 run az group create -n "$RG" -l "$LOCATION"
@@ -76,8 +103,8 @@ if [ "$DRY_RUN" = 1 ] || [ -z "$(az role assignment list --assignee "$PRINCIPAL_
 fi
 
 status "image $ACR.azurecr.io/$IMAGE_REPO:$TAG (remote build)"
-if [ "$DRY_RUN" = 1 ]; then redact "+ az acr build -r $ACR -t $IMAGE_REPO:$TAG -f Dockerfile ."
-else az acr build -r "$ACR" -t "$IMAGE_REPO:$TAG" -f Dockerfile . --no-logs -o none; fi
+if [ "$DRY_RUN" = 1 ]; then redact "+ az acr build -r $ACR -t $IMAGE_REPO:$TAG -f Dockerfile <git archive HEAD>"
+else az acr build -r "$ACR" -t "$IMAGE_REPO:$TAG" -f Dockerfile "$CTX" --no-logs -o none; fi
 IMAGE="$ACR.azurecr.io/$IMAGE_REPO:$TAG"
 
 status "log analytics workspace $LOGS"
@@ -97,11 +124,6 @@ ENV_ID="$(query "/subscriptions/$SUB_ID/resourceGroups/$RG/providers/Microsoft.A
 DOMAIN="$(query "<env-default-domain>" az containerapp env show -n "$ENV_NAME" -g "$RG" --query properties.defaultDomain -o tsv)"
 
 yaml_str() { local s="${1//\\/\\\\}"; printf '"%s"' "${s//\"/\\\"}"; }
-
-# Rate-limit defaults for the public demo. Any INTERLOCK_RATE_* set by the caller is forwarded too.
-: "${INTERLOCK_RATE_LIMIT_PER_MINUTE:=30}"
-: "${INTERLOCK_RATE_LIMIT_RUNS_PER_HOUR:=20}"
-export INTERLOCK_RATE_LIMIT_PER_MINUTE INTERLOCK_RATE_LIMIT_RUNS_PER_HOUR
 
 render() {  # $1 = allowed host
   local name probe
@@ -142,6 +164,8 @@ properties:
         secretRef: anthropic-api-key
       - name: STRIPE_SECRET_KEY
         secretRef: stripe-secret-key
+      - name: PORT
+        value: "$PORT"
       - name: INTERLOCK_PUBLIC
         value: "1"
       - name: INTERLOCK_ALLOWED_HOSTS
@@ -150,17 +174,13 @@ properties:
         value: "1"
 EOF
   while IFS= read -r name; do
-    printf '      - name: %s\n        value: %s\n' "$name" "$(yaml_str "${!name}")"
-  done < <(compgen -e | grep '^INTERLOCK_RATE_' | sort)
+    if [ -n "$name" ]; then printf '      - name: %s\n        value: %s\n' "$name" "$(yaml_str "${!name}")"; fi
+  done <<< "$RATE_NAMES"
   printf '      probes:\n'
   for probe in Liveness Readiness; do
     printf '      - type: %s\n        httpGet:\n          path: /healthz\n          port: %s\n        periodSeconds: 10\n' "$probe" "$PORT"
   done
 }
-
-YAML="$(mktemp)"
-chmod 600 "$YAML"
-trap 'rm -f "$YAML"' EXIT
 
 apply() {  # $1 = allowed host
   render "$1" > "$YAML"
@@ -177,6 +197,7 @@ status "container app $APP"
 EXPECTED="$APP.$DOMAIN"
 apply "$EXPECTED"
 FQDN="$(query "$EXPECTED" az containerapp show -n "$APP" -g "$RG" --query properties.configuration.ingress.fqdn -o tsv)"
+[ -n "$FQDN" ] || { echo "ingress FQDN is empty; not updating INTERLOCK_ALLOWED_HOSTS" >&2; exit 1; }
 if [ "$FQDN" != "$EXPECTED" ]; then
   status "ingress FQDN is $FQDN, updating INTERLOCK_ALLOWED_HOSTS"
   apply "$FQDN"
