@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Interlock · receipts for AI agent actions</title>
-<meta name="description" content="A receipt for every AI agent action: proof it happened once, was allowed when it fired, and the facts behind it still held, even through a crash. Plain Python or an MCP proxy, Temporal optional.">
+<meta name="description" content="A receipt for every AI agent action: proof it happened once (or is marked unknown when the service can't be asked), was allowed when it fired, and the facts behind it still held, even through a crash. Plain Python or an MCP proxy, Temporal optional.">
 <link rel="canonical" href="https://az-said.github.io/Interlock/site/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Interlock">
@@ -582,7 +582,7 @@
     <div class="wrap hero-grid">
       <div>
         <h1 class="in" style="--d:80">Your AI agent refunded a customer. <em>Then it crashed.</em></h1>
-        <p class="lede in" style="--d:160">Interlock gives every agent action a receipt: proof it happened once, was allowed when it fired, and still made sense, even through a crash.</p>
+        <p class="lede in" style="--d:160">Interlock gives every agent action a receipt: proof it happened once (or is marked unknown when the service can't be asked), was allowed when it fired, and still made sense, even through a crash.</p>
         <div class="in" style="--d:240;margin-top:2rem">
           <a class="btn" href="https://github.com/az-said/Interlock">Get Interlock <span aria-hidden="true">&rarr;</span></a>
           <p class="micro">Open source · Python · MIT licensed</p>
@@ -1016,8 +1016,6 @@
       <div class="money-grid">
         <div class="glass money in" style="--d:250">
           <h3>By hand today</h3>
-          <div class="stat"><b>0.8% to 2%</b><p>of payments go out duplicated or wrong, from the best finance teams to the worst.</p><cite><a target="_blank" rel="noopener" href="https://www.apqc.org/resources/benchmarking/open-standards-benchmarking/measures/percentage-total-annual-number">APQC accounts payable benchmark</a></cite></div>
-          <div class="stat"><b>0.1% to 0.5%</b><p>paid twice, even at careful organizations.</p><cite><a target="_blank" rel="noopener" href="https://www.iofm.com/ap/process-improvement/payment/duplicate-payment-prevent">IOFM</a></cite></div>
           <div class="stat"><b>$15 to $16</b><p>to handle one invoice by hand, most of it people's time.</p><cite>IOFM and Levvel Research benchmarks, labor share (62%) from APQC, <a target="_blank" rel="noopener" href="https://resolvepay.com/blog/13-statistics-that-quantify-cost-per-invoice-in-manual-vs-automated-flows">as compiled by Resolve</a></cite></div>
         </div>
         <div class="glass money in" style="--d:350">
@@ -1184,7 +1182,7 @@
         </details>
         <details>
           <summary>Couldn't we write this check ourselves?</summary>
-          <p>Yes, and on money it would tie. In our live runs, a careful hand-written check left Stripe with the same refunds as Interlock in every case. Interlock is that check written once instead of in every step, plus a claim so two workers can't both send, an honest "can't tell" when nobody can know, and a receipt that proves what happened.</p>
+          <p>Yes, and on money it would tie. In our live runs, a careful hand-written check left Stripe with the same refunds as Interlock in every case. Interlock is that check written once instead of in every step, plus a claim so two workers don't both send while the service answers within its timeout, an honest "can't tell" when nobody can know, and a receipt that proves what happened.</p>
         </details>
         <details>
           <summary>How much does it slow things down?</summary>

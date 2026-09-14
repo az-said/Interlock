@@ -6,7 +6,7 @@
 
 ## 0. Where we are right now
 
-The repo at `github.com/az-said/Interlock` is much bigger than what existed at noon. The core was about 400 lines: journal, leases, gate, two targets, two experiments, docs. Since then the team extended it: a durable-execution baseline column, three new faults (support refunds by hand during the outage, permission revoked during the outage, retry after Stripe's 24-hour key window), a live Stripe test-mode experiment with real PaymentIntent ids, a live Temporal experiment, an approval-inbox simulation, a three-line decorator API, an MCP proxy, hash-chained and HMAC-signed receipts, a SQLite journal for multiple workers, a journal viewer, 53 tests including a 2,000-case randomized sweep, and CI. The README also reports a fourth finding: the tests found a real bug in the gate's recovery path, and the fix is documented.
+The repo at `github.com/az-said/Interlock` is much bigger than what existed at noon. The core was small: journal, leases, gate, two targets, two experiments, docs. Since then the team extended it: a durable-execution baseline column, three new faults (support refunds by hand during the outage, permission revoked during the outage, retry after Stripe's 24-hour key window), a live Stripe test-mode experiment with real PaymentIntent ids, a live Temporal experiment, an approval-inbox simulation, a three-line decorator API, an MCP proxy, hash-chained and HMAC-signed receipts, a SQLite journal for multiple workers, a journal viewer, 53 tests including a 2,000-case randomized sweep, and CI. The README also reports a fourth finding: the tests found a real bug in the gate's recovery path, and the fix is documented.
 
 That last part matters more than any feature. The brief says: *"A result that fails under a difficult case is useful if you diagnose the failure and revise the claim."* Finding 4 is exactly that, in our own repo, about our own code.
 
@@ -93,7 +93,7 @@ What AI adds, three things: re-running the program doesn't reproduce the decisio
 
 **The root, one sentence:** an agent decides on premises that are true when it decides; its action lands later; and nothing in the system carries the premises along with the action to be re-checked when it lands.
 
-Systems people call the shape time-of-check to time-of-use. It used to be microseconds inside one process. Now it's seconds across a model call, a network hop, and a service you don't own.
+Systems people call the shape time-of-check to time-of-use. It used to be a gap inside one process. Now it's seconds across a model call, a network hop, and a service you don't own.
 
 The consequence a buyer feels: because nobody can prove what an agent did, compliance mandates that a person approves every consequential action by hand. That person is the reconciliation layer.
 
@@ -239,7 +239,7 @@ If you strip it to what's judged, it's the protocol (250 lines) and the two tabl
 | 2 | Parallel coding agents | 7 faults × 3 systems, local repo, 2 premise granularities | Finding 3 |
 | 3 | Real Stripe | 3 faults × 3 systems, test mode, real PaymentIntents | Simulation matches the real service |
 | 4 | Real Temporal | 4 faults × 2 systems, local dev server | Durable execution replays; gate inside the activity refuses |
-| 5 | Approval inbox | 100 synthetic refunds × 3 policies (mix is an assumption) | Reviews 100 → 33, wrong payouts 8 → 0 |
+| 5 | Approval inbox | 100 synthetic refunds × 3 policies (mix is an assumption) | Reviews 100 → 36, wrong payouts 10 → 0 |
 
 **Finding 1.** Exactly-once is a property of the target, not the client. At tier 3 the crash cases are undecidable; the strongest honest guarantee is at-most-once with the ambiguity surfaced, and the measured cost is a refund that never happened staying blocked.
 
@@ -266,7 +266,7 @@ There is no market for network crashes. There is a market for the consequences o
 
 **The person.** In every finance team running agents, someone approves each refund, payment, or transfer by hand. Not because the agent is dumb. Because nobody can prove three things about what it did.
 
-**The product.** A receipt per action. Most of what the approver checks is mechanical: is the order still eligible, was it already refunded, is this still allowed. Interlock checks exactly that at the moment of sending. The human sees only the cases that need judgment, plus the `AMBIGUOUS` ones. Experiment 5: reviews from 100 to 33, wrong payouts from 8 to 0, under a stated assumption.
+**The product.** A receipt per action. Most of what the approver checks is mechanical: is the order still eligible, was it already refunded, is this still allowed. Interlock checks exactly that at the moment of sending. The human sees only the cases that need judgment, plus the `AMBIGUOUS` ones. Experiment 5: reviews from 100 to 36, wrong payouts from 10 to 0, under a stated assumption.
 
 **Nail it.** One action type (refunds), one team, one integration (three lines or the MCP proxy), one metric: approval rate and wrong-payout count before and after.
 

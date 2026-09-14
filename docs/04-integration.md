@@ -49,4 +49,4 @@ On recovery either side asks the notary what it has for `e`. This is a two-phase
 
 ## Cost
 
-One fsync per effect before dispatch, one journal read on recovery. Tier 2 adds one query per in-flight effect after a crash. Tier 1 adds nothing. The precision dial (file vs symbol premises) is a validation-time cost, not a dispatch-time cost.
+Three fsync'd journal appends before dispatch (PROPOSED, AUTHORIZED, DISPATCHED) and one after it lands (COMMITTED), one journal read on recovery. Tier 2 adds one query per in-flight effect after a crash. Tier 1 adds nothing. The precision dial (file vs symbol premises) is a validation-time cost, not a dispatch-time cost.

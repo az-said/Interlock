@@ -6,7 +6,7 @@ Every number and comparative claim this repo makes in public, and how to check i
 - **source-checked** — the primary source was opened on 2026-09-13 and the quote held.
 - **assumption** — stated as an assumption where it is used, with the conclusion's sensitivity to it.
 
-Anything that failed this audit was removed on 2026-09-13, not softened.
+Anything that failed this audit was removed on 2026-09-13, not softened. The full row-by-row audit (350 claims) is in [claims-full.md](claims-full.md).
 
 ## Numbers this repo produces
 
@@ -16,7 +16,7 @@ Anything that failed this audit was removed on 2026-09-13, not softened.
 | Live run: 22 of 22 outcome cells re-audited against Stripe test mode; invariants held 4/7 with Temporal alone, 6/7 with a hand-written check, 6/7 with the gate; medians 16s / 15s / 43s | results/e2e_live.md | reproduced — command at the top of that file (needs keys) |
 | Across 7 real-service scenarios, a fair hand-written check ties the gate on outcomes; no_check breaks invariants in 6 of 7; the gate pays for its guarantee in time (25–43s claim-TTL waits) | docs/10-scenarios.md | reproduced — per-scenario commands in the doc |
 | Repair loop: 17 candidate patches to 3 sends; 13 duplicate sends to 0. Scripted agent, not a model | README | reproduced — command beside the table |
-| Approval inbox: reviews 100 to 33, wrong payouts 8 to 0 | docs/00-the-whole-story.md §11 | assumption — the inbox mix is assumed and says so |
+| Approval inbox: reviews 100 to 36, wrong payouts 10 to 0 | docs/00-the-whole-story.md §11 | assumption — the inbox mix is assumed and says so |
 
 ## Numbers from outside sources
 

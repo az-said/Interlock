@@ -2,7 +2,7 @@
 
 [![test](https://github.com/az-said/Interlock/actions/workflows/test.yml/badge.svg)](https://github.com/az-said/Interlock/actions/workflows/test.yml) · MIT · Python 3.9+ · zero dependencies
 
-**Every action an AI agent takes gets a receipt: it happened exactly once, it was authorized when it fired, and the facts it was decided on still held when it landed.**
+**Every action an AI agent takes gets a receipt: it happened once (or is marked unknown when the service can't be asked), it was authorized when it fired, and the facts it was decided on still held when it landed.**
 
 A customer paid $100. A support case approves one $20 partial refund. An AI agent issues it. The service commits the refund; the process dies before the response comes back. On restart, nothing in the system can answer three questions: **did the refund happen? may I retry? was I still allowed to do it?**
 
@@ -78,7 +78,7 @@ The full narrative — the root, the field, what we ruled out, why it's a busine
 
 ## What it is
 
-Five rules, one append-only log, about 400 lines of Python with no dependencies.
+Five rules, one append-only log, Python with no dependencies.
 
 1. **Write the decision to disk before acting.** Every effect gets a `DISPATCHED` entry, fsync'd, before the call goes out. After any crash, "things I started and never confirmed" is a query, not a guess.
 2. **The effect's identity is fixed when the request is approved, never by the model.** One approved request → one effect id → at most one committed effect. A model that re-decides "$30" on retry produces the *same* id with a *different* payload, and the gate rejects it. This is why *preserving decision history* and *preventing duplicate effects* are one mechanism, not two.
@@ -115,7 +115,7 @@ That is the object the brief asked for. An auditor reads receipts instead of rec
 
 ## The core, all the way down
 
-Strip away every adapter, exporter, viewer and experiment, and what is left — the new thing this repo adds — is three decisions, in about 400 lines of Python. This section is the whole invention, in plain language, down to the lines that carry it.
+Strip away every adapter, exporter, viewer and experiment, and what is left — the new thing this repo adds — is three decisions, in a small core of Python. This section is the whole invention, in plain language, down to the lines that carry it.
 
 ### 1. The action's name is the decision's fingerprint
 
@@ -168,7 +168,7 @@ Steps 1 and 2 *before* step 3 is the exact thing missing everywhere else. Tempor
 
 That is the entire addition to the world, and it is small on purpose. Receipts, escalations, the inbox, the exporters, the runtime and the adapters are how this core meets the tools people already run. The tables and the 405 tests are the evidence that the core does what this section just said.
 
-## What nobody else combines
+## What Interlock combines
 
 Pieces of this exist separately, in durable-execution engines and in papers published this summer. Interlock joins three steps into one system:
 
