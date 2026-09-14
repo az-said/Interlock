@@ -78,6 +78,7 @@ class DemoError(RuntimeError):
 
 
 RUNS, BUSY, LATEST = {}, threading.Lock(), [None]
+KEEP_RUNS = 50          # start() drops the oldest finished runs past this, so memory stays bounded
 
 
 class Run:
@@ -133,6 +134,8 @@ def start(body, api, drive=None, modes=("temporal", "temporal_checked", "interlo
         raise Busy("a run is already going; wait for it to finish")
     run = Run(kind, name, modes if kind == "live" and body.get("hand_check") is True else (modes[0], modes[2]), columns)
     runs[run.id], latest[0] = run, run.id
+    for old in [r for r, v in runs.items() if v.done][:max(0, len(runs) - KEEP_RUNS)]:     # oldest first
+        del runs[old]
     threading.Thread(target=drive or _drive, args=(run, api, live), daemon=True).start()
     return run.view()
 
@@ -148,18 +151,29 @@ def _drive(run, api, live=None):
             for t in threads:
                 t.join()
     except Exception as e:
-        run.error = f"{type(e).__name__}: {e}"
+        run.error = f"{type(e).__name__}" + ("" if PUBLIC else f": {e}")
     finally:
         run.finished, run.done = time.time(), True
         BUSY.release()
+
+
+# Public mode (docs/deploy.md): a run's events name an exception's type, never its text, which can carry upstream detail.
+PUBLIC = os.environ.get("INTERLOCK_PUBLIC") == "1"
+WITHHELD = "an error (details are in the server log)"
+
+
+def shown(failure):
+    """A Temporal failure message as run events may carry it: in public mode a fixed label, since the message is an
+    exception's text (an Anthropic error body, Stripe's message)."""
+    return WITHHELD if PUBLIC and failure else failure
 
 
 def _column(run, mode, api, live=None):
     try:
         live(run, mode) if live else live_column(run, mode, api)
     except Exception as e:
-        run.emit(mode, "error", f"This column stopped: {type(e).__name__}: {e}")
-        run.error = run.error or f"{mode}: {e}"
+        run.emit(mode, "error", f"This column stopped: {type(e).__name__}" + ("" if PUBLIC else f": {e}"))
+        run.error = run.error or f"{mode}: " + (type(e).__name__ if PUBLIC else f"{e}")
 
 
 # ---- live ----------------------------------------------------------------------------------------------------
@@ -282,6 +296,7 @@ class Watch:
             self.decided(d)
         if snap["attempt"] and snap["attempt"][0] > 1 and snap["attempt"] != self.attempt:
             n, failure = self.attempt = snap["attempt"]
+            failure = shown(failure)
             self.emit("retry", f"Temporal runs refund attempt {n}." + (f" Attempt {n - 1} failed: {failure}" if failure else ""),
                       attempt=n, last_failure=failure)
         self.follow(config.stripe, snap["status"] != "RUNNING")
@@ -388,7 +403,7 @@ def explain(mode, outcome, violations=None):
 
 def result_data(state, sc, mode):
     wf = state["workflow"]
-    outcome = (wf.get("result") or {}).get("outcome") or wf.get("failure")
+    outcome = (wf.get("result") or {}).get("outcome") or shown(wf.get("failure"))
     return {**outcome_data(outcome, state["stripe"], state.get("interlock"), sc, mode), "workflow_id": wf["workflow_id"],
             "workflow_status": wf["status"], "refund_attempts": wf["attempts"].get("refund")}
 

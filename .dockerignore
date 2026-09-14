@@ -1,0 +1,13 @@
+# Allowlist: the image gets only what demo/serve.py imports or serves. Everything else in the checkout (local data
+# such as runtime/.data, tool caches, deploy metadata, results, site images, .env files) stays out of the image.
+*
+!backend
+!demo
+!experiments
+!interlock
+**/__pycache__
+**/*.pyc
+**/.DS_Store
+**/.env
+**/.env.*
+**/.interlock
