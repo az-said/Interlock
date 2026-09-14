@@ -30,12 +30,16 @@ class Site(unittest.TestCase):
             self.assertIn(must.lower(), prompt.lower())
 
     def test_python_snippets_parse(self):
+        # Each Copy button copies exactly one runnable thing: no stripping before parsing.
         for tab in ("python", "temporal", "tools", "adk"):
-            code = self.pre("add-" + tab)
-            code = "\n".join(l for l in code.split("\n") if not l.startswith("pip "))
-            compile(code, tab, "exec")
-        mcp = self.pre("add-mcp")
-        json.loads(mcp[mcp.index("{"):])
+            compile(self.pre("add-" + tab), tab, "exec")
+        json.loads(self.pre("add-mcp-config"))
+        for shell in ("add-pip", "add-mcp"):
+            self.assertEqual(len(self.pre(shell).strip().splitlines()), 1, shell)
+
+    def test_selected_tab_is_styled(self):
+        self.assertIn('role="tab" aria-selected="true" data-add-tab', self.page)
+        self.assertRegex(self.page, r'\.dm-tabs button\[aria-selected="true"\][^{]*\{[^}]*border-color')
 
     def test_live_demo_url_is_one_constant(self):
         self.assertEqual(len(re.findall(r"const LIVE_DEMO_URL = ", self.page)), 1)
@@ -53,6 +57,34 @@ class Site(unittest.TestCase):
                 self.assertTrue(os.path.exists(full), f"{doc}: {target}")
                 if anchor and full.endswith(".md"):
                     self.assertIn(anchor, anchors(open(full, encoding="utf-8").read()), f"{doc}: {target}")
+
+
+class PromptCrashRecipe(unittest.TestCase):
+    """Step 6 of the prompt, run as written: the restarted Interlock must actually recover the effect."""
+
+    def test_restart_recovers_with_one_effect(self):
+        import tempfile
+        from interlock import Interlock
+        from interlock.gate import SimulatedCrash
+        expected = {1: "COMMITTED_BY_RETRY", 2: "COMMITTED_ON_QUERY", 3: "AMBIGUOUS"}
+        for tier, status in expected.items():
+            with self.subTest(tier=tier), tempfile.TemporaryDirectory() as d:
+                sent = []
+                def refund(order, idempotency_key):
+                    if tier == 1 and idempotency_key in sent:
+                        return "deduped"
+                    sent.append(idempotency_key)
+                kw = ({"dedupes": True} if tier == 1 else
+                      {"lookup": lambda order, idempotency_key: idempotency_key in sent} if tier == 2 else {})
+                fn = Interlock(d).effect(key=lambda order: f"refund:{order}", **kw)(refund)
+                with self.assertRaises(SimulatedCrash):
+                    fn.gate.submit(fn.proposal("881"), crash_after_effect=True)
+                restarted = Interlock(d)
+                self.assertEqual(restarted.recover(), {})      # nothing registered yet: why the prompt says decorate again
+                fn = restarted.effect(key=lambda order: f"refund:{order}", **kw)(refund)
+                self.assertEqual([s for g in restarted.recover().values() for s in g.values()], [status])
+                fn("881")
+                self.assertEqual(len(sent), 1)
 
 
 if __name__ == "__main__":

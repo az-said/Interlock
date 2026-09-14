@@ -29,7 +29,7 @@ Install Interlock (https://github.com/az-said/Interlock) into this codebase. Int
 
 5. Call recover once on startup, before new work: gate.recover(), tools.recover() or guard.recover().
 
-6. Add a test per effect that crashes after the send and asserts exactly one effect. For a decorated function: fn.gate.submit(fn.proposal(*args), crash_after_effect=True) raises SimulatedCrash; then create a new Interlock on the same directory, call recover(), call fn again, and assert the target recorded one effect.
+6. Add a test per effect that crashes after the send and asserts exactly one effect. For a decorated function: fn.gate.submit(fn.proposal(*args), crash_after_effect=True) raises SimulatedCrash; then simulate the restart: create a new Interlock on the same directory, decorate the same function on it again, call its recover() and check the status (AMBIGUOUS for tier 3), and assert the target recorded one effect.
 
 7. Never claim exactly-once for a tier 3 service. After a crash it can end AMBIGUOUS, and that case goes to a person.
 

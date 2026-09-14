@@ -254,7 +254,7 @@
   .dm-tabs { display: flex; flex-wrap: wrap; gap: .4rem 1.1rem; padding: .55rem .9rem; border-top: 1px solid var(--line); }
   .dm-tabs button { padding: .2rem 0; border: 0; border-bottom: 2px solid transparent; background: none; font: 11.5px ui-monospace, Menlo, monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); }
   .dm-tabs button:hover { color: var(--dim); }
-  .dm-tabs button[aria-pressed="true"] { color: var(--text); border-color: var(--good); }
+  .dm-tabs button[aria-pressed="true"], .dm-tabs button[aria-selected="true"] { color: var(--text); border-color: var(--good); }
   .dm-console { height: 10.5rem; overflow-y: auto; padding: .8rem .9rem; font: 12.5px/1.65 ui-monospace, Menlo, monospace; color: var(--dim); }
   .dm-console p { animation: fadeIn .3s var(--ease) both; }
   .dm-console .dim { color: var(--faint); } .dm-console .bad { color: var(--bad); } .dm-console .warn { color: var(--warn); } .dm-console .good { color: var(--good); }
@@ -478,6 +478,7 @@
   /* Add Interlock: tabs of real snippets, a copyable prompt, and the embed card once the demo is live. */
   .add { margin-top: 3.5rem; }
   .add .dm-tabs { border-top: 0; border-bottom: 1px solid var(--line); }
+  .add .add-code + .dm-head { border-top: 1px solid var(--line); }
   .add-code { margin: 0; padding: .9rem; overflow-x: auto; font: 12.5px/1.7 ui-monospace, Menlo, monospace; color: var(--dim); white-space: pre; }
   .add-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 1.2rem; margin-top: 1.2rem; }
   .add-card { padding: 1.5rem; min-width: 0; }
@@ -1129,10 +1130,10 @@
           <button type="button" role="tab" aria-selected="false" data-add-tab="adk">Google ADK</button>
         </div>
         <div data-add-pane="python">
+          <div class="dm-head"><span>shell</span><button type="button" class="dm-copy" data-copy="add-pip">Copy</button></div>
+          <pre class="add-code" id="add-pip">pip install git+https://github.com/az-said/Interlock</pre>
           <div class="dm-head"><span>refund_agent.py</span><button type="button" class="dm-copy" data-copy="add-python">Copy</button></div>
-          <pre class="add-code" id="add-python">pip install git+https://github.com/az-said/Interlock
-
-from interlock import Interlock
+          <pre class="add-code" id="add-python">from interlock import Interlock
 gate = Interlock(&quot;.interlock&quot;)
 
 @gate.effect(key=lambda order, amount: f&quot;refund:{order}&quot;,
@@ -1155,11 +1156,10 @@ def refund(order: str, amount: int) -&gt; str:
     return gated(refund_money.gate, refund_money.proposal(order, amount))</pre>
         </div>
         <div data-add-pane="mcp" hidden>
-          <div class="dm-head"><span>no code changes</span><button type="button" class="dm-copy" data-copy="add-mcp">Copy</button></div>
-          <pre class="add-code" id="add-mcp">python3 -m interlock.mcp_proxy --config interlock.mcp.json -- python3 payments_server.py
-
-# interlock.mcp.json: name only the tools with real effects
-{&quot;tools&quot;: {&quot;create_refund&quot;: {
+          <div class="dm-head"><span>shell, no code changes</span><button type="button" class="dm-copy" data-copy="add-mcp">Copy</button></div>
+          <pre class="add-code" id="add-mcp">python3 -m interlock.mcp_proxy --config interlock.mcp.json -- python3 payments_server.py</pre>
+          <div class="dm-head"><span>interlock.mcp.json: only the tools with real effects</span><button type="button" class="dm-copy" data-copy="add-mcp-config">Copy</button></div>
+          <pre class="add-code" id="add-mcp-config">{&quot;tools&quot;: {&quot;create_refund&quot;: {
   &quot;key&quot;: [&quot;order_id&quot;],
   &quot;premises&quot;: {&quot;tool&quot;: &quot;get_order&quot;, &quot;arguments&quot;: {&quot;order_id&quot;: &quot;order_id&quot;}, &quot;fields&quot;: [&quot;refunded_total&quot;]},
   &quot;lookup&quot;: {&quot;tool&quot;: &quot;find_refund&quot;, &quot;arguments&quot;: {&quot;reference&quot;: &quot;$effect_id&quot;}, &quot;found&quot;: &quot;found&quot;},
@@ -1221,7 +1221,7 @@ guard.recover()                                         # once, when the process
 
 5. Call recover once on startup, before new work: gate.recover(), tools.recover() or guard.recover().
 
-6. Add a test per effect that crashes after the send and asserts exactly one effect. For a decorated function: fn.gate.submit(fn.proposal(*args), crash_after_effect=True) raises SimulatedCrash; then create a new Interlock on the same directory, call recover(), call fn again, and assert the target recorded one effect.
+6. Add a test per effect that crashes after the send and asserts exactly one effect. For a decorated function: fn.gate.submit(fn.proposal(*args), crash_after_effect=True) raises SimulatedCrash; then simulate the restart: create a new Interlock on the same directory, decorate the same function on it again, call its recover() and check the status (AMBIGUOUS for tier 3), and assert the target recorded one effect.
 
 7. Never claim exactly-once for a tier 3 service. After a crash it can end AMBIGUOUS, and that case goes to a person.
 
@@ -1231,7 +1231,7 @@ Finish with a report: each effect you wrapped (file, function, key, premises, ti
         </div>
         <div class="glass add-card in" style="--d:450" data-embed hidden>
           <h3>Embed the live demo</h3>
-          <p>A link card for your docs or blog. The demo refuses to be framed by other sites, so this is a link, not an iframe.</p>
+          <p>A link card for your docs or blog.</p>
           <div class="dm-head"><span>HTML</span><button type="button" class="dm-copy" data-copy="embed-code">Copy</button></div>
           <pre class="add-code" id="embed-code">&lt;a href=&quot;LIVE_DEMO_URL&quot; style=&quot;display:block;max-width:420px;padding:18px 22px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:#0c0e12;color:#e8eaee;font:15px/1.5 Arial,sans-serif;text-decoration:none&quot;&gt;
   &lt;b style=&quot;display:block;font-size:17px&quot;&gt;Interlock live demo&lt;/b&gt;
