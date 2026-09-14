@@ -40,6 +40,11 @@ Region is `eastus` unless `AZURE_LOCATION` is set. The image tag is `<short comm
 
 - External ingress on port 8787, the same port the probes use and the container gets as `PORT`. It is fixed on purpose.
 - Exactly one replica (min 1, max 1). The demo keeps its state on local disk, so it must not scale out.
+- State is not durable. Cases, leases and receipts live on the container's temporary disk (no volume is mounted), so
+  every deploy and every restart starts from empty. Each deploy also makes a new revision, and in Single revision
+  mode the new one starts alongside the old one before traffic moves, so for a short window two instances with
+  separate state can serve requests. A run in progress during a rollout can be lost. That is acceptable for a demo;
+  if state has to survive, mount an Azure Files volume at `INTERLOCK_DATA` and stop the old revision first.
 - 2 vCPU and 4 GiB.
 - Liveness and readiness probes on `GET /healthz`.
 - Pulls from the registry with the user-assigned identity; the registry admin account stays off.
@@ -49,10 +54,21 @@ Region is `eastus` unless `AZURE_LOCATION` is set. The image tag is `<short comm
 - `INTERLOCK_PUBLIC=1`, `INTERLOCK_TRUSTED_PROXY_HOPS=1`, and `INTERLOCK_ALLOWED_HOSTS` set to the app's FQDN. The
   script predicts the FQDN from the environment domain, reads the real one after the app is created, and applies the
   spec again if they differ. It stops with an error if the FQDN comes back empty.
-- Rate-limit defaults are set in the script. Any `INTERLOCK_RATE_*` variable in your environment is passed through to
-  the container. Before touching Azure, the script checks that every `INTERLOCK_*` name it sets appears in the committed
-  `backend/` or `demo/` code and refuses to deploy if one does not, so a misspelled limit cannot silently switch
-  protection off. The dry run prints a warning instead.
+- Rate limits use the names public mode reads: `INTERLOCK_LIVE_PER_IP_HOUR`, `INTERLOCK_LIVE_PER_DAY` and
+  `INTERLOCK_MOCK_PER_IP_HOUR`. The script sends only the ones set in your environment; unset ones fall back to the
+  server's own defaults. Before touching Azure, the script checks that every `INTERLOCK_*` name it sets or relies on
+  appears as a whole quoted string literal in committed `.py` files under `backend/` or `demo/`, and refuses to deploy
+  if one does not, so a misspelled or renamed limit cannot silently switch protection off. A name only in a comment,
+  a README or inside a longer name does not count. The dry run prints a warning instead.
+
+## After the first deploy
+
+These have not been checked against a live Container Apps app yet. Do both before sharing the URL.
+
+- `INTERLOCK_TRUSTED_PROXY_HOPS=1` assumes Container Apps ingress appends exactly one `X-Forwarded-For` entry and that
+  nothing reaches the container except through it. Send a request with `X-Forwarded-For: 1.2.3.4`, confirm the server
+  rate-limits on your real address and not on `1.2.3.4` or an internal proxy address, and record the result here.
+- Send more mock runs than `INTERLOCK_MOCK_PER_IP_HOUR` allows and confirm the extra ones get HTTP 429.
 
 ## Tearing it down
 

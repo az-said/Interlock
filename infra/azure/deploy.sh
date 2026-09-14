@@ -58,17 +58,18 @@ trap 'rm -rf "$CTX" "$YAML"' EXIT
 git archive HEAD | tar -x -C "$CTX"
 [ -f "$CTX/Dockerfile" ] || [ "$DRY_RUN" = 1 ] || { echo "no committed Dockerfile at the repo root" >&2; exit 1; }
 
-# Rate-limit defaults for the public demo. Any INTERLOCK_RATE_* set by the caller is forwarded too.
-: "${INTERLOCK_RATE_LIMIT_PER_MINUTE:=30}"
-: "${INTERLOCK_RATE_LIMIT_RUNS_PER_HOUR:=20}"
-export INTERLOCK_RATE_LIMIT_PER_MINUTE INTERLOCK_RATE_LIMIT_RUNS_PER_HOUR
-RATE_NAMES="$(compgen -e | grep '^INTERLOCK_RATE_' | sort)"
+# Rate limits: the exact names public mode reads in backend/api.py. Unset ones are not sent, so the server's own
+# defaults apply; set any of them in your environment to override.
+LIMIT_NAMES="INTERLOCK_LIVE_PER_IP_HOUR INTERLOCK_LIVE_PER_DAY INTERLOCK_MOCK_PER_IP_HOUR"
+RATE_NAMES=""
+for name in $LIMIT_NAMES; do if [ -n "${!name:-}" ]; then RATE_NAMES="$RATE_NAMES$name"$'\n'; fi; done
 
-# Every INTERLOCK_* name the app gets must be read by the committed server code; a misspelled name would silently
-# leave the public demo without its host check or rate limits.
+# Every INTERLOCK_* name the app gets or relies on must appear as a quoted string literal in committed .py code under
+# backend/ or demo/. Whole names only, so a comment, README or a longer name does not count; a misspelled name would
+# otherwise silently leave the public demo without its host check or rate limits.
 MISSING=""
-for name in INTERLOCK_PUBLIC INTERLOCK_ALLOWED_HOSTS INTERLOCK_TRUSTED_PROXY_HOPS $RATE_NAMES; do
-  grep -rqF "$name" "$CTX/backend" "$CTX/demo" 2>/dev/null || MISSING="$MISSING $name"
+for name in INTERLOCK_PUBLIC INTERLOCK_ALLOWED_HOSTS INTERLOCK_TRUSTED_PROXY_HOPS $LIMIT_NAMES; do
+  grep -rqE --include='*.py' "[\"']${name}[\"']" "$CTX/backend" "$CTX/demo" 2>/dev/null || MISSING="$MISSING $name"
 done
 if [ -n "$MISSING" ]; then
   if [ "$DRY_RUN" = 1 ]; then echo "warning: not read by backend/ or demo/:$MISSING (a real run refuses)" >&2
