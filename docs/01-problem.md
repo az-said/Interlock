@@ -86,9 +86,7 @@ Systems people call the general shape time-of-check to time-of-use. It used to b
 
 ## How big
 
-- Eight in ten enterprises report an AI agent executing a consequential action in production and paying real cost to correct it; the recurring finding is that they built observability without attribution. (Kore.ai Agent Productivity Index, 2026)
-- 61% of corporate treasury teams cite payment reconciliation as their most time-consuming manual process, up from 44% in 2022. (J.P. Morgan 2025 Treasury Services Benchmarking survey)
-- AI payment-matching catches about 1.2% of total payment volume as duplicates that manual review missed. Before agents. (Levvel Research)
+- 63% of organizations now require human validation of AI agent outputs, up from 22% a year earlier; 54% are actively deploying agents today (KPMG AI Pulse survey, Q1 2026). The review queue is the price of not being able to prove what an agent did.
 - IDC forecasts that by 2027 agent use in the G2000 grows 10x while token and API call loads grow 1000x. Every call is a potential line 2.
 - Gartner (June 2025) predicts over 40% of agentic AI projects will be canceled by end of 2027, citing escalating costs, unclear business value, or inadequate risk controls.
 

@@ -115,8 +115,6 @@ The consequence a buyer feels: because nobody can prove what an agent did, compl
 | Why Do Multi-Agent LLM Systems Fail? (Cemri et al., Berkeley 2025) | Step repetition is the top failure mode at 17.14%. All seven frameworks studied were conversational, not concurrent writers. The gap our coding experiment fills. The `duplicate_work` row. |
 | Cognition, Don't Build Multi-Agents | "Keep writes single-threaded." Sufficient, not necessary. The benign-edit row answers it. |
 | Mosaic, The Coordination Problem (2026) | Agents as ephemeral probes; "retry is close to free." True only until a probe touches the outside world. The thesis of the coding half disputes exactly this sentence. |
-| Kore.ai Agent Productivity Index (2026) | 8 in 10 enterprises had an agent execute a consequential action and paid to correct it. Observability without attribution. |
-| J.P. Morgan treasury survey; McKinsey; Levvel | 61% name reconciliation the most time-consuming manual process; 30% of finance time; 1.2% of payment volume is duplicates before agents. |
 | ATR, Cordon, WashU commit gates (all 2026, cited in README) | Three groups converging on this layer in three months. All three links checked and real. |
 
 ---
@@ -131,7 +129,7 @@ The consequence a buyer feels: because nobody can prove what an agent did, compl
 | Durable execution | Resume after failure | Temporal, DBOS, Restate, Prefect; Pydantic AI first-party |
 | Injection containment | Can data change control flow? | CaMeL |
 | Dedup at the receiver | Don't do it twice | Stripe keys, Kafka EOS |
-| Agent-native payment rails | Let agents hold and move money | Natural ($40M raised), Ralio, Paygentic |
+| Agent-native payment rails | Let agents hold and move money | Natural, Ralio, Paygentic |
 | Parallel-agent workspaces | Run N agents, merge at end | Superconductor, Conductor, Superset, Augment Intent |
 | Conflict heuristics | Catch semantic conflicts | moire, conflict-check, sol |
 | **Effects** | **Did it happen, once, under live authority, on premises that still hold?** | **nobody** |
@@ -255,14 +253,12 @@ If you strip it to what's judged, it's the protocol (250 lines) and the two tabl
 
 ## 10. The numbers
 
-- 61% of corporate treasury executives name payment reconciliation their most time-consuming manual process, up from 44% in 2022 (J.P. Morgan).
-- High-volume finance teams spend up to 30% of their time on manual reconciliation (McKinsey).
-- AI payment matching catches about 1.2% of payment volume as duplicates that manual review missed. Before agents. (Levvel)
-- 8 in 10 enterprises have had an agent execute a consequential action in production and paid real cost to correct it; they built observability without attribution (Kore.ai, 2026).
-- Agents succeed 56.6% of tasks; reliability decays 60% → 25% over eight runs; failures cluster at handoffs and monitoring seams.
-- IDC: 1000× growth in agent-related API calls. Gartner: 40% of agentic AI projects canceled by 2027 for cost, unclear ROI, governance failures.
+- 63% of organizations now require human validation of AI agent outputs, up from 22% a year earlier; 54% are actively deploying agents today (KPMG AI Pulse survey, Q1 2026). The approval inbox is the cost of not being able to prove what an agent did.
+- IDC forecasts that by 2027 agent use in the G2000 grows 10x while token and API call loads grow 1000x. Every call is a potential line 2.
+- Gartner (June 2025) predicts over 40% of agentic AI projects will be canceled by end of 2027, citing escalating costs, unclear business value, or inadequate risk controls.
+- Agents use about 4x the tokens of chat, and multi-agent systems about 15x (Anthropic, 2025). Retrying an agent is not free, and re-running does not reproduce the decision.
 
-There is no market for network crashes. There is a market for the consequences of not knowing what happened after one. It's called reconciliation, it's already the most expensive manual job in finance, and every agent that touches an API multiplies it.
+There is no market for network crashes. There is a market for the consequences of not knowing what happened after one. It's called reconciliation, and every agent that touches an API multiplies it.
 
 ---
 
