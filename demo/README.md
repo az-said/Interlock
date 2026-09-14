@@ -1,5 +1,7 @@
 # demo: one crash, the same refund, two setups
 
+The live demo server runs on macOS and Linux: it kills and restarts worker processes with POSIX signals. The library itself runs anywhere Python 3.9+ does.
+
 Two pages run the same real refund case side by side, with and without Interlock. The standalone demo needs no
 Temporal: a plain worker process, killed and restarted. The Temporal demo runs the same scenarios as Temporal
 workflows. Every call on a live path is real: Stripe test mode, the model, a SIGKILLed worker process, and a

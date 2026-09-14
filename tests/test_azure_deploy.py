@@ -37,7 +37,7 @@ exit 0
 """
 
 
-@unittest.skipUnless(BASH and GIT, "bash or git is not installed")
+@unittest.skipUnless(BASH and GIT and os.name != "nt", "needs bash and git on macOS or Linux: infra/azure/deploy.sh is a POSIX shell tool")
 class AzureDeployScript(unittest.TestCase):
     def run_script(self, *args, cwd=ROOT, path=BASE_PATH, **env):
         base = {"PATH": path, "HOME": os.environ.get("HOME", "/tmp")}

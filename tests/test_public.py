@@ -95,6 +95,7 @@ class Settings(unittest.TestCase):
             for anchor in ('id="notice"', 'id="live"', 'id="mock"', 'id="scenario"', 'id="status"', 'id="banner"'):
                 self.assertIn(anchor, page)
 
+    @unittest.skipIf(os.name == "nt", "demo/serve.py is POSIX-only: it manages worker process groups and signals")
     def test_serve_refuses_public_mode_without_hosts(self):
         env = {k: v for k, v in os.environ.items() if k != "INTERLOCK_ALLOWED_HOSTS"}
         r = subprocess.run([sys.executable, os.path.join(ROOT, "demo", "serve.py")], env={**env, "INTERLOCK_PUBLIC": "1"},
@@ -366,6 +367,7 @@ class ConnectionCap(unittest.TestCase):
         until(lambda: server.slots._value == 1)                  # the slot comes back when the connection ends
 
 
+@unittest.skipIf(os.name == "nt", "demo/serve.py is POSIX-only: it manages worker process groups and signals")
 class PublicProcess(unittest.TestCase):
     def test_serve_stops_the_api_on_sigterm(self):
         with socket.socket() as s:
