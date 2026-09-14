@@ -22,10 +22,15 @@ named in the config pass through untouched. `out` is:
 A tool function returns normally when it worked, raises ToolError when the service said no (settled,
 never resent), and any other exception means the outcome is unknown: recovery settles it.
 
-`approval` in a tool's config, {"tool": "get_approval", "arguments": {"order_id": "order_id"}}, names a
-read tool that returns the approval (approvals.Envelope) from the system of record. With it, a refused
-call says what changed and whether a corrected call may go: one that fits the approval is sent, once.
-Without it, a refused request stays refused until a person decides again.
+When the agent reads the premises tool itself (through this tool list or the MCP proxy), a later call
+is proposed on the facts it read, not on a fresh read, so a change between the agent's read and its call
+is caught as well as one between the call and the send.
+
+`approval` in a tool's config, {"tool": "get_approval", "arguments": {"order_id": "order_id"}, "attempts": 3},
+names a read tool that returns the approval (approvals.Envelope) from the system of record. With it, a
+refused call says what changed and whether a corrected call may go: one that fits the approval is sent,
+once, and `attempts` (optional) caps how many distinct calls may be tried. Without it, a refused request
+stays refused until a person decides again.
 """
 import json, sys
 from .approvals import Envelope
@@ -46,15 +51,20 @@ class ToolError(RuntimeError, Rejected):
 
 
 def structured(result):
-    """A tool result's data: a plain function's own dict, structuredContent, or JSON in the first text block."""
+    """A tool result's data: a plain dict, a JSON string, structuredContent, or JSON in the first text block."""
+    if isinstance(result, str):
+        try:
+            result = json.loads(result)
+        except ValueError:
+            return {}
     if not isinstance(result, dict):
         return {}
     if "content" not in result and "structuredContent" not in result:
         return result
     if isinstance(result.get("structuredContent"), dict):
         return result["structuredContent"]
-    for block in result.get("content", []):
-        if block.get("type") == "text":
+    for block in result.get("content") or []:
+        if isinstance(block, dict) and block.get("type") == "text":
             try:
                 data = json.loads(block["text"])
                 return data if isinstance(data, dict) else {}
@@ -71,6 +81,7 @@ def gated(interlock, name, spec, call_tool, module=__name__):
     """
     One config entry as a gated function of the call's arguments. call_tool(name, arguments) runs any tool.
     `module` names the journal file, so an existing deployment keeps finding its journal.
+    `call.observe(tool, arguments, result)` records a read the agent made itself.
     """
     def read(source, arguments, effect_id):
         return structured(call_tool(source["tool"], fill(source["arguments"], arguments, effect_id)))
@@ -90,12 +101,20 @@ def gated(interlock, name, spec, call_tool, module=__name__):
     send.__name__ = send.__qualname__ = name
     send.__module__ = module
 
-    premises = lookup = approval = None
+    # ponytail: one process-wide cache, last read wins, shared by every agent on this proxy or tool list.
+    # Key it by agent session if several agents share one.
+    seen = {}
+    premises = lookup = approval = saw = None
     if "premises" in spec:
         p = spec["premises"]
         def premises(arguments, idempotency_key):
             facts = read(p, arguments, idempotency_key)
             return {field: facts.get(field) for field in p["fields"]}
+        def saw(arguments):
+            facts = seen.get(json.dumps(fill(p["arguments"], arguments, None), sort_keys=True))
+            if facts is None or any(field not in facts for field in p["fields"]):
+                return None                               # the agent never read these facts: read them now
+            return {field: facts[field] for field in p["fields"]}
     if "lookup" in spec:
         l = spec["lookup"]
         def lookup(arguments, idempotency_key):
@@ -104,10 +123,16 @@ def gated(interlock, name, spec, call_tool, module=__name__):
         def approval(arguments):
             return read(spec["approval"], arguments, None) or None
 
+    def observe(tool, arguments, result):
+        if "premises" in spec and tool == spec["premises"]["tool"] and not (isinstance(result, dict) and result.get("isError")):
+            seen[json.dumps(arguments, sort_keys=True)] = structured(result)
+
     key = lambda arguments: f"{name}:" + json.dumps({k: arguments.get(k) for k in spec["key"]}, sort_keys=True)
     call = interlock.effect(key=key, premises=premises, lookup=lookup, dedupes=spec.get("dedupes", False),
-                            approval=approval, fields=lambda args: args[0])(send)
+                            approval=approval, fields=lambda args: args[0],
+                            attempts=(spec.get("approval") or {}).get("attempts"), seen=saw)(send)
     call.key = key                                            # the proxy's old name for it
+    call.observe = observe
     return call
 
 
@@ -189,8 +214,17 @@ class Tools(dict):
 
 def protect(tools, config):
     interlock = Interlock(config.get("journal_dir", ".interlock/tools"), claim_ttl=config.get("claim_ttl", CLAIM_TTL))
-    out = Tools(tools, interlock)
-    for name, spec in config["tools"].items():
-        call = gated(interlock, name, spec, lambda tool, arguments: tools[tool](**arguments))
-        out[name] = lambda _call=call, **arguments: run(_call, arguments)
+    calls = {name: gated(interlock, name, spec, lambda tool, arguments: tools[tool](**arguments))
+             for name, spec in config["tools"].items()}
+
+    def reader(tool):
+        def read(**arguments):                        # the agent's own reads, remembered for the gated tools
+            result = tools[tool](**arguments)
+            for call in calls.values():
+                call.observe(tool, arguments, result)
+            return result
+        return read
+
+    out = Tools({name: reader(name) for name in tools}, interlock)
+    out.update({name: (lambda _call=call, **arguments: run(_call, arguments)) for name, call in calls.items()})
     return out

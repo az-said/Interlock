@@ -258,6 +258,10 @@ out = tools["create_refund"](order_id="881", amount=20)
 # hand out["message"] back to the model as the tool result
 ```
 
+For LangChain or LangGraph, `interlock.langchain_tools.protect_tools(tools, config)` takes and returns `BaseTool` objects, so the list drops into `create_agent` or a `ToolNode` unchanged (`tests/test_langchain.py`, run with `uv run --with langchain-core --with langgraph`).
+
+When the agent reads the premises tool itself (`get_order`, through the proxy or the tool list), its call is proposed on the facts it read, not on a fresh read at call time. A refund issued by hand between the agent's read and its call is caught too.
+
 ## Refused, then repaired
 
 A refusal says what changed, not just that something did: `Interlock did not send this action (REFUSED:stale_premise): ... refunded_total: was 0, now 5.` The same facts are in `out["repair"]` and in the MCP result's `_meta.interlock.repair`; the structured form is `_meta.interlock.escalation` (see [Escalations and receipts](#escalations-and-receipts)).
@@ -265,14 +269,16 @@ A refusal says what changed, not just that something did: `Interlock did not sen
 By default a refused request stays refused until a person decides again, because a model that re-decides on retry is how a $20 refund becomes $50. Add an `approval` to the tool's config and the agent may send a corrected call instead:
 
 ```json
-"approval": {"tool": "get_approval", "arguments": {"order_id": "order_id"}}
+"approval": {"tool": "get_approval", "arguments": {"order_id": "order_id"}, "attempts": 3}
 ```
 
-The tool returns the approval from the system of record, never from the model: `{"id": "case-4471", "match": {"order_id": "881"}, "max": {"amount": 15}}`, where `max` is what is still left. Each distinct decision is its own attempt. A call that fits the approval is sent, and only one attempt per approval is ever sent, so a crash can't be routed around with a new amount. A call outside it is refused with the limit (`amount 30 is over the 15 approved`). An expired or revoked approval, or one already used, says `may_retry: false`. The store is `approvals.Envelope`; the decorator takes `approval=` too.
+The tool returns the approval from the system of record, never from the model: `{"id": "case-4471", "match": {"order_id": "881"}, "max": {"amount": 15}}`, where `max` is what is still left. Each distinct decision is its own attempt. A call that fits the approval is sent, and only one attempt per approval is ever sent, so a crash can't be routed around with a new amount. A call outside it is refused with the limit (`amount 30 is over the 15 approved`). `attempts` (optional) caps the distinct calls tried, so a model that keeps re-deciding is stopped by the gate. An expired, revoked, used-up or already-used approval says `may_retry: false`. The store is `approvals.Envelope`; the decorator takes `approval=` and `attempts=` too.
 
 Repair means one thing in both places: a new effect id, never the refused one with a different payload. Here the agent picks the new payload and the approval bounds it; in the inbox (`Inbox.repair`) a person accepts a suggested one and it goes back through rules or a person.
 
-On a synthetic day of 100 refunds ([results/repair_loop.md](results/repair_loop.md), mix stated as an assumption, scripted agent rather than a model), the refunds that needed a person went from 17 to 3 and wrong payouts from 13 to 0. The 13 were $30 decisions on $20 cases, which premises alone don't bound. With no gate, 40 of 100 paid out wrong.
+On a synthetic day of 100 refunds ([results/repair_loop.md](results/repair_loop.md), mix stated as an assumption, scripted agent rather than a model), the refunds that needed a person went from 17 to 3 and wrong payouts from 13 to 0. The 13 were $30 decisions on $20 cases, which premises alone don't bound. With no gate, 40 of 100 paid out wrong. A careful hand-written check for this one refund (a reference per case, a lookup, a read of what is left right before sending) ties Interlock with repair on that day, as it did in [docs/10-scenarios.md](docs/10-scenarios.md). What Interlock adds there is no per-tool code and a record of which checks ran.
+
+With a real model deciding ([results/repair_live_model.md](results/repair_live_model.md): `gpt-5.4-mini` over Azure OpenAI, 40 cases per system, mix stated as an assumption), interlock+repair finished all 40 with no person and no wrong payout, and in all 10 refused cases the model read the refusal and sent the right corrected call. No gate paid out wrong 15 times ($233). The hand check paid nothing wrong, but in 4 of its 6 hand-refund cases the model read "Not sent: amount 20 is over the 11 left on this case. You may send a refund of up to 11." and replied DONE with the customer short, and 2 went to a person. A first run with a terser hand-check message did worse ([results/repair_live_model_terse_hand_check.md](results/repair_live_model_terse_hand_check.md)). That gap is the refusal message, not the check: Interlock's tells the model what changed and what to do next, for every tool, and a hand check has to be written to do the same. The model never asked for more than the $20 approved, so the approval limit was exercised only by the scripted run. Six cases per kind is a small sample.
 
 ## Receipts you can check
 
@@ -372,6 +378,7 @@ interlock/           the runtime
   receipts.py        receipt bundles and verify(): happened once, authorized, assumptions held, who decided, target confirmed
   mcp_proxy.py       zero-line integration in front of any MCP server
   tools.py           protect() for in-process tool lists, and the refusal-and-repair message both share
+  langchain_tools.py protect_tools() for LangChain and LangGraph BaseTool lists
   temporal.py        gated(): the gate as a Temporal activity body
   targets/
     payments.py      simulated refund API at tiers 1 / 2 / 3, Stripe-style key semantics
