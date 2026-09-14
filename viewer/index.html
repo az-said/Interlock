@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Interlock journal replay</title>
+<title>Interlock viewer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #0A0A0B; --text: #E4E4E7; --dim: #A1A1AA; --line: #27272A; --border: #3F3F46;
@@ -31,6 +31,8 @@
   .grain { opacity: 0.07; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
   @keyframes drift { from { transform: translate(0, 0) scale(1); } to { transform: translate(70px, 50px) scale(1.12); } }
   @media (prefers-reduced-motion: reduce) { .blob { animation: none; } }
+  /* ?still=1: a still frame for screenshots, no animation or transition anywhere. */
+  html.still *, html.still *::before, html.still *::after { animation: none !important; transition: none !important; }
 
   .glass {
     background: var(--glass);
@@ -39,7 +41,6 @@
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 24px 50px -18px rgba(0, 0, 0, 0.45);
   }
   .page { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding-block: 32px 48px; padding-inline: 20px; }
-  header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
   h1 { font-size: 22px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
   .sub { color: var(--dim); margin: 2px 0 0; }
   .kicker { font: 11px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
@@ -60,7 +61,7 @@
   .main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
   .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; justify-content: space-between; }
   .toolbar h2 { font: 17px var(--mono); margin: 6px 0 0; overflow-wrap: anywhere; }
-  .tiers { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 999px; }
+  .tiers { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 20px; }
   .tier { border: 0; background: transparent; padding: 7px 14px; border-radius: 999px; font: 12px var(--mono); color: var(--dim); }
   .tier[aria-pressed="true"] { background: rgba(255, 255, 255, 0.13); color: var(--text); }
 
@@ -131,14 +132,262 @@
   .note { font-size: 12.5px; }
   .missing { position: relative; z-index: 1; max-width: 560px; margin: 15vh auto; padding: 28px; }
   code { font-family: var(--mono); }
+
+  /* Escalation views: tokens appended to the existing palette. */
+  :root {
+    --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 20px; --s6: 24px; --s8: 32px;
+    --r-lg: 16px; --r-md: 10px; --r-sm: 6px; --r-pill: 999px;
+    --good-bg: rgba(16, 185, 129, 0.14); --good-line: rgba(16, 185, 129, 0.45);
+    --warn-bg: rgba(245, 158, 11, 0.14); --warn-line: rgba(245, 158, 11, 0.45);
+    --bad-bg: rgba(239, 68, 68, 0.14); --bad-line: rgba(239, 68, 68, 0.45);
+    --good-bg: color-mix(in oklab, var(--green) 14%, transparent); --good-line: color-mix(in oklab, var(--green) 45%, transparent);
+    --warn-bg: color-mix(in oklab, var(--amber) 14%, transparent); --warn-line: color-mix(in oklab, var(--amber) 45%, transparent);
+    --bad-bg: color-mix(in oklab, var(--red) 14%, transparent); --bad-line: color-mix(in oklab, var(--red) 45%, transparent);
+    --hover: rgba(255, 255, 255, 0.04); --pressed: rgba(255, 255, 255, 0.09); --selected: rgba(255, 255, 255, 0.13);
+    --paper: #111113; --paper-ink: var(--text); --paper-dim: var(--dim); --paper-rule: rgba(228, 228, 231, 0.28);
+  }
+  [hidden] { display: none !important; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .skip { position: absolute; left: var(--s4); top: -48px; z-index: 10; background: var(--primary); color: var(--bg); padding: var(--s2) var(--s3); border-radius: var(--r-sm); cursor: pointer; }
+  .skip:focus { top: var(--s4); }
+  a, button, summary, select, label.filter, [role="slider"], .repair, .act { cursor: pointer; }
+  a { color: var(--text); text-decoration-color: rgba(228, 228, 231, 0.4); text-underline-offset: 3px; }
+  a:hover { text-decoration-color: var(--text); }
+  .dim { color: var(--dim); font-weight: 400; }
+  main:focus, h2:focus, h3:focus { outline: none; }
+
+  .top { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3) var(--s4); margin-bottom: var(--s4); }
+  .top-title { flex: 1 1 220px; min-width: 0; }
+  .source { display: flex; align-items: center; gap: var(--s2); }
+  .src { border: 1px solid var(--border); background: transparent; border-radius: var(--r-pill); padding: 7px 14px; font: 12px var(--mono); color: var(--dim); display: inline-flex; gap: var(--s2); align-items: center; min-height: 36px; }
+  .src:hover { background: var(--hover); color: var(--text); }
+  .src[aria-pressed="true"] { background: var(--selected); color: var(--text); border-color: var(--glass-border); }
+  .src .status-dot { color: var(--green); }
+  .src-mock { border-style: dashed; border-color: var(--warn-line); }
+  .src-mock[aria-pressed="true"] { background: var(--warn-bg); color: var(--amber); border-color: var(--amber); }
+  .source-sep { width: 1px; height: 20px; background: var(--border); margin-inline: var(--s1); }
+
+  .views { display: flex; flex-wrap: wrap; gap: var(--s1); padding: var(--s1); border-radius: var(--r-lg); margin-bottom: var(--s4); }
+  .view-link { color: var(--dim); text-decoration: none; font: 12.5px var(--mono); padding: 8px 12px; border-radius: var(--r-md); display: inline-flex; gap: var(--s2); align-items: center; min-height: 36px; }
+  .view-link:hover { background: var(--hover); color: var(--text); }
+  .view-link[aria-current="page"] { background: var(--selected); color: var(--text); }
+  .count-badge { font-size: 11px; padding: 0 6px; border-radius: var(--r-pill); background: var(--warn-bg); color: var(--amber); }
+  .count-badge:empty { display: none; }
+
+  .mock-banner { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: baseline; padding: var(--s3) var(--s4); margin-bottom: var(--s4); border: 1px dashed var(--amber); border-radius: var(--r-md); color: var(--text);
+    background: repeating-linear-gradient(-45deg, var(--warn-bg) 0 10px, transparent 10px 20px); }
+  .mock-banner strong, .mock-tag { font: 600 11px var(--mono); letter-spacing: 0.14em; color: var(--amber); }
+  .mock-tag { border: 1px dashed var(--amber); border-radius: var(--r-sm); padding: 1px 6px; margin-left: var(--s2); display: inline-block; line-height: 1.3; }
+  body[data-source="mock"] .glass { border-style: dashed; border-color: var(--warn-line); }
+  .provenance { margin: calc(-1 * var(--s2)) 0 var(--s4); font-size: 12px; overflow-wrap: anywhere; }
+  .provenance .prov-note { display: block; margin-top: 2px; }
+  .empty-state { padding: var(--s6); max-width: 640px; }
+  .empty-state h2 { font-size: 17px; margin: var(--s2) 0; }
+
+  /* status pill, from 21st comp-25393 */
+  .status { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: var(--r-pill); font: 11.5px var(--mono); white-space: nowrap; border: 1px solid var(--border); color: var(--dim); background: transparent; }
+  .status[data-tone="good"] { color: var(--green); background: var(--good-bg); border-color: var(--good-line); }
+  .status[data-tone="warn"] { color: var(--amber); background: var(--warn-bg); border-color: var(--warn-line); }
+  .status[data-tone="bad"] { color: var(--red); background: var(--bad-bg); border-color: var(--bad-line); }
+  .status-dot { position: relative; width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; display: inline-block; }
+  .status[data-tone="bad"] .status-dot::before, .esc[data-state="open"] .status[data-tone="warn"] .status-dot::before {
+    content: ""; position: absolute; inset: 0; border-radius: 50%; background: currentColor; animation: ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite; }
+  @keyframes ping { 75%, 100% { transform: scale(2.2); opacity: 0; } }
+
+  /* effect picker */
+  .picker .kicker { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
+  .picker .kicker .n { margin-left: auto; letter-spacing: 0.04em; text-transform: none; }
+  .filter { display: block; padding: 0 12px 8px; }
+  .filter select { width: 100%; min-height: 36px; background: rgba(10, 10, 11, 0.6); color: var(--text); border: 1px solid var(--border); border-radius: var(--r-md); padding: 6px 10px; font: 12.5px var(--sans); }
+  .effect-list { display: flex; flex-direction: column; gap: 2px; max-height: 70vh; overflow-y: auto; }
+  .fault .amt { color: var(--dim); margin-left: 6px; white-space: nowrap; }
+  .view-link .mock-tag { margin-left: 0; }
+  .live-tag { font: 600 11px var(--mono); letter-spacing: 0.14em; color: var(--green); border: 1px solid var(--good-line); background: var(--good-bg); border-radius: var(--r-sm); padding: 1px 6px; margin-right: var(--s2); }
+
+  /* reviewer inbox */
+  .view-stack { display: flex; flex-direction: column; gap: var(--s4); }
+  .replay-bar .transport { border-top: 0; flex-wrap: wrap; }
+  .btn-ghost { min-height: 36px; padding: 7px 14px; border-radius: var(--r-pill); border: 1px solid var(--border); background: transparent; font: 12.5px var(--sans); }
+  .btn-ghost:hover { background: var(--hover); }
+  .replay-bar .clock { width: auto; min-width: 7.5rem; }
+  .esc-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s3); }
+  .esc { padding: var(--s4) var(--s5); display: grid; gap: var(--s3); min-width: 0; }
+  .esc-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2) var(--s3); }
+  .esc-title { font-size: 15px; margin: 0; font-weight: 600; overflow-wrap: anywhere; min-width: 0; }
+  .route { flex-basis: 100%; font-size: 12.5px; }
+  .esc-why { margin: 0; }
+  .changes { margin: var(--s2) 0 0; display: grid; gap: var(--s1); }
+  .change { display: grid; grid-template-columns: minmax(0, 14rem) minmax(0, 1fr); gap: var(--s3); align-items: baseline; }
+  .change dt { color: var(--dim); font-size: 12.5px; overflow-wrap: anywhere; }
+  .change dd { margin: 0; display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; font-size: 13px; }
+  .was { color: var(--dim); text-decoration: line-through; text-decoration-color: rgba(161, 161, 170, 0.5); }
+  .now { color: var(--text); font-weight: 600; }
+  .arrow { width: 14px; height: 14px; fill: none; stroke: var(--dim); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .repairs { display: flex; flex-wrap: wrap; gap: var(--s2); margin-top: var(--s2); }
+  .repair { text-align: left; display: grid; gap: 2px; padding: var(--s2) var(--s3); border-radius: var(--r-md); border: 1px solid var(--border); background: transparent; max-width: 100%; }
+  .repair:hover { background: var(--hover); }
+  .repair[aria-pressed="true"] { border-color: var(--primary); background: var(--pressed); }
+  .repair .set { color: var(--dim); margin-left: 6px; }
+  .repair-why { color: var(--dim); font-size: 12.5px; }
+  .esc-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); padding-top: var(--s3); border-top: 1px solid var(--glass-border); }
+  .act { min-height: 36px; padding: 7px 14px; border-radius: var(--r-pill); border: 1px solid var(--border); background: transparent; font: 12.5px var(--sans); }
+  .act:hover { background: var(--hover); }
+  .act[aria-disabled="true"] { opacity: 0.45; }
+  .act-primary { background: var(--primary); color: var(--bg); border-color: var(--primary); font-weight: 600; }
+  .act-primary:hover { background: #fff; }
+  .recorded { flex-basis: 100%; font-size: 12.5px; }
+  .facts summary { color: var(--dim); font-size: 12.5px; width: fit-content; }
+  .facts .json { margin-top: var(--s2); border-radius: var(--r-sm); background: rgba(0, 0, 0, 0.25); overflow-x: auto; }
+  .empty { margin: 0; }
+
+  /* thermal receipt slip, from 21st comp-26309, on dark paper */
+  .slip-wrap { filter: drop-shadow(0 24px 30px rgba(0, 0, 0, 0.5)); width: 100%; max-width: 400px; margin-inline: auto; }
+  .slip { --tooth-w: 12px; --tooth-h: 12px; position: relative; width: 100%;
+    background: repeating-linear-gradient(180deg, rgba(228, 228, 231, 0.035) 0 1px, transparent 1px 4px), var(--paper);
+    color: var(--paper-ink); font: 12px/1.5 var(--mono); letter-spacing: 0.06em; text-transform: uppercase;
+    padding: calc(var(--tooth-h) + var(--s5)) var(--s6);
+    -webkit-mask-image: linear-gradient(135deg, transparent 50%, #000 0), linear-gradient(-135deg, transparent 50%, #000 0), linear-gradient(#000, #000), linear-gradient(45deg, transparent 50%, #000 0), linear-gradient(-45deg, transparent 50%, #000 0);
+            mask-image: linear-gradient(135deg, transparent 50%, #000 0), linear-gradient(-135deg, transparent 50%, #000 0), linear-gradient(#000, #000), linear-gradient(45deg, transparent 50%, #000 0), linear-gradient(-45deg, transparent 50%, #000 0);
+    -webkit-mask-size: var(--tooth-w) var(--tooth-h), var(--tooth-w) var(--tooth-h), 100% calc(100% - var(--tooth-h) * 2 + 1px), var(--tooth-w) var(--tooth-h), var(--tooth-w) var(--tooth-h);
+            mask-size: var(--tooth-w) var(--tooth-h), var(--tooth-w) var(--tooth-h), 100% calc(100% - var(--tooth-h) * 2 + 1px), var(--tooth-w) var(--tooth-h), var(--tooth-w) var(--tooth-h);
+    -webkit-mask-position: 0 0, 0 0, 0 calc(var(--tooth-h) - 0.5px), 0 100%, 0 100%;
+            mask-position: 0 0, 0 0, 0 calc(var(--tooth-h) - 0.5px), 0 100%, 0 100%;
+    -webkit-mask-repeat: repeat-x, repeat-x, no-repeat, repeat-x, repeat-x;
+            mask-repeat: repeat-x, repeat-x, no-repeat, repeat-x, repeat-x; }
+  .slip-head { text-align: center; position: relative; }
+  .slip-merchant { margin: 0; font-weight: 600; letter-spacing: 0.34em; font-size: 13px; }
+  .slip-note { margin: 6px 0 0; color: var(--paper-dim); font-size: 11px; letter-spacing: 0.14em; }
+  .slip-stamp { position: absolute; right: -4px; top: -6px; margin: 0; transform: rotate(-8deg); border: 2px dashed var(--amber); color: var(--amber); padding: 2px 8px; font-weight: 600; letter-spacing: 0.2em; }
+  .slip-title { text-align: center; font-size: 17px; letter-spacing: 0.2em; margin: var(--s3) 0; font-family: var(--mono); font-weight: 600; }
+  .slip-rule { border: 0; border-top: 1px dashed var(--paper-rule); margin: var(--s3) 0; }
+  .slip-rule.heavy { border-top: 3px double var(--paper-rule); }
+  .ledger { margin: 0; display: grid; gap: 6px; }
+  .ledger > div { display: flex; align-items: baseline; gap: var(--s2); min-width: 0; }
+  .ledger dt { flex-shrink: 0; }
+  .ledger .lead { flex: 1 1 var(--s3); min-width: var(--s3); border-bottom: 1px dotted var(--paper-rule); transform: translateY(-0.28em); }
+  .ledger dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; min-width: 0; max-width: 60%; }
+  .ledger dd .id, .ledger dd a { text-transform: none; }
+  .ledger.small { color: var(--paper-dim); font-size: 11px; }
+  .ledger .sub-row { padding-left: var(--s3); color: var(--paper-dim); font-size: 11px; }
+  .ledger.total { font-weight: 600; font-size: 13px; }
+  dd[data-tone="good"], strong[data-tone="good"] { color: var(--green); }
+  dd[data-tone="warn"], strong[data-tone="warn"] { color: var(--amber); }
+  dd[data-tone="bad"], strong[data-tone="bad"] { color: var(--red); }
+  .problems { list-style: none; margin: var(--s3) 0 0; padding: 0; color: var(--red); text-transform: none; letter-spacing: 0; }
+  .barcode { margin: var(--s5) 0 0; text-align: center; color: var(--paper-ink); }
+  .barcode svg { width: 220px; max-width: 100%; height: 44px; }
+  .barcode rect { fill: currentColor; }
+  .barcode figcaption, .slip-foot { color: var(--paper-dim); font-size: 10.5px; letter-spacing: 0.14em; margin-top: 6px; text-align: center; }
+  .slip-foot { margin-bottom: 0; }
+  .slip-caption { text-align: center; max-width: 400px; margin: var(--s4) auto 0; font-size: 12.5px; }
+
+  /* audit log, from 21st comp-25163 */
+  .audit { list-style: none; margin: 0; padding: var(--s2) var(--s4); }
+  .audit-row { position: relative; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: var(--s3); padding: var(--s3) 0; }
+  .audit-row::before { content: ""; position: absolute; left: 13.5px; top: 40px; bottom: -12px; width: 1px; background: var(--border); }
+  .audit-row:last-child::before { display: none; }
+  .audit-icon { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border); display: grid; place-items: center; background: var(--bg); color: var(--dim); position: relative; z-index: 1; }
+  .audit-icon .ic { color: currentColor; }
+  .audit-icon[data-tone="warn"] { color: var(--amber); border-color: var(--warn-line); }
+  .audit-icon[data-tone="bad"] { color: var(--red); border-color: var(--bad-line); }
+  .audit-icon[data-tone="good"] { color: var(--green); border-color: var(--good-line); }
+  .audit-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--s1) var(--s3); align-items: baseline; }
+  .audit-title { font-size: 14px; font-weight: 600; margin: 0; }
+  .audit-time { color: var(--dim); font-size: 11.5px; }
+  .audit-desc { color: var(--dim); margin: 2px 0 var(--s2); font-size: 13px; overflow-wrap: anywhere; }
+  .audit-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .audit-actor { font-weight: 600; font-size: 13px; margin-right: var(--s1); }
+  .audit-split { padding: var(--s3) 0 var(--s1) 40px; }
+  .chip.tag { color: var(--dim); }
+
+  /* journal steps, from 21st comp-24897 */
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s2); }
+  .step { border-radius: var(--r-md); overflow: hidden; }
+  .step summary { list-style: none; display: grid; grid-template-columns: auto minmax(0, 1fr) auto 16px; align-items: center; gap: var(--s3); padding: 10px var(--s4); min-height: 44px; }
+  .step summary::-webkit-details-marker { display: none; }
+  .step summary:hover { background: var(--hover); }
+  .badge { font: 600 10.5px var(--mono); letter-spacing: 0.06em; padding: 2px 8px; border-radius: var(--r-sm); border: 1px solid var(--border); color: var(--text); white-space: nowrap; }
+  .badge[data-tone="good"] { background: var(--good-bg); border-color: var(--good-line); color: var(--green); }
+  .badge[data-tone="warn"] { background: var(--warn-bg); border-color: var(--warn-line); color: var(--amber); }
+  .badge[data-tone="bad"] { background: var(--bad-bg); border-color: var(--bad-line); color: var(--red); }
+  .badge[data-tone="info"] { border-color: var(--primary); }
+  .badge[data-tone="solid"] { background: var(--selected); }
+  .step-name { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .step-meta { display: flex; gap: var(--s2); color: var(--dim); font-size: 11px; white-space: nowrap; }
+  .chev { width: 14px; height: 14px; fill: none; stroke: var(--dim); stroke-width: 1.6; transition: transform 0.2s; }
+  .step[open] .chev { transform: rotate(180deg); }
+  .step-log { border-top: 1px solid var(--glass-border); background: rgba(0, 0, 0, 0.25); overflow-x: auto; }
+  .json { margin: 0; padding: var(--s3) var(--s4); font: 12px/1.55 var(--mono); color: var(--text); white-space: pre; }
+
+  /* scoreboard tiles, from 21st comp-8321 */
+  .tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: var(--s3); }
+  .tile { padding: var(--s4) var(--s5); display: grid; gap: var(--s1); align-content: start; }
+  .tile-label { margin: 0; color: var(--dim); font-size: 13px; }
+  .tile-value { margin: 0; font-size: 34px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; color: var(--text); font-variant-numeric: tabular-nums; }
+  .tile-note { margin: 0; color: var(--dim); font-size: 12.5px; display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
+  .deliveries { list-style: none; margin: var(--s3) 0 0; padding: 0; display: grid; gap: 6px; font: 12px var(--mono); }
+  .deliveries li { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s3); align-items: center; }
+  .deliveries .status { margin-left: auto; }
+
+  .step summary:focus-visible, .view-link:focus-visible { outline-offset: -2px; }
+
+  /* round 2 fixes */
+  .mock-banner[data-kind="live"] { border: 1px solid var(--good-line); background: var(--good-bg); }
+  .mock-banner[data-kind="live"] strong { color: var(--green); }
+  .esc-actions .kicker { margin-right: var(--s1); }
+  .outcomes { display: inline-flex; border: 1px solid var(--border); border-radius: var(--r-pill); overflow: hidden; }
+  .outcome { font: 12px var(--mono); padding: 5px 12px; color: var(--dim); opacity: 0.6; text-decoration: line-through; text-decoration-color: rgba(161, 161, 170, 0.5); }
+  .outcome + .outcome { border-left: 1px solid var(--border); }
+  .outcome[data-on="true"] { color: var(--text); background: var(--selected); opacity: 1; text-decoration: none; font-weight: 600; }
+  .esc-actions .act { margin-left: auto; }
+  .step .badge { min-width: 92px; text-align: center; }
+  .deliveries li { display: grid; grid-template-columns: 7.5em 12em auto; justify-content: start; }
+  .deliveries .status { margin-left: 0; justify-self: start; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .status-dot::before { display: none; animation: none !important; }
+    .chev { transition: none; }
+  }
+  @media (max-width: 960px) {
+    .effect-list { max-height: 40vh; }
+  }
+  @media (max-width: 720px) {
+    .change { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+    .step summary { grid-template-columns: auto minmax(0, 1fr) 16px; }
+    .step-meta { grid-column: 2 / 3; grid-row: 2; }
+    .tile-value { font-size: 28px; }
+    .step-name { white-space: normal; overflow-wrap: anywhere; }
+  }
+  @media (max-width: 480px) {
+    .page { padding-inline: 16px; }
+    .views .view-link { padding: 8px 10px; font-size: 12px; }
+    .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .tile { padding: var(--s3); }
+    .slip { padding-inline: var(--s4); letter-spacing: 0.03em; }
+    .ledger dd { max-width: 55%; }
+    .esc { padding: var(--s3) var(--s4); }
+    .act { flex: 1 1 auto; }
+    .replay-bar .rail { flex: 1 1 100%; order: 3; }
+    .replay-bar .clock { margin-left: auto; }
+    .effect-list { max-height: 280px; }
+    .esc-actions .act { margin-left: 0; flex: 1 1 100%; }
+    .deliveries li { grid-template-columns: 7.5em minmax(0, 1fr); }
+    .deliveries .status { grid-column: 2; }
+    .label .t { white-space: normal; line-height: 1.2; }
+    .trace-head { flex-wrap: wrap; }
+    .count { white-space: normal; }
+  }
+  @media (max-width: 720px) { .audit-top { flex-direction: column; gap: 0; } }
 </style>
 </head>
 <body>
 <div class="blobs" aria-hidden="true"><div class="blob a"></div><div class="blob b"></div><div class="blob c"></div></div>
 <div class="grain" aria-hidden="true"></div>
 
-<main class="page" id="app">
-  <header>
+<a class="skip" href="#content">Skip to content</a>
+
+<div class="page" id="app">
+  <header class="top">
     <svg width="40" height="40" viewBox="0 0 100 100" aria-hidden="true">
       <rect x="1" y="1" width="98" height="98" rx="24" fill="#0A0A0B" stroke="#3F3F46" stroke-width="2"/>
       <circle cx="62" cy="50" r="22" fill="none" stroke="#10B981" stroke-width="7"/>
@@ -146,12 +395,35 @@
       <path d="M 57.8 71.6 A 22 22 0 0 1 43.98 62.62" fill="none" stroke="#0A0A0B" stroke-width="13"/>
       <path d="M 57.8 71.6 A 22 22 0 0 1 43.98 62.62" fill="none" stroke="#10B981" stroke-width="7"/>
     </svg>
-    <div>
-      <h1>Interlock journal replay</h1>
-      <p class="sub">What the commit gate wrote, step by step, for each injected fault.</p>
+    <div class="top-title">
+      <h1>Interlock</h1>
+      <p class="sub" id="view-sub">What the commit gate wrote, step by step.</p>
+    </div>
+    <div class="source" id="source" role="group" aria-label="Data source">
+      <button type="button" class="src" data-src="live" aria-pressed="true"><span class="status-dot" aria-hidden="true"></span>Live Stripe run</button>
+      <span class="source-sep" aria-hidden="true"></span>
+      <button type="button" class="src src-mock" data-src="mock" aria-pressed="false">Mock</button>
     </div>
   </header>
 
+  <nav class="glass views" aria-label="Views">
+    <a href="#inbox" class="view-link" data-view="inbox" aria-current="page">Reviewer inbox <span class="count-badge" id="open-count"></span></a>
+    <a href="#receipt" class="view-link" data-view="receipt">Receipt</a>
+    <a href="#escalations" class="view-link" data-view="escalations">Escalation history</a>
+    <a href="#journal" class="view-link" data-view="journal">Journal</a>
+    <a href="#scoreboard" class="view-link" data-view="scoreboard">Scoreboard</a>
+    <a href="#replay" class="view-link" data-view="replay">Fault replay <span class="mock-tag">SIMULATED</span></a>
+  </nav>
+
+  <div class="mock-banner" id="mock-banner" role="note" hidden>
+    <strong id="banner-label">MOCK</strong><span id="mock-text"></span>
+  </div>
+
+  <div class="provenance sub" id="provenance"></div>
+
+  <main id="content" tabindex="-1">
+    <section id="view-replay" aria-labelledby="h-replay">
+      <h2 id="h-replay" class="sr-only" tabindex="-1">Fault replay</h2>
   <div class="layout">
     <nav class="glass faults" aria-label="Faults">
       <div class="kicker">Fault</div>
@@ -213,15 +485,51 @@
       <p class="sub note">Order, reasons and outcomes come from the gate's real journal (<code>python3 viewer/build.py</code>). Durations are paced for reading, not measured.</p>
     </section>
   </div>
-</main>
+    </section>
+
+    <section id="view-inbox" hidden aria-labelledby="h-inbox">
+      <div id="inbox-missing" hidden></div>
+      <div class="view-stack" id="inbox-body">
+        <div class="toolbar">
+          <div>
+            <div class="kicker">Reviewer inbox <span class="mock-tag" id="inbox-mock" hidden>MOCK</span></div>
+            <h2 id="h-inbox" tabindex="-1">Open escalations at <time id="inbox-clock"></time></h2>
+            <p class="sub">Read-only replay of decisions already recorded in the journal. The controls move the replay clock; nothing here approves anything or calls a server.</p>
+          </div>
+          <div class="glass tiers" id="inbox-groups" role="group" aria-label="Group"></div>
+        </div>
+        <div class="glass trace replay-bar">
+          <div class="transport">
+            <button class="play" id="inbox-play" type="button" aria-label="Play replay"></button>
+            <button class="btn-ghost" id="inbox-next" type="button">Next decision</button>
+            <div class="rail" id="inbox-rail" role="slider" tabindex="0" aria-label="Replay clock" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0">
+              <div class="bg"><div class="fg"></div></div><span class="knob"></span>
+            </div>
+            <span class="clock" id="inbox-tally"></span>
+          </div>
+        </div>
+        <ol class="esc-list" id="esc-list" aria-label="Open escalations"></ol>
+        <p class="empty sub" id="inbox-empty" tabindex="-1" hidden>Nothing open at this point in the run.</p>
+      </div>
+    </section>
+
+    <section id="view-receipt" hidden aria-labelledby="h-receipt"></section>
+    <section id="view-escalations" hidden aria-labelledby="h-esc"></section>
+    <section id="view-journal" hidden aria-labelledby="h-journal"></section>
+    <section id="view-scoreboard" hidden aria-labelledby="h-score"></section>
+  </main>
+
+  <p class="sr-only" id="announce" aria-live="polite" aria-atomic="true"></p>
+</div>
 
 <script src="traces.js"></script>
+<script src="escalations.js"></script>
 <script>
 (() => {
   const D = window.INTERLOCK_TRACES;
   if (!D) {
-    document.getElementById("app").outerHTML =
-      '<div class="glass missing"><h1>No trace data yet</h1><p class="sub">Run <code>python3 viewer/build.py</code> from the repo root, then reload this page.</p></div>';
+    document.getElementById("view-replay").innerHTML =
+      '<div class="glass missing"><h2>No trace data yet</h2><p class="sub">Run <code>python3 viewer/build.py</code> from the repo root, then reload this page.</p></div>';
     return;
   }
 
@@ -313,7 +621,9 @@
   const faults = Object.keys(D.faults);
   let fault = faults.includes("refund_during_outage") ? "refund_during_outage" : faults[0];
   let tier = 2, cell = null, rows = [], rowEls = [], total = 1, t = 0, playing = false, raf = 0, last = 0;
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const still = new URLSearchParams(location.search).has("still");
+  if (still) document.documentElement.classList.add("still");
+  const reduce = still || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   $("faults").innerHTML = faults.map((f) =>
     `<button class="fault${NEW.has(f) ? " new" : ""}" type="button" data-f="${esc(f)}" aria-pressed="false">
@@ -402,7 +712,8 @@
     t = Math.min(total, t + dt);
     paint();
     if (t >= total) { setPlaying(false); return; }
-    if (playing) raf = requestAnimationFrame(frame);
+    if (playing && $("view-replay").hidden) setPlaying(false);
+    else if (playing) raf = requestAnimationFrame(frame);
   }
 
   function setPlaying(on) {
@@ -448,12 +759,611 @@
     $("fault-desc").textContent = D.faults[f];
     setPlaying(false);
     load();
-    t = reduce ? total : 0;
+    const onReplay = /^#replay/.test(location.hash);
+    t = reduce || !onReplay ? total : 0;
     paint();
-    if (!reduce) setPlaying(true);
+    if (!reduce && onReplay) setPlaying(true);
   }
 
   select(fault, tier);
+})();
+</script>
+<script>
+(() => {
+  // Everything below renders window.INTERLOCK_ESCALATIONS, written by viewer/build.py from real journals.
+  const X = window.INTERLOCK_ESCALATIONS;
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const VIEWS = { replay: "Fault replay", inbox: "Reviewer inbox", receipt: "Receipt", escalations: "Escalation history", journal: "Journal", scoreboard: "Scoreboard" };
+  const SUB = {
+    replay: "What the commit gate wrote, step by step, for each injected fault.",
+    inbox: "Escalations waiting for a person, replayed from the journal.",
+    receipt: "What receipts.verify() proves about one effect.",
+    escalations: "Who each escalation went to, why, and who decided it.",
+    journal: "The raw hash-chained entries, as written.",
+    scoreboard: "How many requests still needed a person, derived from the journal.",
+  };
+  const PICKER = new Set(["receipt", "escalations", "journal"]);
+  const PAST = { approve: "approved", reject: "rejected", repair: "accepted repair" };
+  const FILTERS = [["", "All effects"], ["escalated", "Escalated"], ["policy", "Cleared by policy"], ["repair", "Repairs"], ["confirmed", "Confirmed by Stripe"]];
+  const TONE = { COMMITTED: "good", REFUSED: "bad", ESCALATED: "warn", AMBIGUOUS: "warn", DISPATCHED: "info", DECIDED: "solid" };
+  const VIA = { "retry-idempotent": "safe retry, provider dedupes", "recovery-query": "recovery lookup found it already landed", "recovery-reapply": "lookup: absent, re-sent" };
+  const I = {
+    warn: '<path d="M8 1.8l6.6 11.7H1.4z"/><path d="M8 6.3v3.2M8 11.6v.2"/>',
+    clock: '<circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2.5 1.6"/>',
+    good: '<path d="M3 8.5l3 3 7-7"/>',
+    blocked: '<circle cx="8" cy="8" r="6.5"/><path d="M3.5 12.5l9-9"/>',
+    tool: '<path d="M10.5 1.8a3.2 3.2 0 0 0-3.8 4.1L1.8 10.8l3.4 3.4 4.9-4.9a3.2 3.2 0 0 0 4.1-3.8l-2.1 2.1-2.5-.8-.8-2.5z"/>',
+  };
+  const icon = (k) => `<svg class="ic" viewBox="0 0 16 16" aria-hidden="true">${I[k]}</svg>`;
+  const ARROW = '<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg>';
+  const CHEV = '<svg class="chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>';
+  const PLAY = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5v9l7.5-4.5z"/></svg>';
+  const PAUSE = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 3h2.5v10H4.5zM9 3h2.5v10H9z"/></svg>';
+
+  const state = { view: "replay", src: "live", eid: null, step: 0, group: "", filter: "", timer: 0, focus: false, refocus: null };
+  const S = () => (X && X.sources[state.src]) || null;
+
+  const pad = (n) => String(n).padStart(2, "0");
+  const cap = (s) => String(s ?? "").charAt(0).toUpperCase() + String(s ?? "").slice(1);
+  const words = (s) => String(s ?? "").replace(/_/g, " ");
+  function when(s, at) {
+    if (at == null) return "";
+    if (s.clock === "epoch") return new Date(at * 1000).toISOString().slice(11, 19) + " UTC";
+    const m = Math.floor(at / 60);
+    return `day +${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
+  }
+  function dur(sec) {
+    if (sec == null) return "n/a";
+    sec = Math.max(0, Math.round(sec));
+    if (sec < 60) return `${sec}s`;
+    if (sec < 3600) return `${Math.floor(sec / 60)}m`;
+    return `${Math.floor(sec / 3600)}h ${pad(Math.floor((sec % 3600) / 60))}m`;
+  }
+  function val(s, field, v) {
+    if (typeof v === "number" && /amount|refund/.test(field)) return "$" + (s.cents ? v / 100 : v).toFixed(2);
+    return v == null ? "none" : typeof v === "object" ? JSON.stringify(v) : String(v);
+  }
+  function idHtml(id) {
+    id = String(id ?? "");
+    if (id.includes("/")) return reqHtml(id);
+    if (id.length <= 18) return `<span class="id">${esc(id)}</span>`;
+    return `<span class="id" title="${esc(id)}" aria-hidden="true">${esc(id.slice(0, 8))}...${esc(id.slice(-4))}</span><span class="sr-only">${esc(id)}</span>`;
+  }
+  function reqHtml(id) {
+    id = String(id ?? "");
+    const i = id.indexOf("/");
+    if (i < 0) return esc(id);
+    const rest = id.slice(i + 1), short = rest.length > 12 ? `${rest.slice(0, 8)}...${rest.slice(-4)}` : rest;
+    return `<span class="id" aria-hidden="true" title="${esc(id)}">${esc(id.slice(0, i))}<span class="dim">/${esc(short)}</span></span><span class="sr-only">${esc(id)}</span>`;
+  }
+  // Live journals keep amounts in cents; show a finance reader dollars.
+  const dollars = (s, text) => !s.cents ? String(text) : String(text)
+    .replace(/(\d+) cents/g, (_, n) => "$" + (n / 100).toFixed(2))
+    .replace(/(refunded[\w ]*?): was (\d+), now (\d+)/g, (_, f, a, b) => `${f}: was $${(a / 100).toFixed(2)}, now $${(b / 100).toFixed(2)}`);
+  const shortId = (id) => (String(id).length > 18 ? `${String(id).slice(0, 8)}...${String(id).slice(-4)}` : String(id));
+  const mockTag = () => (S() && S().mock ? '<span class="mock-tag">MOCK</span>' : "");
+  function announce(text) { $("announce").textContent = ""; requestAnimationFrame(() => { $("announce").textContent = text; }); }
+
+  // ---------- routing: #view[/effect_id][?src=mock]
+  function parse() {
+    const [path, query = ""] = location.hash.slice(1).split("?");
+    const [v, eid] = path.split("/");
+    return { view: v in VIEWS ? v : "inbox", eid: eid ? decodeURIComponent(eid) : null,
+             src: new URLSearchParams(query).get("src") === "mock" ? "mock" : "live" };
+  }
+  function href(view, o = {}) {
+    const src = o.src ?? state.src, eid = "eid" in o ? o.eid : state.eid;
+    return `#${view}${eid && PICKER.has(view) ? "/" + encodeURIComponent(eid) : ""}${src === "mock" ? "?src=mock" : ""}`;
+  }
+
+  function route() {
+    const p = parse();
+    const srcChanged = p.src !== state.src;
+    if (srcChanged) { stop(); Object.assign(state, { step: 0, eid: null, filter: "", group: "" }); }
+    state.view = p.view; state.src = p.src;
+    if (p.eid) state.eid = p.eid;
+    const s = S(), replay = state.view === "replay";
+
+    for (const v in VIEWS) $("view-" + v).hidden = v !== state.view;
+    for (const a of document.querySelectorAll(".view-link")) {
+      a.href = href(a.dataset.view);
+      if (a.dataset.view === state.view) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+    }
+    for (const b of document.querySelectorAll(".src")) b.setAttribute("aria-pressed", String(b.dataset.src === state.src));
+    document.title = `Interlock: ${VIEWS[state.view]}`;
+    $("view-sub").textContent = SUB[state.view];
+    $("source").hidden = replay;
+    document.body.dataset.source = replay ? "mock" : state.src;
+    $("mock-banner").hidden = !replay && !s;
+    $("mock-banner").dataset.kind = replay || state.src === "mock" ? "mock" : "live";
+    provenance(s, replay);
+    badge();
+    if (state.view !== "inbox") stop();
+
+    if (state.view === "inbox") renderInbox();
+    else if (PICKER.has(state.view)) renderPicker();
+    else if (state.view === "scoreboard") renderScoreboard();
+
+    if (state.refocus) {
+      const b = $("view-" + state.view).querySelector(`[data-eid="${CSS.escape(state.refocus)}"]`);
+      state.refocus = null;
+      if (b) b.focus();
+    } else if (state.focus) {
+      const h = $("view-" + state.view).querySelector("h2");
+      if (h) h.focus();
+    }
+    state.focus = false;
+    if (srcChanged && !replay) announce(state.src === "mock" ? "Showing Mock data: synthetic approval day, not a Stripe run." : "Showing the live Stripe test-mode run.");
+  }
+
+  function provenance(s, replay) {
+    const el = $("provenance");
+    if (replay) {
+      el.textContent = "";
+      $("banner-label").textContent = "SIMULATED";
+      $("mock-text").textContent = "Fault replay runs the real gate code against a simulated payments API with injected crashes. Not a Stripe run. From experiments/refund_agent.py.";
+      return;
+    }
+    if (!s) { el.textContent = ""; return; }
+    const p = s.provenance;
+    if (s.mock) {
+      $("banner-label").textContent = "MOCK";
+      el.textContent = "";
+      $("mock-text").textContent = `${p.note} From ${p.file} (seed ${p.seed}).`;
+      return;
+    }
+    $("banner-label").textContent = "LIVE";
+    $("mock-text").textContent = `Real Stripe ${p.mode.replace(/^stripe /i, "")} run. Refund ids and webhook deliveries came from Stripe. No mock data in this view.`;
+    el.innerHTML = `PaymentIntent <code>${esc(p.payment_intent)}</code>, run ${esc(p.started.slice(0, 10))} ${esc(p.started.slice(11, 19))} to ${esc(p.finished.slice(11, 19))} UTC, confirmation path ${esc(p.confirmation_path)}. From <code>${esc(p.file)}</code>.<span class="prov-note">${esc(p.note)}</span>`;
+  }
+
+  function emptyHtml(view) {
+    const body = !X
+      ? "No escalation data built yet. Run <code>python3 viewer/build.py</code> from the repo root, then reload."
+      : state.src === "live"
+        ? "No live Stripe run recorded yet. Run <code>python3 experiments/escalation_live.py</code> with a Stripe test key, then <code>python3 viewer/build.py</code>. The Mock button still shows the synthetic day, labeled as mock."
+        : "No mock data built. Run <code>python3 viewer/build.py</code>.";
+    return `<div class="glass empty-state"><div class="kicker">${VIEWS[view]}</div><h2 tabindex="-1">Nothing to show</h2><p class="sub">${body}</p></div>`;
+  }
+
+  // ---------- reviewer inbox
+  const openAt = (s, t, group) => s.escalations.filter((e) => e.at <= t && (e.superseded_at == null || e.superseded_at > t)
+    && (!e.decision || e.decision.at > t) && (!group || e.group === group));
+  function badge() {
+    const s = S();
+    $("open-count").textContent = s && s.events.length ? (openAt(s, s.events[Math.min(state.step, s.events.length - 1)], "").length || "") : "";
+  }
+
+  function renderInbox() {
+    const s = S();
+    $("inbox-body").hidden = !s;
+    $("inbox-missing").hidden = !!s;
+    if (!s) { $("inbox-missing").innerHTML = emptyHtml("inbox"); return; }
+    $("inbox-mock").hidden = !s.mock;
+    const groups = [...new Set(s.escalations.map((e) => e.group))].sort();
+    $("inbox-groups").innerHTML = ["", ...groups].map((g) =>
+      `<button class="tier" type="button" data-group="${esc(g)}" aria-pressed="${g === state.group}">${esc(g || "all groups")}</button>`).join("");
+    $("inbox-play").innerHTML = state.timer ? PAUSE : PLAY;
+    paintInbox();
+  }
+
+  function sla(e, t) {
+    if (e.due == null) return e.breach ? ["bad", "SLA breached, top of chain"] : ["", "No SLA"];
+    if (e.due <= t) return ["bad", "SLA breached"];
+    return [e.due - t < 0.25 * (e.due - e.at) ? "warn" : "", `SLA due in ${dur(e.due - t)}`];
+  }
+
+  function item(s, e, t) {
+    const h = e.hash.slice(0, 8), d = e.decision, [tone, slaText] = sla(e, t);
+    const rec = d && d.decision === "repair" ? d.repair : null;
+    const changes = e.changes && e.changes.length
+      ? `<div class="esc-block"><div class="kicker">What changed</div><dl class="changes">${e.changes.map((c) =>
+          `<div class="change"><dt class="mono">${esc(c.field)}</dt><dd><span class="was mono">${esc(val(s, c.field, c.was))}</span>${ARROW}<span class="sr-only">now</span><span class="now mono">${esc(val(s, c.field, c.now))}</span></dd></div>`).join("")}</dl></div>`
+      : "";
+    const repairs = e.repairs && e.repairs.length
+      ? `<div class="esc-block"><div class="kicker">Suggested repairs</div><div class="repairs" role="group" aria-label="Suggested repairs for ${esc(e.request_id)}">${e.repairs.map((r, i) => {
+          const set = Object.entries(r.set || {});
+          return `<button type="button" class="repair" data-index="${i}" aria-pressed="${!!rec && rec.code === r.code}" aria-describedby="rp-${h}-${i}"><span><span class="mono">${esc(r.code)}</span><span class="set mono">${esc(set.length ? set.map(([k, v]) => `${k} ${val(s, k, v)}`).join(", ") : "same payload, current facts")}</span></span><span class="repair-why" id="rp-${h}-${i}">${esc(r.why)}</span></button>`;
+        }).join("")}</div></div>`
+      : e.reason === "needs_judgment" ? "" : '<div class="esc-block"><div class="kicker">Suggested repairs</div><p class="sub">No safe repair: the facts moved, or nothing fits.</p></div>';
+    const superseded = !d && e.superseded_at != null;
+    // Read-only: the decision already in the journal, not controls. Only the jump button moves the replay clock.
+    const acts = `<span class="kicker">Decision in journal</span><span class="outcomes">${[["approve", "Approve"], ["reject", "Reject"], ["repair", "Repair"]].map(([a, label]) =>
+      `<span class="outcome" data-on="${!!d && d.decision === a}">${label}</span>`).join("")}</span>`
+      + (d ? `<button type="button" class="act" data-hash="${e.hash}">Jump clock to decision</button>` : "");
+    const recorded = d
+      ? `Recorded: ${esc(d.by)} ${PAST[d.decision]}${rec ? " " + esc(rec.code) : ""} at ${esc(when(s, d.at))}.${e.child_effect ? ` Child effect <a href="${href("receipt", { eid: e.child_effect })}">${esc(rec.request_id)}</a>.` : ""}`
+      : superseded ? "Not answered here. A later escalation on this chain replaced it." : "No decision recorded. Still open at the end of the run.";
+    const rule = Array.isArray(e.detail) && e.detail.length ? ` Rule not met: ${esc(dollars(s, e.detail.join(", ")))}.` : "";
+    return `<li><article class="glass esc" aria-labelledby="esc-${h}-t" data-state="${tone === "bad" ? "breached" : "open"}">
+      <header class="esc-head">
+        <span class="status" data-tone="${tone}"><span class="status-dot" aria-hidden="true"></span>${esc(slaText)}</span>
+        <h3 id="esc-${h}-t" class="esc-title mono" tabindex="-1">${reqHtml(e.request_id)} <span class="dim">refund ${esc(e.amount_display)}</span></h3>
+        <span class="chip tag">${esc(words(e.reason))}</span>
+        ${e.breach ? `<span class="chip warn">${icon("clock")}moved after SLA breach</span>` : ""}
+        <span class="route sub">routed to <strong>${esc(e.group)}</strong> (route ${esc(e.route)}, level ${e.level + 1}) · ${esc((e.routed_to || []).join(", "))}</span>
+      </header>
+      <p class="esc-why">${esc(cap(e.why))}.${rule}</p>
+      ${changes}${repairs}
+      <details class="facts"><summary>Facts shown to the reviewer</summary><pre class="json" tabindex="0" aria-label="Facts JSON">${esc(JSON.stringify(e.facts, null, 2))}</pre></details>
+      <footer class="esc-actions">${acts}<span class="recorded sub">${recorded}</span></footer>
+    </article></li>`;
+  }
+
+  function paintInbox() {
+    const s = S();
+    if (!s || !s.events.length) { if (s) { $("esc-list").innerHTML = ""; $("inbox-empty").hidden = false; } return; }
+    const max = s.events.length - 1;
+    state.step = Math.max(0, Math.min(max, state.step));
+    const t = s.events[state.step];
+    const open = openAt(s, t, state.group);
+    const decided = s.escalations.filter((e) => e.decision && e.decision.at <= t && (!state.group || e.group === state.group)).length;
+    $("inbox-clock").textContent = when(s, t);
+    $("inbox-tally").textContent = `${open.length} open, ${decided} decided`;
+    const rail = $("inbox-rail");
+    rail.style.setProperty("--t", max ? (state.step / max).toFixed(4) : "1");
+    rail.setAttribute("aria-valuemax", String(max));
+    rail.setAttribute("aria-valuenow", String(state.step));
+    rail.setAttribute("aria-valuetext", `${when(s, t)}, event ${state.step + 1} of ${max + 1}`);
+    $("esc-list").innerHTML = open.map((e) => item(s, e, t)).join("");
+    $("inbox-empty").hidden = open.length > 0;
+    badge();
+  }
+
+  function describe(s, t) {
+    const parts = [];
+    for (const e of s.escalations) {
+      if (e.at === t) parts.push(`${e.request_id} ${e.breach ? "moved up to" : "escalated to"} ${e.group}`);
+      if (e.decision && e.decision.at === t) parts.push(`${e.decision.by} ${PAST[e.decision.decision]} ${e.request_id}`);
+    }
+    return `${when(s, t)}. ${parts.join(". ")}.`;
+  }
+  function stop() {
+    if (state.timer) clearInterval(state.timer);
+    state.timer = 0;
+    $("inbox-play").innerHTML = PLAY;
+    $("inbox-play").setAttribute("aria-label", "Play replay");
+  }
+  function seek(step, speak) {
+    const s = S();
+    if (!s) return;
+    state.step = step;
+    paintInbox();
+    if (speak) announce(describe(s, s.events[state.step]));
+  }
+
+  $("inbox-play").addEventListener("click", () => {
+    const s = S();
+    if (!s) return;
+    if (state.timer) { stop(); return; }
+    if (state.step >= s.events.length - 1) state.step = 0;
+    $("inbox-play").innerHTML = PAUSE;
+    $("inbox-play").setAttribute("aria-label", "Pause replay");
+    state.timer = setInterval(() => {
+      if (state.step >= s.events.length - 1) { stop(); return; }
+      seek(state.step + 1, true);
+    }, 900);
+  });
+  $("inbox-next").addEventListener("click", () => {
+    const s = S();
+    if (!s) return;
+    stop();
+    const i = s.events.findIndex((t, i) => i > state.step && s.escalations.some((e) => e.decision && e.decision.at === t && (!state.group || e.group === state.group)));
+    if (i < 0) { announce("No later decision in this run."); return; }
+    seek(i, true);
+  });
+  $("inbox-groups").addEventListener("click", (ev) => {
+    const b = ev.target.closest("[data-group]");
+    if (!b) return;
+    state.group = b.dataset.group;
+    for (const x of $("inbox-groups").children) x.setAttribute("aria-pressed", String(x === b));
+    paintInbox();
+  });
+  (() => {
+    const rail = $("inbox-rail");
+    const at = (x) => {
+      const s = S(), r = rail.getBoundingClientRect(), w = r.width - 12;
+      if (s && w > 0) seek(Math.round(Math.max(0, Math.min(1, (x - r.left - 6) / w)) * (s.events.length - 1)), false);
+    };
+    rail.addEventListener("pointerdown", (e) => { rail.setPointerCapture(e.pointerId); stop(); at(e.clientX); });
+    rail.addEventListener("pointermove", (e) => { if (rail.hasPointerCapture(e.pointerId)) at(e.clientX); });
+    rail.addEventListener("pointerup", (e) => { if (rail.hasPointerCapture(e.pointerId)) rail.releasePointerCapture(e.pointerId); });
+    rail.addEventListener("keydown", (e) => {
+      const s = S();
+      if (!s) return;
+      const max = s.events.length - 1;
+      const next = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1, PageUp: 5, PageDown: -5 }[e.key];
+      if (e.key === "Home") seek(0, false);
+      else if (e.key === "End") seek(max, false);
+      else if (next !== undefined) seek(Math.max(0, Math.min(max, state.step + next)), false);
+      else return;
+      e.preventDefault();
+      stop();
+    });
+  })();
+  $("esc-list").addEventListener("click", (ev) => {
+    const s = S();
+    const repair = ev.target.closest(".repair");
+    if (repair) {
+      for (const b of repair.parentElement.children) b.setAttribute("aria-pressed", String(b === repair && b.getAttribute("aria-pressed") !== "true"));
+      return;
+    }
+    const act = ev.target.closest(".act");
+    if (!act || !s) return;
+    if (act.getAttribute("aria-disabled") === "true") { announce(act.title + "."); return; }
+    const e = s.escalations.find((x) => x.hash === act.dataset.hash);
+    const items = [...$("esc-list").children];
+    const idx = items.indexOf(act.closest("li"));
+    stop();
+    state.step = s.events.indexOf(e.decision.at);
+    paintInbox();
+    const d = e.decision;
+    announce(`${when(s, d.at)}. ${d.by} ${PAST[d.decision]}${d.repair ? " " + d.repair.code : ""} on ${e.request_id} in ${e.group}.${d.repair ? ` Child ${d.repair.request_id} created.` : ""}`);
+    const left = $("esc-list").children;
+    const target = left.length ? left[Math.min(Math.max(idx, 0), left.length - 1)].querySelector("h3") : $("inbox-empty");
+    target.focus();
+  });
+
+  // ---------- effect picker views: receipt, escalation history, journal
+  function pick(s) {
+    let e = s.effects.find((x) => x.effect_id === state.eid);
+    if (!e) {
+      e = s.effects.find((x) => x.category.includes("repair") && x.category.includes("escalated") && !x.repair_of)
+        || s.effects.find((x) => x.category.includes("escalated")) || s.effects[0];
+      state.eid = e ? e.effect_id : null;
+    }
+    return e;
+  }
+
+  function renderPicker() {
+    const s = S(), sec = $("view-" + state.view);
+    if (!s || !s.effects.length) { sec.innerHTML = emptyHtml(state.view); return; }
+    const cur = pick(s);
+    const list = s.effects.filter((x) => !state.filter || x.category.includes(state.filter));
+    const main = { receipt: receiptHtml, escalations: historyHtml, journal: journalHtml }[state.view](s, cur);
+    sec.innerHTML = `<div class="layout">
+      <nav class="glass faults picker" aria-label="Effects">
+        <div class="kicker">Effect ${mockTag()}<span class="n">${list.length} of ${s.effects.length}</span></div>
+        <label class="filter"><span class="sr-only">Show</span><select data-filter>${FILTERS.map(([v, l]) => `<option value="${v}"${v === state.filter ? " selected" : ""}>${l}</option>`).join("")}</select></label>
+        <div class="effect-list">${list.map((x) =>
+          `<button class="fault" type="button" data-eid="${esc(x.effect_id)}" aria-pressed="${x === cur}"><div class="name">${reqHtml(x.request_id)}<span class="amt">${esc(x.amount_display)}</span></div><div class="desc">${esc(x.summary)}</div></button>`).join("")
+          || '<p class="sub" style="padding:0 12px">No effects match.</p>'}</div>
+      </nav>
+      <div class="main">${main}</div>
+    </div>`;
+    const sel = sec.querySelector('.effect-list [aria-pressed="true"]');
+    if (sel) sel.parentElement.scrollTop = sel.offsetTop - sel.parentElement.offsetTop - 8;
+  }
+
+  const content = $("content");
+  content.addEventListener("click", (ev) => {
+    const b = ev.target.closest("[data-eid]");
+    if (b) { state.refocus = b.dataset.eid; location.hash = href(state.view, { eid: b.dataset.eid }); return; }
+    if (ev.target.closest("#expand-all")) {
+      const all = [...content.querySelectorAll(".steps details")];
+      const open = !all.every((d) => d.open);
+      all.forEach((d) => { d.open = open; });
+      ev.target.closest("#expand-all").textContent = open ? "collapse all" : "expand all";
+    }
+  });
+  content.addEventListener("change", (ev) => {
+    if (!ev.target.matches("select[data-filter]")) return;
+    state.filter = ev.target.value;
+    renderPicker();
+    content.querySelector("select[data-filter]").focus();
+  });
+
+  const WORD = (v) => (v === true ? ["YES", "good"] : v === false ? ["NO", "bad"] : v === "unknown" ? ["UNKNOWN", "warn"] : v === "pending" ? ["PENDING", "warn"] : null);
+  const row = (dt, dd, tone = "", cls = "") => `<div${cls ? ` class="${cls}"` : ""}><dt>${dt}</dt><span class="lead" aria-hidden="true"></span><dd${tone ? ` data-tone="${tone}"` : ""}>${dd}</dd></div>`;
+  const yn = (dt, v, na) => { const w = WORD(v); return w ? row(dt, w[0], w[1]) : row(dt, esc(na)); };
+  const effectById = (s, id) => s.effects.find((x) => x.effect_id === id);
+
+  function barcode(hash) {
+    let x = 0, rects = "";
+    for (const ch of hash) {
+      const n = parseInt(ch, 16), w = 1 + (n % 3);
+      rects += `<rect x="${x}" y="0" width="${w}" height="44"/>`;
+      x += w + 1 + ((n >> 2) % 2);
+    }
+    return `<figure class="barcode"><svg viewBox="0 0 ${x} 44" preserveAspectRatio="none" role="img" aria-label="Hash chain head ${hash}">${rects}</svg><figcaption class="mono">HEAD ${hash.slice(0, 12)}</figcaption></figure>`;
+  }
+
+  function receiptHtml(s, e) {
+    const r = e.receipt;
+    const lease = ([...e.entries].reverse().find((x) => x.kind === "DISPATCHED") || {}).lease;
+    const conf = r.confirmation[r.confirmation.length - 1];
+    const approved = r.approved_by ? `${r.approved_by}${lease && lease.group ? ` (${lease.group})` : ""}` : r.happened === true ? "POLICY" : "N/A, NOTHING SENT";
+    const head = [
+      row("EFFECT", idHtml(e.effect_id)), row("REQUEST", idHtml(e.request_id)), row("REFUND", esc(e.amount_display)),
+      e.payment_intent ? row("PAYMENT", idHtml(e.payment_intent)) : "",
+      e.repair_of ? row("REPAIR OF", `<a href="${href("receipt", { eid: e.repair_of })}">${esc(e.repair_of_request)}</a>`) : "",
+      e.repaired_by ? row("CLOSED BY REPAIR", `<a href="${href("receipt", { eid: e.repaired_by })}">${esc(e.repaired_by_request)}</a>`) : "",
+    ].join("");
+    let confirm = yn("CONFIRMED BY STRIPE", r.confirmed_by_target, s.mock ? "N/A, NOT IN MOCK" : "NO STRIPE EVENT YET");
+    if (conf) {
+      confirm += row("EVENT", idHtml(conf.event), "", "sub-row") + row("REFUND ID", idHtml(conf.refund), "", "sub-row")
+        + row("VIA", conf.via === "webhook" ? "SIGNED WEBHOOK" : conf.via === "lookup" ? "LOOKUP" : esc(conf.via), "", "sub-row");
+    } else if (r.happened === true && r.evidence && r.evidence.refund) {
+      confirm += row("EVIDENCE", idHtml(r.evidence.refund), "", "sub-row");
+    }
+    const refused = r.refused ? row("REFUSED", esc([].concat(r.refused).join(", ")), "bad") : "";
+    const problems = r.problems.length ? `<ul class="problems">${r.problems.map((p) => `<li>PROBLEM: ${esc(p)}</li>`).join("")}</ul>` : "";
+    return `<div class="toolbar"><div><div class="kicker">Receipt ${mockTag()}</div><h2 id="h-receipt" tabindex="-1">${reqHtml(e.request_id)}</h2>
+        <p class="sub">${esc(e.summary)}</p></div></div>
+      <div class="slip-wrap"><article class="slip" aria-labelledby="slip-t">
+        <header class="slip-head">
+          <p class="slip-merchant">INTERLOCK</p>
+          <p class="slip-note">COMMIT GATE RECEIPT</p>
+          ${s.mock ? '<p class="slip-stamp">MOCK</p>' : ""}
+        </header>
+        <hr class="slip-rule">
+        <dl class="ledger small">${head}</dl>
+        <hr class="slip-rule">
+        <h3 id="slip-t" class="slip-title">RECEIPT</h3>
+        <dl class="ledger">
+          ${e.repaired_by && r.happened === false ? row("HAPPENED", "NO, CLOSED BY REPAIR") : yn("HAPPENED", r.happened, "N/A")}
+          ${yn("HAPPENED ONCE", r.happened_once, "N/A")}
+          ${yn("AUTHORIZED WHEN FIRED", r.authorized_when_fired, "N/A, NOTHING FIRED")}
+          ${yn("ASSUMPTIONS HELD", r.assumptions_held, "N/A, NOTHING FIRED")}
+          ${refused}
+          ${row("APPROVED BY", esc(approved))}
+          ${yn("APPROVAL VERIFIED", r.approval_verified, "N/A, NOT ESCALATED")}
+          ${row("ESCALATIONS", String(r.escalations.length))}
+          ${confirm}
+        </dl>
+        <hr class="slip-rule heavy">
+        <dl class="ledger total">
+          ${yn("RECEIPT VALID", r.valid, "N/A")}
+          ${yn("HASH CHAIN INTACT", r.tamper_evident, "N/A")}
+          ${r.signed == null ? row("SIGNED", "NO (UNSIGNED)") : yn("SIGNED", r.signed, "N/A")}
+        </dl>
+        ${problems}
+        ${barcode(e.head)}
+        <p class="slip-foot">DERIVED BY RECEIPTS.VERIFY() FROM ${e.entries.length} JOURNAL ENTRIES</p>
+      </article></div>
+      ${r.signed == null ? '<p class="sub slip-caption">Unsigned: this proves the chain is internally consistent, not that the journal was never rebuilt.</p>' : ""}`;
+  }
+
+  function auditRow({ tone, ic, title, time, datetime, desc, actor, tags }) {
+    return `<li class="audit-row">
+      <span class="audit-icon" data-tone="${tone}" aria-hidden="true">${icon(ic)}</span>
+      <div class="audit-body">
+        <div class="audit-top"><h3 class="audit-title">${title}</h3><time class="audit-time mono"${datetime ? ` datetime="${datetime}"` : ""}>${esc(time)}</time></div>
+        ${desc ? `<p class="audit-desc">${desc}</p>` : ""}
+        <div class="audit-tags"><span class="audit-actor">${esc(actor)}</span>${tags.join("")}</div>
+      </div></li>`;
+  }
+
+  function historyHtml(s, e) {
+    const chain = [e, e.repaired_by && effectById(s, e.repaired_by)].filter(Boolean);
+    const iso = (at) => (s.clock === "epoch" ? new Date(at * 1000).toISOString() : "");
+    let rows = "";
+    chain.forEach((fx, n) => {
+      const flat = s.escalations.filter((x) => x.effect_id === fx.effect_id);
+      if (n > 0) rows += `<li class="audit-split kicker">Repair child <a href="${href("escalations", { eid: fx.effect_id })}">${esc(fx.request_id)}</a></li>`;
+      fx.receipt.escalations.forEach((v, i) => {
+        const f = flat[i] || {};
+        const changed = (v.changes || []).map((c) => `${esc(c.field)} was ${esc(val(s, c.field, c.was))}, now ${esc(val(s, c.field, c.now))}.`).join(" ");
+        const rule = Array.isArray(f.detail) && f.detail.length ? `Rule not met: ${esc(dollars(s, f.detail.join(", ")))}.` : "";
+        rows += auditRow({
+          tone: "warn", ic: v.breach ? "clock" : "warn",
+          title: esc(`${v.breach ? "Moved up after SLA breach" : "Escalated"}: ${f.why || X.why[v.reason] || words(v.reason)}`),
+          time: when(s, v.at), datetime: iso(v.at),
+          desc: [changed, rule, v.repairs ? `${v.repairs} repair${v.repairs > 1 ? "s" : ""} suggested.` : ""].filter(Boolean).join(" "),
+          actor: "interlock",
+          tags: [`<span class="chip tag">${esc(words(v.reason))}</span>`, `<span class="chip tag">${esc(v.group)}, level ${v.level + 1}</span>`,
+                 `<span class="chip tag">to ${esc((v.routed_to || []).join(", "))}</span>`,
+                 v.breach ? `<span class="chip warn"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 2.5v4.5M6 9.3v.2"/></svg>SLA breach</span>` : ""],
+        });
+        const d = v.decision;
+        if (!d) return;
+        const rep = f.decision && f.decision.repair;
+        rows += auditRow({
+          tone: d.decision === "approve" ? "good" : d.decision === "reject" ? "bad" : "",
+          ic: d.decision === "approve" ? "good" : d.decision === "reject" ? "blocked" : "tool",
+          title: esc(d.decision === "repair" ? `Accepted repair ${rep ? rep.code : ""}` : cap(PAST[d.decision])),
+          time: when(s, d.at), datetime: iso(d.at),
+          desc: `Decided ${esc(dur(d.at - v.at))} after this escalation.${rep && f.child_effect ? ` New request <a href="${href("receipt", { eid: f.child_effect })}">${esc(rep.request_id)}</a>.` : ""}`,
+          actor: d.by,
+          tags: [`<span class="chip tag">${esc(d.decision)}</span>`, `<span class="chip tag">${esc(v.group)}</span>`],
+        });
+      });
+    });
+    const r = e.receipt, w = WORD(r.approval_verified);
+    const parent = e.repair_of ? ` Repair of <a href="${href("escalations", { eid: e.repair_of })}">${esc(e.repair_of_request)}</a>.` : "";
+    const body = rows
+      ? `<ol class="glass audit" aria-label="Escalations and decisions">${rows}</ol>`
+      : `<div class="glass empty-state"><p class="sub" style="margin:0">Never escalated. Cleared by policy. <a href="${href("receipt")}">See the receipt</a>.</p></div>`;
+    return `<div class="toolbar"><div><div class="kicker">Escalation history ${mockTag()}</div><h2 id="h-esc" tabindex="-1">${reqHtml(e.request_id)}</h2>
+      <p class="sub">Approval verified: ${w ? `<strong data-tone="${w[1]}">${w[0]}</strong>` : "<strong>N/A, not escalated</strong>"}.${parent} Rows are what receipts.verify() checked.</p></div></div>${body}`;
+  }
+
+  function line(s, x) {
+    const lease = x.lease || {};
+    switch (x.kind) {
+      case "PROPOSED": return `${x.agent} proposes ${val(s, "amount", (x.effect || {}).amount)}, ${x.lease ? (lease.by === "policy" ? "under policy" : `under ${lease.by}'s approval`) : "waiting for a person"}`;
+      case "AUTHORIZED": return lease.by === "policy" ? "authorized by the rules" : `authorized: ${lease.by} (${lease.group})`;
+      case "DISPATCHED": return `intent on disk before the call, lease ${lease.by}`;
+      case "COMMITTED": return x.via ? VIA[x.via] || x.via : `ack recorded${x.result && x.result.refund ? ", " + shortId(x.result.refund) : ""}`;
+      case "REFUSED": return dollars(s, `${x.code ? words(x.code) + ": " : ""}${[].concat(x.reason || []).join(", ")}`);
+      case "ESCALATED": return `${words(x.reason)} to ${x.group}, level ${x.level + 1}${x.breach ? ", SLA breach" : ""}`;
+      case "DECIDED": return `${x.by} ${PAST[x.decision]}${x.repair ? " " + x.repair.code : ""}`;
+      case "CONFIRMED": return `Stripe: ${x.status}, ${shortId(x.refund)}, via ${x.via}`;
+      case "AMBIGUOUS": return x.reason ? words([].concat(x.reason).join(", ")) : "no dedup, no lookup: refuse to guess";
+    }
+    return "";
+  }
+
+  function journalHtml(s, e) {
+    const t0 = e.entries[0].ts;
+    const items = e.entries.map((x, i) => {
+      const tone = x.kind === "CONFIRMED" ? (x.status === "succeeded" ? "good" : ["failed", "canceled"].includes(x.status) ? "bad" : "warn") : TONE[x.kind] || "";
+      const time = x.at != null ? when(s, x.at) : `+${(x.ts - t0).toFixed(2)}s`;
+      return `<li><details class="glass step">
+        <summary><span class="badge" data-tone="${tone}">${esc(x.kind)}</span><span class="step-name">${esc(line(s, x))}</span>
+          <span class="step-meta mono"><time>${esc(time)}</time><span class="hash">#${esc((x.hash || "").slice(0, 8))}</span></span>${CHEV}</summary>
+        <div class="step-log"><pre class="json" tabindex="0" aria-label="Raw entry ${i + 1} JSON">${esc(JSON.stringify(x, null, 2))}</pre></div>
+      </details></li>`;
+    }).join("");
+    return `<div class="toolbar"><div><div class="kicker">Journal ${mockTag()}</div><h2 id="h-journal" tabindex="-1">${esc(e.effect_id)}</h2>
+        <p class="sub">${e.entries.length} entries for ${reqHtml(e.request_id)}, hash chained. Raw entries as written. ${s.mock ? "Day +h:mm" : "UTC"} times are the workflow clock; +s is seconds after the first entry.</p></div>
+      <div class="glass tiers" role="group" aria-label="Expand"><button class="tier" type="button" id="expand-all">expand all</button></div></div>
+      <ol class="steps" aria-label="Journal entries">${items}</ol>`;
+  }
+
+  // ---------- scoreboard
+  function renderScoreboard() {
+    const s = S(), sec = $("view-scoreboard");
+    if (!s) { sec.innerHTML = emptyHtml("scoreboard"); return; }
+    const b = s.scoreboard, t = b.time_to_decision, few = b.requests < 10;
+    const clock = s.mock ? "on the synthetic day's clock" : "on the run's injected clock";
+    const tiles = [
+      ["Requests", b.requests, "unique requests, repairs not counted"],
+      ["Cleared with no person", `${Math.round(b.no_person_share * 100)}%`,
+        `${b.cleared_no_person} of ${b.requests} requests${!b.cleared_no_person ? "" : b.cleared_verified === b.cleared_no_person ? ", every receipt verifies" : `, ${b.cleared_verified} of ${b.cleared_no_person} receipts verify`}.${few ? " Too few requests to compare to the goal." : ""}`,
+        few ? null : b.no_person_share >= 2 / 3 ? ["good", "At goal"] : ["warn", "Below goal"]],
+      ["Sent after a person approved", b.sent_after_person, `${b.escalated} escalated, ${b.rejected} rejected, ${b.open} still open`],
+      ["Stale approvals caught", b.stale_approvals_caught, "approved, then facts changed before the send"],
+      ["Crash cases to a person", b.crash_to_person, "ambiguous or stale at recovery"],
+      ["Repairs accepted", b.repairs_accepted, `of ${b.repairs_suggested} suggested. Accepting a same-payload repair is recorded as an approve.`],
+      ["SLA breaches", b.sla_breaches, "moved up a chain or breached at the top", b.sla_breaches ? ["warn", "Breached"] : null],
+      ["Confirmed by Stripe", s.mock ? "n/a" : b.confirmed_by_target, s.mock ? "mock has no Stripe" : `of ${b.sent_after_person + b.cleared_no_person} sends`],
+      ["Time to decision, median", dur(t.median), `${t.n} decisions, ${clock}`],
+      ["Time to decision, p90", dur(t.p90), `max ${dur(t.max)}`],
+    ];
+    const reasons = Object.entries(b.escalated_by_reason).map(([k, v]) => `${words(k)} ${v}`).join(", ") || "none";
+    const p = s.provenance;
+    const deliveries = s.mock ? "" : `<div class="glass card"><div class="kicker">Stripe webhook deliveries</div>
+      <p class="sub note">Forwarded by <code>stripe listen</code>, checked by <code>confirm.confirm_event</code> against the raw body and Stripe-Signature header.</p>
+      <ul class="deliveries">${p.deliveries.map((d) => {
+        const st = d.status, tone = st === "CONFIRMED" ? "good" : st.startsWith("IGNORED") || st.startsWith("DUPLICATE") ? "" : "warn";
+        const said = st.toLowerCase().replace(":", ", ").replace(/^duplicate_ignored$/, "duplicate, ignored").replace(/_/g, " ");
+        return `<li><span class="dim">${esc(d.at.slice(11, 19))} UTC</span><span>${esc(d.type)}</span><span class="status" data-tone="${tone}" title="${esc(st)}">${esc(said)}</span></li>`;
+      }).join("")}</ul></div>`;
+    sec.innerHTML = `<div class="view-stack">
+      <div class="toolbar"><div>
+        <div class="kicker">Approvals scoreboard ${mockTag()}</div>
+        <h2 id="h-score" tabindex="-1">Derived from the journal</h2>
+        <p class="sub">${esc(X.goal)}</p>
+      </div></div>
+      <ul class="tiles" aria-label="Scoreboard">${tiles.map(([label, value, note, pill], i) => `<li class="glass tile">
+        <p class="tile-label" id="t-${i}">${esc(label)}</p>
+        <p class="tile-value" aria-describedby="t-${i}-d">${esc(value)}</p>
+        <p class="tile-note" id="t-${i}-d">${esc(note)}${pill ? ` <span class="status" data-tone="${pill[0]}"><span class="status-dot" aria-hidden="true"></span>${pill[1]}</span>` : ""}</p>
+      </li>`).join("")}</ul>
+      <p class="sub note">Escalations by reason, first time only: ${esc(reasons)}. Computed by <code>interlock/scoreboard.py</code> over ${s.entries} journal entries.${s.mock ? "" : " This run shows the flow end to end; it does not measure how many approvals are removed."}</p>
+      ${deliveries}
+    </div>`;
+  }
+
+  // ---------- wiring
+  for (const a of document.querySelectorAll(".view-link")) a.addEventListener("click", () => { state.focus = true; });
+  for (const b of document.querySelectorAll(".src")) b.addEventListener("click", () => {
+    if (b.dataset.src !== state.src) location.hash = href(state.view, { src: b.dataset.src, eid: null });
+  });
+  addEventListener("hashchange", route);
+  route();
 })();
 </script>
 </body>
