@@ -1,19 +1,13 @@
-.git
-.github
-.env
-.env.*
-**/.env
-**/.env.*
-.interlock
+# Allowlist: the image gets only what demo/serve.py imports or serves. Everything else in the checkout (local data
+# such as runtime/.data, tool caches, deploy metadata, results, site images, .env files) stays out of the image.
+*
+!backend
+!demo
+!experiments
+!interlock
 **/__pycache__
 **/*.pyc
-.venv
-build
-*.egg-info
-handoff
-.team
-third_party
-site/img
-site/media
-results/**/*.json
-results/**/*.jsonl
+**/.DS_Store
+**/.env
+**/.env.*
+**/.interlock

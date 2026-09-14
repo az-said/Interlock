@@ -198,11 +198,13 @@ def visitor(ip):
 
 class Limiter:
     """Starts of runs: at most per_hour per visitor (see visitor()) in any 60 minutes, at most per_ip_day per visitor
-    in one UTC day, and at most per_day across all visitors in one UTC day (None: no such cap). clock is injectable.
-    A start that raises (bad request, busy) gives its slot back. In memory: a restart resets the counts, and each
-    replica counts on its own."""
-    def __init__(self, kind, per_hour, per_day=None, clock=time.time, per_ip_day=None):
+    in one UTC day, at most all_hour across all visitors in any 60 minutes (so a few visitors cannot spend the whole
+    day's budget at once), and at most per_day across all visitors in one UTC day (None: no such cap). clock is
+    injectable. A start that raises (bad request, busy) gives its slot back. In memory: a restart resets the counts,
+    and each replica counts on its own."""
+    def __init__(self, kind, per_hour, per_day=None, clock=time.time, per_ip_day=None, all_hour=None):
         self.kind, self.per_hour, self.per_day, self.per_ip_day, self.clock = kind, per_hour, per_day, per_ip_day, clock
+        self.all_hour = all_hour
         self.recent, self.day, self.lock = {}, [None, 0], threading.Lock()
 
     @contextlib.contextmanager
@@ -223,6 +225,9 @@ class Limiter:
             if self.per_ip_day is not None and sum(t >= day * 86400 for t in mine) >= self.per_ip_day:
                 raise Limited(f"Limit reached: {self.per_ip_day} {self.kind} runs per visitor per day (UTC). "
                               f"Try again tomorrow.{mock_ok}")
+            if self.all_hour is not None and sum(t > now - 3600 for ts in self.recent.values() for t in ts) >= self.all_hour:
+                raise Limited(f"This demo has started its {self.all_hour} {self.kind} runs for this hour. "
+                              f"Try again later.{mock_ok}")
             if self.per_day is not None and self.day[1] >= self.per_day:
                 raise Limited(f"This demo has used its {self.per_day} {self.kind} runs for today (UTC). "
                               f"Try again tomorrow.{mock_ok}")
@@ -255,9 +260,34 @@ def public_settings(env, clock=time.time):
         return value
     return types.SimpleNamespace(
         hosts=hosts, hops=number("INTERLOCK_TRUSTED_PROXY_HOPS", 0), port=number("INTERLOCK_API_PORT", number("PORT", 8787)),
+        connections=max(1, number("INTERLOCK_MAX_CONNECTIONS", 64)),
         live=Limiter("live", number("INTERLOCK_LIVE_PER_IP_HOUR", 3), number("INTERLOCK_LIVE_PER_DAY", 40), clock,
-                     number("INTERLOCK_LIVE_PER_IP_DAY", 6)),
-        mock=Limiter("mock", number("INTERLOCK_MOCK_PER_IP_HOUR", 30), None, clock))
+                     number("INTERLOCK_LIVE_PER_IP_DAY", 6), number("INTERLOCK_LIVE_PER_HOUR", 10)),
+        mock=Limiter("mock", number("INTERLOCK_MOCK_PER_IP_HOUR", 30), None, clock,
+                     all_hour=number("INTERLOCK_MOCK_PER_HOUR", 120)))
+
+
+class BoundedServer(ThreadingHTTPServer):
+    """ThreadingHTTPServer that handles at most `cap` connections at once and closes any connection past that, so idle
+    or slow clients cannot pile up threads. Public mode only."""
+    def __init__(self, address, handler, cap):
+        super().__init__(address, handler)
+        self.slots = threading.BoundedSemaphore(cap)
+
+    def process_request(self, request, client_address):
+        if not self.slots.acquire(blocking=False):
+            return self.shutdown_request(request)
+        try:
+            super().process_request(request, client_address)
+        except BaseException:
+            self.slots.release()
+            raise
+
+    def process_request_thread(self, request, client_address):
+        try:
+            super().process_request_thread(request, client_address)
+        finally:
+            self.slots.release()
 
 
 def host_allowed(host, hosts):
@@ -387,7 +417,7 @@ def main():
     bind = "0.0.0.0" if PUBLIC else "127.0.0.1"
     if PUBLIC:
         Handler.timeout = 30          # a client that stops sending cannot hold a thread
-    server = ThreadingHTTPServer((bind, args.port), Handler)
+    server = BoundedServer((bind, args.port), Handler, PUBLIC.connections) if PUBLIC else ThreadingHTTPServer((bind, args.port), Handler)
     print(f"api on http://{bind}:{args.port} (temporal {UNAVAILABLE or config.TEMPORAL}, data {config.DATA})"
           + (f" public for {', '.join(sorted(PUBLIC.hosts))}" if PUBLIC else ""), flush=True)
     server.serve_forever()

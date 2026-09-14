@@ -58,6 +58,8 @@ class Settings(unittest.TestCase):
         self.assertEqual(api.public_settings({**ENV, "INTERLOCK_LIVE_PER_IP_DAY": "2"}).live.per_ip_day, 2)
         self.assertEqual(api.public_settings({**ENV, "PORT": "8080"}).port, 8080)
         self.assertEqual(api.public_settings({**ENV, "PORT": "8080", "INTERLOCK_API_PORT": "9000"}).port, 9000)
+        self.assertEqual((s.live.all_hour, s.mock.all_hour, s.connections), (10, 120, 64))
+        self.assertEqual(api.public_settings({**ENV, "INTERLOCK_MOCK_PER_HOUR": "5"}).mock.all_hour, 5)
         for bad in ({"INTERLOCK_ALLOWED_HOSTS": " , "}, {"INTERLOCK_TRUSTED_PROXY_HOPS": "-1"},
                     {"INTERLOCK_LIVE_PER_DAY": "lots"}):
             with self.assertRaises(ValueError):
@@ -155,6 +157,22 @@ class Limits(unittest.TestCase):
         with self.assertRaises(api.Limited):
             take(live, "2001:db8::abcd")
         take(live, "2001:db8:0:1::1")
+
+    def test_global_hourly_cap_spreads_the_day(self):
+        clock = Clock(86400 * 20000)
+        for kind, limiter in (("live", api.Limiter("live", 3, 40, clock, per_ip_day=6, all_hour=2)),
+                              ("mock", api.Limiter("mock", 30, None, clock, all_hour=2))):
+            take(limiter, "203.0.113.1")
+            clock.t += 60
+            take(limiter, "203.0.113.2")
+            with self.assertRaises(api.Limited) as e:
+                take(limiter, "203.0.113.3")           # a new visitor, under every per-visitor limit
+            self.assertIn(f"its 2 {kind} runs for this hour", str(e.exception))
+            clock.t += 3600 - 60 + 1                    # the first start is now more than an hour old
+            take(limiter, "203.0.113.3")
+            with self.assertRaises(api.Limited):
+                take(limiter, "203.0.113.4")
+            clock.t += 7200
 
     def test_a_start_that_fails_gives_its_slot_back(self):
         live = api.Limiter("live", 1, 1, Clock())
@@ -271,6 +289,26 @@ class PublicServer(unittest.TestCase):
             demo._column(run, "temporal", None, live=live)
         self.assertEqual((run.events[-1]["text"], run.error), ("This column stopped: RuntimeError", "temporal: RuntimeError"))
 
+    def test_temporal_failure_text_stays_out_of_result_and_retry_events(self):
+        failure = "Anthropic API 400: b'{\"error\":{\"message\":\"internal detail sk_test_notreal\"}}'"
+        state = {"workflow": {"workflow_id": "refund-case-1", "status": "FAILED", "attempts": {}, "result": None,
+                              "failure": failure},
+                 "stripe": {"payment_intent": "pi_1", "refunds": []}, "interlock": None}
+        sc = demo.SCENARIOS["hand_refund_during_outage"]
+        snap = {"decision": None, "attempt": (2, failure), "status": "RUNNING"}
+        stub = types.SimpleNamespace(TEMPORAL=None, wait=lambda coro: (coro.close(), snap)[1])
+
+        def events(public):
+            emitted = []
+            with mock.patch.object(demo, "PUBLIC", public), mock.patch.object(demo.Watch, "follow"):
+                result = demo.result_data(state, sc, "temporal")
+                demo.Watch(stub, {"case_id": "case-1", "mode": "temporal", "workflow_id": "w"},
+                           lambda kind, text, **data: emitted.append({"kind": kind, "text": text, **data})).poll()
+            return json.dumps([result, emitted])
+        self.assertNotIn("internal detail", events(True))
+        self.assertIn(demo.WITHHELD, events(True))
+        self.assertIn("internal detail", events(False))          # public mode off: unchanged
+
 
 class PublicModeOff(unittest.TestCase):
     def test_nothing_public_applies(self):
@@ -305,6 +343,27 @@ class Runs(unittest.TestCase):
         self.assertIn("old5", runs)
         self.assertNotIn("old11", runs)
         self.assertIn("old12", runs)
+
+
+class ConnectionCap(unittest.TestCase):
+    def test_connections_past_the_cap_are_closed(self):
+        server = api.BoundedServer(("127.0.0.1", 0), api.Handler, 1)
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        self.addCleanup(server.server_close)
+        self.addCleanup(server.shutdown)
+
+        def until(check):
+            deadline = time.time() + 10
+            while not check():
+                self.assertLess(time.time(), deadline)
+                time.sleep(0.01)
+        idle = socket.create_connection(("127.0.0.1", server.server_port), timeout=10)
+        idle.sendall(b"GET / HTTP/1.1\r\nHost: h\r\n")         # and stops: holds the one slot
+        until(lambda: server.slots._value == 0)
+        with socket.create_connection(("127.0.0.1", server.server_port), timeout=10) as extra:
+            self.assertEqual(extra.recv(1), b"")                 # closed without an answer
+        idle.close()
+        until(lambda: server.slots._value == 1)                  # the slot comes back when the connection ends
 
 
 class PublicProcess(unittest.TestCase):

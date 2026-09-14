@@ -27,7 +27,10 @@ The image is `python:3.12-slim` with `temporalio==1.32.0` installed and the Temp
 | `INTERLOCK_LIVE_PER_IP_HOUR` | `3` | Live runs one visitor may start in any 60 minutes. |
 | `INTERLOCK_LIVE_PER_IP_DAY` | `6` | Live runs one visitor may start in one UTC day. Keep it well under `INTERLOCK_LIVE_PER_DAY`, so one visitor cannot use up the day. |
 | `INTERLOCK_LIVE_PER_DAY` | `40` | Live runs all visitors together may start in one UTC day. |
+| `INTERLOCK_LIVE_PER_HOUR` | `10` | Live runs all visitors together may start in any 60 minutes, so the daily budget cannot be spent in one burst. |
 | `INTERLOCK_MOCK_PER_IP_HOUR` | `30` | Mock runs one visitor may start in any 60 minutes. No daily cap. |
+| `INTERLOCK_MOCK_PER_HOUR` | `120` | Mock runs all visitors together may start in any 60 minutes. Mock runs share the one-run guard with live runs, so this keeps them from crowding out live runs. |
+| `INTERLOCK_MAX_CONNECTIONS` | `64` | Connections handled at once. A connection past that is closed immediately. |
 | `ANTHROPIC_API_KEY` | none | Needed for live runs. Set it as a platform secret. |
 | `STRIPE_SECRET_KEY` | none | Needed for live runs. Must be a test-mode key (`sk_test_`); anything else is refused. Set it as a platform secret. |
 | `INTERLOCK_TEMPORAL_CLI` | `/opt/temporal/temporal` in the image | Existing Temporal CLI binary for the dev server, so starting never downloads. |
@@ -39,11 +42,12 @@ The image is `python:3.12-slim` with `temporalio==1.32.0` installed and the Temp
 
 - One run at a time across both demos, live or mock. A start while one is going gets HTTP 409: "a run is in progress, try again in about 30 seconds".
 - A visitor is one IPv4 address, or one IPv6 /64 (a single subscriber usually holds a whole /64).
-- Starting a live run counts against the visitor's hourly and daily limits and the global daily limit. Over any of them, HTTP 429 with a message naming the limit. The page shows it in its notice area.
+- Starting a live run counts against the visitor's hourly and daily limits and the global hourly and daily limits. Starting a mock run counts against the visitor's hourly mock limit and the global hourly mock limit. Over any of them, HTTP 429 with a message naming the limit. The page shows it in its notice area.
+- The global caps can be used up on purpose: a handful of addresses (or IPv6 /64s) can take the live runs for an hour, and by repeating that, for the UTC day. Spend stays capped, and mock runs keep working. The global hourly cap spreads the damage out; it does not prevent it.
 - The server keeps the last 50 runs in memory and drops older finished ones; polling a dropped run answers 404.
 - A start that fails (bad request, busy, missing keys) does not use up a slot.
 - Counts live in the server's memory: a restart resets them, and each replica counts on its own. Run one replica so the one-run guard and the daily cap mean what they say.
-- Polling a run and loading pages are not limited. A connection that stops sending is dropped after 30 seconds.
+- Polling a run and loading pages are not limited. A connection that sends nothing for 30 seconds is dropped, and at most `INTERLOCK_MAX_CONNECTIONS` are handled at once. There is no deadline for a whole request, so a client that trickles bytes can hold a connection; run behind an ingress that buffers requests (Azure Container Apps' does).
 
 ## What is public and what stays on the server
 
@@ -64,7 +68,7 @@ Server-side only: `ANTHROPIC_API_KEY`, `STRIPE_SECRET_KEY`, the Temporal dev ser
 
 - `Host` must be in `INTERLOCK_ALLOWED_HOSTS`, else 403 (except `/healthz`).
 - A POST needs `Content-Type: application/json`, and if the browser sends `Origin` it must be `https://` plus that host, else 403.
-- Errors never carry exception text or secrets: an unexpected failure answers `{"error": "internal error"}`, a Stripe failure `{"error": "Stripe test mode returned an error"}`, and a failed column in a run names only the exception type. Details go to the server log.
+- Errors never carry exception text or secrets: an unexpected failure answers `{"error": "internal error"}`, a Stripe failure `{"error": "Stripe test mode returned an error"}`, a failed column in a run names only the exception type, and a failed Temporal workflow or refund attempt shows as "an error (details are in the server log)". Details go to the server log.
 - Every response has `X-Content-Type-Options: nosniff` and `Referrer-Policy: no-referrer`. Pages have a `Content-Security-Policy` of `default-src 'self'`, the page's one inline script allowed by its SHA-256 hash, inline styles allowed, `connect-src 'self'`, `frame-ancestors 'none'`. Links out to the Stripe dashboard and GitHub are ordinary navigation, which CSP does not restrict. JSON responses have `default-src 'none'`.
 
 ## Azure Container Apps
