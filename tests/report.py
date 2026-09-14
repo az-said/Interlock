@@ -346,9 +346,11 @@ def main():
     w("- Goal: cut two thirds of manual agent approvals. Synthetic day (the mix is an assumption, not measured data): "
       "%d of %d requests (%.1f%%) cleared with no person, %d of those with receipts that verify." %
       (cleared, requests, 100.0 * cleared / requests, verified))
-    w("- Bugs found by our own testing and reviews and fixed, each with a test: %d before the escalation build, %d in "
-      "its three adversarial hardening rounds, %d in the merge review." %
-      (before, sum(len(v) for v in ROUNDS.values()), len(MERGE)))
+    fixes = sum(len(v) for v in ROUNDS.values())
+    distinct = fixes - sum(b.startswith("Same root cause") for v in ROUNDS.values() for b in v)
+    w("- Bugs found by our own testing and reviews and fixed, each with a test: %d before the escalation build, %d "
+      "distinct in its three adversarial hardening rounds (%d fixes, some sharing a root cause), %d in the merge review." %
+      (before, distinct, fixes, len(MERGE)))
     w("")
 
     # tests

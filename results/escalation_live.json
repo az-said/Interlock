@@ -1,60 +1,65 @@
 {
-  "started": "2026-09-13T23:10:44+00:00",
-  "finished": "2026-09-13T23:10:53+00:00",
+  "started": "2026-09-14T01:00:10+00:00",
+  "finished": "2026-09-14T01:00:20+00:00",
   "mode": "stripe test mode",
-  "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+  "payment_intent": "pi_3UFOFi88KhIqqdFL1ueAaUx9",
   "refunds": {
-    "hand": "re_3UFMXp88KhIqqdFL0H2qsNzS",
-    "d6e3b0b377a0": "re_3UFMXp88KhIqqdFL00Nz6DsF",
-    "d7980f794e87": "re_3UFMXp88KhIqqdFL0NNT0LCm"
+    "hand": "re_3UFOFi88KhIqqdFL1Qpt3qv8",
+    "2d2c5729e648": "re_3UFOFi88KhIqqdFL1ebviQSB",
+    "e2bc68319d00": "re_3UFOFi88KhIqqdFL1obdhASH"
   },
   "refunded_total_cents": 9500,
   "confirmation": {
     "path": "webhook",
     "webhook_deliveries": [
       {
-        "at": "2026-09-13T23:10:49+00:00",
+        "at": "2026-09-14T01:00:15+00:00",
         "type": "refund.created",
         "status": "IGNORED:unknown_effect"
       },
       {
-        "at": "2026-09-13T23:10:49+00:00",
+        "at": "2026-09-14T01:00:15+00:00",
         "type": "refund.updated",
         "status": "IGNORED:unknown_effect"
       },
       {
-        "at": "2026-09-13T23:10:51+00:00",
+        "at": "2026-09-14T01:00:17+00:00",
         "type": "refund.created",
         "status": "CONFIRMED"
       },
       {
-        "at": "2026-09-13T23:10:51+00:00",
+        "at": "2026-09-14T01:00:18+00:00",
         "type": "refund.updated",
         "status": "DUPLICATE_IGNORED"
       },
       {
-        "at": "2026-09-13T23:10:52+00:00",
+        "at": "2026-09-14T01:00:20+00:00",
         "type": "refund.created",
         "status": "CONFIRMED"
+      },
+      {
+        "at": "2026-09-14T01:00:20+00:00",
+        "type": "refund.updated",
+        "status": "DUPLICATE_IGNORED"
       }
     ]
   },
   "steps": [
     {
       "step": "payment",
-      "at": "2026-09-13T23:10:45+00:00",
-      "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+      "at": "2026-09-14T01:00:11+00:00",
+      "payment_intent": "pi_3UFOFi88KhIqqdFL1ueAaUx9",
       "amount": 10000
     },
     {
       "step": "listener",
-      "at": "2026-09-13T23:10:47+00:00",
+      "at": "2026-09-14T01:00:13+00:00",
       "ready": true
     },
     {
       "step": "request",
-      "at": "2026-09-13T23:10:47+00:00",
-      "request_id": "refund-50/pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+      "at": "2026-09-14T01:00:13+00:00",
+      "request_id": "refund-50/pi_3UFOFi88KhIqqdFL1ueAaUx9",
       "status": "QUEUED",
       "reason": "needs_judgment",
       "detail": [
@@ -64,20 +69,20 @@
     },
     {
       "step": "approved",
-      "at": "2026-09-13T23:10:47+00:00",
+      "at": "2026-09-14T01:00:13+00:00",
       "by": "ana",
       "status": "APPROVED"
     },
     {
       "step": "hand refund",
-      "at": "2026-09-13T23:10:49+00:00",
-      "refund": "re_3UFMXp88KhIqqdFL0H2qsNzS",
+      "at": "2026-09-14T01:00:15+00:00",
+      "refund": "re_3UFOFi88KhIqqdFL1Qpt3qv8",
       "amount": 3000,
       "status": "succeeded"
     },
     {
       "step": "send",
-      "at": "2026-09-13T23:10:49+00:00",
+      "at": "2026-09-14T01:00:16+00:00",
       "status": "REFUSED:stale_premise",
       "reason": "stale_premise",
       "changes": [
@@ -93,23 +98,23 @@
     },
     {
       "step": "repair accepted",
-      "at": "2026-09-13T23:10:50+00:00",
+      "at": "2026-09-14T01:00:17+00:00",
       "by": "ana",
       "repair": "still_fits",
       "status": "COMMITTED"
     },
     {
       "step": "second request",
-      "at": "2026-09-13T23:10:50+00:00",
-      "request_id": "refund-15/pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+      "at": "2026-09-14T01:00:18+00:00",
+      "request_id": "refund-15/pi_3UFOFi88KhIqqdFL1ueAaUx9",
       "status": "QUEUED",
       "group": "ap-leads"
     },
     {
       "step": "sla tick",
-      "at": "2026-09-13T23:10:51+00:00",
+      "at": "2026-09-14T01:00:18+00:00",
       "moved": {
-        "refund-15/pi_3UFMXp88KhIqqdFL0YDJ0sBr": "finance-manager"
+        "refund-15/pi_3UFOFi88KhIqqdFL1ueAaUx9": "finance-manager"
       },
       "group": "finance-manager",
       "level": 1,
@@ -117,59 +122,59 @@
     },
     {
       "step": "ap-leads after breach",
-      "at": "2026-09-13T23:10:51+00:00",
+      "at": "2026-09-14T01:00:18+00:00",
       "by": "ana",
       "status": "REFUSED:lease"
     },
     {
       "step": "approved up the chain",
-      "at": "2026-09-13T23:10:52+00:00",
+      "at": "2026-09-14T01:00:19+00:00",
       "by": "fm",
       "status": "COMMITTED"
     },
     {
       "step": "confirmation",
-      "at": "2026-09-13T23:10:52+00:00",
+      "at": "2026-09-14T01:00:20+00:00",
       "path": "webhook"
     }
   ],
-  "explained": "a fact this action depends on changed since it was decided. Changed: refunded_by_others was 0, now 3000. Suggested, needs rules or a person: 5000 still fits: 7000 of 10000 is left to refund, if the other refund was not this one",
+  "explained": "a fact this action depends on changed since it was decided. Changed: refunded_by_others: was 0, now 3000. Suggested, needs rules or a person: 5000 still fits: 7000 of 10000 is left to refund, if the other refund was not this one",
   "receipts": {
-    "refund-50/pi_3UFMXp88KhIqqdFL0YDJ0sBr": {
-      "effect_id": "d6e3b0b377a0",
+    "refund-50/pi_3UFOFi88KhIqqdFL1ueAaUx9": {
+      "effect_id": "2d2c5729e648",
       "entries": [
         {
-          "ts": 1789341047.490674,
+          "ts": 1789347613.4241972,
           "kind": "PROPOSED",
-          "effect_id": "d6e3b0b377a0",
+          "effect_id": "2d2c5729e648",
           "agent": "inbox",
           "lease": null,
           "premises": {
-            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "payment_intent": "pi_3UFOFi88KhIqqdFL1ueAaUx9",
             "refunded_by_others": 0
           },
           "effect": {
             "amount": 5000
           },
           "request": {
-            "id": "refund-50/pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "id": "refund-50/pi_3UFOFi88KhIqqdFL1ueAaUx9",
             "amount": 5000
           },
           "prev": null,
-          "hash": "12c81c9675940739e01ae9bb16c53893b3d71b469a96f1b038f6796f1bc5fe4d"
+          "hash": "38aa3a3af97499e056adbefdc374c436a9c33541e5aca28ca56003fbe2a34ded"
         },
         {
-          "ts": 1789341047.491254,
+          "ts": 1789347613.425088,
           "kind": "ESCALATED",
-          "effect_id": "d6e3b0b377a0",
-          "at": 1789341044.0,
+          "effect_id": "2d2c5729e648",
+          "at": 1789347610.0,
           "reason": "needs_judgment",
           "why": "a rule asks a person to decide this",
           "detail": [
             "amount at most 1000 cents"
           ],
           "facts": {
-            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "payment_intent": "pi_3UFOFi88KhIqqdFL1ueAaUx9",
             "refunded_by_others": 0
           },
           "changes": [],
@@ -180,69 +185,69 @@
             "ana"
           ],
           "level": 0,
-          "due": 1789355444.0,
+          "due": 1789362010.0,
           "breach": false,
-          "prev": "12c81c9675940739e01ae9bb16c53893b3d71b469a96f1b038f6796f1bc5fe4d",
-          "hash": "c780abb1c68c9ac48884de333d677957d134b1b1f68ed5e048d82a8311f10b70"
+          "prev": "38aa3a3af97499e056adbefdc374c436a9c33541e5aca28ca56003fbe2a34ded",
+          "hash": "670c84c96c5266dc8fd5e46bdb07d22576ec016d0cdcb92e7c37f8a492dc8fe5"
         },
         {
-          "ts": 1789341047.4917881,
+          "ts": 1789347613.426694,
           "kind": "DECIDED",
-          "effect_id": "d6e3b0b377a0",
-          "at": 1789342244.0,
+          "effect_id": "2d2c5729e648",
+          "at": 1789348810.0,
           "by": "ana",
           "decision": "approve",
-          "escalation": "c780abb1c68c9ac48884de333d677957d134b1b1f68ed5e048d82a8311f10b70",
+          "escalation": "670c84c96c5266dc8fd5e46bdb07d22576ec016d0cdcb92e7c37f8a492dc8fe5",
           "group": "ap-leads",
           "members": [
             "ana"
           ],
           "repair": null,
-          "prev": "c780abb1c68c9ac48884de333d677957d134b1b1f68ed5e048d82a8311f10b70",
-          "hash": "c0395a0117b6d05a42d47e6cb98d5206530cad14d36dbd57eebd1c788ca5a418"
+          "prev": "670c84c96c5266dc8fd5e46bdb07d22576ec016d0cdcb92e7c37f8a492dc8fe5",
+          "hash": "42e54d809912e61f5edfcbf91c7aed275cd080b4f433615aabf2e5f19e71be39"
         },
         {
-          "ts": 1789341049.031518,
+          "ts": 1789347615.1698968,
           "kind": "PROPOSED",
-          "effect_id": "d6e3b0b377a0",
+          "effect_id": "2d2c5729e648",
           "agent": "inbox",
           "lease": {
             "by": "ana",
-            "at": 1789342244.0,
+            "at": 1789348810.0,
             "group": "ap-leads",
-            "escalation": "c780abb1c68c9ac48884de333d677957d134b1b1f68ed5e048d82a8311f10b70"
+            "escalation": "670c84c96c5266dc8fd5e46bdb07d22576ec016d0cdcb92e7c37f8a492dc8fe5"
           },
           "premises": {
-            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "payment_intent": "pi_3UFOFi88KhIqqdFL1ueAaUx9",
             "refunded_by_others": 0
           },
           "effect": {
             "amount": 5000
           },
           "request": {
-            "id": "refund-50/pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "id": "refund-50/pi_3UFOFi88KhIqqdFL1ueAaUx9",
             "amount": 5000
           },
-          "prev": "c0395a0117b6d05a42d47e6cb98d5206530cad14d36dbd57eebd1c788ca5a418",
-          "hash": "0df934ad72cc59e0702cabb3091fa4505ca9b3f90a98a2778c2a92470b248d98"
+          "prev": "42e54d809912e61f5edfcbf91c7aed275cd080b4f433615aabf2e5f19e71be39",
+          "hash": "91579434fe53563f9f451428eb6681136462093903e3539664d74eaea9200637"
         },
         {
-          "ts": 1789341049.032058,
+          "ts": 1789347615.1705978,
           "kind": "AUTHORIZED",
-          "effect_id": "d6e3b0b377a0",
+          "effect_id": "2d2c5729e648",
           "lease": {
             "by": "ana",
-            "at": 1789342244.0,
+            "at": 1789348810.0,
             "group": "ap-leads",
-            "escalation": "c780abb1c68c9ac48884de333d677957d134b1b1f68ed5e048d82a8311f10b70"
+            "escalation": "670c84c96c5266dc8fd5e46bdb07d22576ec016d0cdcb92e7c37f8a492dc8fe5"
           },
-          "prev": "0df934ad72cc59e0702cabb3091fa4505ca9b3f90a98a2778c2a92470b248d98",
-          "hash": "9c4541cd20bcbe2d7fc253d95f9c31f3210fde939ab8633a3ae6c4659c7cbe41"
+          "prev": "91579434fe53563f9f451428eb6681136462093903e3539664d74eaea9200637",
+          "hash": "34a3df7afb4f8a44289b3b8cc4b9a7669ee1149f2dde8d68bc20f1a587498d7e"
         },
         {
-          "ts": 1789341049.418665,
+          "ts": 1789347616.18911,
           "kind": "REFUSED",
-          "effect_id": "d6e3b0b377a0",
+          "effect_id": "2d2c5729e648",
           "code": "stale_premise",
           "reason": [
             "refunded by others: was 0, now 3000"
@@ -268,19 +273,19 @@
               "why": "5000 still fits: 7000 of 10000 is left to refund, if the other refund was not this one"
             }
           ],
-          "prev": "9c4541cd20bcbe2d7fc253d95f9c31f3210fde939ab8633a3ae6c4659c7cbe41",
-          "hash": "eec64153476ac080093b3cbdca4431d495ceb4c47f76cf571eeed2d0eda7d77a"
+          "prev": "34a3df7afb4f8a44289b3b8cc4b9a7669ee1149f2dde8d68bc20f1a587498d7e",
+          "hash": "deead99d42a9ee71cca137cf840b35e3e6490b5802dad5917e64169dcf989d49"
         },
         {
-          "ts": 1789341049.6221561,
+          "ts": 1789347616.508138,
           "kind": "ESCALATED",
-          "effect_id": "d6e3b0b377a0",
-          "at": 1789342544.0,
+          "effect_id": "2d2c5729e648",
+          "at": 1789349110.0,
           "reason": "stale_premise",
           "why": "a fact this action depends on changed since it was decided",
           "detail": "REFUSED:stale_premise",
           "facts": {
-            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "payment_intent": "pi_3UFOFi88KhIqqdFL1ueAaUx9",
             "refunded_by_others": 3000
           },
           "changes": [
@@ -303,80 +308,84 @@
             "ana"
           ],
           "level": 0,
-          "due": 1789356944.0,
+          "due": 1789363510.0,
           "breach": false,
-          "prev": "eec64153476ac080093b3cbdca4431d495ceb4c47f76cf571eeed2d0eda7d77a",
-          "hash": "18bb58683b4ebb6af53711cf438bac66a8d3414e47640d11932735a9ee976db3"
+          "prev": "deead99d42a9ee71cca137cf840b35e3e6490b5802dad5917e64169dcf989d49",
+          "hash": "2b1867e15e7e9b065d23f7001b03eb0a924920dc911ac03c5b49f30bff48e053"
         },
         {
-          "ts": 1789341049.6229792,
+          "ts": 1789347616.509932,
           "kind": "DECIDED",
-          "effect_id": "d6e3b0b377a0",
-          "at": 1789343144.0,
+          "effect_id": "2d2c5729e648",
+          "at": 1789349710.0,
           "by": "ana",
           "decision": "approve",
-          "escalation": "18bb58683b4ebb6af53711cf438bac66a8d3414e47640d11932735a9ee976db3",
+          "escalation": "2b1867e15e7e9b065d23f7001b03eb0a924920dc911ac03c5b49f30bff48e053",
           "group": "ap-leads",
           "members": [
             "ana"
           ],
-          "repair": null,
-          "prev": "18bb58683b4ebb6af53711cf438bac66a8d3414e47640d11932735a9ee976db3",
-          "hash": "53b3b8cced9ee3594fd64808ccae52abe13a980301a5389cce72c0c7b1c8766d"
+          "repair": {
+            "code": "still_fits",
+            "set": {},
+            "request_id": "refund-50/pi_3UFOFi88KhIqqdFL1ueAaUx9"
+          },
+          "prev": "2b1867e15e7e9b065d23f7001b03eb0a924920dc911ac03c5b49f30bff48e053",
+          "hash": "19f09b5d6fc090772351d4edef1bfaf2b34cd47aae5e505153200bbb968ebdda"
         },
         {
-          "ts": 1789341049.623392,
+          "ts": 1789347616.510845,
           "kind": "PROPOSED",
-          "effect_id": "d6e3b0b377a0",
+          "effect_id": "2d2c5729e648",
           "agent": "inbox",
           "lease": {
             "by": "ana",
-            "at": 1789343144.0,
+            "at": 1789349710.0,
             "group": "ap-leads",
-            "escalation": "18bb58683b4ebb6af53711cf438bac66a8d3414e47640d11932735a9ee976db3"
+            "escalation": "2b1867e15e7e9b065d23f7001b03eb0a924920dc911ac03c5b49f30bff48e053"
           },
           "premises": {
-            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "payment_intent": "pi_3UFOFi88KhIqqdFL1ueAaUx9",
             "refunded_by_others": 3000
           },
           "effect": {
             "amount": 5000
           },
           "request": {
-            "id": "refund-50/pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "id": "refund-50/pi_3UFOFi88KhIqqdFL1ueAaUx9",
             "amount": 5000
           },
-          "prev": "53b3b8cced9ee3594fd64808ccae52abe13a980301a5389cce72c0c7b1c8766d",
-          "hash": "d0ecb8dfe72a8d30962fcda818b76fac59b63c0d08e43207852ac45c0888221d"
+          "prev": "19f09b5d6fc090772351d4edef1bfaf2b34cd47aae5e505153200bbb968ebdda",
+          "hash": "cc6dc4bac3d86939b9b595a3fabf80f2b6109ad6fdd61f8e569db07c11bc1c9f"
         },
         {
-          "ts": 1789341049.623713,
+          "ts": 1789347616.511316,
           "kind": "AUTHORIZED",
-          "effect_id": "d6e3b0b377a0",
+          "effect_id": "2d2c5729e648",
           "lease": {
             "by": "ana",
-            "at": 1789343144.0,
+            "at": 1789349710.0,
             "group": "ap-leads",
-            "escalation": "18bb58683b4ebb6af53711cf438bac66a8d3414e47640d11932735a9ee976db3"
+            "escalation": "2b1867e15e7e9b065d23f7001b03eb0a924920dc911ac03c5b49f30bff48e053"
           },
-          "prev": "d0ecb8dfe72a8d30962fcda818b76fac59b63c0d08e43207852ac45c0888221d",
-          "hash": "7d21b7f4da01831e2b77d650267465e69f5a7d200015c11b5afa47fa7101699d"
+          "prev": "cc6dc4bac3d86939b9b595a3fabf80f2b6109ad6fdd61f8e569db07c11bc1c9f",
+          "hash": "9a69eb5d1c38274da0841bd0002a22ece2632f8e369a6a5f78a68d3eaee92342"
         },
         {
-          "ts": 1789341049.823545,
+          "ts": 1789347616.833498,
           "kind": "DISPATCHED",
-          "effect_id": "d6e3b0b377a0",
+          "effect_id": "2d2c5729e648",
           "effect": {
             "amount": 5000
           },
           "lease": {
             "by": "ana",
-            "at": 1789343144.0,
+            "at": 1789349710.0,
             "group": "ap-leads",
-            "escalation": "18bb58683b4ebb6af53711cf438bac66a8d3414e47640d11932735a9ee976db3"
+            "escalation": "2b1867e15e7e9b065d23f7001b03eb0a924920dc911ac03c5b49f30bff48e053"
           },
           "premises": {
-            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "payment_intent": "pi_3UFOFi88KhIqqdFL1ueAaUx9",
             "refunded_by_others": 3000
           },
           "checks": {
@@ -384,38 +393,38 @@
             "lease": null,
             "violations": []
           },
-          "prev": "7d21b7f4da01831e2b77d650267465e69f5a7d200015c11b5afa47fa7101699d",
-          "hash": "c3cc654aa79cab52e4f49ca7a245d2291ad93d142a7159cecd8064e3041e015e"
+          "prev": "9a69eb5d1c38274da0841bd0002a22ece2632f8e369a6a5f78a68d3eaee92342",
+          "hash": "9a316be43ef57da783d89ed09295842850550117c49c9192b3ec5afecc62c9ab"
         },
         {
-          "ts": 1789341050.765926,
+          "ts": 1789347617.810132,
           "kind": "COMMITTED",
-          "effect_id": "d6e3b0b377a0",
+          "effect_id": "2d2c5729e648",
           "result": {
             "status": "ok",
-            "refund": "re_3UFMXp88KhIqqdFL00Nz6DsF",
+            "refund": "re_3UFOFi88KhIqqdFL1ebviQSB",
             "amount": 5000
           },
-          "prev": "c3cc654aa79cab52e4f49ca7a245d2291ad93d142a7159cecd8064e3041e015e",
-          "hash": "811997a9a414d021795a32b8e8eb32e53cd7c872e8fc673f6e8cecd604cac42e"
+          "prev": "9a316be43ef57da783d89ed09295842850550117c49c9192b3ec5afecc62c9ab",
+          "hash": "80d5803a96e7f0698ffc6d5639c1d93e53bf92151f5338478450dbde1a6e7d26"
         },
         {
-          "ts": 1789341051.004381,
+          "ts": 1789347617.9621902,
           "kind": "CONFIRMED",
-          "effect_id": "d6e3b0b377a0",
+          "effect_id": "2d2c5729e648",
           "via": "webhook",
-          "event": "evt_3UFMXp88KhIqqdFL0jGtFiSO",
-          "refund": "re_3UFMXp88KhIqqdFL00Nz6DsF",
+          "event": "evt_3UFOFi88KhIqqdFL1TADi8Pi",
+          "refund": "re_3UFOFi88KhIqqdFL1ebviQSB",
           "status": "succeeded",
           "amount": 5000,
-          "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
-          "created": 1789341050,
-          "prev": "811997a9a414d021795a32b8e8eb32e53cd7c872e8fc673f6e8cecd604cac42e",
-          "hash": "c365659b7bdc369cde14a68efedfd76fcdc41eaa7847d5e1ae2117fba240e0dd"
+          "payment_intent": "pi_3UFOFi88KhIqqdFL1ueAaUx9",
+          "created": 1789347617,
+          "prev": "80d5803a96e7f0698ffc6d5639c1d93e53bf92151f5338478450dbde1a6e7d26",
+          "hash": "ef114ed8145ca6b084062ceb56b024b469a90b25e7332edc3fa2ef242a994a34"
         }
       ],
       "summary": {
-        "effect_id": "d6e3b0b377a0",
+        "effect_id": "2d2c5729e648",
         "proposed": true,
         "authorized": true,
         "executed": true,
@@ -423,47 +432,47 @@
         "final": "COMMITTED",
         "authority": {
           "by": "ana",
-          "at": 1789343144.0,
+          "at": 1789349710.0,
           "group": "ap-leads",
-          "escalation": "18bb58683b4ebb6af53711cf438bac66a8d3414e47640d11932735a9ee976db3"
+          "escalation": "2b1867e15e7e9b065d23f7001b03eb0a924920dc911ac03c5b49f30bff48e053"
         }
       }
     },
-    "refund-15/pi_3UFMXp88KhIqqdFL0YDJ0sBr": {
-      "effect_id": "d7980f794e87",
+    "refund-15/pi_3UFOFi88KhIqqdFL1ueAaUx9": {
+      "effect_id": "e2bc68319d00",
       "entries": [
         {
-          "ts": 1789341050.982702,
+          "ts": 1789347618.124144,
           "kind": "PROPOSED",
-          "effect_id": "d7980f794e87",
+          "effect_id": "e2bc68319d00",
           "agent": "inbox",
           "lease": null,
           "premises": {
-            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "payment_intent": "pi_3UFOFi88KhIqqdFL1ueAaUx9",
             "refunded_by_others": 8000
           },
           "effect": {
             "amount": 1500
           },
           "request": {
-            "id": "refund-15/pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "id": "refund-15/pi_3UFOFi88KhIqqdFL1ueAaUx9",
             "amount": 1500
           },
           "prev": null,
-          "hash": "b84c155dbcffa4f5097abdb6f32a9ab23301a47d4e697064516a870e628692bd"
+          "hash": "e238697bd713707d045b74f52aaaa68bdf66fcc377e9f6cd181d362cddbcdf61"
         },
         {
-          "ts": 1789341050.983875,
+          "ts": 1789347618.1258,
           "kind": "ESCALATED",
-          "effect_id": "d7980f794e87",
-          "at": 1789343444.0,
+          "effect_id": "e2bc68319d00",
+          "at": 1789350010.0,
           "reason": "needs_judgment",
           "why": "a rule asks a person to decide this",
           "detail": [
             "amount at most 1000 cents"
           ],
           "facts": {
-            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "payment_intent": "pi_3UFOFi88KhIqqdFL1ueAaUx9",
             "refunded_by_others": 8000
           },
           "changes": [],
@@ -474,23 +483,23 @@
             "ana"
           ],
           "level": 0,
-          "due": 1789357844.0,
+          "due": 1789364410.0,
           "breach": false,
-          "prev": "b84c155dbcffa4f5097abdb6f32a9ab23301a47d4e697064516a870e628692bd",
-          "hash": "4c94eb6d99e7e78289db3a20b1bf72646d174f246d9a173c1128f21e953f4fe3"
+          "prev": "e238697bd713707d045b74f52aaaa68bdf66fcc377e9f6cd181d362cddbcdf61",
+          "hash": "3033948262682d4228415d235bca5611577013adbf511b4850662492e8659061"
         },
         {
-          "ts": 1789341051.2023501,
+          "ts": 1789347618.441313,
           "kind": "ESCALATED",
-          "effect_id": "d7980f794e87",
-          "at": 1789357904.0,
+          "effect_id": "e2bc68319d00",
+          "at": 1789364470.0,
           "reason": "needs_judgment",
           "why": "a rule asks a person to decide this",
           "detail": [
             "amount at most 1000 cents"
           ],
           "facts": {
-            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "payment_intent": "pi_3UFOFi88KhIqqdFL1ueAaUx9",
             "refunded_by_others": 8000
           },
           "changes": [],
@@ -501,80 +510,80 @@
             "fm"
           ],
           "level": 1,
-          "due": 1789372304.0,
+          "due": 1789378810.0,
           "breach": true,
-          "prev": "4c94eb6d99e7e78289db3a20b1bf72646d174f246d9a173c1128f21e953f4fe3",
-          "hash": "cce3a03ef6c19e28b0f58b1f1685a64599215c7003eec2656fb9093302818866"
+          "prev": "3033948262682d4228415d235bca5611577013adbf511b4850662492e8659061",
+          "hash": "95bdc8c89f3bc3be11d62f7cb94b7f4229f4733721c053831742fc525ace4169"
         },
         {
-          "ts": 1789341051.203933,
+          "ts": 1789347618.443282,
           "kind": "DECIDED",
-          "effect_id": "d7980f794e87",
-          "at": 1789358804.0,
+          "effect_id": "e2bc68319d00",
+          "at": 1789365370.0,
           "by": "fm",
           "decision": "approve",
-          "escalation": "cce3a03ef6c19e28b0f58b1f1685a64599215c7003eec2656fb9093302818866",
+          "escalation": "95bdc8c89f3bc3be11d62f7cb94b7f4229f4733721c053831742fc525ace4169",
           "group": "finance-manager",
           "members": [
             "fm"
           ],
           "repair": null,
-          "prev": "cce3a03ef6c19e28b0f58b1f1685a64599215c7003eec2656fb9093302818866",
-          "hash": "6d1246ce47f8ad05df826880a87e18114cdcff8d69b2f558c48a51fee7f865f1"
+          "prev": "95bdc8c89f3bc3be11d62f7cb94b7f4229f4733721c053831742fc525ace4169",
+          "hash": "c4896fe73b175adab41ebfafb4a8b89648810698fe7201aa666d902d6de84eca"
         },
         {
-          "ts": 1789341051.204596,
+          "ts": 1789347618.444363,
           "kind": "PROPOSED",
-          "effect_id": "d7980f794e87",
+          "effect_id": "e2bc68319d00",
           "agent": "inbox",
           "lease": {
             "by": "fm",
-            "at": 1789358804.0,
+            "at": 1789365370.0,
             "group": "finance-manager",
-            "escalation": "cce3a03ef6c19e28b0f58b1f1685a64599215c7003eec2656fb9093302818866"
+            "escalation": "95bdc8c89f3bc3be11d62f7cb94b7f4229f4733721c053831742fc525ace4169"
           },
           "premises": {
-            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "payment_intent": "pi_3UFOFi88KhIqqdFL1ueAaUx9",
             "refunded_by_others": 8000
           },
           "effect": {
             "amount": 1500
           },
           "request": {
-            "id": "refund-15/pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "id": "refund-15/pi_3UFOFi88KhIqqdFL1ueAaUx9",
             "amount": 1500
           },
-          "prev": "6d1246ce47f8ad05df826880a87e18114cdcff8d69b2f558c48a51fee7f865f1",
-          "hash": "517e358ee73ad0130101695b06bf36a5e71aba14b3a2ece335d2c49ee6506703"
+          "prev": "c4896fe73b175adab41ebfafb4a8b89648810698fe7201aa666d902d6de84eca",
+          "hash": "1364b615e6514ad578938a7e52e0f81905f0e872c5d1f6fe0b330823c37107f8"
         },
         {
-          "ts": 1789341051.204937,
+          "ts": 1789347618.4454951,
           "kind": "AUTHORIZED",
-          "effect_id": "d7980f794e87",
+          "effect_id": "e2bc68319d00",
           "lease": {
             "by": "fm",
-            "at": 1789358804.0,
+            "at": 1789365370.0,
             "group": "finance-manager",
-            "escalation": "cce3a03ef6c19e28b0f58b1f1685a64599215c7003eec2656fb9093302818866"
+            "escalation": "95bdc8c89f3bc3be11d62f7cb94b7f4229f4733721c053831742fc525ace4169"
           },
-          "prev": "517e358ee73ad0130101695b06bf36a5e71aba14b3a2ece335d2c49ee6506703",
-          "hash": "819fded7d9f9574f7289d5a636fc72f7e1194d18f680b69d835f3b838cbdda25"
+          "prev": "1364b615e6514ad578938a7e52e0f81905f0e872c5d1f6fe0b330823c37107f8",
+          "hash": "78b8eab0d56cc2fe27baa837724828bb1f48d2259e2d17db3a8f4c0a37bab3a3"
         },
         {
-          "ts": 1789341051.399571,
+          "ts": 1789347618.7807128,
           "kind": "DISPATCHED",
-          "effect_id": "d7980f794e87",
+          "effect_id": "e2bc68319d00",
           "effect": {
             "amount": 1500
           },
           "lease": {
             "by": "fm",
-            "at": 1789358804.0,
+            "at": 1789365370.0,
             "group": "finance-manager",
-            "escalation": "cce3a03ef6c19e28b0f58b1f1685a64599215c7003eec2656fb9093302818866"
+            "escalation": "95bdc8c89f3bc3be11d62f7cb94b7f4229f4733721c053831742fc525ace4169"
           },
           "premises": {
-            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "payment_intent": "pi_3UFOFi88KhIqqdFL1ueAaUx9",
             "refunded_by_others": 8000
           },
           "checks": {
@@ -582,38 +591,38 @@
             "lease": null,
             "violations": []
           },
-          "prev": "819fded7d9f9574f7289d5a636fc72f7e1194d18f680b69d835f3b838cbdda25",
-          "hash": "96a7163edd0e0099448f5860c2154dd8d1f226d5e6df741611823d51f0669e23"
+          "prev": "78b8eab0d56cc2fe27baa837724828bb1f48d2259e2d17db3a8f4c0a37bab3a3",
+          "hash": "57c99b7f415be5a64b12b11539bd9d078c4074aea288a98a5d391a2cb6463a04"
         },
         {
-          "ts": 1789341052.436738,
+          "ts": 1789347619.887187,
           "kind": "COMMITTED",
-          "effect_id": "d7980f794e87",
+          "effect_id": "e2bc68319d00",
           "result": {
             "status": "ok",
-            "refund": "re_3UFMXp88KhIqqdFL0NNT0LCm",
+            "refund": "re_3UFOFi88KhIqqdFL1obdhASH",
             "amount": 1500
           },
-          "prev": "96a7163edd0e0099448f5860c2154dd8d1f226d5e6df741611823d51f0669e23",
-          "hash": "50e27a07cb33532094f031c28eefd8363adbf5ed2765b35f775185539b1a658d"
+          "prev": "57c99b7f415be5a64b12b11539bd9d078c4074aea288a98a5d391a2cb6463a04",
+          "hash": "5ac764b067d898567a23010d9d1d3c814b97d913bc00838d6fb1826c5702233b"
         },
         {
-          "ts": 1789341052.579992,
+          "ts": 1789347620.1509671,
           "kind": "CONFIRMED",
-          "effect_id": "d7980f794e87",
+          "effect_id": "e2bc68319d00",
           "via": "webhook",
-          "event": "evt_3UFMXp88KhIqqdFL0yOjWHsy",
-          "refund": "re_3UFMXp88KhIqqdFL0NNT0LCm",
+          "event": "evt_3UFOFi88KhIqqdFL1pAQetio",
+          "refund": "re_3UFOFi88KhIqqdFL1obdhASH",
           "status": "succeeded",
           "amount": 1500,
-          "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
-          "created": 1789341052,
-          "prev": "50e27a07cb33532094f031c28eefd8363adbf5ed2765b35f775185539b1a658d",
-          "hash": "4143bcf68bb33fa79cc23b8de2996acf21cc23c5c382f7cdcc9db965cc444bb9"
+          "payment_intent": "pi_3UFOFi88KhIqqdFL1ueAaUx9",
+          "created": 1789347619,
+          "prev": "5ac764b067d898567a23010d9d1d3c814b97d913bc00838d6fb1826c5702233b",
+          "hash": "5bde946cf6c6cff6f0d216723ae09ee48d9c105515629ed812fb5fe74f6545e1"
         }
       ],
       "summary": {
-        "effect_id": "d7980f794e87",
+        "effect_id": "e2bc68319d00",
         "proposed": true,
         "authorized": true,
         "executed": true,
@@ -621,16 +630,16 @@
         "final": "COMMITTED",
         "authority": {
           "by": "fm",
-          "at": 1789358804.0,
+          "at": 1789365370.0,
           "group": "finance-manager",
-          "escalation": "cce3a03ef6c19e28b0f58b1f1685a64599215c7003eec2656fb9093302818866"
+          "escalation": "95bdc8c89f3bc3be11d62f7cb94b7f4229f4733721c053831742fc525ace4169"
         }
       }
     }
   },
   "verify": {
-    "refund-50/pi_3UFMXp88KhIqqdFL0YDJ0sBr": {
-      "effect_id": "d6e3b0b377a0",
+    "refund-50/pi_3UFOFi88KhIqqdFL1ueAaUx9": {
+      "effect_id": "2d2c5729e648",
       "valid": true,
       "tamper_evident": true,
       "signed": null,
@@ -641,7 +650,7 @@
       "refused": null,
       "evidence": {
         "status": "ok",
-        "refund": "re_3UFMXp88KhIqqdFL00Nz6DsF",
+        "refund": "re_3UFOFi88KhIqqdFL1ebviQSB",
         "amount": 5000
       },
       "rechecked_at_recovery": null,
@@ -649,7 +658,7 @@
       "approval_verified": true,
       "escalations": [
         {
-          "at": 1789341044.0,
+          "at": 1789347610.0,
           "reason": "needs_judgment",
           "group": "ap-leads",
           "routed_to": [
@@ -662,11 +671,11 @@
           "decision": {
             "by": "ana",
             "decision": "approve",
-            "at": 1789342244.0
+            "at": 1789348810.0
           }
         },
         {
-          "at": 1789342544.0,
+          "at": 1789349110.0,
           "reason": "stale_premise",
           "group": "ap-leads",
           "routed_to": [
@@ -685,7 +694,7 @@
           "decision": {
             "by": "ana",
             "decision": "approve",
-            "at": 1789343144.0
+            "at": 1789349710.0
           }
         }
       ],
@@ -693,15 +702,15 @@
       "confirmation": [
         {
           "via": "webhook",
-          "event": "evt_3UFMXp88KhIqqdFL0jGtFiSO",
-          "refund": "re_3UFMXp88KhIqqdFL00Nz6DsF",
+          "event": "evt_3UFOFi88KhIqqdFL1TADi8Pi",
+          "refund": "re_3UFOFi88KhIqqdFL1ebviQSB",
           "status": "succeeded"
         }
       ],
       "problems": []
     },
-    "refund-15/pi_3UFMXp88KhIqqdFL0YDJ0sBr": {
-      "effect_id": "d7980f794e87",
+    "refund-15/pi_3UFOFi88KhIqqdFL1ueAaUx9": {
+      "effect_id": "e2bc68319d00",
       "valid": true,
       "tamper_evident": true,
       "signed": null,
@@ -712,7 +721,7 @@
       "refused": null,
       "evidence": {
         "status": "ok",
-        "refund": "re_3UFMXp88KhIqqdFL0NNT0LCm",
+        "refund": "re_3UFOFi88KhIqqdFL1obdhASH",
         "amount": 1500
       },
       "rechecked_at_recovery": null,
@@ -720,7 +729,7 @@
       "approval_verified": true,
       "escalations": [
         {
-          "at": 1789343444.0,
+          "at": 1789350010.0,
           "reason": "needs_judgment",
           "group": "ap-leads",
           "routed_to": [
@@ -733,7 +742,7 @@
           "decision": null
         },
         {
-          "at": 1789357904.0,
+          "at": 1789364470.0,
           "reason": "needs_judgment",
           "group": "finance-manager",
           "routed_to": [
@@ -746,7 +755,7 @@
           "decision": {
             "by": "fm",
             "decision": "approve",
-            "at": 1789358804.0
+            "at": 1789365370.0
           }
         }
       ],
@@ -754,8 +763,8 @@
       "confirmation": [
         {
           "via": "webhook",
-          "event": "evt_3UFMXp88KhIqqdFL0yOjWHsy",
-          "refund": "re_3UFMXp88KhIqqdFL0NNT0LCm",
+          "event": "evt_3UFOFi88KhIqqdFL1pAQetio",
+          "refund": "re_3UFOFi88KhIqqdFL1obdhASH",
           "status": "succeeded"
         }
       ],
@@ -774,7 +783,7 @@
     "stale_approvals_caught": 1,
     "crash_to_person": 0,
     "repairs_suggested": 1,
-    "repairs_accepted": 0,
+    "repairs_accepted": 1,
     "sla_breaches": 1,
     "confirmed_by_target": 2,
     "no_person_share": 0.0,

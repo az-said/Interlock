@@ -43,7 +43,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.2806442,
+      "ts": 1789347632.056248,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -59,18 +59,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "ab797915874e3c49b914dcf7301c35d82f8125ed9651cf29335e2bc3addb0676"
+      "hash": "63651c0a849329dbaca8d9745dba97831932703b0c5ebd63dc71b1c540c1968b"
      },
      {
-      "ts": 1789344705.2812212,
+      "ts": 1789347632.0568151,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "ab797915874e3c49b914dcf7301c35d82f8125ed9651cf29335e2bc3addb0676",
-      "hash": "58b5d7f78564c6f663b4594824a88a99c03defa2a4948fe4822c86d7d2ef3579"
+      "prev": "63651c0a849329dbaca8d9745dba97831932703b0c5ebd63dc71b1c540c1968b",
+      "hash": "c942e68d93cca1be1f1f37d5cf1d6f6a3cfb170f0097f6e5200413f793ab6c5e"
      },
      {
-      "ts": 1789344705.281726,
+      "ts": 1789347632.0574322,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -89,18 +89,18 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "58b5d7f78564c6f663b4594824a88a99c03defa2a4948fe4822c86d7d2ef3579",
-      "hash": "392e4694d2493886652a8647833dfc0d367d33c68768a81161256e80e5b05e6e"
+      "prev": "c942e68d93cca1be1f1f37d5cf1d6f6a3cfb170f0097f6e5200413f793ab6c5e",
+      "hash": "f76fcd050de9d327752867a876ae01cb8f25c56ac920bb680f7cbbbd9e8ba02d"
      },
      {
-      "ts": 1789344705.2837481,
+      "ts": 1789347632.058618,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "result": {
        "status": "ok"
       },
-      "prev": "392e4694d2493886652a8647833dfc0d367d33c68768a81161256e80e5b05e6e",
-      "hash": "fdf1054e48ac5dc8686ba751fe484262405de59a63ffa64146fa1dfd219dd46d"
+      "prev": "f76fcd050de9d327752867a876ae01cb8f25c56ac920bb680f7cbbbd9e8ba02d",
+      "hash": "6245dc446333300f7de30bad06aa7762d2e2437be98cc32b9adff573f5ad36a0"
      }
     ]
    },
@@ -112,7 +112,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.285372,
+      "ts": 1789347632.060138,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -128,18 +128,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "5d5b71e6d4e3d4b2a2894dadb686e9f582258a3f8580b969b5f5d3b3995b0a08"
+      "hash": "f907dcb0401d2c9ad6464f8d2d7efaf283a65a3d2e9609503d6a021e92624c59"
      },
      {
-      "ts": 1789344705.2857,
+      "ts": 1789347632.060489,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "5d5b71e6d4e3d4b2a2894dadb686e9f582258a3f8580b969b5f5d3b3995b0a08",
-      "hash": "679e13b538371465d61c73726ab818d87decf5a2f5a7917a5dcfe34e07932ae7"
+      "prev": "f907dcb0401d2c9ad6464f8d2d7efaf283a65a3d2e9609503d6a021e92624c59",
+      "hash": "446479782eccba29a16cab78ebb514977de65b69e16ceeb6d894aaff4b92f35e"
      },
      {
-      "ts": 1789344705.285986,
+      "ts": 1789347632.060873,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -158,18 +158,18 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "679e13b538371465d61c73726ab818d87decf5a2f5a7917a5dcfe34e07932ae7",
-      "hash": "9cb9a777f06d422aa75699ceab33effac2a6473e5e25f7d0d42e73bc1d899405"
+      "prev": "446479782eccba29a16cab78ebb514977de65b69e16ceeb6d894aaff4b92f35e",
+      "hash": "fa6527c425206fd110a7d61e2d59687c2a18b5fde9f957a50683c6bb232baa74"
      },
      {
-      "ts": 1789344705.286538,
+      "ts": 1789347632.061599,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "result": {
        "status": "ok"
       },
-      "prev": "9cb9a777f06d422aa75699ceab33effac2a6473e5e25f7d0d42e73bc1d899405",
-      "hash": "0f03051f7a070d60ce70879103443404b84e4b76fe259e4372478b99691f09f0"
+      "prev": "fa6527c425206fd110a7d61e2d59687c2a18b5fde9f957a50683c6bb232baa74",
+      "hash": "5c6b358962fc13e33742e0fb80629928ed2be0dd9f6ef0bc1bc20a1f23a9c29a"
      }
     ]
    },
@@ -181,7 +181,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.28755,
+      "ts": 1789347632.063072,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -197,18 +197,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "59b57fb8181eeddca5ec4e0df323b03ed062ee6274a9f9bd4ca190337aa97e19"
+      "hash": "7af01af6360c3328f530602a0e176973a13eda653e60c707efa32d6f29ede8cf"
      },
      {
-      "ts": 1789344705.287859,
+      "ts": 1789347632.063495,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "59b57fb8181eeddca5ec4e0df323b03ed062ee6274a9f9bd4ca190337aa97e19",
-      "hash": "eee48847fcb696a339de6b163512e35774d62b2797102ea88c68dbad35d4a94b"
+      "prev": "7af01af6360c3328f530602a0e176973a13eda653e60c707efa32d6f29ede8cf",
+      "hash": "c8c4726d9adbabdf57376d48b4cdc9db28bf613643f964f1ccaac220c62e13d1"
      },
      {
-      "ts": 1789344705.2881489,
+      "ts": 1789347632.063927,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -227,18 +227,18 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "eee48847fcb696a339de6b163512e35774d62b2797102ea88c68dbad35d4a94b",
-      "hash": "7df85d72275e290a1270afac3f29ad819ae046e4ad9a4664ae924bf844bb05df"
+      "prev": "c8c4726d9adbabdf57376d48b4cdc9db28bf613643f964f1ccaac220c62e13d1",
+      "hash": "0388864497a39c2f7bd3671798b0b70327788dcfc38752e4895bd773c8b28e8e"
      },
      {
-      "ts": 1789344705.288726,
+      "ts": 1789347632.064717,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "result": {
        "status": "ok"
       },
-      "prev": "7df85d72275e290a1270afac3f29ad819ae046e4ad9a4664ae924bf844bb05df",
-      "hash": "1afdf12f0243e7fe65666c7d39f0531327fedffe3fdc0618e5908d10ec4c8c36"
+      "prev": "0388864497a39c2f7bd3671798b0b70327788dcfc38752e4895bd773c8b28e8e",
+      "hash": "dceccfb3630bbc2e7d0a127715c898cf7b83aa6fc0955e0ab0172c4f17d2bc53"
      }
     ]
    }
@@ -273,7 +273,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.2907488,
+      "ts": 1789347632.0659862,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -289,18 +289,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "4f397c1fec986d4766fd40c80074d5126cd1766688fc3f4e0451a09fb955e5e6"
+      "hash": "e6888edb1217adc688eb96c1a94ed874eabe207e160c858034ef020b225c6cb6"
      },
      {
-      "ts": 1789344705.2910452,
+      "ts": 1789347632.066357,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "4f397c1fec986d4766fd40c80074d5126cd1766688fc3f4e0451a09fb955e5e6",
-      "hash": "2ac4f646f6f3232490525da5f52664d1ff272654cd8baf041667b07fee92f96c"
+      "prev": "e6888edb1217adc688eb96c1a94ed874eabe207e160c858034ef020b225c6cb6",
+      "hash": "5fd86c3ff0f1aebfb4aa537c83f30c8f7b1978a010799f5500bfd98ee7fa366e"
      },
      {
-      "ts": 1789344705.291296,
+      "ts": 1789347632.06675,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -319,11 +319,11 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "2ac4f646f6f3232490525da5f52664d1ff272654cd8baf041667b07fee92f96c",
-      "hash": "c18b96954c81f8fc04f773a1a9ba6b137ac9368fb6804d51728ed585fd3a4d16"
+      "prev": "5fd86c3ff0f1aebfb4aa537c83f30c8f7b1978a010799f5500bfd98ee7fa366e",
+      "hash": "1c6e1bc5ae56fc9f272d61e5c9cc2e6ad4a664cf1ba0285ace82dd80f62d9ad3"
      },
      {
-      "ts": 1789344705.2942631,
+      "ts": 1789347632.069238,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "via": "retry-idempotent",
@@ -335,8 +335,8 @@ window.INTERLOCK_TRACES = {
       "result": {
        "status": "ok"
       },
-      "prev": "c18b96954c81f8fc04f773a1a9ba6b137ac9368fb6804d51728ed585fd3a4d16",
-      "hash": "cedef09465d20d16fed7d397ba25c06bb01e3b9b793545b74b40bff55a710c69"
+      "prev": "1c6e1bc5ae56fc9f272d61e5c9cc2e6ad4a664cf1ba0285ace82dd80f62d9ad3",
+      "hash": "b02358f0a834ce32654b76ae03a8e6019b36b4f8dbfebace565da472856939a5"
      }
     ]
    },
@@ -348,7 +348,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.295694,
+      "ts": 1789347632.070474,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -364,18 +364,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "64036f09ea18a3118eaf71504d93bcbaa7d870ded2ab8b537c440f0eccf1082c"
+      "hash": "a09089021e77aee55034e6257ae0cd44ee5b2aa70407b42c05fa521c8542bf18"
      },
      {
-      "ts": 1789344705.296832,
+      "ts": 1789347632.0707798,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "64036f09ea18a3118eaf71504d93bcbaa7d870ded2ab8b537c440f0eccf1082c",
-      "hash": "fbe7c49695837ec697a081de7dcfe30346e1474c69e4b9947c7348c0ef070c7a"
+      "prev": "a09089021e77aee55034e6257ae0cd44ee5b2aa70407b42c05fa521c8542bf18",
+      "hash": "4cdfc942adc7b9a729e15a50a40902ec76d4afe15d6ea9c00fcfe44f2685d655"
      },
      {
-      "ts": 1789344705.297218,
+      "ts": 1789347632.071101,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -394,11 +394,11 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "fbe7c49695837ec697a081de7dcfe30346e1474c69e4b9947c7348c0ef070c7a",
-      "hash": "9bb902572e74acd93c65c4423ed033148c4cfcf2ec1d19762b03c164271196cb"
+      "prev": "4cdfc942adc7b9a729e15a50a40902ec76d4afe15d6ea9c00fcfe44f2685d655",
+      "hash": "43ffb15dfcf86ee5effd2443c91c2bd8620dc2989b67800234e75a20ea6827e7"
      },
      {
-      "ts": 1789344705.2996302,
+      "ts": 1789347632.073471,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "via": "recovery-reapply",
@@ -410,8 +410,8 @@ window.INTERLOCK_TRACES = {
       "result": {
        "status": "ok"
       },
-      "prev": "9bb902572e74acd93c65c4423ed033148c4cfcf2ec1d19762b03c164271196cb",
-      "hash": "cabcb6ac795b98a5b5998ce1e84ba6ea8dc49728f550ddc9efa99f525b5ccc88"
+      "prev": "43ffb15dfcf86ee5effd2443c91c2bd8620dc2989b67800234e75a20ea6827e7",
+      "hash": "4cc50e0c3c9aeadcf8d0c1e19fffe1b4134eb37b38049277a6ccb2f8545bc3ef"
      }
     ]
    },
@@ -423,7 +423,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.30091,
+      "ts": 1789347632.074636,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -439,18 +439,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "6bff09414e9dd64dd39daa93326dc580f5a23a9510bcce1bdc79c2458258bcc9"
+      "hash": "6a739761fb6257949806cbe0d14d33d142d7b2fcc2de5c915d3e3fc54f04e4c5"
      },
      {
-      "ts": 1789344705.301117,
+      "ts": 1789347632.074922,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "6bff09414e9dd64dd39daa93326dc580f5a23a9510bcce1bdc79c2458258bcc9",
-      "hash": "10db603a36f4a12d82d5051e4ce0987eaba06e790f6d2e288d99e7a0e500327c"
+      "prev": "6a739761fb6257949806cbe0d14d33d142d7b2fcc2de5c915d3e3fc54f04e4c5",
+      "hash": "05d75a524f508a7ebe64586f747c2187506046c0b106bd056519d38b90d866e2"
      },
      {
-      "ts": 1789344705.301373,
+      "ts": 1789347632.075267,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -469,16 +469,16 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "10db603a36f4a12d82d5051e4ce0987eaba06e790f6d2e288d99e7a0e500327c",
-      "hash": "ec3f288e1c99e93624a106c86cf922a5e1c204913037ad8ea39f194efc56e913"
+      "prev": "05d75a524f508a7ebe64586f747c2187506046c0b106bd056519d38b90d866e2",
+      "hash": "5cbaf8fde289f6a81749fd43709ced5447bba8c5e2bdcc90bd8e946670887654"
      },
      {
-      "ts": 1789344705.303642,
+      "ts": 1789347632.077131,
       "kind": "AMBIGUOUS",
       "effect_id": "6b6f07d3ceb0",
       "code": "ambiguous",
-      "prev": "ec3f288e1c99e93624a106c86cf922a5e1c204913037ad8ea39f194efc56e913",
-      "hash": "98e8c0ed7b16877c3b78e452ee20e3c001aed81e4c631637d0a05540f0bf1cbf"
+      "prev": "5cbaf8fde289f6a81749fd43709ced5447bba8c5e2bdcc90bd8e946670887654",
+      "hash": "5e45cb484b133777407339c27884d3355a7e397458ab77806663e8f9956f025a"
      }
     ]
    }
@@ -513,7 +513,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.305543,
+      "ts": 1789347632.0785038,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -529,18 +529,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "c61915c87b77c943f9c40691df135eea19720a4fa648861e92181df294c0527f"
+      "hash": "6638bb6e179f72a745852b0d6b791fba6f53ba45da0e4b195ffcf25f296df54e"
      },
      {
-      "ts": 1789344705.3060448,
+      "ts": 1789347632.078847,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "c61915c87b77c943f9c40691df135eea19720a4fa648861e92181df294c0527f",
-      "hash": "0864dd070c99771868a83d9f40ce00fa8314d8da5acce57d531abf95fa8cc454"
+      "prev": "6638bb6e179f72a745852b0d6b791fba6f53ba45da0e4b195ffcf25f296df54e",
+      "hash": "fb84633ef4651709ab7ca0d3bac543fc041cff71f1646377f53d7e079ede3224"
      },
      {
-      "ts": 1789344705.3063,
+      "ts": 1789347632.0792232,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -559,11 +559,11 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "0864dd070c99771868a83d9f40ce00fa8314d8da5acce57d531abf95fa8cc454",
-      "hash": "d7f12e012150219e850785048c1b636c4e33b122a5d1a196b74c8a4dcbf2a176"
+      "prev": "fb84633ef4651709ab7ca0d3bac543fc041cff71f1646377f53d7e079ede3224",
+      "hash": "349d46d5f5aadb5990499d44c703f74bac8b81154501f4a41f4b5676abb678cc"
      },
      {
-      "ts": 1789344705.308906,
+      "ts": 1789347632.081794,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "via": "retry-idempotent",
@@ -575,8 +575,8 @@ window.INTERLOCK_TRACES = {
       "result": {
        "status": "already_processed"
       },
-      "prev": "d7f12e012150219e850785048c1b636c4e33b122a5d1a196b74c8a4dcbf2a176",
-      "hash": "af2a094ec51a86884df22966fc89a460209b973ed387d2d356a246263661d7b8"
+      "prev": "349d46d5f5aadb5990499d44c703f74bac8b81154501f4a41f4b5676abb678cc",
+      "hash": "015df89ff33383732077291ce7b3f542cfd2944b645a4bc11618f058f51e3bb6"
      }
     ]
    },
@@ -588,7 +588,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.309773,
+      "ts": 1789347632.0831192,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -604,18 +604,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "a87cb601db3beeb5d2bc970b86668f3165a28f84533a4397a28aa4fe5c67b1d3"
+      "hash": "df8960975e3aea4b9ee825cf7386a10082cd0d3f9092e2c0ce83e9bda599448b"
      },
      {
-      "ts": 1789344705.30997,
+      "ts": 1789347632.083431,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "a87cb601db3beeb5d2bc970b86668f3165a28f84533a4397a28aa4fe5c67b1d3",
-      "hash": "e8f7ac96535974610b57c1e835cfb2538cf50e9fec5c282d40858c21da929bb8"
+      "prev": "df8960975e3aea4b9ee825cf7386a10082cd0d3f9092e2c0ce83e9bda599448b",
+      "hash": "ee6028458f6ab06ea804929ce0c5176073e58adef3e0998b6d59f45cfd6ad90b"
      },
      {
-      "ts": 1789344705.3102348,
+      "ts": 1789347632.0838568,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -634,11 +634,11 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "e8f7ac96535974610b57c1e835cfb2538cf50e9fec5c282d40858c21da929bb8",
-      "hash": "1fdc3d17511e02d3f5059af778d3a9f5a8f55260310d6247927998760b67b16f"
+      "prev": "ee6028458f6ab06ea804929ce0c5176073e58adef3e0998b6d59f45cfd6ad90b",
+      "hash": "b4d652926ae31530a0e3b17f9914b995f3793912ccde979ef59b2303a7439c02"
      },
      {
-      "ts": 1789344705.311705,
+      "ts": 1789347632.086061,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "via": "recovery-query",
@@ -648,8 +648,8 @@ window.INTERLOCK_TRACES = {
        "violations": []
       },
       "found": true,
-      "prev": "1fdc3d17511e02d3f5059af778d3a9f5a8f55260310d6247927998760b67b16f",
-      "hash": "60e51b0281b0efc554ca2114c7c92d4c2ef394a46caf939d5b83798d58258670"
+      "prev": "b4d652926ae31530a0e3b17f9914b995f3793912ccde979ef59b2303a7439c02",
+      "hash": "6cceb761693fb932729b59a91ca4ac8b35c60edfb6f267ceeef566ee7f8c8192"
      }
     ]
    },
@@ -661,7 +661,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.313141,
+      "ts": 1789347632.087373,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -677,18 +677,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "43d6e5622473111f5ac22bde0652704b82b5fa143d48ea9d9e131b8d07ed7383"
+      "hash": "8d398287c3b0b4e723420dfc3665442dcc38d40440b5ce912e2095532f5872ce"
      },
      {
-      "ts": 1789344705.31342,
+      "ts": 1789347632.087737,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "43d6e5622473111f5ac22bde0652704b82b5fa143d48ea9d9e131b8d07ed7383",
-      "hash": "2d5a6053636c61e5c1858358df31bbd3662c200a60d7361b84332490835560a9"
+      "prev": "8d398287c3b0b4e723420dfc3665442dcc38d40440b5ce912e2095532f5872ce",
+      "hash": "d70068e5d28853f6c9486676daabf9e1fd83c75e02466507f1588182983b41fc"
      },
      {
-      "ts": 1789344705.31367,
+      "ts": 1789347632.0881448,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -707,16 +707,16 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "2d5a6053636c61e5c1858358df31bbd3662c200a60d7361b84332490835560a9",
-      "hash": "aec98d5eeb25d81a548d6780284ac4e31cba1d10cab106fadf077b1bf55614af"
+      "prev": "d70068e5d28853f6c9486676daabf9e1fd83c75e02466507f1588182983b41fc",
+      "hash": "20501a055e7bc723dfdc7b99a23b2ba2b26defb183404086981de553960e6eea"
      },
      {
-      "ts": 1789344705.31631,
+      "ts": 1789347632.0902011,
       "kind": "AMBIGUOUS",
       "effect_id": "6b6f07d3ceb0",
       "code": "ambiguous",
-      "prev": "aec98d5eeb25d81a548d6780284ac4e31cba1d10cab106fadf077b1bf55614af",
-      "hash": "041be331dc27923a4161a09926b178f8e45e7a56c8feef5149538fa0d7409c37"
+      "prev": "20501a055e7bc723dfdc7b99a23b2ba2b26defb183404086981de553960e6eea",
+      "hash": "ec00fed20809c91677a2bf1d400f96efa17a1e4c3e709057ddb230ccfaabebed"
      }
     ]
    }
@@ -751,7 +751,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.3172328,
+      "ts": 1789347632.0922859,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -767,18 +767,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "e4ae5ddd064fe16359dd9919d2e1d7011b449171915b38cbf277dadad9f44012"
+      "hash": "022cbf7af83fd87eb6361661d235841c00792cea2b720a87b91f1d10a9fcb098"
      },
      {
-      "ts": 1789344705.317471,
+      "ts": 1789347632.092653,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "e4ae5ddd064fe16359dd9919d2e1d7011b449171915b38cbf277dadad9f44012",
-      "hash": "933100220fee036b547aa01f68cca6706e7c43beb29acf733e3a1fe5fbea74c8"
+      "prev": "022cbf7af83fd87eb6361661d235841c00792cea2b720a87b91f1d10a9fcb098",
+      "hash": "3f3c117209a6be8b32f8b2fbc9653f9b90c5ff05f068dbf66e11ef26c3bbf880"
      },
      {
-      "ts": 1789344705.317696,
+      "ts": 1789347632.0930371,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -797,18 +797,18 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "933100220fee036b547aa01f68cca6706e7c43beb29acf733e3a1fe5fbea74c8",
-      "hash": "b67608ec29f0cacd5370ce66caf0ea8806d1bf418a8265faf2ba913383685f76"
+      "prev": "3f3c117209a6be8b32f8b2fbc9653f9b90c5ff05f068dbf66e11ef26c3bbf880",
+      "hash": "de33bb8ee05eb144f2d65ec24310722ade705000d76d7c0d3919babf43afe307"
      },
      {
-      "ts": 1789344705.318227,
+      "ts": 1789347632.093837,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "result": {
        "status": "ok"
       },
-      "prev": "b67608ec29f0cacd5370ce66caf0ea8806d1bf418a8265faf2ba913383685f76",
-      "hash": "93aecb3ab65fcaf1ffc97dabe23910bef43d262a2bca7f13432ee8ae79561cd9"
+      "prev": "de33bb8ee05eb144f2d65ec24310722ade705000d76d7c0d3919babf43afe307",
+      "hash": "fc78fd494840042899e24b5ba33fc5794038868d4d8ec9d7610ec66ad184777b"
      }
     ]
    },
@@ -820,7 +820,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.319515,
+      "ts": 1789347632.095405,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -836,18 +836,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "26dbef0ddace5c945db09d961bb29af1beb825eaa8b5cbfdedc634d7eb4cbe07"
+      "hash": "9cec5ec39bf8cf981e90fa50e359be3df9b1694350d5d19ef615dc516016d3e8"
      },
      {
-      "ts": 1789344705.319732,
+      "ts": 1789347632.095745,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "26dbef0ddace5c945db09d961bb29af1beb825eaa8b5cbfdedc634d7eb4cbe07",
-      "hash": "33563fedcb6acbddcefc94e00dbc6b6911ea6b621bafaee204a46cb2236f6aea"
+      "prev": "9cec5ec39bf8cf981e90fa50e359be3df9b1694350d5d19ef615dc516016d3e8",
+      "hash": "11d93a0749fae7f227d5e68965faed17811370f58f30bb442f40208d1a58eeaf"
      },
      {
-      "ts": 1789344705.3199549,
+      "ts": 1789347632.096123,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -866,18 +866,18 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "33563fedcb6acbddcefc94e00dbc6b6911ea6b621bafaee204a46cb2236f6aea",
-      "hash": "55cfd1bd11dac6cd275850201fce102a254c5f470fc9e34b3310370b5b7af912"
+      "prev": "11d93a0749fae7f227d5e68965faed17811370f58f30bb442f40208d1a58eeaf",
+      "hash": "1a0d327820228c1c75ba070555edc2ec4244194231b2c9a8da2834ac08f259b9"
      },
      {
-      "ts": 1789344705.320748,
+      "ts": 1789347632.0968478,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "result": {
        "status": "ok"
       },
-      "prev": "55cfd1bd11dac6cd275850201fce102a254c5f470fc9e34b3310370b5b7af912",
-      "hash": "9178baab101ff5279de7446fb4551c555de3eed1520de534931fd5efd531ad7c"
+      "prev": "1a0d327820228c1c75ba070555edc2ec4244194231b2c9a8da2834ac08f259b9",
+      "hash": "59671a7a8a559243ecd8421d7c3754debf1384c016344974915fdda2ebbaca61"
      }
     ]
    },
@@ -889,7 +889,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.32189,
+      "ts": 1789347632.098388,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -905,18 +905,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "d23e37ca62853b97e5e4965e4c3699a4e9838fa056aa65966610373ada5e307d"
+      "hash": "41294f7c12fe69fd14ebaf73ffde7b68045f00c6763fd1f41a61d6465f75b72e"
      },
      {
-      "ts": 1789344705.32211,
+      "ts": 1789347632.098716,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "d23e37ca62853b97e5e4965e4c3699a4e9838fa056aa65966610373ada5e307d",
-      "hash": "7410ecbaa8bbd0a13768e30e284b597914a03d0f24d066f149c27be8556b4424"
+      "prev": "41294f7c12fe69fd14ebaf73ffde7b68045f00c6763fd1f41a61d6465f75b72e",
+      "hash": "dfb342f04db24dec453f3bf46618518705794ea6243c09ba06ff6fa5ec87e2f6"
      },
      {
-      "ts": 1789344705.322334,
+      "ts": 1789347632.099068,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -935,18 +935,18 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "7410ecbaa8bbd0a13768e30e284b597914a03d0f24d066f149c27be8556b4424",
-      "hash": "15d9a9ad419aa1460f11538fc441cd28e11436a264643d36b2f2034816802598"
+      "prev": "dfb342f04db24dec453f3bf46618518705794ea6243c09ba06ff6fa5ec87e2f6",
+      "hash": "9d29e9cf17c96308df3c81ebfaaf792c6e8af64986aaa3f0261f50a9a417f68d"
      },
      {
-      "ts": 1789344705.322777,
+      "ts": 1789347632.099913,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "result": {
        "status": "ok"
       },
-      "prev": "15d9a9ad419aa1460f11538fc441cd28e11436a264643d36b2f2034816802598",
-      "hash": "88a75584de0cc6f996f6b50197e5fa2acbea4482c0a29b07c0720e14610c452c"
+      "prev": "9d29e9cf17c96308df3c81ebfaaf792c6e8af64986aaa3f0261f50a9a417f68d",
+      "hash": "0a8d3a09141e5b1da0a804a7fee599d4b2ca7b9385324991d525f5aa7830186d"
      }
     ]
    }
@@ -981,7 +981,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.324511,
+      "ts": 1789347632.101444,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -997,18 +997,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "60aa7b4f20b076ceb9236c8fdc194b398097c680cf7107417ee5c16c6ec09d06"
+      "hash": "e75a0219c7a4889253d0672c40a31eda8478611a8c53a6ca2ce67658ce4f7e81"
      },
      {
-      "ts": 1789344705.3251982,
+      "ts": 1789347632.101781,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "60aa7b4f20b076ceb9236c8fdc194b398097c680cf7107417ee5c16c6ec09d06",
-      "hash": "bd8ffb42d86f6bdb52d4b351c4c37e9c77edf9a24a738b3e982f909ac38baceb"
+      "prev": "e75a0219c7a4889253d0672c40a31eda8478611a8c53a6ca2ce67658ce4f7e81",
+      "hash": "1c66e1b908c14a4d3d317e4fbd41aa91f97bb302c876004ce57136790ddf378a"
      },
      {
-      "ts": 1789344705.325484,
+      "ts": 1789347632.102156,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -1027,11 +1027,11 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "bd8ffb42d86f6bdb52d4b351c4c37e9c77edf9a24a738b3e982f909ac38baceb",
-      "hash": "ba31ff83e0a18a58b0c0cdcf50d46009e6ab9cd23df23440f986fae8cfa61dcf"
+      "prev": "1c66e1b908c14a4d3d317e4fbd41aa91f97bb302c876004ce57136790ddf378a",
+      "hash": "fb9ca29b9981e7a9ea6c9718e8cc04e576d5e1506f27e7943ad376b4b93d4ee5"
      },
      {
-      "ts": 1789344705.328031,
+      "ts": 1789347632.1046631,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "via": "retry-idempotent",
@@ -1043,11 +1043,11 @@ window.INTERLOCK_TRACES = {
       "result": {
        "status": "already_processed"
       },
-      "prev": "ba31ff83e0a18a58b0c0cdcf50d46009e6ab9cd23df23440f986fae8cfa61dcf",
-      "hash": "35ae4b3d420fc4333c0457fed0f36e17c9e7a2729b7865647d2e280bb4d931ae"
+      "prev": "fb9ca29b9981e7a9ea6c9718e8cc04e576d5e1506f27e7943ad376b4b93d4ee5",
+      "hash": "f99d3babcddd94ad4430cd406089cac090f937400df208cfe18f58512ef166c2"
      },
      {
-      "ts": 1789344705.328622,
+      "ts": 1789347632.105572,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1062,11 +1062,11 @@ window.INTERLOCK_TRACES = {
        "order": "881",
        "amount": 30
       },
-      "prev": "35ae4b3d420fc4333c0457fed0f36e17c9e7a2729b7865647d2e280bb4d931ae",
-      "hash": "d5db5c4f4358ff422415bead4f50e2da6735635995dd1400e1830c50685ec6f5"
+      "prev": "f99d3babcddd94ad4430cd406089cac090f937400df208cfe18f58512ef166c2",
+      "hash": "cac48cf0b59838966a84258d00e46632bf9f43e9cf7fa5acfca662372227e2bb"
      },
      {
-      "ts": 1789344705.3288698,
+      "ts": 1789347632.105869,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "code": "conflicting_payload",
@@ -1079,8 +1079,8 @@ window.INTERLOCK_TRACES = {
        "order": "881",
        "amount": 30
       },
-      "prev": "d5db5c4f4358ff422415bead4f50e2da6735635995dd1400e1830c50685ec6f5",
-      "hash": "208926fc020b8e07603250f682947b3f70c5ffd26a213a5c66c9a3dfb51869c0"
+      "prev": "cac48cf0b59838966a84258d00e46632bf9f43e9cf7fa5acfca662372227e2bb",
+      "hash": "1126b0457b8a9a74f23c21e4b4812c4309da81b1e45daf97be8b478788c8fa01"
      }
     ]
    },
@@ -1092,7 +1092,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.329424,
+      "ts": 1789347632.10656,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1108,18 +1108,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "1bf860f151a5bf5b7ef37ceca6ac8e593a3cac3bc86c13b54496d38049f09b6c"
+      "hash": "e2a561d9277140654c18d61726aaf52fb4903605b6e744d304492bbd339f2c72"
      },
      {
-      "ts": 1789344705.329634,
+      "ts": 1789347632.106833,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "1bf860f151a5bf5b7ef37ceca6ac8e593a3cac3bc86c13b54496d38049f09b6c",
-      "hash": "9b360bef2d84018b2237e947f707d42737c85064ccb3bd4fc8200d6ac8a4e704"
+      "prev": "e2a561d9277140654c18d61726aaf52fb4903605b6e744d304492bbd339f2c72",
+      "hash": "3115e80b133b6cc2b8bc3227c8282ceacd0113a9561b0b42d312705ddf009562"
      },
      {
-      "ts": 1789344705.3298402,
+      "ts": 1789347632.107143,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -1138,11 +1138,11 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "9b360bef2d84018b2237e947f707d42737c85064ccb3bd4fc8200d6ac8a4e704",
-      "hash": "fa86c33747c04f2979967c917e58a8a62729622fb6e8a4438da38f6a37946bf3"
+      "prev": "3115e80b133b6cc2b8bc3227c8282ceacd0113a9561b0b42d312705ddf009562",
+      "hash": "f07fe47c87fe2dcf823ddb4703b3cae3fe7175b6d4c37e9bfc408842fb900253"
      },
      {
-      "ts": 1789344705.33318,
+      "ts": 1789347632.10896,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "via": "recovery-query",
@@ -1152,11 +1152,11 @@ window.INTERLOCK_TRACES = {
        "violations": []
       },
       "found": true,
-      "prev": "fa86c33747c04f2979967c917e58a8a62729622fb6e8a4438da38f6a37946bf3",
-      "hash": "0fced54c1f37d55e2e59fa3907ebaa009323be6540cfd57ac951a09b75540a97"
+      "prev": "f07fe47c87fe2dcf823ddb4703b3cae3fe7175b6d4c37e9bfc408842fb900253",
+      "hash": "8ad67bf7f37ead0a527cd21c710d3b32a29c7fe88c9635b9b12b6ef50494522a"
      },
      {
-      "ts": 1789344705.333937,
+      "ts": 1789347632.1098409,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1171,11 +1171,11 @@ window.INTERLOCK_TRACES = {
        "order": "881",
        "amount": 30
       },
-      "prev": "0fced54c1f37d55e2e59fa3907ebaa009323be6540cfd57ac951a09b75540a97",
-      "hash": "af33442a22f75ab6f536cd1cdc2c616ba8ceb6272fa423985b0579bfb3681228"
+      "prev": "8ad67bf7f37ead0a527cd21c710d3b32a29c7fe88c9635b9b12b6ef50494522a",
+      "hash": "5c4b568b0a0d3a3d4e5cd291ee3033ec8ab0bf47729c2df721ddbfb550487e2c"
      },
      {
-      "ts": 1789344705.334153,
+      "ts": 1789347632.110122,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "code": "conflicting_payload",
@@ -1188,8 +1188,8 @@ window.INTERLOCK_TRACES = {
        "order": "881",
        "amount": 30
       },
-      "prev": "af33442a22f75ab6f536cd1cdc2c616ba8ceb6272fa423985b0579bfb3681228",
-      "hash": "9156b08d9cfc66cd99c11995663eeb1f68ea418c55724500f2c4923c12556ad3"
+      "prev": "5c4b568b0a0d3a3d4e5cd291ee3033ec8ab0bf47729c2df721ddbfb550487e2c",
+      "hash": "d1847a5521af840437d7fe4eadd7f56ab5bb90a905c493fc8283685eda93a765"
      }
     ]
    },
@@ -1201,7 +1201,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.334681,
+      "ts": 1789347632.1108139,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1217,18 +1217,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "36be5bf5de4d3ecc6d301689470e58e798d90fb66712d2b7fda69d48cb97371b"
+      "hash": "cb9116d9dddaf2602a3b5f6dab1cb1df43e0c5d5066236f2a18ecd02b9120692"
      },
      {
-      "ts": 1789344705.3348858,
+      "ts": 1789347632.111076,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "36be5bf5de4d3ecc6d301689470e58e798d90fb66712d2b7fda69d48cb97371b",
-      "hash": "5cc745d52f85ef22d1c02e3da7e1543fcafbdd903ef16e190c7cf9def53d084d"
+      "prev": "cb9116d9dddaf2602a3b5f6dab1cb1df43e0c5d5066236f2a18ecd02b9120692",
+      "hash": "127b626e65e027f9b393bac76d1d60198c7eeb33ea6f3f0b59750e13dfe21db2"
      },
      {
-      "ts": 1789344705.335243,
+      "ts": 1789347632.1122718,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -1247,19 +1247,19 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "5cc745d52f85ef22d1c02e3da7e1543fcafbdd903ef16e190c7cf9def53d084d",
-      "hash": "84b31d308afea17023d8b19aa3ac847a1146beec048c90a81c96343d4d5690b8"
+      "prev": "127b626e65e027f9b393bac76d1d60198c7eeb33ea6f3f0b59750e13dfe21db2",
+      "hash": "2988990385a03ab7be77b0a6fad57c492f8e95ab6caabc7f0fb36dea8fcb3c3b"
      },
      {
-      "ts": 1789344705.336863,
+      "ts": 1789347632.1140969,
       "kind": "AMBIGUOUS",
       "effect_id": "6b6f07d3ceb0",
       "code": "ambiguous",
-      "prev": "84b31d308afea17023d8b19aa3ac847a1146beec048c90a81c96343d4d5690b8",
-      "hash": "1c648e868e6e08d8d7dbf343ed6cedf6923dcceeb90f03bb7e016108029f2efb"
+      "prev": "2988990385a03ab7be77b0a6fad57c492f8e95ab6caabc7f0fb36dea8fcb3c3b",
+      "hash": "c6a6ce0c1f0467d69e422650a3eed9358b08d65d9556fc569e402a5bbab09a7f"
      },
      {
-      "ts": 1789344705.337551,
+      "ts": 1789347632.1150022,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1274,11 +1274,11 @@ window.INTERLOCK_TRACES = {
        "order": "881",
        "amount": 30
       },
-      "prev": "1c648e868e6e08d8d7dbf343ed6cedf6923dcceeb90f03bb7e016108029f2efb",
-      "hash": "52f14f8c4b253204dbe8a09b11c292ec33e82dc46b5b3a48c9cc2a899300e618"
+      "prev": "c6a6ce0c1f0467d69e422650a3eed9358b08d65d9556fc569e402a5bbab09a7f",
+      "hash": "b7ca25e63ec697ab813ffb29745e5f77a14e103363e4441c3eaf1efca9312072"
      },
      {
-      "ts": 1789344705.33779,
+      "ts": 1789347632.1152818,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "code": "conflicting_payload",
@@ -1291,8 +1291,8 @@ window.INTERLOCK_TRACES = {
        "order": "881",
        "amount": 30
       },
-      "prev": "52f14f8c4b253204dbe8a09b11c292ec33e82dc46b5b3a48c9cc2a899300e618",
-      "hash": "d017a676b529fc4860f86f8ca37813cc3e95f941ecf054d7231af74e7452c9b3"
+      "prev": "b7ca25e63ec697ab813ffb29745e5f77a14e103363e4441c3eaf1efca9312072",
+      "hash": "8515400bc0a70acae66deed29c667d3a4c9ca69a7150f02e01afc67702f6d96c"
      }
     ]
    }
@@ -1327,7 +1327,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.338361,
+      "ts": 1789347632.1160462,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1343,18 +1343,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "0ba8452a3d40a7b1fc10c48b7aa3a261ac5b311ab2e06c1219d5e03b1a7f7da6"
+      "hash": "0231597a8458dd5cb5861ae31abdcf6aba46fa234a5f4d5030877b0737183b70"
      },
      {
-      "ts": 1789344705.338582,
+      "ts": 1789347632.116317,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "0ba8452a3d40a7b1fc10c48b7aa3a261ac5b311ab2e06c1219d5e03b1a7f7da6",
-      "hash": "dfc8c21aeae079618d463be6ba934ea13f325bfc1536b9aad229e374018f8ab9"
+      "prev": "0231597a8458dd5cb5861ae31abdcf6aba46fa234a5f4d5030877b0737183b70",
+      "hash": "1da7ac1fd5e49c7adf1f7fe1b7bc10b46e9d22567fb7d640d56c95327434fd90"
      },
      {
-      "ts": 1789344705.3387961,
+      "ts": 1789347632.116622,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -1373,21 +1373,21 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "dfc8c21aeae079618d463be6ba934ea13f325bfc1536b9aad229e374018f8ab9",
-      "hash": "3d09da38eed8e000b6f529d6b1cc5a1c31e3eb93164c537a1a5b9e872d30c7ba"
+      "prev": "1da7ac1fd5e49c7adf1f7fe1b7bc10b46e9d22567fb7d640d56c95327434fd90",
+      "hash": "7901ff679e646b7c3a72a5f1d5f78296d613133547a0ddbbc89999a326c30c4f"
      },
      {
-      "ts": 1789344705.340283,
+      "ts": 1789347632.117235,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "result": {
        "status": "ok"
       },
-      "prev": "3d09da38eed8e000b6f529d6b1cc5a1c31e3eb93164c537a1a5b9e872d30c7ba",
-      "hash": "9bec3c4ba550661786287a027437782b6935a5649dfc525c98746f95279a158a"
+      "prev": "7901ff679e646b7c3a72a5f1d5f78296d613133547a0ddbbc89999a326c30c4f",
+      "hash": "837b2fdb6900517a0ca1e7cfaad7f4a5ecd8aa8e354d7f0168072c1e8256fcda"
      },
      {
-      "ts": 1789344705.3420339,
+      "ts": 1789347632.118252,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1402,11 +1402,11 @@ window.INTERLOCK_TRACES = {
        "order": "881",
        "amount": 30
       },
-      "prev": "9bec3c4ba550661786287a027437782b6935a5649dfc525c98746f95279a158a",
-      "hash": "66796d8a78018664f6128a0bb1a35cd6abd3767d19789c19beb59c556a8ee1b4"
+      "prev": "837b2fdb6900517a0ca1e7cfaad7f4a5ecd8aa8e354d7f0168072c1e8256fcda",
+      "hash": "2769c3d66148f4826dbf5930a8ba564d22ba0c71f0591aea95030fcb605adfc3"
      },
      {
-      "ts": 1789344705.342272,
+      "ts": 1789347632.118578,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "code": "conflicting_payload",
@@ -1419,8 +1419,8 @@ window.INTERLOCK_TRACES = {
        "order": "881",
        "amount": 30
       },
-      "prev": "66796d8a78018664f6128a0bb1a35cd6abd3767d19789c19beb59c556a8ee1b4",
-      "hash": "d0e32e90ff63a5c6b36598b82fdff13527ba889ee9f997231725939057f632f0"
+      "prev": "2769c3d66148f4826dbf5930a8ba564d22ba0c71f0591aea95030fcb605adfc3",
+      "hash": "8760593efb9aeb4fdaa409ef1af2a7cd66d889ce95d688a343db06a0911f1175"
      }
     ]
    },
@@ -1432,7 +1432,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.3428679,
+      "ts": 1789347632.1193972,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1448,18 +1448,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "1a4a6f7b7a3737c7d8d1e783448a47113893ff16d93b794087385c32f661f321"
+      "hash": "4bd2b9e949e38b2fec2d238d54901428f3ec3b3356fc0f64fecee2973dd1a76d"
      },
      {
-      "ts": 1789344705.3431182,
+      "ts": 1789347632.119701,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "1a4a6f7b7a3737c7d8d1e783448a47113893ff16d93b794087385c32f661f321",
-      "hash": "fe3ab5f1e98f6df87c4413434d6eb9f247759665fb313854a8f62f2bb14ee199"
+      "prev": "4bd2b9e949e38b2fec2d238d54901428f3ec3b3356fc0f64fecee2973dd1a76d",
+      "hash": "4dcae6a20cb734d134e97c845f0f25b5ad25ae009afb9ca88ccfc0e3367d1653"
      },
      {
-      "ts": 1789344705.3433971,
+      "ts": 1789347632.1200461,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -1478,21 +1478,21 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "fe3ab5f1e98f6df87c4413434d6eb9f247759665fb313854a8f62f2bb14ee199",
-      "hash": "9fa65fcc10a3344cc0307e5e99fef85c743568cd31b25f971fda9f24cdcc56be"
+      "prev": "4dcae6a20cb734d134e97c845f0f25b5ad25ae009afb9ca88ccfc0e3367d1653",
+      "hash": "88e8db6f835576d0616806b3e98268f8945982faa5a4293985a79624125a20ce"
      },
      {
-      "ts": 1789344705.3438988,
+      "ts": 1789347632.120737,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "result": {
        "status": "ok"
       },
-      "prev": "9fa65fcc10a3344cc0307e5e99fef85c743568cd31b25f971fda9f24cdcc56be",
-      "hash": "3b9edac8abacd8d757126930674c4c091ef80f2f791cf16c0e5ca0816e930702"
+      "prev": "88e8db6f835576d0616806b3e98268f8945982faa5a4293985a79624125a20ce",
+      "hash": "49c0b26c357a1f4c54a4850ec2e1bc9f5ea7b9e9fcb5a21bdacbf1190dcf6d67"
      },
      {
-      "ts": 1789344705.3445199,
+      "ts": 1789347632.121686,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1507,11 +1507,11 @@ window.INTERLOCK_TRACES = {
        "order": "881",
        "amount": 30
       },
-      "prev": "3b9edac8abacd8d757126930674c4c091ef80f2f791cf16c0e5ca0816e930702",
-      "hash": "837c003a887ddb3a6b35dcf4518ec63ecc90f75baa73acb5ac2b5feb7b1d87fe"
+      "prev": "49c0b26c357a1f4c54a4850ec2e1bc9f5ea7b9e9fcb5a21bdacbf1190dcf6d67",
+      "hash": "23972758f2422ed243bc2eced054988058d4ec215897fc9ca22d4d11bf2d7e48"
      },
      {
-      "ts": 1789344705.344699,
+      "ts": 1789347632.122334,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "code": "conflicting_payload",
@@ -1524,8 +1524,8 @@ window.INTERLOCK_TRACES = {
        "order": "881",
        "amount": 30
       },
-      "prev": "837c003a887ddb3a6b35dcf4518ec63ecc90f75baa73acb5ac2b5feb7b1d87fe",
-      "hash": "915ec793dc5f44947e57933c6f3bf42cf0f6d48ffab011ba29ed55416b7de8a2"
+      "prev": "23972758f2422ed243bc2eced054988058d4ec215897fc9ca22d4d11bf2d7e48",
+      "hash": "05194ef4cf785b805617b4199096b6adc3c5edd25e61d135f1469367b74869a1"
      }
     ]
    },
@@ -1537,7 +1537,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.3451562,
+      "ts": 1789347632.123088,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1553,18 +1553,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "d2d47590e978f3e2c808c73f5a165da4f4845bf7448b05d2cd5603239b767f70"
+      "hash": "3f729f2e1f0281f4e5329da7d7719b3beb607f53e5d7d5c87aa5181c0720b908"
      },
      {
-      "ts": 1789344705.34537,
+      "ts": 1789347632.123401,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "d2d47590e978f3e2c808c73f5a165da4f4845bf7448b05d2cd5603239b767f70",
-      "hash": "416c990a3aea358ba2fa853a1e5cc199d265b55fbda5799483191d273bdcf019"
+      "prev": "3f729f2e1f0281f4e5329da7d7719b3beb607f53e5d7d5c87aa5181c0720b908",
+      "hash": "bdbb5dab6402b1e1d603772c3ca0dd8fe2a10cc6722d69fdd88c23cce2a0b72d"
      },
      {
-      "ts": 1789344705.3455622,
+      "ts": 1789347632.123832,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -1583,21 +1583,21 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "416c990a3aea358ba2fa853a1e5cc199d265b55fbda5799483191d273bdcf019",
-      "hash": "9e47694d35afacc873689c2efb83cc6c627dd4e9f05c90b377c951bbcd12d6c6"
+      "prev": "bdbb5dab6402b1e1d603772c3ca0dd8fe2a10cc6722d69fdd88c23cce2a0b72d",
+      "hash": "e174a5ed48610d7f345541960ca35aecf02a72fb5c4a7846e0bac3f0d202d146"
      },
      {
-      "ts": 1789344705.3462908,
+      "ts": 1789347632.1245928,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "result": {
        "status": "ok"
       },
-      "prev": "9e47694d35afacc873689c2efb83cc6c627dd4e9f05c90b377c951bbcd12d6c6",
-      "hash": "656fbd2836594337848f0202fcf9b65f2136ec074372f4a030236e0d1cae9a09"
+      "prev": "e174a5ed48610d7f345541960ca35aecf02a72fb5c4a7846e0bac3f0d202d146",
+      "hash": "7662ed8424bf6a0a2a90e6e1f1a98b705cd72a9816e20fc7d5599597b1018cb8"
      },
      {
-      "ts": 1789344705.3468192,
+      "ts": 1789347632.1256142,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1612,11 +1612,11 @@ window.INTERLOCK_TRACES = {
        "order": "881",
        "amount": 30
       },
-      "prev": "656fbd2836594337848f0202fcf9b65f2136ec074372f4a030236e0d1cae9a09",
-      "hash": "3c95b85864479a5ebffc45c32579d285be3e9ee1a7f8071962a4fe184a993c01"
+      "prev": "7662ed8424bf6a0a2a90e6e1f1a98b705cd72a9816e20fc7d5599597b1018cb8",
+      "hash": "77594cbb5d75c04fd48f904198d5ea728ada45fbdb0102ad9b60bb844b4963e5"
      },
      {
-      "ts": 1789344705.3469892,
+      "ts": 1789347632.1259499,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "code": "conflicting_payload",
@@ -1629,8 +1629,8 @@ window.INTERLOCK_TRACES = {
        "order": "881",
        "amount": 30
       },
-      "prev": "3c95b85864479a5ebffc45c32579d285be3e9ee1a7f8071962a4fe184a993c01",
-      "hash": "5101815ba70f11fdd0fc871d655571392c8c3b1e8b6afe1869440c39a7a96e4d"
+      "prev": "77594cbb5d75c04fd48f904198d5ea728ada45fbdb0102ad9b60bb844b4963e5",
+      "hash": "b6e053f7442d1b8cda62bebbb348f71778ef22e97ac07ddbfa36e59c5f6cff58"
      }
     ]
    }
@@ -1665,7 +1665,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$0",
     "journal": [
      {
-      "ts": 1789344705.348393,
+      "ts": 1789347632.126841,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1681,10 +1681,10 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "96da8daab8cc150cc77c5bdf8e0b1271d5af270fcbc48397926433ccf8017c00"
+      "hash": "11f5a3f0397f4d8c8fd9c7fb96c8babe45dfb2c40dd03c1b5a2b630c39504186"
      },
      {
-      "ts": 1789344705.349174,
+      "ts": 1789347632.1271548,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "code": "lease",
@@ -1693,8 +1693,8 @@ window.INTERLOCK_TRACES = {
        "lease_live": false,
        "lease": null
       },
-      "prev": "96da8daab8cc150cc77c5bdf8e0b1271d5af270fcbc48397926433ccf8017c00",
-      "hash": "96bc1eb76cd18fe4521a9d9ef844e613432ea6e983e96727f8c245bdd22465c6"
+      "prev": "11f5a3f0397f4d8c8fd9c7fb96c8babe45dfb2c40dd03c1b5a2b630c39504186",
+      "hash": "65b90ea8e9b9b5b6facf3b9afa6e4446baf17775a943b92a1ab81e8f57a6e914"
      }
     ]
    },
@@ -1706,7 +1706,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$0",
     "journal": [
      {
-      "ts": 1789344705.350013,
+      "ts": 1789347632.127878,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1722,10 +1722,10 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "74ca6ef0c91e7566108dad9887a44694b26468f782d5cc71f833a75ff2aaf7e0"
+      "hash": "bcd62c649ec3cf53a127457543b26519ece2ff38c077f014401c02f82d3c559d"
      },
      {
-      "ts": 1789344705.3502731,
+      "ts": 1789347632.128177,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "code": "lease",
@@ -1734,8 +1734,8 @@ window.INTERLOCK_TRACES = {
        "lease_live": false,
        "lease": null
       },
-      "prev": "74ca6ef0c91e7566108dad9887a44694b26468f782d5cc71f833a75ff2aaf7e0",
-      "hash": "4e0f0fbd5e817537663e134cb4d141f901d0b8c41176f51cd831baf642595850"
+      "prev": "bcd62c649ec3cf53a127457543b26519ece2ff38c077f014401c02f82d3c559d",
+      "hash": "805d94801a12ff000df3cb2d50418f7e3b3a84416a33390198ecbbe134874e9b"
      }
     ]
    },
@@ -1747,7 +1747,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$0",
     "journal": [
      {
-      "ts": 1789344705.350788,
+      "ts": 1789347632.128903,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1763,10 +1763,10 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "2092b198f63c031f479288ef526eb86c89ede43f1aa667640fb8df0051e74ab2"
+      "hash": "c1d463a3ae8d5901c7b472f56887975dd0426d5c6ee846edee33d8dea0169243"
      },
      {
-      "ts": 1789344705.350996,
+      "ts": 1789347632.1292229,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "code": "lease",
@@ -1775,8 +1775,8 @@ window.INTERLOCK_TRACES = {
        "lease_live": false,
        "lease": null
       },
-      "prev": "2092b198f63c031f479288ef526eb86c89ede43f1aa667640fb8df0051e74ab2",
-      "hash": "b1b053325e407a858e2dfd7d227381a1410eef986ea51a42b1026a25a528c75c"
+      "prev": "c1d463a3ae8d5901c7b472f56887975dd0426d5c6ee846edee33d8dea0169243",
+      "hash": "2fdb475968bcbf0045dd13623f99caf6eb2b4990ce2132a53cce1106fb0e569f"
      }
     ]
    }
@@ -1811,7 +1811,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$0",
     "journal": [
      {
-      "ts": 1789344705.3515232,
+      "ts": 1789347632.13007,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1827,18 +1827,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "7e1c5aa31f5b59db0ceb79d761a360aad00bb79486db359c2559c3ac4036e7f7"
+      "hash": "88e626f39f943ea46724172b07161a4d348caa0169261cc7239ab6cb7cf645fe"
      },
      {
-      "ts": 1789344705.351907,
+      "ts": 1789347632.1303911,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "7e1c5aa31f5b59db0ceb79d761a360aad00bb79486db359c2559c3ac4036e7f7",
-      "hash": "586994a7e6a42cdf37f95ae02788079582396d23920711d1f23119f286c7d0c4"
+      "prev": "88e626f39f943ea46724172b07161a4d348caa0169261cc7239ab6cb7cf645fe",
+      "hash": "a8a273c9e2c7eb1b8e61011ca0302ef0f8853a15020cdc13d5071ddfac6cba2f"
      },
      {
-      "ts": 1789344705.3522089,
+      "ts": 1789347632.130721,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "code": "stale_premise",
@@ -1859,8 +1859,8 @@ window.INTERLOCK_TRACES = {
         "now": false
        }
       ],
-      "prev": "586994a7e6a42cdf37f95ae02788079582396d23920711d1f23119f286c7d0c4",
-      "hash": "4c5dee18a37fc083913a660ade92026d1c9bf3cc3fb7cb376665af1ffd0fbc28"
+      "prev": "a8a273c9e2c7eb1b8e61011ca0302ef0f8853a15020cdc13d5071ddfac6cba2f",
+      "hash": "82e7600cdd4e56b87e46cf12a53e4fd6978d417600416f65f731bb9793eb552e"
      }
     ]
    },
@@ -1872,7 +1872,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$0",
     "journal": [
      {
-      "ts": 1789344705.3528361,
+      "ts": 1789347632.1315389,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1888,18 +1888,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "e3b5a35c731c5829b4e282353c34fa87a3f039d85051349163512f5cb686a88d"
+      "hash": "92567bab87ff613378368a124849d6ae2f4680000010fc9d8d0052643c0930ea"
      },
      {
-      "ts": 1789344705.3531141,
+      "ts": 1789347632.1318789,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "e3b5a35c731c5829b4e282353c34fa87a3f039d85051349163512f5cb686a88d",
-      "hash": "c7eeaa1290035f1b6cd2f2ca15681e72e4fe61d0a3dcdb907372fa731898b8c0"
+      "prev": "92567bab87ff613378368a124849d6ae2f4680000010fc9d8d0052643c0930ea",
+      "hash": "6e1cf6a6bbb31173c8799bab4bf783ce02e32fdc411143658df3f97d1a32ba6e"
      },
      {
-      "ts": 1789344705.3533309,
+      "ts": 1789347632.132211,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "code": "stale_premise",
@@ -1920,8 +1920,8 @@ window.INTERLOCK_TRACES = {
         "now": false
        }
       ],
-      "prev": "c7eeaa1290035f1b6cd2f2ca15681e72e4fe61d0a3dcdb907372fa731898b8c0",
-      "hash": "f3f4b0719d060397c666910dc6f9900c505d16745aae4905a5319209ae7ce5cf"
+      "prev": "6e1cf6a6bbb31173c8799bab4bf783ce02e32fdc411143658df3f97d1a32ba6e",
+      "hash": "d254892a8a778d678d001afebc634af3d43ad3c1725b1fb7820a9b054ce30ba7"
      }
     ]
    },
@@ -1933,7 +1933,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$0",
     "journal": [
      {
-      "ts": 1789344705.3539488,
+      "ts": 1789347632.133079,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -1949,18 +1949,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "b4ec08ae7b389e099d1e3d6164bdbfd519b75af6a637d4ccda6ef39d4178ae4a"
+      "hash": "ed0afcaca913d0e5292e7c732075a1f008bb373b5cf1b3fe3a599b3903c7e8b1"
      },
      {
-      "ts": 1789344705.354209,
+      "ts": 1789347632.133443,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "b4ec08ae7b389e099d1e3d6164bdbfd519b75af6a637d4ccda6ef39d4178ae4a",
-      "hash": "b74105b111a60ff53aa82a08e708cb3c2c5ee3a41b48996965a1a0cd6d32e490"
+      "prev": "ed0afcaca913d0e5292e7c732075a1f008bb373b5cf1b3fe3a599b3903c7e8b1",
+      "hash": "82e1ef1a53f2c8d0471c3bc492962b0daf0a71f321b8cb9cb1ced61ae7994376"
      },
      {
-      "ts": 1789344705.3545809,
+      "ts": 1789347632.133776,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "code": "stale_premise",
@@ -1981,8 +1981,8 @@ window.INTERLOCK_TRACES = {
         "now": false
        }
       ],
-      "prev": "b74105b111a60ff53aa82a08e708cb3c2c5ee3a41b48996965a1a0cd6d32e490",
-      "hash": "a0397e7e600453ac689b054d6ace318e493f12718823e643ec66a58f8a7e8596"
+      "prev": "82e1ef1a53f2c8d0471c3bc492962b0daf0a71f321b8cb9cb1ced61ae7994376",
+      "hash": "b9a0461e06b2f11a24f65bd24310ce828d4c2ca6204f8b91303c31dfbf0b606f"
      }
     ]
    }
@@ -2017,7 +2017,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.355171,
+      "ts": 1789347632.134676,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -2033,18 +2033,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "b4c9854ee457538e131806f2b6a3ff8c6a5fb7d26c4dc6f5655452b4dc0343e8"
+      "hash": "7e6d55c3cb9de150ffece30045ff937e47eee399b62687dee085b02227f6c150"
      },
      {
-      "ts": 1789344705.355395,
+      "ts": 1789347632.134996,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "b4c9854ee457538e131806f2b6a3ff8c6a5fb7d26c4dc6f5655452b4dc0343e8",
-      "hash": "1a1de4289c30c3e5b2778b1c4dddbfea0d1e1b0117ec04a34c61e368e89f5ec8"
+      "prev": "7e6d55c3cb9de150ffece30045ff937e47eee399b62687dee085b02227f6c150",
+      "hash": "728f7df1bbd7b35aec659d5ab0f703bd98a8cca842024a2d0d54c8d0e97e3fcf"
      },
      {
-      "ts": 1789344705.355677,
+      "ts": 1789347632.1353579,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -2063,11 +2063,11 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "1a1de4289c30c3e5b2778b1c4dddbfea0d1e1b0117ec04a34c61e368e89f5ec8",
-      "hash": "7ce17f38743db0a71e51638fc2460434149c1dd2b241959a01fa55026fb9d766"
+      "prev": "728f7df1bbd7b35aec659d5ab0f703bd98a8cca842024a2d0d54c8d0e97e3fcf",
+      "hash": "c827363b5b941f88eeb33efd4c8632840bce3ec00fd4578ddd63bafdb339df8c"
      },
      {
-      "ts": 1789344705.357854,
+      "ts": 1789347632.1374981,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "code": "stale_premise_at_recovery",
@@ -2094,8 +2094,8 @@ window.INTERLOCK_TRACES = {
         "why": "20 still fits: 80 of 100 is left to refund, if the other refund was not this one"
        }
       ],
-      "prev": "7ce17f38743db0a71e51638fc2460434149c1dd2b241959a01fa55026fb9d766",
-      "hash": "45662dda1173cce2867cbc585dc0faea6bcb5b01304fe441f57c947c705e2769"
+      "prev": "c827363b5b941f88eeb33efd4c8632840bce3ec00fd4578ddd63bafdb339df8c",
+      "hash": "73c4d4e35f5140ae1d74cae1e13c16682ecd8c24a90059a1480f92072b412dd9"
      }
     ]
    },
@@ -2107,7 +2107,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.358711,
+      "ts": 1789347632.138863,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -2123,18 +2123,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "23639d8c58ec68a6bf8f13b19b153ae81ea04dfc222578b09de0f5524a73aaec"
+      "hash": "939ef142b73b71dbeebeeeb2aacbd79eb773acdeffa6e120803602f638e0953a"
      },
      {
-      "ts": 1789344705.359553,
+      "ts": 1789347632.1391659,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "23639d8c58ec68a6bf8f13b19b153ae81ea04dfc222578b09de0f5524a73aaec",
-      "hash": "f1d91ba24b2f8825fd927f3fd01c3df64db836c0c4a9d49d84daec589f5d88ca"
+      "prev": "939ef142b73b71dbeebeeeb2aacbd79eb773acdeffa6e120803602f638e0953a",
+      "hash": "3a6d2d666a36d8f4ef4cba862ce34182e5dd1fc3e5fe9b7739464588632b5e65"
      },
      {
-      "ts": 1789344705.359875,
+      "ts": 1789347632.1395352,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -2153,11 +2153,11 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "f1d91ba24b2f8825fd927f3fd01c3df64db836c0c4a9d49d84daec589f5d88ca",
-      "hash": "385959464d9cc3ab89b423027e5d0c70229ce49e7908d0744fa62656c4772b16"
+      "prev": "3a6d2d666a36d8f4ef4cba862ce34182e5dd1fc3e5fe9b7739464588632b5e65",
+      "hash": "536d7097f28d6ea4a80ca7652069d63a7fa2c98380d2131ff47a4b4d1b2c081d"
      },
      {
-      "ts": 1789344705.362259,
+      "ts": 1789347632.141571,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "code": "stale_premise_at_recovery",
@@ -2184,8 +2184,8 @@ window.INTERLOCK_TRACES = {
         "why": "20 still fits: 80 of 100 is left to refund, if the other refund was not this one"
        }
       ],
-      "prev": "385959464d9cc3ab89b423027e5d0c70229ce49e7908d0744fa62656c4772b16",
-      "hash": "6d2e6e33b75f311be3a80f5c95b42bba4941cd30b877b2a3473637425f231e2b"
+      "prev": "536d7097f28d6ea4a80ca7652069d63a7fa2c98380d2131ff47a4b4d1b2c081d",
+      "hash": "4c608c10d0fe840b1f4cf869a906fa506901576857e2775fee09124ae6d0f162"
      }
     ]
    },
@@ -2197,7 +2197,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.3631392,
+      "ts": 1789347632.143005,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -2213,18 +2213,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "7171f7c5c86c78834a6cf3382c18ed0e754b41ec1f37c7ca3ad23eb07006593e"
+      "hash": "c053650804f3d67ef10bf4438385ff177eaa0886495b872b444b9afa976bcf26"
      },
      {
-      "ts": 1789344705.363344,
+      "ts": 1789347632.143331,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "7171f7c5c86c78834a6cf3382c18ed0e754b41ec1f37c7ca3ad23eb07006593e",
-      "hash": "f7fbb5cdde35b7bd7c31be90ba5231cdc0368dab3eb50120c8a97f2a4b9de8cc"
+      "prev": "c053650804f3d67ef10bf4438385ff177eaa0886495b872b444b9afa976bcf26",
+      "hash": "f1af46b131bd7fbdf5fd819694e02b3252b8ee5abd2a637f2eaee596ce867875"
      },
      {
-      "ts": 1789344705.364375,
+      "ts": 1789347632.1437,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -2243,16 +2243,16 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "f7fbb5cdde35b7bd7c31be90ba5231cdc0368dab3eb50120c8a97f2a4b9de8cc",
-      "hash": "0d72aa3105cb34ab152632af04afcaa192c1f21814483b14ed8cc410861ff334"
+      "prev": "f1af46b131bd7fbdf5fd819694e02b3252b8ee5abd2a637f2eaee596ce867875",
+      "hash": "065405e9835ae9b1d2e8561a50ebb3354fed2269582380d8338a91db2e618f4f"
      },
      {
-      "ts": 1789344705.366488,
+      "ts": 1789347632.1457322,
       "kind": "AMBIGUOUS",
       "effect_id": "6b6f07d3ceb0",
       "code": "ambiguous",
-      "prev": "0d72aa3105cb34ab152632af04afcaa192c1f21814483b14ed8cc410861ff334",
-      "hash": "85c3d918415009ff987499ddb3713e66fcb49dbac120c464f744c959ecd93b9e"
+      "prev": "065405e9835ae9b1d2e8561a50ebb3354fed2269582380d8338a91db2e618f4f",
+      "hash": "c5fdc86c9a3179c5f63795274ece4cf4e7e5bda239cdf9930fe386697a66503f"
      }
     ]
    }
@@ -2287,7 +2287,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$0",
     "journal": [
      {
-      "ts": 1789344705.367347,
+      "ts": 1789347632.147072,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -2303,18 +2303,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "b996fe35dc1b5a9ebf5b4197d388e4eff499395a3489c71e96b073123f7693ad"
+      "hash": "e8386014ed339c277a94a1e7c8abbed7b8baa266b6055ee656cdcdb124767237"
      },
      {
-      "ts": 1789344705.3676128,
+      "ts": 1789347632.1473868,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "b996fe35dc1b5a9ebf5b4197d388e4eff499395a3489c71e96b073123f7693ad",
-      "hash": "af1778daece11b2532f9cdb332f85bf6d7e3d3eca4faa03017158f14568b9480"
+      "prev": "e8386014ed339c277a94a1e7c8abbed7b8baa266b6055ee656cdcdb124767237",
+      "hash": "a910839ef13a26e74d9df14256664d9ce962e815bd890f3031c7525115f12545"
      },
      {
-      "ts": 1789344705.369097,
+      "ts": 1789347632.147765,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -2333,11 +2333,11 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "af1778daece11b2532f9cdb332f85bf6d7e3d3eca4faa03017158f14568b9480",
-      "hash": "2b96a096627343d497e02872caeb2c5a77558d8bb9b6dabde901a653d1800b81"
+      "prev": "a910839ef13a26e74d9df14256664d9ce962e815bd890f3031c7525115f12545",
+      "hash": "6b4c503c9ab71248e450267084192da82a7e39af90c36e91d3f2a9f5ae567155"
      },
      {
-      "ts": 1789344705.370869,
+      "ts": 1789347632.151742,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "code": "lease_at_recovery",
@@ -2347,8 +2347,8 @@ window.INTERLOCK_TRACES = {
        "lease_live": false,
        "lease": null
       },
-      "prev": "2b96a096627343d497e02872caeb2c5a77558d8bb9b6dabde901a653d1800b81",
-      "hash": "fc0be370cb85dd60c4102ddbbc0b2a7214632995c1e748cd7e610884d7461b38"
+      "prev": "6b4c503c9ab71248e450267084192da82a7e39af90c36e91d3f2a9f5ae567155",
+      "hash": "78a56976fb2cd81f894db076701ad62cef0bfc48635c376b0835a2f5266cc383"
      }
     ]
    },
@@ -2360,7 +2360,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$0",
     "journal": [
      {
-      "ts": 1789344705.3718138,
+      "ts": 1789347632.153093,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -2376,18 +2376,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "6e93efa26deacefae9f0712ef8291dfb167a11af75efbe548dcecc26dd7511bc"
+      "hash": "434f420a5c52eff88dca0e612fa3e6b5dbd64130e28bd0dd2d2dda95b5e8c792"
      },
      {
-      "ts": 1789344705.3720992,
+      "ts": 1789347632.153439,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "6e93efa26deacefae9f0712ef8291dfb167a11af75efbe548dcecc26dd7511bc",
-      "hash": "7e47061e8ce295c07db34a30a0367334ce7ff2607e2dd7e1268383a04bd93a57"
+      "prev": "434f420a5c52eff88dca0e612fa3e6b5dbd64130e28bd0dd2d2dda95b5e8c792",
+      "hash": "19a9c4acfdbc99cd5484a7695e10c92f4a73d7c6b6e7cddc8cc7fc691fe211ca"
      },
      {
-      "ts": 1789344705.37236,
+      "ts": 1789347632.15381,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -2406,11 +2406,11 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "7e47061e8ce295c07db34a30a0367334ce7ff2607e2dd7e1268383a04bd93a57",
-      "hash": "065986badbfb2d9d3e20e60ae4fb0cc49bb5e288c436dd59c9a677a005c381d4"
+      "prev": "19a9c4acfdbc99cd5484a7695e10c92f4a73d7c6b6e7cddc8cc7fc691fe211ca",
+      "hash": "3a5753b5023d2e14322cd1c8e4f87a70671222cab57fb16d2565b10d0fdb141d"
      },
      {
-      "ts": 1789344705.374187,
+      "ts": 1789347632.156311,
       "kind": "REFUSED",
       "effect_id": "6b6f07d3ceb0",
       "code": "lease_at_recovery",
@@ -2420,8 +2420,8 @@ window.INTERLOCK_TRACES = {
        "lease_live": false,
        "lease": null
       },
-      "prev": "065986badbfb2d9d3e20e60ae4fb0cc49bb5e288c436dd59c9a677a005c381d4",
-      "hash": "29aead642a8b2e0e5d7bcde8a66d4b2a7d1420e1e555fa878226067d594a60ea"
+      "prev": "3a5753b5023d2e14322cd1c8e4f87a70671222cab57fb16d2565b10d0fdb141d",
+      "hash": "d862b38d713744851fcbf3ddb5b62afa69c8effeffc99811a22fc12063a1b563"
      }
     ]
    },
@@ -2433,7 +2433,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$0",
     "journal": [
      {
-      "ts": 1789344705.3753622,
+      "ts": 1789347632.158762,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -2449,18 +2449,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "3f8dc727acd8f8cfb806d69c21dca2ef9c598925bfc1edc646798a2887e41891"
+      "hash": "9079e8766e4d8ded0964047fb798920a96ff24e524e3e45046988339e96135d9"
      },
      {
-      "ts": 1789344705.3755908,
+      "ts": 1789347632.159111,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "3f8dc727acd8f8cfb806d69c21dca2ef9c598925bfc1edc646798a2887e41891",
-      "hash": "ad8319bce81c743525cba694ea73d8c23d9bb5cdf9b8f9de0d4c3678b4f3f3a1"
+      "prev": "9079e8766e4d8ded0964047fb798920a96ff24e524e3e45046988339e96135d9",
+      "hash": "e89c57f9dd274f6e4d79033b3d4b35b13b7926ed2c2ee24dfc7ceada585145ea"
      },
      {
-      "ts": 1789344705.3758411,
+      "ts": 1789347632.159466,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -2479,16 +2479,16 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "ad8319bce81c743525cba694ea73d8c23d9bb5cdf9b8f9de0d4c3678b4f3f3a1",
-      "hash": "e6592508dc1513db86a3fc7e381b53996e2b716c902dde1ed47011a3b3ee31c5"
+      "prev": "e89c57f9dd274f6e4d79033b3d4b35b13b7926ed2c2ee24dfc7ceada585145ea",
+      "hash": "ddc7a9375ddf06c500c9fb83001881f06780f2d6f538b9c75df63bd66fbf7678"
      },
      {
-      "ts": 1789344705.377439,
+      "ts": 1789347632.161418,
       "kind": "AMBIGUOUS",
       "effect_id": "6b6f07d3ceb0",
       "code": "ambiguous",
-      "prev": "e6592508dc1513db86a3fc7e381b53996e2b716c902dde1ed47011a3b3ee31c5",
-      "hash": "71228163f8017a7a6a4813c132d8a2261687c241cb2cde630e964f8734193b79"
+      "prev": "ddc7a9375ddf06c500c9fb83001881f06780f2d6f538b9c75df63bd66fbf7678",
+      "hash": "3620d6c1ab38610b1db91baa27a6af27e1ae2c01e677f5a257ccf7537cdfad43"
      }
     ]
    }
@@ -2523,7 +2523,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.378261,
+      "ts": 1789347632.162784,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -2539,18 +2539,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "5983457ddf17c235ee7fce1eeb3c6cb3c440cf12f9992c92b1c450f20c224db1"
+      "hash": "4ca50a56c49b88860213c5c8929322a9e36b66814fc5f2646a5e8fd090279fa9"
      },
      {
-      "ts": 1789344705.378457,
+      "ts": 1789347632.163094,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "5983457ddf17c235ee7fce1eeb3c6cb3c440cf12f9992c92b1c450f20c224db1",
-      "hash": "55cb13f043dea5bb3246a7f213280867ed82169ac3c29a7155548c2b313e961e"
+      "prev": "4ca50a56c49b88860213c5c8929322a9e36b66814fc5f2646a5e8fd090279fa9",
+      "hash": "47a27faa521a17fb3c41b4f621ae618a1a25b702824b051c7a3688ffed744e60"
      },
      {
-      "ts": 1789344705.379789,
+      "ts": 1789347632.163446,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -2569,11 +2569,11 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "55cb13f043dea5bb3246a7f213280867ed82169ac3c29a7155548c2b313e961e",
-      "hash": "2f59f8967b21b63ed14a017afb9adf1a18c703a795a0fad89ae6afa4a71f9d2a"
+      "prev": "47a27faa521a17fb3c41b4f621ae618a1a25b702824b051c7a3688ffed744e60",
+      "hash": "8d834596b302a11f3a770ccbcddd35981a7b009e1328854c04df3ca9b78d0aed"
      },
      {
-      "ts": 1789344705.381451,
+      "ts": 1789347632.165359,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "via": "recovery-query",
@@ -2583,8 +2583,8 @@ window.INTERLOCK_TRACES = {
        "violations": []
       },
       "found": true,
-      "prev": "2f59f8967b21b63ed14a017afb9adf1a18c703a795a0fad89ae6afa4a71f9d2a",
-      "hash": "204a6f6bbde749750fc7a3e62d353a8a010c77c261fb93536e5b550191dddb66"
+      "prev": "8d834596b302a11f3a770ccbcddd35981a7b009e1328854c04df3ca9b78d0aed",
+      "hash": "3d364f303f1aa6e70a6cf43dd29bdc647bcbb5046591a2abe67e1e1f31dff5e2"
      }
     ]
    },
@@ -2596,7 +2596,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.3824298,
+      "ts": 1789347632.166795,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -2612,18 +2612,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "470d42988bb9433e2c356c87b53810ff80f6196d626ccb688709302d22397a73"
+      "hash": "dd817454d9589b66b0b3171e4c0a22ab1a83d2e089c8ea75f7c84c8368087375"
      },
      {
-      "ts": 1789344705.3827252,
+      "ts": 1789347632.167136,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "470d42988bb9433e2c356c87b53810ff80f6196d626ccb688709302d22397a73",
-      "hash": "79962bedafd59d447050f55ab91113e93a17f9c2055f6a1b54c615d0d68e289d"
+      "prev": "dd817454d9589b66b0b3171e4c0a22ab1a83d2e089c8ea75f7c84c8368087375",
+      "hash": "b0fd450eb5f3f7fd7af38737d9ea7c53971b1dfe0d555c620c06a7b550e655fd"
      },
      {
-      "ts": 1789344705.382973,
+      "ts": 1789347632.1675122,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -2642,11 +2642,11 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "79962bedafd59d447050f55ab91113e93a17f9c2055f6a1b54c615d0d68e289d",
-      "hash": "c75a95da5bc36e0996e86f383f1add8d0a8d63de7d707994245d15c5b50f0075"
+      "prev": "b0fd450eb5f3f7fd7af38737d9ea7c53971b1dfe0d555c620c06a7b550e655fd",
+      "hash": "004837d4f704f23f19241a0ae81bd5eb39e5d140b7a7f3a9fdd933865ccd73b6"
      },
      {
-      "ts": 1789344705.3845701,
+      "ts": 1789347632.169507,
       "kind": "COMMITTED",
       "effect_id": "6b6f07d3ceb0",
       "via": "recovery-query",
@@ -2656,8 +2656,8 @@ window.INTERLOCK_TRACES = {
        "violations": []
       },
       "found": true,
-      "prev": "c75a95da5bc36e0996e86f383f1add8d0a8d63de7d707994245d15c5b50f0075",
-      "hash": "462c5a1ce28d5b98b01db410dca3561df7fe5f9028e882eef061dcd0a23e480d"
+      "prev": "004837d4f704f23f19241a0ae81bd5eb39e5d140b7a7f3a9fdd933865ccd73b6",
+      "hash": "16cc63c5ffa50057a2ebeb9fd0b859a9bc9c731f42f7e0cd9b9a5a580345c9ff"
      }
     ]
    },
@@ -2669,7 +2669,7 @@ window.INTERLOCK_TRACES = {
     "expected": "$20",
     "journal": [
      {
-      "ts": 1789344705.386184,
+      "ts": 1789347632.171032,
       "kind": "PROPOSED",
       "effect_id": "6b6f07d3ceb0",
       "agent": "refund-bot",
@@ -2685,18 +2685,18 @@ window.INTERLOCK_TRACES = {
        "amount": 20
       },
       "prev": null,
-      "hash": "5e5a4a7d21eb130fb61c763631b6d2c8a39f191c2e5bf0273d0a715002160b13"
+      "hash": "32400d3d1d5efcb4e1c66d9a4a2e61491eafac1d2e6c99b5b5cc90008bf3a2e3"
      },
      {
-      "ts": 1789344705.386403,
+      "ts": 1789347632.1713972,
       "kind": "AUTHORIZED",
       "effect_id": "6b6f07d3ceb0",
       "lease": "L-refund",
-      "prev": "5e5a4a7d21eb130fb61c763631b6d2c8a39f191c2e5bf0273d0a715002160b13",
-      "hash": "5d7ee9925ec1a8ff5a5a6bf0cbbcb768ed60733b46f81f093b1d6b42e3a2b789"
+      "prev": "32400d3d1d5efcb4e1c66d9a4a2e61491eafac1d2e6c99b5b5cc90008bf3a2e3",
+      "hash": "8a030a1887bc5876c037a172078d3cf66ddf4baa8b4132b11996b86128497d7a"
      },
      {
-      "ts": 1789344705.3866649,
+      "ts": 1789347632.171841,
       "kind": "DISPATCHED",
       "effect_id": "6b6f07d3ceb0",
       "effect": {
@@ -2715,16 +2715,16 @@ window.INTERLOCK_TRACES = {
        "lease": null,
        "violations": []
       },
-      "prev": "5d7ee9925ec1a8ff5a5a6bf0cbbcb768ed60733b46f81f093b1d6b42e3a2b789",
-      "hash": "9a870598a1918f0af22cdf5f66607a019eb0347760f9c371adcce0906ffd5c6f"
+      "prev": "8a030a1887bc5876c037a172078d3cf66ddf4baa8b4132b11996b86128497d7a",
+      "hash": "7b549a4eb4babff908a449f828440d282c645d7a9b0f83f1d936d27b91f644c2"
      },
      {
-      "ts": 1789344705.387938,
+      "ts": 1789347632.1739259,
       "kind": "AMBIGUOUS",
       "effect_id": "6b6f07d3ceb0",
       "code": "ambiguous",
-      "prev": "9a870598a1918f0af22cdf5f66607a019eb0347760f9c371adcce0906ffd5c6f",
-      "hash": "e3f034d5bc7bc6e23e465c3ffbe38245d2b1ec86ce50b23c6e7b5e28b77895e1"
+      "prev": "7b549a4eb4babff908a449f828440d282c645d7a9b0f83f1d936d27b91f644c2",
+      "hash": "94cffa8853ce4b6fe82d06a1e894adb3669de8b1b11f480b76fd3e06478cd9ac"
      }
     ]
    }
