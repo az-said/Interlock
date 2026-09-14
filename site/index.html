@@ -598,7 +598,7 @@
             <button type="button" role="tab" aria-selected="false" data-flow="without">Without Interlock</button>
             <button type="button" role="tab" aria-selected="true" data-flow="with">With Interlock</button>
           </div>
-          <p class="ticket">customer · 2 min ago</p>
+          <p class="ticket">example case · timings not measured</p>
           <p class="msg">I paid $100 and support approved a $20 refund. Can you send it?</p>
           <p class="order">order_881 · paid $100 · approved refund $20</p>
           <div class="run-wrap">
@@ -646,7 +646,7 @@
             </div>
           </div>
 
-          <p class="hero-note good" data-note role="status"><b>$20 refunded.</b> Interlock found the refund already landed and sent nothing.</p>
+          <p class="hero-note good" data-note role="status"><b>$20 refunded.</b> Interlock looked the refund up, found it already landed, and sent nothing.</p>
         </div>
       </div>
     </div>
@@ -661,7 +661,7 @@
 
       <div class="glass score in" style="--d:80">
         <p class="score-label">Wrong outcomes, out of 10 faults</p>
-        <div class="score-row" style="margin-top:.6rem"><p class="name">Plain retry<small>What most agents do today</small></p><div class="bar"><i style="--v:9;--d:150"></i></div><p class="n" data-count="9" data-delay="150">9</p></div>
+        <div class="score-row" style="margin-top:.6rem"><p class="name">Plain retry<small>Re-run the step on restart</small></p><div class="bar"><i style="--v:9;--d:150"></i></div><p class="n" data-count="9" data-delay="150">9</p></div>
         <div class="score-row"><p class="name">Request IDs<small>The standard fix</small></p><div class="bar"><i style="--v:5;--d:200"></i></div><p class="n" data-count="5" data-delay="200">5</p></div>
         <div class="score-row"><p class="name">Durable workflows<small>Temporal-style, used as documented</small></p><div class="bar"><i style="--v:5;--d:250"></i></div><p class="n" data-count="5" data-delay="250">5</p></div>
         <div class="score-row us"><p class="name">Interlock<small>Same faults, same service</small></p><div class="bar"><i style="--v:0;--d:300"></i></div><p class="n" data-count="0" data-delay="300">0</p></div>
@@ -699,7 +699,7 @@
 
       <div class="sync">
         <div class="glass win in" style="--d:250">
-          <div class="win-bar"><i></i><i></i><i></i><span class="title">your records · orders</span></div>
+          <div class="win-bar"><i></i><i></i><i></i><span class="title">example · your records</span></div>
           <div class="win-body">
             <table class="tbl">
               <thead><tr><th>order</th><th>refund</th><th>status</th></tr></thead>
@@ -713,7 +713,7 @@
         </div>
         <div class="sync-line in" style="--d:850">they disagree<i></i></div>
         <div class="glass win in" style="--d:400">
-          <div class="win-bar"><i></i><i></i><i></i><span class="title">payment service · refunds</span></div>
+          <div class="win-bar"><i></i><i></i><i></i><span class="title">example · payment service</span></div>
           <div class="win-body">
             <table class="tbl">
               <thead><tr><th>refund</th><th>amount</th><th>status</th></tr></thead>
@@ -747,7 +747,7 @@
     <span class="blob" style="--tone:var(--bad);width:540px;height:540px;left:-120px;bottom:-140px;opacity:.2;animation-delay:-6s"></span>
     <div class="wrap">
       <h2 class="in" style="--d:80">The standard fix handles a crash. <em>Not this.</em></h2>
-      <p class="lede in" style="--d:160">Payment services let you tag a request with an ID, so a repeat of the same request is ignored. That works until a person steps in while the agent is down.</p>
+      <p class="lede in" style="--d:160">Payment services let you tag a request with an ID, so a repeat of the same request is ignored. That works until a person steps in while the agent is down. An example timeline:</p>
 
       <div class="events">
         <article class="glass event in" style="--d:300">
@@ -775,7 +775,7 @@
       <article class="glass outcome in" style="--d:1900">
         <p class="who"><svg aria-hidden="true"><use href="#i-tri"/></svg>The payment service accepts the retry</p>
         <h3>$40 refunded on a $20 refund.</h3>
-        <p>The ID only blocks the exact same request. Nothing asked whether "nothing has been refunded yet" was still true. That fact stopped being true 30 seconds before the retry.</p>
+        <p>The ID only blocks the exact same request. Nothing asked whether "nothing has been refunded yet" was still true.</p>
       </article>
     </div>
   </section>
@@ -785,7 +785,7 @@
   <section id="fix" class="scene scene-haze pad" data-play>
     <div class="wrap">
       <h2 class="in" style="--d:80">Interlock writes down why. <em>Then checks again.</em></h2>
-      <p class="lede in" style="--d:160">Before the agent acts, Interlock saves the facts the decision depends on. After a crash, Interlock checks those facts again before anything is sent a second time.</p>
+      <p class="lede in" style="--d:160">Before the agent acts, Interlock saves the facts the decision depends on. After a crash, Interlock checks those facts again before anything is sent a second time. The trace below is an illustration; its timings are not measurements.</p>
 
       <div class="how-grid">
         <div class="in" style="--d:250">
@@ -992,12 +992,12 @@
             <li class="in" style="--d:750"><svg aria-hidden="true"><use href="#i-check"/></svg><span><b>Allowed when it fired</b>Refund permission checked right before the send, not only when the agent decided</span></li>
             <li class="in" style="--d:1000"><svg aria-hidden="true"><use href="#i-check"/></svg><span><b>Still made sense</b>"Nothing refunded yet" checked again right before the send</span></li>
             <li class="in" style="--d:1250"><svg aria-hidden="true"><use href="#i-check"/></svg><span><b>Nothing edited</b>Every step is chained to the step before it</span></li>
-            <li class="in" style="--d:1500"><svg aria-hidden="true"><use href="#i-check"/></svg><span><b>Both sides agree</b>Signed with a key the payment service also holds</span></li>
+            <li class="in" style="--d:1500"><svg aria-hidden="true"><use href="#i-check"/></svg><span><b>Both sides agree</b>Can be signed with a key the payment service also holds</span></li>
           </ul>
         </div>
         <div class="glass steps in" style="--d:400">
           <div class="step"><p class="k">After a crash nobody can resolve</p><p>The receipt says unknown instead of guessing, and the case goes to a person.</p></div>
-          <div class="step"><p class="k">If someone edits the record</p><p>Change $20 to $2,000 anywhere in the receipt and the check fails, naming the step that was changed.</p></div>
+          <div class="step"><p class="k">If someone edits the record</p><p>Change $20 to $2,000 anywhere in the receipt and the check fails.</p></div>
           <div class="step"><p class="k">Checked on real services</p><p>Three of the faults ran against Stripe in test mode and four against a real Temporal server, with the same results.</p></div>
         </div>
       </div>
@@ -1007,20 +1007,20 @@
   <!-- The approvals goal, as money, in the order the pitch says it: what manual control costs today,
        what teams do with agents right now, then the calculator. Every stat names its source on the page;
        stats without a findable source were left out. The calculator is experiments/approval_cost.py with
-       the same defaults. The 33% reviewed share is results/approval_inbox.md, a synthetic day. -->
+       the same defaults. The 36% reviewed share is results/approval_inbox.md, a synthetic day. -->
   <section id="approvals" class="scene scene-ridges pad" data-play>
     <div class="wrap">
       <h2 class="in" style="--d:80">Fewer approvals. <em>Zero wrong refunds.</em></h2>
-      <p class="lede in" style="--d:160">Finance teams put a person on every action their agents take, and that person becomes the bottleneck. Most of what they check is mechanical: is the order still eligible, was it already refunded, is this still allowed. Interlock checks exactly that at the moment of sending, so people only review what needs judgment.</p>
+      <p class="lede in" style="--d:160">When a person approves every agent action, that person becomes the bottleneck. Most of what they check is mechanical: is the order still eligible, was it already refunded, is this still allowed. Interlock checks exactly that at the moment of sending, so people only review what needs judgment. On a synthetic day of 100 refund requests (the mix is an assumption), rules plus Interlock took reviews from 100 to 36 with zero wrong refunds.</p>
 
       <div class="money-grid">
         <div class="glass money in" style="--d:250">
           <h3>By hand today</h3>
-          <div class="stat"><b>$15 to $16</b><p>to handle one invoice by hand, most of it people's time.</p><cite>IOFM and Levvel Research benchmarks, labor share (62%) from APQC, <a target="_blank" rel="noopener" href="https://resolvepay.com/blog/13-statistics-that-quantify-cost-per-invoice-in-manual-vs-automated-flows">as compiled by Resolve</a></cite></div>
+          <div class="stat"><b>$15 to $16</b><p>to handle one invoice by hand, most of it people's time.</p><cite>Levvel Research benchmark, labor share (62%) from APQC, <a target="_blank" rel="noopener" href="https://resolvepay.com/blog/13-statistics-that-quantify-cost-per-invoice-in-manual-vs-automated-flows">as compiled by Resolve</a></cite></div>
         </div>
         <div class="glass money in" style="--d:350">
           <h3>With agents, right now</h3>
-          <div class="stat"><b>Under 15%</b><p>of finance leaders let AI act on its own in six of seven processes. The usual setup: AI recommends, a person approves.</p><cite><a target="_blank" rel="noopener" href="https://www.journalofaccountancy.com/news/2026/jul/are-finance-leaders-moving-too-fast-on-agentic-ai/">Avalara survey of 1,500+ finance leaders with agentic AI experience</a></cite></div>
+          <div class="stat"><b>Under 15%</b><p>of organizations let AI act on its own in six of seven processes. The usual setup: AI recommends, a person approves.</p><cite><a target="_blank" rel="noopener" href="https://www.journalofaccountancy.com/news/2026/jul/are-finance-leaders-moving-too-fast-on-agentic-ai/">Avalara survey of 1,500+ finance leaders with agentic AI experience</a></cite></div>
           <div class="stat"><b>23%</b><p>say it would be unclear who is accountable for a serious AI error.</p><cite><a target="_blank" rel="noopener" href="https://www.journalofaccountancy.com/news/2026/jul/are-finance-leaders-moving-too-fast-on-agentic-ai/">Same Avalara survey</a></cite></div>
           <div class="stat"><b>95.5%</b><p>of organizations added a safeguard after an AI agent incident, most often a person in the loop.</p><cite><a target="_blank" rel="noopener" href="https://www.avepoint.com/blog/strategy-blog/human-in-the-loop-ai">AvePoint</a>, <a target="_blank" rel="noopener" href="https://www.avepoint.com/blog/manage/state-of-ai-2026-report">State of AI 2026</a>: 750 IT leaders in financial services, healthcare and government</cite></div>
         </div>
@@ -1039,24 +1039,24 @@
               <summary>Assumptions</summary>
               <div class="calc-assume">
                 <label>Working days a year<input type="number" name="days" value="250" min="1" max="366" inputmode="numeric"></label>
-                <label>Still reviewed with Interlock (%)<input type="number" name="share" value="33" min="0" max="100" inputmode="numeric"></label>
+                <label>Still reviewed with Interlock (%)<input type="number" name="share" value="36" min="0" max="100" inputmode="numeric"></label>
               </div>
-              <p>The 33% comes from a synthetic day of 100 refund requests (results/approval_inbox.md), so change it if your mix differs. A full-time reviewer is 8 hours of approving a day. Labor only; recovered duplicate payments are not counted. The same math, with every assumption as a flag: <code>python3 experiments/approval_cost.py</code></p>
+              <p>The 36% comes from a synthetic day of 100 refund requests (results/approval_inbox.md), so change it if your mix differs. A full-time reviewer is 8 hours of approving a day. Labor only; recovered duplicate payments are not counted. The same math, with every assumption as a flag: <code>python3 experiments/approval_cost.py</code></p>
             </details>
           </div>
           <div class="calc-result" aria-live="polite">
             <p class="calc-k">What that costs a year</p>
-            <p class="calc-save">Save <b data-out="saved">$1,395,833</b> a year</p>
-            <p class="calc-sub">That's <b data-out="fte-saved">14</b> full-time reviewers' worth of time.</p>
+            <p class="calc-save">Save <b data-out="saved">$1,333,333</b> a year</p>
+            <p class="calc-sub">That's <b data-out="fte-saved">13</b> full-time reviewers' worth of time.</p>
             <div class="calc-bar">
               <div class="calc-bar-head"><span>Every action approved</span><b data-out="all">$2,083,333</b></div>
               <div class="calc-track"><i class="bad"></i></div>
               <p data-out="fte-all">about 21 full-time reviewers</p>
             </div>
             <div class="calc-bar">
-              <div class="calc-bar-head"><span>With Interlock, <b data-out="share">33%</b> still reviewed</span><b data-out="with">$687,500</b></div>
-              <div class="calc-track"><i class="good" data-bar="with" style="--w:.33"></i></div>
-              <p data-out="fte-with">about 6.9 full-time reviewers</p>
+              <div class="calc-bar-head"><span>With Interlock, <b data-out="share">36%</b> still reviewed</span><b data-out="with">$750,000</b></div>
+              <div class="calc-track"><i class="good" data-bar="with" style="--w:.36"></i></div>
+              <p data-out="fte-with">about 7.5 full-time reviewers</p>
             </div>
             <p class="calc-per">One approval costs <b data-out="per">$4.17</b>. A receipt takes no reviewer time.</p>
           </div>
@@ -1095,20 +1095,20 @@
     <span class="blob" style="--tone:var(--blue);width:760px;height:760px;left:-200px;top:10%;opacity:.4"></span>
     <span class="blob" style="--tone:var(--good);width:520px;height:520px;right:-120px;bottom:-120px;opacity:.16;animation-delay:-9s"></span>
     <div class="wrap">
-      <h2 class="in" style="--d:80">Others stop repeats. <em>None checks if the action should still happen.</em></h2>
-      <p class="lede in" style="--d:160">Existing tools make sure the same step doesn't run twice, or pick up where a crash left off. None of them asks whether the reason for acting is still true.</p>
+      <h2 class="in" style="--d:80">Others stop repeats. <em>Checking if the action should still happen is left to you.</em></h2>
+      <p class="lede in" style="--d:160">Existing tools make sure the same step doesn't run twice, or pick up where a crash left off. Whether the reason for acting is still true is a check you write yourself.</p>
 
       <div class="glass cmp in" style="--d:250">
         <div class="scroll">
           <table>
             <thead>
-              <tr><th style="width:24%"></th><th>Request IDs<span>Stripe and most payment services</span></th><th>Durable workflows<span>Temporal, Restate, DBOS</span></th><th>Agent checkpoints<span>LangGraph</span></th><th class="us">Interlock<span>Needs none of these. Fits inside them.</span></th></tr>
+              <tr><th style="width:24%"></th><th>Request IDs<span>Stripe</span></th><th>Durable workflows<span>Temporal, Restate, DBOS</span></th><th>Agent checkpoints<span>LangGraph</span></th><th class="us">Interlock<span>Needs none of these. Fits inside them.</span></th></tr>
             </thead>
             <tbody>
               <tr class="in" style="--d:450"><td>Picks up after a crash</td><td data-label="Request IDs"><span class="no-mark"><svg aria-hidden="true"><use href="#i-x"/></svg>No</span></td><td data-label="Durable workflows"><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes</span></td><td data-label="Agent checkpoints"><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes</span></td><td data-label="Interlock" class="us"><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes</span></td></tr>
-              <tr class="in" style="--d:700"><td>Won't repeat the same request</td><td data-label="Request IDs"><span class="part"><svg width="17" height="17" aria-hidden="true"><use href="#i-check"/></svg>Same request only</span></td><td data-label="Durable workflows"><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes, with an ID</span></td><td data-label="Agent checkpoints"><span class="no-mark"><svg aria-hidden="true"><use href="#i-x"/></svg>No</span></td><td data-label="Interlock" class="us"><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes</span></td></tr>
+              <tr class="in" style="--d:700"><td>Won't repeat the same request</td><td data-label="Request IDs"><span class="part"><svg width="17" height="17" aria-hidden="true"><use href="#i-check"/></svg>Same request only</span></td><td data-label="Durable workflows"><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes, with an ID</span></td><td data-label="Agent checkpoints"><span class="no-mark"><svg aria-hidden="true"><use href="#i-x"/></svg>Only through the tool's own key</span></td><td data-label="Interlock" class="us"><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes</span></td></tr>
               <tr class="in" style="--d:950"><td>Checks the reason still holds</td><td data-label="Request IDs"><span class="no-mark"><svg aria-hidden="true"><use href="#i-x"/></svg>No</span></td><td data-label="Durable workflows"><span class="no-mark"><svg aria-hidden="true"><use href="#i-x"/></svg>No, replays the old decision</span></td><td data-label="Agent checkpoints"><span class="no-mark"><svg aria-hidden="true"><use href="#i-x"/></svg>No</span></td><td data-label="Interlock" class="us"><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes, before every send</span></td></tr>
-              <tr class="in" style="--d:1200"><td>Gives a receipt both sides can check</td><td data-label="Request IDs"><span class="part"><svg width="17" height="17" aria-hidden="true"><use href="#i-check"/></svg>The service's own record</span></td><td data-label="Durable workflows"><span class="part"><svg width="17" height="17" aria-hidden="true"><use href="#i-check"/></svg>Internal history only</span></td><td data-label="Agent checkpoints"><span class="no-mark"><svg aria-hidden="true"><use href="#i-x"/></svg>No</span></td><td data-label="Interlock" class="us"><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes, chained and signed</span></td></tr>
+              <tr class="in" style="--d:1200"><td>Gives a receipt both sides can check</td><td data-label="Request IDs"><span class="part"><svg width="17" height="17" aria-hidden="true"><use href="#i-check"/></svg>The service's own record</span></td><td data-label="Durable workflows"><span class="part"><svg width="17" height="17" aria-hidden="true"><use href="#i-check"/></svg>Internal history only</span></td><td data-label="Agent checkpoints"><span class="no-mark"><svg aria-hidden="true"><use href="#i-x"/></svg>No</span></td><td data-label="Interlock" class="us"><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes, chained, optionally signed</span></td></tr>
             </tbody>
           </table>
         </div>
@@ -1286,7 +1286,7 @@
       without: { next: ["", "<b>The agent restarts.</b> Nothing says the refund already went out, so it decides again."],
                  end: ["bad", "<b>$40 refunded.</b> The agent sent the refund a second time."] },
       with: { next: ["", "<b>Interlock recovers.</b> Its journal shows a refund sent but never confirmed, so it looks it up first."],
-              end: ["good", "<b>$20 refunded.</b> Interlock found the refund already landed and sent nothing."] },
+              end: ["good", "<b>$20 refunded.</b> Interlock looked the refund up, found it already landed, and sent nothing."] },
     };
     let timers = [];
     const say = ([tone, html]) => { note.className = "hero-note " + tone; note.innerHTML = html; };

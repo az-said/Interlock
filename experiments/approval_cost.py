@@ -4,7 +4,7 @@ What human approval of agent actions costs, with and without Interlock. Every as
     python3 experiments/approval_cost.py
     python3 experiments/approval_cost.py --minutes-per-review 2 --actions-per-day 500
 
-Review share with Interlock defaults to 33 of 100, from results/approval_inbox.md (rules plus Interlock,
+Review share with Interlock defaults to 36 of 100, from results/approval_inbox.md (rules plus Interlock,
 a synthetic day whose mix is itself an assumption). Labor only: recovered duplicate spend is not counted.
 Standard library only.
 """
@@ -26,7 +26,7 @@ def main():
     p.add_argument("--minutes-per-review", type=float, default=5, help="minutes a person spends per approval")
     p.add_argument("--loaded-hourly", type=float, default=50, help="loaded cost of that person per hour, USD")
     p.add_argument("--workdays", type=float, default=250, help="working days a year")
-    p.add_argument("--review-share", type=float, default=0.33, help="share still reviewed by a person with rules plus Interlock")
+    p.add_argument("--review-share", type=float, default=0.36, help="share still reviewed by a person with rules plus Interlock")
     p.add_argument("--take-rate", type=float, default=0.20, help="share of savings charged as yearly contract value")
     c = costs(**{k: v for k, v in vars(p.parse_args()).items()})
     for label, key in [("one approval", "per_review"), ("a year, every action approved", "all_human"),
@@ -36,12 +36,12 @@ def main():
 
 
 def _check():
-    c = costs(2000, 5, 50, 250, 0.33, 0.20)
+    c = costs(2000, 5, 50, 250, 0.36, 0.20)
     assert round(c["per_review"], 2) == 4.17
     assert round(c["all_human"]) == 2_083_333
-    assert round(c["with_interlock"]) == 687_500
-    assert round(c["savings"]) == 1_395_833
-    assert round(c["acv"]) == 279_167
+    assert round(c["with_interlock"]) == 750_000
+    assert round(c["savings"]) == 1_333_333
+    assert round(c["acv"]) == 266_667
 
 
 if __name__ == "__main__":
