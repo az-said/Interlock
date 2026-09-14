@@ -8,7 +8,7 @@ Receipts as plain lines for a SIEM (Splunk, Sentinel, QRadar, ArcSight, ...). St
 Every line carries event_id = <effect id>-<entry hash> (CEF: externalId), the dedup key for the SIEM too.
 """
 import json
-from ._common import event_id, rfc3339, states, who
+from ._common import event_id, identities, rfc3339, states
 
 CEF_SEVERITY = {"COMMITTED": 3, "REFUSED": 6, "AMBIGUOUS": 9}
 
@@ -18,8 +18,7 @@ def _events(bundles):
         es = b["entries"]
         if not es:
             continue
-        agent, lease = who(es)
-        for i, (e, state) in enumerate(zip(es, states(es))):
+        for i, (e, state, (agent, lease)) in enumerate(zip(es, states(es), identities(es))):
             yield {"event_id": event_id(e), "time": rfc3339(e["ts"]), "effect_id": e["effect_id"], "entry_index": i,
                    "kind": e["kind"], "state": state, "agent": agent, "lease": lease, "reason": e.get("reason"),
                    "via": e.get("via"), "entry_hash": e["hash"], "prev_hash": e.get("prev"), "entry": e}

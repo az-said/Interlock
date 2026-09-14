@@ -77,14 +77,14 @@
       "caveat": ""
     },
     "gate/file": {
-      "outcome": "COMMITTED_ON_QUERY",
+      "outcome": "COMMITTED_BY_RETRY",
       "result": "landed_ok",
       "duplicated": false,
       "invariant_held": true,
       "caveat": ""
     },
     "gate/symbol": {
-      "outcome": "COMMITTED_ON_QUERY",
+      "outcome": "COMMITTED_BY_RETRY",
       "result": "landed_ok",
       "duplicated": false,
       "invariant_held": true,

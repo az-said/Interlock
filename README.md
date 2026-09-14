@@ -226,11 +226,15 @@ def refund(order, amount, idempotency_key):
 gate.recover()   # once, on startup
 ```
 
+If startup happens before a crashed sender's claim expires, calling the decorated function again retries recovery of its recorded decision. Call `recover()` periodically for effects that will not be called again. An active claim still prevents a second send.
+
 `refund("881", 20)` now journals the decision, re-reads the premises right before the call and again after any crash, passes a stable idempotency key, and returns `("COMMITTED", result)`, `("REFUSED:stale_premise", None)`, `("DUPLICATE_IGNORED", ...)`, and so on.
 
 The one thing you still have to say is the thing no library can guess: which facts the decision depends on. Then say how the service cooperates: `dedupes=True` if it takes the key, `lookup=` a function that answers "did this already happen?", or neither. `allowed=` adds a permission check at dispatch and at recovery. A premise that would count the effect's own result takes `idempotency_key` and leaves it out, as above. The adapter is `interlock/easy.py`; `tests/test_interlock.py` runs it through a crash and a process restart.
 
 ## Zero lines: in front of an MCP server
+
+Premise tools must return every configured field, and lookup tools must return a JSON boolean in the configured `found` field. An error, missing field, or malformed lookup leaves the action unsent or unresolved; it never proves that the previous action was absent.
 
 The agent's code doesn't change. Point its MCP server command at the proxy and name the tools that have real effects:
 

@@ -20,7 +20,7 @@ log bucket or sink, not this module.
 """
 from ..receipts import verify
 from ._common import (TERMINAL, ExportError, batches, event_id, gcloud_token, request_json, rfc3339,
-                      span_id, states, trace_id, who)
+                      identities, span_id, states, trace_id, who)
 
 URL = "https://logging.googleapis.com/v2/entries:write"
 LOG_ID = "interlock-receipts"
@@ -36,19 +36,20 @@ def log_entries(bundle, project, log_id=LOG_ID, key=None):
             "resource": {"type": "global", "labels": {"project_id": project}},
             "trace": f"projects/{project}/traces/{trace_id(eid)}", "spanId": span_id(eid)}
 
-    def labels(kind, state):
+    def labels(kind, state, identity):
+        agent, lease = identity
         return {"interlock_effect_id": eid, "interlock_kind": kind, "interlock_agent": agent or "",
                 "interlock_lease": lease or "", "interlock_state": state}
 
     out = [{**base, "insertId": event_id(e), "timestamp": rfc3339(e["ts"]),
-            "severity": SEVERITY.get(e["kind"], "INFO"), "labels": labels(e["kind"], state),
+            "severity": SEVERITY.get(e["kind"], "INFO"), "labels": labels(e["kind"], state, identity),
             "operation": {"id": eid, "producer": "interlock", "first": i == 0, "last": state in TERMINAL},
             "jsonPayload": e}
-           for i, (e, state) in enumerate(zip(es, states(es)))]
+           for i, (e, state, identity) in enumerate(zip(es, states(es), identities(es)))]
 
     verdict, head = verify(bundle, key), es[-1]["hash"]
     out.append({**base, "insertId": f"{eid}-receipt-{head}", "timestamp": rfc3339(es[-1]["ts"]),
-                "severity": "INFO" if verdict["valid"] else "ERROR", "labels": labels("RECEIPT", states(es)[-1]),
+                "severity": "INFO" if verdict["valid"] else "ERROR", "labels": labels("RECEIPT", states(es)[-1], (agent, lease)),
                 "operation": {"id": eid, "producer": "interlock"},
                 "jsonPayload": {"summary": bundle.get("summary"), "verification": verdict,
                                 "signature": bundle.get("signature"), "head_hash": head, "entries": len(es)}})

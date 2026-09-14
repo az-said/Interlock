@@ -2,11 +2,17 @@ name: test
 on: [push, pull_request]
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest]
         python-version: ["3.9", "3.12", "3.13"]     # 3.9 is the floor pyproject.toml promises
+        include:
+          - os: windows-latest
+            python-version: "3.13"
+    env:
+      PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -15,6 +21,7 @@ jobs:
       - name: Invariants, fault sweep, integration
         run: python -m unittest discover -s tests -v
       - name: Results tables match the code
+        if: runner.os == 'Linux'
         run: |
           python experiments/run_all.py > /dev/null
           python viewer/build.py

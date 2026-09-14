@@ -1,6 +1,6 @@
 # Results: parallel coding agents
 
-Generated 2026-09-13 17:36 UTC by `experiments/run_all.py`. Cells: `outcome · result · invariant`. ✅ held · ❌ violated · ⚠️ held, but availability lost.
+Generated 2026-09-14 01:43 UTC by `experiments/run_all.py`. Cells: `outcome · result · invariant`. ✅ held · ❌ violated · ⚠️ held, but availability lost.
 
 Invariant: nothing lands that fails at runtime; nothing lands twice; nothing lands
 under a revoked lease. `result` executes the code B added, it does not just import it.
@@ -10,7 +10,7 @@ under a revoked lease. `result` executes the code B added, it does not just impo
 | `rename_break` | APPLIED landed_BROKEN ❌ | REFUSED:stale_premise not_landed ✅ | REFUSED:stale_premise not_landed ✅ |
 | `duplicate_work` | APPLIED 2 impl ❌ | REFUSED:claimed_by_A 1 impl ✅ | REFUSED:claimed_by_A 1 impl ✅ |
 | `benign_reformat` | APPLIED landed_ok ✅ | REFUSED:stale_premise not_landed ⚠️ | COMMITTED landed_ok ✅ |
-| `crash_before_commit` | RETRIED landed_ok ❌ | COMMITTED_ON_QUERY landed_ok ✅ | COMMITTED_ON_QUERY landed_ok ✅ |
+| `crash_before_commit` | RETRIED landed_ok ❌ | COMMITTED_BY_RETRY landed_ok ✅ | COMMITTED_BY_RETRY landed_ok ✅ |
 | `duplicate_submit` | APPLIED landed_ok ❌ | DUPLICATE_IGNORED landed_ok ✅ | DUPLICATE_IGNORED landed_ok ✅ |
 | `lease_revoked` | APPLIED landed_ok ❌ | REFUSED:lease not_landed ✅ | REFUSED:lease not_landed ✅ |
 | `semantic_only` | APPLIED landed_BROKEN ❌ | REFUSED:stale_premise not_landed ✅ | COMMITTED landed_BROKEN ❌ |

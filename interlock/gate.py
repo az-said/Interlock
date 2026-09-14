@@ -196,12 +196,16 @@ class Gate:
         effect), plus the store's own record of the grant when it has describe(lease).
         """
         allows, describe = getattr(self.leases, "allows", None), getattr(self.leases, "describe", None)
+        describe_effect = getattr(self.leases, "describe_effect", None)
         return {"lease_live": bool(allows(lease, effect) if allows else self.leases.is_live(lease)),
-                "lease": describe(lease) if describe else None}
+                "lease": describe_effect(lease, effect) if describe_effect else describe(lease) if describe else None}
 
-    def _resend(self, eid, effect, status, **commit):
+    def _resend(self, eid, effect, status, owner, **commit):
         """status once the resend commits; a target's rejection is settled here, so no later pass sends it again."""
-        self.journal.claim(eid, self.owner, self.claim_ttl)   # refresh: the resend must finish inside the claim
+        if not self.journal.claim(eid, owner, self.claim_ttl):
+            return "IN_FLIGHT"                  # a slow lookup outlived our claim and another recovery took over
+        if not open_dispatch(self.journal.entries(eid)):
+            return None                         # a previous owner finished while the lookup was running
         try:
             result = self.target.apply(eid, effect)
         except Rejected as e:
@@ -250,25 +254,26 @@ class Gate:
         `only` limits recovery to the given effect ids.
         """
         now = time.time() if now is None else now
+        owner = f"{self.owner}/recover/{uuid.uuid4().hex}"
         out = {}
         for eid in self.journal.in_flight():
             if only is not None and eid not in only:
                 continue
-            if not self.journal.claim(eid, self.owner, self.claim_ttl):
+            if not self.journal.claim(eid, owner, self.claim_ttl):
                 continue                                        # being sent or recovered by someone else
             try:
-                status = self._recover_one(eid, now)
+                status = self._recover_one(eid, now, owner)
             except Exception as e:                              # one bad effect must not strand the others
                 status = f"UNRESOLVED:{type(e).__name__}"
                 if not getattr(e, "interlock_sent", False):     # nothing was sent: the next attempt may go now
-                    self.journal.release(eid, self.owner)
+                    self.journal.release(eid, owner)
             else:
-                self.journal.release(eid, self.owner)
+                self.journal.release(eid, owner)
             if status:
                 out[eid] = status
         return out
 
-    def _recover_one(self, eid, now):
+    def _recover_one(self, eid, now, owner):
         es = self.journal.entries(eid)
         if not open_dispatch(es):
             return None                                         # resolved while we were claiming
@@ -281,7 +286,7 @@ class Gate:
             return "AMBIGUOUS"
         checks, stale, changes, repairs = self._recheck(d)
         if tier == 1 and not stale:                             # idempotent: safe to retry
-            return self._resend(eid, effect, "COMMITTED_BY_RETRY", via="retry-idempotent", rechecked=checks)
+            return self._resend(eid, effect, "COMMITTED_BY_RETRY", owner, via="retry-idempotent", rechecked=checks)
         if not queryable:                                       # stale, and no way to see what landed: no repairs
             self.journal.append("AMBIGUOUS", eid, code="ambiguous", reason=f"{stale} at recovery, no lookup", rechecked=checks,
                                 **_nonempty(changes=changes))
@@ -294,7 +299,7 @@ class Gate:
             self.journal.append("REFUSED", eid, code=f"{stale}_at_recovery", reason=f"{stale} at recovery", resolves=True, rechecked=checks,
                                 **_nonempty(changes=changes, repairs=repairs))   # the lookup found nothing landed
             return f"REFUSED:{stale}_at_recovery"
-        return self._resend(eid, effect, "REAPPLIED_AFTER_QUERY", via="recovery-reapply", rechecked=checks)
+        return self._resend(eid, effect, "REAPPLIED_AFTER_QUERY", owner, via="recovery-reapply", rechecked=checks)
 
     def settle_failed(self, eid, reason):
         """

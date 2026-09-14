@@ -7,36 +7,62 @@ Premises an agent can capture about a repo:
 mode="file" captures hashes (coarse); mode="symbol" captures symbols (fine).
 The gap between those two modes is one of the results in this repo.
 
-Tier 2: a filesystem is queryable after a crash.
+Tier 1 with lookup: durable per-effect postimages make retries idempotent. Keep
+.interlock-effects.jsonl and its sidecars with the repository for as long as effects
+may be retried. Pre-upgrade unresolved effects need manual reconciliation before
+using this adapter: older versions did not record their postimages.
 """
-import ast, hashlib, os
+import ast, hashlib, os, stat, tempfile
 from ..gate import SimulatedCrash
+from ..journal import Journal
 
 
 def _h(s): return hashlib.sha256(s.encode() if isinstance(s, str) else s).hexdigest()[:12]
 
 
 def _read(path, mode="r"):
-    with open(path, mode) as f:
+    with open(path, mode, **({} if "b" in mode else {"encoding": "utf-8", "newline": ""})) as f:
         return f.read()
 
 
 def _write(path, content):
-    with open(path, "w") as f:
-        f.write(content)
+    """Replace a whole file durably; a crash must not leave half a postimage."""
+    fd, tmp = tempfile.mkstemp(dir=os.path.dirname(path), prefix=".interlock-write-")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="") as f:
+            f.write(content)
+            f.flush()
+            os.fsync(f.fileno())
+        if os.path.exists(path):
+            os.chmod(tmp, stat.S_IMODE(os.stat(path).st_mode))
+        os.replace(tmp, path)
+        if os.name != "nt":
+            directory = os.open(os.path.dirname(path), os.O_RDONLY)
+            try:
+                os.fsync(directory)
+            finally:
+                os.close(directory)
+    finally:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
 
 
 class LocalRepo:
-    tier = 2
+    tier = 1
+    queryable = True
 
     def __init__(self, path):
-        self.path = path
+        self.path = os.path.abspath(path)
+        self.effects = Journal(os.path.join(self.path, ".interlock-effects.jsonl"))
 
-    def symbol_table(self):
+    def symbol_table(self, originals=None):
         table = {}
         for fn in os.listdir(self.path):
             if fn.endswith(".py"):
-                tree = ast.parse(_read(os.path.join(self.path, fn)))
+                source = originals.get(fn) if originals is not None and fn in originals else _read(os.path.join(self.path, fn))
+                if source is None:
+                    continue
+                tree = ast.parse(source)
                 for n in tree.body:
                     if isinstance(n, ast.FunctionDef):
                         table[f"{fn[:-3]}.{n.name}"] = len(n.args.args)
@@ -50,11 +76,16 @@ class LocalRepo:
 
     def validate_premises(self, premises, eid=None):
         bad = []
+        plan = self._plan(eid) if eid else None
+        originals = {p: plan["before"][p] for p, content in plan["after"].items()
+                     if self._current(p) == content} if plan else {}
         for p, h in premises.get("files", {}).items():
             fp = os.path.join(self.path, p)
+            if p in originals and originals[p] is not None and _h(originals[p]) == h:
+                continue                              # this effect changed a file it read
             if not os.path.exists(fp) or _h(_read(fp, "rb")) != h:
                 bad.append(f"{p} changed since read")
-        st = self.symbol_table()
+        st = self.symbol_table(originals)
         for s, arity in premises.get("symbols", {}).items():
             if st.get(s) != arity:
                 bad.append(f"{s}: expected arity {arity}, now {st.get(s)}")
@@ -64,22 +95,54 @@ class LocalRepo:
         post = dict(effect.get("writes", {}))
         for p, extra in effect.get("appends", {}).items():
             fp = os.path.join(self.path, p)
-            post[p] = (_read(fp) if os.path.exists(fp) else "") + extra
+            post[p] = post.get(p, _read(fp) if os.path.exists(fp) else "") + extra
         return post
 
+    def _current(self, path):
+        fp = os.path.join(self.path, path)
+        return _read(fp) if os.path.exists(fp) else None
+
+    def _plan(self, eid):
+        return next((e for e in self.effects.entries(eid) if e["kind"] == "PREPARED"), None)
+
+    def _check(self, plan, effect):
+        if plan["effect"] != effect:
+            raise ValueError("repository effect differs from its prepared payload")
+        for p, content in plan["after"].items():
+            if self._current(p) not in (plan["before"][p], content):
+                raise RuntimeError(f"{p} changed outside the prepared repository effect")
+
     def apply(self, eid, effect, crash_after_effect=False):
-        for p, content in self._post(effect).items():
-            _write(os.path.join(self.path, p), content)
+        with self.effects._exclusive():
+            plan = self._plan(eid)
+            if plan is None:
+                post = self._post(effect)
+                plan = self.effects.append("PREPARED", eid, effect=effect,
+                                           before={p: self._current(p) for p in post}, after=post)
+            if plan["effect"] != effect:
+                raise ValueError("repository effect differs from its prepared payload")
+            if not self.effects.has("APPLIED", eid):
+                self._check(plan, effect)
+                for p, content in plan["after"].items():
+                    if self._current(p) != content:
+                        _write(os.path.join(self.path, p), content)
+                self.effects.append("APPLIED", eid)
         if crash_after_effect:
             raise SimulatedCrash(eid)
 
     def query(self, eid, effect):
-        for p, extra in effect.get("appends", {}).items():
-            fp = os.path.join(self.path, p)
-            if not (os.path.exists(fp) and extra in _read(fp)):
+        with self.effects._exclusive():
+            plan = self._plan(eid)
+            if plan is None:
                 return False
-        for p, content in effect.get("writes", {}).items():
-            fp = os.path.join(self.path, p)
-            if not (os.path.exists(fp) and _read(fp) == content):
-                return False
-        return True
+            if plan["effect"] != effect:
+                raise ValueError("repository effect differs from its prepared payload")
+            if self.effects.has("APPLIED", eid):
+                return True
+            self._check(plan, effect)
+            if all(self._current(p) == content for p, content in plan["after"].items()):
+                self.effects.append("APPLIED", eid)
+                return True
+            if any(self._current(p) != plan["before"][p] for p in plan["after"]):
+                raise RuntimeError("repository effect is partially applied; outcome is not absence")
+            return False

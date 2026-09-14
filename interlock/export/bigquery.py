@@ -15,7 +15,7 @@ entry_json keeps each entry byte for byte, so receipts.verify() can re-run on ro
 queries docs/08-compliance-mapping.md shows each role; experiments/export_live.py runs them against the live table.
 """
 import json
-from ._common import ExportError, event_id, gcloud_token, request_json, rfc3339, states, text, who
+from ._common import ExportError, event_id, gcloud_token, identities, request_json, rfc3339, states, text
 
 API = "https://bigquery.googleapis.com/bigquery/v2"
 TABLE = "receipt_entries"
@@ -58,8 +58,7 @@ def rows(bundles):
     out = {}
     for b in bundles:
         es = b["entries"]
-        agent, lease = who(es) if es else (None, None)
-        for i, (e, state) in enumerate(zip(es, states(es) if es else [])):
+        for i, (e, state, (agent, lease)) in enumerate(zip(es, states(es) if es else [], identities(es))):
             out[e["hash"]] = {"effect_id": e["effect_id"], "entry_index": i, "kind": e["kind"], "state": state,
                               "recorded_at": rfc3339(e["ts"]), "agent": agent, "lease": lease,
                               "reason": text(e.get("reason")), "via": e.get("via"), "entry_hash": e["hash"],
