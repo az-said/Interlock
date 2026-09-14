@@ -4,7 +4,7 @@
 
 At checkpoint 1 we had a problem statement, two competing specs, and an empty repo. Now we have one runtime, two experiments, and three findings.
 
-**Two specs became one system.** The team wrote two documents on Saturday: a narrow refund-duplicate spec (`docs/team-notes/02`) and a broad concurrency-control spec for parallel coding agents (`docs/team-notes/05`). They looked like different projects. They're the same mechanism: an agent decides on premises that are true when it decides and stale when its effect lands, and nothing re-checks them at commit. So we built the gate once and pointed it at two effect targets.
+**Two specs became one system.** The team wrote two documents on Saturday: a narrow refund-duplicate spec and a broad concurrency-control spec for parallel coding agents. They looked like different projects. They're the same mechanism: an agent decides on premises that are true when it decides and stale when its effect lands, and nothing re-checks them at commit. So we built the gate once and pointed it at two effect targets.
 
 **Built.** Append-only journal; effect identity bound to the approved request (never to a model output); a gate enforcing six invariants; recovery by cooperation tier; a claims registry; two effect targets (payments API at three tiers, local repo at two premise granularities); two fault-injection harnesses with two baselines; a results generator.
 

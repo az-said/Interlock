@@ -23,7 +23,6 @@ The repo was empty. We said so: day one went to understanding the problem, not c
 | Business Value & Impact | 25% | 5 / 10 |
 | Presentation & Communication | 20% | 2.5 / 10 |
 
-Judge: Alparslan Cetin.
 
 ## Feedback, verbatim
 

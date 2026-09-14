@@ -292,50 +292,17 @@ There is no market for network crashes. There is a market for the consequences o
 
 ---
 
-## 13. Next steps
+## 13. What's next
 
-### Hackathon (Sunday 22:00 → Monday 12:00)
-
-```
-NOW ────────────────────────────────────────────────────────────────────────▶ Mon 12:00
-
- [verify]         [record]           [checkpoint 3]      [one real row]        [final]
- tests pass       3-min video        Sun 22:00 ET        Mon morning           Mon 10:00 cp4
- Stripe ids       face cam + slides  submit repo +       GitHub target,        Mon 12:00 submit
- Temporal md      + real terminal    video + doc         or coverage table     repo public, email,
- 3 arXiv links    + cookie sketch    "what changed":     (pick one, not both)  screenshot saved
- fix demo text    upload to Drive    findings 4, live                          laptop closed 10:50
-                                     Stripe/Temporal
-```
-
-Priority if time runs out: verify → record → submit. Everything else is optional.
-
-### Startup (the next 90 days, if you continue)
-
-```
- Week 1–2          Week 3–4            Month 2              Month 3
- ┌──────────┐      ┌──────────┐        ┌──────────┐         ┌──────────┐
- │ 10 user  │ ──▶  │ 1 design │  ──▶   │ pilot:   │  ──▶    │ notary   │
- │ interviews│      │ partner  │        │ refunds  │         │ v0 +     │
- │ (approvers│      │ (finance │        │ at one   │         │ 2nd      │
- │ + platform│      │ or fintech│        │ team,    │         │ effect   │
- │ eng)      │      │ ops)     │        │ measure  │         │ type     │
- └──────────┘      └──────────┘        │ approval │         └──────────┘
-   Mom Test          intros to the      │ rate     │           YC app
-   questions         payments-rail      └──────────┘
-                     founders we know
-```
-
-The interviews come first because the approval-inbox mix is an assumption. The first thing a real finance-ops person tells you replaces it with a number. That number is the pitch.
-
----
-
-## 14. The video
-
-**Format: slides as backdrop, face cam for talking, real terminal for the three demos, cookie sketch live on camera.** Polished-but-voiceless scored 2.5 in this room; the judge asked for voice by name. Slides that *describe* a demo instead of *showing* it repeat the mistake with nicer fonts.
-
-**The arc:** consequence (the approver) → why (three unanswerable questions) → root (premises go stale) → insight (carry them, re-check at commit, produce a receipt) → demo (naive / 2 / 3) → evidence (table 1 with the idempotency and durable columns) → where it fits (unnamed: retry engines, payment rails, guardrails) → limits and next.
-
-**New since the last script, and worth ten seconds each:** the real Stripe run ("same result on the real service"), the Temporal run ("inside a Temporal activity, the same retry is refused"), and Finding 4 ("our own tests found a bug in our recovery path; here's the fix"). That last one is the most credible sentence in the video. Use it.
-
-Three minutes. Say the dollar amounts. End on the two questions for the judges.
+- **The core changes the scenario suite proposed** (`docs/10-scenarios.md`): cap
+  reservation inside the dispatch transaction, claim liveness so recovery does not
+  wait out a dead sender's TTL, premises that can carry an expected value, and
+  honest naming for unsigned receipt chains.
+- **The notary** (`docs/04-integration.md`): a small service both sides write to,
+  lifting tier-3 targets to tier 2, so AMBIGUOUS shrinks to the cases where the
+  Two Generals problem requires it.
+- **Replace the assumption with data.** The approval-inbox mix is stated as an
+  assumption. The next number in this repo should come from people who approve
+  agent actions for a living.
+- **A design partner** running the gate on one real refund path, measuring reviews
+  and wrong payouts before and after.
