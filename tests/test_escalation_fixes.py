@@ -19,6 +19,15 @@ from interlock.targets.stripe_api import StripeRefunds
 from interlock.mcp_proxy import Proxy, ToolError
 from interlock.easy import Interlock
 from interlock.temporal import Refused, gated
+try:                                        # with temporalio installed, gated() raises its ApplicationError instead
+    from temporalio.exceptions import ApplicationError
+    REFUSALS = (Refused, ApplicationError)
+except ImportError:
+    REFUSALS = (Refused,)
+
+
+def escalation_of(e):
+    return getattr(e, "escalation", None) or (e.details[0] if getattr(e, "details", None) else None)
 from test_confirmations import SECRET, T, Client, event, header
 
 HOUR = 3600
@@ -105,9 +114,9 @@ class ExplainPicksTheOutcome(unittest.TestCase):
             gate.submit(p(20), crash_after_effect=True)
         self.assertEqual(gate.recover(), {eid("r1"): "AMBIGUOUS"})
         self.assertEqual(gate.submit(p(30)), "REFUSED:conflicting_payload")
-        with self.assertRaises(Refused) as ctx:
+        with self.assertRaises(REFUSALS) as ctx:
             gated(gate, p(20))
-        self.assertEqual(ctx.exception.escalation["status"], "AMBIGUOUS")
+        self.assertEqual(escalation_of(ctx.exception)["status"], "AMBIGUOUS")
         self.assertIn("unclear whether it happened", str(ctx.exception))
         self.assertEqual(explain(gate.journal.entries(eid("r1")), "AMBIGUOUS")["reason"], "ambiguous")
 
@@ -381,7 +390,7 @@ class TemporalOutcome(unittest.TestCase):
              "effect": {"order": "1", "amount": 20}}
         with self.assertRaises(SimulatedCrash):
             gated(gate, P, crash_after_effect=True)
-        with self.assertRaises(Refused) as ctx:
+        with self.assertRaises(REFUSALS) as ctx:
             gated(gate, P)
         self.assertIn("unclear whether it happened", str(ctx.exception))
         self.assertEqual(outcome(str(ctx.exception)), "AMBIGUOUS")
@@ -552,7 +561,7 @@ class TargetRejection(unittest.TestCase):
         self.assertEqual(gate.recover(), {eid("r1"): "REFUSED:target_error"})
         self.assertEqual(gate.recover(), {})
         self.assertEqual(type(api).calls, 1)
-        with self.assertRaises(Refused):
+        with self.assertRaises(REFUSALS):
             gated(gate, p)
 
     def test_stripe_4xx_is_a_rejection_and_5xx_is_not(self):
