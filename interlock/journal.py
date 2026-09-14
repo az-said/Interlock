@@ -146,6 +146,9 @@ def dispatch_blocker(entries, effect, lease=None, premises=None):
         return "conflicting_payload"
     if closed(entries):
         return "closed"
+    settled = [i for i, e in enumerate(entries) if e["kind"] == "REFUSED" and e.get("code") == "target_error" and e.get("resolves")]
+    if settled and not any(e["kind"] == "ESCALATED" for e in entries[settled[-1] + 1:]):
+        return "target_error"           # the target said it failed, but it may have landed: only a person sends it again
     esc, dec = latest(entries)
     if esc is not None:
         ok = (isinstance(lease, dict) and lease.get("escalation") == esc["hash"] and dec is not None

@@ -170,7 +170,7 @@ class Gate:
         if blocker == "conflicting_payload":                            # another worker recorded a different decision first
             self.journal.append("REFUSED", eid, code="conflicting_payload", reason="payload differs from a decision recorded concurrently")
             return "REFUSED:conflicting_payload"
-        if blocker in ("closed", "awaiting_decision"):                  # a person owns this effect now
+        if blocker in ("closed", "awaiting_decision", "target_error"):  # a person owns this effect now
             self.journal.append("REFUSED", eid, code=blocker, reason=WHY[blocker])
             return f"REFUSED:{blocker}"
         if blocker:

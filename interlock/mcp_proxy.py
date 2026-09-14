@@ -38,8 +38,10 @@ Standard library only.
 """
 import itertools, json, queue, subprocess, sys, threading, uuid
 from .easy import Interlock
-from .journal import CLAIM_TTL
-from .tools import RESOLVED, ToolError, fill, gated, run, structured   # re-exported for old imports
+from .escalation import WHY, code, describe, explain                   # re-exported for old imports
+from .gate import Rejected
+from .journal import CLAIM_TTL, effect_id_for, open_dispatch
+from .tools import RESOLVED, ToolError, fill, gated, run, structured
 
 
 class Upstream:
@@ -63,7 +65,7 @@ class Upstream:
         with self.wait_lock:
             waiters, self.waiting = list(self.waiting.values()), {}
         for waiter in waiters:
-            waiter.put({"error": {"message": "upstream MCP server exited"}})
+            waiter.put({"exited": "upstream MCP server exited"})   # not an answer: the call may have landed
 
     def send(self, msg):
         with self.write_lock:
@@ -81,6 +83,8 @@ class Upstream:
             with self.wait_lock:
                 self.waiting.pop(rid, None)
             raise TimeoutError(f"{name} did not answer within {timeout}s") from None
+        if "exited" in msg:
+            raise ConnectionError(f"{name}: {msg['exited']}")      # outcome unknown, so recovery settles it
         if "error" in msg:
             raise ToolError(msg["error"].get("message"))
         return msg["result"]

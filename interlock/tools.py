@@ -30,11 +30,14 @@ Without it, a refused request stays refused until a person decides again.
 import json, sys
 from .approvals import Envelope
 from .easy import Interlock
-from .escalation import WHY, code, describe, explain, render
+from .escalation import WHY as REASONS, describe, explain, render
 from .gate import Rejected
 from .journal import CLAIM_TTL, effect_id_for, open_dispatch
 
 RESOLVED = ("DUPLICATE_IGNORED", "COMMITTED_BY_RETRY", "COMMITTED_ON_QUERY", "REAPPLIED_AFTER_QUERY")
+WHY = {(c.upper() if c in ("ambiguous", "in_flight", "not_sent", "unresolved", "refused") else "REFUSED:" + c): why
+       for c, why in REASONS.items()}                         # keyed by status, as tools.WHY always was
+WHY["REFUSED:lease"] = "no live approval covers it"         # a tool's only lease store is its approval
 RETRYABLE = ("REFUSED:stale_premise", "REFUSED:lease")     # refused before anything was sent or reserved
 
 
@@ -102,15 +105,19 @@ def gated(interlock, name, spec, call_tool, module=__name__):
             return read(spec["approval"], arguments, None) or None
 
     key = lambda arguments: f"{name}:" + json.dumps({k: arguments.get(k) for k in spec["key"]}, sort_keys=True)
-    return interlock.effect(key=key, premises=premises, lookup=lookup, dedupes=spec.get("dedupes", False),
+    call = interlock.effect(key=key, premises=premises, lookup=lookup, dedupes=spec.get("dedupes", False),
                             approval=approval, fields=lambda args: args[0])(send)
+    call.key = key                                            # the proxy's old name for it
+    return call
 
 
-def repair(gate, entries, status, esc):
+def repair(gate, entries, status, esc=None):
     """
     Guidance for the agent when a call was not sent: what changed, and whether a corrected call may go.
-    The structured changes stay in `esc`; this only renders them.
+    The structured changes stay in `esc`; this only renders them. `entries` may be the effect id, as it once was.
     """
+    if isinstance(entries, str):
+        entries = gate.journal.entries(entries)
     refused = next((e for e in reversed(entries) if e["kind"] == "REFUSED"), {})
     proposed = next((e for e in reversed(entries) if e["kind"] == "PROPOSED"), {})
     envelope = isinstance(gate.leases, Envelope)
@@ -154,6 +161,8 @@ def run(call, arguments):
             status = "IN_FLIGHT" if open_dispatch(call.gate.journal.entries(eid)) else "NOT_SENT"
     entries = call.gate.journal.entries(eid)
     esc = explain(entries, status) if status.startswith("REFUSED") or status == "AMBIGUOUS" else None
+    if esc:
+        esc["why"] = WHY.get(status, esc["why"])
     out = {"ok": status == "COMMITTED" or status in RESOLVED, "status": status, "result": result,
            "repair": None, "escalation": esc, "receipt": call.gate.journal.receipt(eid)}
     if status == "COMMITTED":
@@ -162,7 +171,7 @@ def run(call, arguments):
         out["message"] = f"Interlock: this action already happened once ({status}); it was not sent again."
     else:
         fix = out["repair"] = repair(call.gate, entries, status, esc)
-        why = describe(esc) if esc else WHY.get(code(status), WHY["refused"])
+        why = describe(esc) if esc else WHY.get(status, WHY["REFUSED"])
         extra = f" {'; '.join(fix['changed'])}." if fix["changed"] and not (esc and esc.get("changes")) else ""
         out["message"] = f"Interlock did not send this action ({status}): {why}.{extra} {fix['next']}"
     return out

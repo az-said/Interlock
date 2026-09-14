@@ -53,9 +53,11 @@ class _FunctionTarget:
         return [render(c) for c in diff(premises["facts"], self.facts(premises["args"], eid))]
 
     def explain(self, premises, eid=None, effect=None):
-        """Violations through validate_premises, so a check patched onto the instance still runs."""
-        return {"violations": self.validate_premises(premises, eid),
-                "changes": diff(premises["facts"], self.facts(premises["args"], eid)), "repairs": []}
+        """One read per check: violations are rendered from the same diff. A check patched onto the instance still runs."""
+        if "validate_premises" in vars(self):
+            return {"violations": self.validate_premises(premises, eid), "changes": [], "repairs": []}
+        changes = diff(premises["facts"], self.facts(premises["args"], eid))
+        return {"violations": [render(c) for c in changes], "changes": changes, "repairs": []}
 
     def apply(self, eid, effect, crash_after_effect=False):
         self.results[eid] = _call(self.fn, effect["args"], eid)
@@ -65,6 +67,16 @@ class _FunctionTarget:
 
     def query(self, eid, effect):
         return bool(_call(self.lookup, effect["args"], eid))
+
+
+def _redecidable(entries):
+    """
+    Refused before anything was sent or reserved (a stale fact, or outside the approval). Under an approval
+    the agent re-decides on current facts, so the same arguments get a new effect id instead of being
+    checked forever against the refused attempt's premises.
+    """
+    return (bool(entries) and entries[-1]["kind"] == "REFUSED" and entries[-1].get("code") in ("stale_premise", "lease")
+            and not any(e["kind"] == "DISPATCHED" for e in entries))
 
 
 class _Allowed:
@@ -109,9 +121,14 @@ class Interlock:
 
             def request_id(*args):
                 args = json.loads(json.dumps(list(args)))
-                if approval:                           # one attempt per distinct decision, all under one approval
-                    return f"{key(*args)}:{json.dumps(args, sort_keys=True)}"
-                return key(*args)
+                if not approval:
+                    return key(*args)
+                base = f"{key(*args)}:{json.dumps(args, sort_keys=True)}"   # one attempt per distinct decision
+                rid, n = base, 1
+                while _redecidable(gate.journal.entries(effect_id_for({"request_id": rid}))):
+                    n += 1                             # the same arguments after a refusal are a new decision
+                    rid = f"{base}:{n}"
+                return rid
 
             def proposal(*args):
                 args = json.loads(json.dumps(list(args)))

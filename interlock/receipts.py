@@ -83,7 +83,10 @@ def verify(receipt, key=None):
         problems.append("the receipt does not start with a proposal")
 
     sends, once, open_, authorized_seen, refused, effect, evidence, at_recovery = [], True, False, False, None, {}, None, None
+    rejected = False                    # the target said a send failed; only a person's escalation may send it again
     for e in es:
+        if e.get("kind") == "ESCALATED":
+            rejected = False
         if e.get("kind") == "AUTHORIZED":
             authorized_seen = True
         if e.get("kind") == "REFUSED":
@@ -96,6 +99,9 @@ def verify(receipt, key=None):
                 problems.append("sent again while an earlier send was unresolved")
             if not authorized_seen:
                 problems.append("a send has no authorization before it")
+            if rejected:
+                once = False
+                problems.append("sent again after the target reported the send failed")
             open_, effect = True, e.get("effect") or {}
             sends.append((e.get("checks") or {}, effect))
         elif e.get("kind") == "COMMITTED":
@@ -105,6 +111,7 @@ def verify(receipt, key=None):
                 sends.append((e.get("rechecked") or {}, effect))
             evidence = e.get("result") or e.get("found")
         if e.get("kind") == "REFUSED" and e.get("resolves") and open_:
+            rejected = rejected or e.get("code") == "target_error"
             sends.pop()         # closed by a refusal: that send never landed, so its checks attest to nothing that fired
         if e.get("kind") in ("COMMITTED", "AMBIGUOUS") or (e.get("kind") == "REFUSED" and e.get("resolves")):
             open_ = False
