@@ -28,6 +28,7 @@ Anything that failed this audit was removed on 2026-09-13, not softened.
 | 63% of organizations require human validation of agent outputs, up from 22% in Q1 2025; 54% actively deploying agents | KPMG AI Pulse survey, Q1 2026 (kpmg.com) | source-checked |
 | MAST: 1,600+ annotated traces across 7 frameworks, 14 failure modes; step repetition the top mode at 17.14% | arXiv 2503.13657 | source-checked (traces and modes in the abstract; the percentage is from the paper body) |
 | Stripe idempotency keys are pruned after at least 24 hours; a reused key then creates a new request | docs.stripe.com/api/idempotent_requests | source-checked |
+| Manual invoice processing runs $15 to $16 each; labor is 62% of AP cost (site, "By hand today") | IOFM and Levvel Research benchmarks, APQC labor share, as compiled by Resolve — resolvepay.com/blog/13-statistics-that-quantify-cost-per-invoice-in-manual-vs-automated-flows | source-checked (secondary compilation, opened 2026-09-13; cited as a compilation where used) |
 
 ## Comparative claims
 
