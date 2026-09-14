@@ -21,6 +21,8 @@ named in the config pass through untouched. `out` is:
 
 A tool function returns normally when it worked, raises ToolError when the service said no (settled,
 never resent), and any other exception means the outcome is unknown: recovery settles it.
+Premise reads must include every configured field; a lookup's configured `found` field must be a boolean.
+Failed or incomplete reads leave the action unsent or unresolved until a successful read can settle it.
 
 When the agent reads the premises tool itself (through this tool list or the MCP proxy), a later call
 is proposed on the facts it read, not on a fresh read, so a change between the agent's read and its call
@@ -84,7 +86,10 @@ def gated(interlock, name, spec, call_tool, module=__name__):
     `call.observe(tool, arguments, result)` records a read the agent made itself.
     """
     def read(source, arguments, effect_id):
-        return structured(call_tool(source["tool"], fill(source["arguments"], arguments, effect_id)))
+        result = call_tool(source["tool"], fill(source["arguments"], arguments, effect_id))
+        if isinstance(result, dict) and result.get("isError"):
+            raise ValueError(f"{source['tool']} could not read the required facts")
+        return structured(result)
 
     def send(arguments, idempotency_key):
         args = dict(arguments)
@@ -109,7 +114,9 @@ def gated(interlock, name, spec, call_tool, module=__name__):
         p = spec["premises"]
         def premises(arguments, idempotency_key):
             facts = read(p, arguments, idempotency_key)
-            return {field: facts.get(field) for field in p["fields"]}
+            if any(field not in facts for field in p["fields"]):
+                raise ValueError(f"{p['tool']} did not return every required premise field")
+            return {field: facts[field] for field in p["fields"]}
         def saw(arguments):
             facts = seen.get(json.dumps(fill(p["arguments"], arguments, None), sort_keys=True))
             if facts is None or any(field not in facts for field in p["fields"]):
@@ -118,7 +125,10 @@ def gated(interlock, name, spec, call_tool, module=__name__):
     if "lookup" in spec:
         l = spec["lookup"]
         def lookup(arguments, idempotency_key):
-            return bool(read(l, arguments, idempotency_key).get(l.get("found", "found")))
+            found = read(l, arguments, idempotency_key).get(l.get("found", "found"))
+            if type(found) is not bool:
+                raise ValueError(f"{l['tool']} did not return a boolean lookup result")
+            return found
     if "approval" in spec:
         def approval(arguments):
             return read(spec["approval"], arguments, None) or None

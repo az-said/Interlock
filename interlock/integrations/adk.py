@@ -31,7 +31,7 @@ google.adk is imported only by plugin(); the rest is standard library.
 """
 import asyncio, os, re, time
 from ..gate import Gate
-from ..journal import CLAIM_TTL, effect_id_for, open_journal
+from ..journal import CLAIM_TTL, effect_id_for, open_dispatch, open_journal
 
 UNSETTLED = ("IN_FLIGHT", "UNRESOLVED")
 
@@ -68,9 +68,19 @@ class Guard:
         p.setdefault("agent", f"adk:{getattr(tool_context, 'agent_name', '?')}/{tool_context.invocation_id}/"
                               f"{tool_context.function_call_id}")
         eid, deadline = effect_id_for(p), time.time() + 2 * self.claim_ttl + 10
-        gate = self._gate(tool_name, p["effect"])
+        journal = open_journal(self._journal(tool_name))
         while True:
-            status = gate.recover(only=[eid]).get(eid) or gate.submit(p)
+            entries = journal.entries(eid)
+            if open_dispatch(entries):
+                # Recovery belongs to the recorded send, including its bound resource.
+                effect = next(e["effect"] for e in reversed(entries) if e["kind"] == "DISPATCHED")
+                gate = self._gate(tool_name, effect)
+                status = gate.recover(only=[eid]).get(eid) or "IN_FLIGHT"
+                if not status.startswith(UNSETTLED) and journal.recorded_effect(eid) != p["effect"]:
+                    status = gate.submit(p)       # record the incoming conflicting payload as a refusal
+            else:
+                gate = self._gate(tool_name, p["effect"])
+                status = gate.submit(p)
             if not status.startswith(UNSETTLED) or time.time() > deadline:
                 return response(gate.journal, eid, status)
             time.sleep(self.poll)

@@ -27,7 +27,7 @@ import functools, inspect, json, os, re
 from .approvals import Envelope
 from .escalation import diff, render
 from .gate import Gate, SimulatedCrash
-from .journal import CLAIM_TTL, effect_id_for
+from .journal import CLAIM_TTL, effect_id_for, open_dispatch
 
 
 def _call(f, args, eid):
@@ -148,16 +148,43 @@ class Interlock:
                                      else json.loads(json.dumps(facts, default=str))},
                         "effect": {"args": args}}
 
+            def recover_call(request, args):
+                eid = effect_id_for({"request_id": request})
+                status = gate.recover(only={eid}).get(eid, "IN_FLIGHT")
+                entries = gate.journal.entries(eid)
+                recorded = next(e for e in entries if e["kind"] == "PROPOSED")
+                effect = {"args": json.loads(json.dumps(list(args)))}
+                if recorded["effect"] != effect and not open_dispatch(entries):
+                    # Settle the original send, then refuse the caller's different payload.
+                    # This only records a conflict; no fresh facts or approval are needed.
+                    status = gate.submit({"agent": name, "request_id": request,
+                                          "lease": recorded["lease"], "premises": recorded["premises"],
+                                          "effect": effect})
+                    return status, None
+                return status, target.results.get(eid)
+
             @functools.wraps(fn)
             def call(*args):
+                request = request_id(*args)
+                eid = effect_id_for({"request_id": request})
+                if open_dispatch(gate.journal.entries(eid)):
+                    # A fast restart can precede claim expiry. Each retry tries recovery
+                    # on the recorded decision; it must not replace its facts or approval.
+                    return recover_call(request, args)
                 p = proposal(*args)
+                eid = effect_id_for(p)
                 status = gate.submit(p)
-                return status, target.results.get(effect_id_for(p))
+                if status == "IN_FLIGHT":                # another worker dispatched while proposing
+                    return recover_call(p["request_id"], args)
+                return status, target.results.get(eid)
 
             call.gate, call.proposal, call.request_id = gate, proposal, request_id
             return call
         return wrap
 
     def recover(self, now=None):
-        """Resolve every effect a crash left in flight. Call once on startup."""
+        """Recover on startup; calls also retry recovery after a previous claim expires.
+
+        Call periodically to settle effects that will not be called again.
+        """
         return {name: gate.recover(now=now) for name, gate in self.gates.items()}

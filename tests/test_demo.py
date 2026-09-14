@@ -173,11 +173,13 @@ class ApiRequestChecks(Server):
     def test_checks(self):
         host = f"127.0.0.1:{self.server.server_port}"
         bad = json.dumps({"kind": "sideways"})          # reaches demo.start only when every check passes: 400, no run
-        self.assertEqual(self.send("POST", "/demo/runs", {"Host": host, "Content-Type": "text/plain"}, bad)[0], 403)
+        # Rejected headers need no body. An unread POST body can reset the TCP
+        # connection on Windows when the server closes immediately after its 403.
+        self.assertEqual(self.send("POST", "/demo/runs", {"Host": host, "Content-Type": "text/plain"})[0], 403)
         self.assertEqual(self.send("POST", "/demo/runs", {"Host": host, "Content-Type": "application/json",
-                                                          "Origin": "http://localhost:" + str(self.server.server_port)}, bad)[0], 403)
+                                                          "Origin": "http://localhost:" + str(self.server.server_port)})[0], 403)
         self.assertEqual(self.send("POST", "/demo/runs", {"Host": host, "Content-Type": "application/json",
-                                                          "Origin": "http://evil.example"}, bad)[0], 403)
+                                                          "Origin": "http://evil.example"})[0], 403)
         self.assertEqual(self.send("GET", "/health", {"Host": "evil.example:" + str(self.server.server_port)})[0], 403)
         self.assertEqual(self.send("POST", "/demo/runs", {"Host": host, "Content-Type": "application/json",
                                                           "Origin": "http://" + host}, bad)[0], 400)
@@ -185,7 +187,7 @@ class ApiRequestChecks(Server):
 
 
 def page(name):
-    with open(os.path.join(ROOT, "demo", name)) as f:
+    with open(os.path.join(ROOT, "demo", name), encoding="utf-8", newline="") as f:
         return f.read()
 
 
@@ -273,6 +275,7 @@ class NoTemporal(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stderr)
 
     @unittest.skipIf(importlib.util.find_spec("temporalio"), "checks the start without temporalio installed")
+    @unittest.skipUnless(hasattr(os, "killpg"), "demo process-group shutdown requires POSIX")
     def test_serve_starts_without_temporalio(self):
         with socket.socket() as s:
             s.bind(("127.0.0.1", 0))

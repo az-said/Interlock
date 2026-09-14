@@ -69,7 +69,11 @@ class Session:
         return self.request("tools/call", {"name": "create_refund", "arguments": {"order_id": order_id, "amount": amount}}, wait)
 
     def kill(self):
-        os.killpg(self.proc.pid, signal.SIGKILL)
+        if os.name == "nt":
+            subprocess.run(["taskkill", "/PID", str(self.proc.pid), "/T", "/F"],
+                           check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        else:
+            os.killpg(self.proc.pid, signal.SIGKILL)
         self.proc.wait()
         self._release()
 

@@ -26,6 +26,7 @@ class Backend(unittest.TestCase):
         api.revoke("approval/1")
         self.assertFalse(worker.is_live("approval/1"))
 
+    @unittest.skipUnless(hasattr(signal, "SIGKILL"), "backend crash injection requires POSIX signals")
     def test_crash_marker_kills_once(self):
         env = {**os.environ, "INTERLOCK_CRASH": "after_commit", "INTERLOCK_CRASH_MARKER": tempfile.mktemp()}
         code = f"import sys; sys.path.insert(0, {ROOT!r}); from backend.config import crash_once; crash_once('after_commit'); print('alive')"

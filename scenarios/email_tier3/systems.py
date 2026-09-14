@@ -120,13 +120,13 @@ class KeyWindowGate(Gate):
     The key probe answers only inside Resend's 24h key window. Gate already stops trusting dedup after the window;
     this also stops trusting the lookup, so a late recovery says AMBIGUOUS instead of reading "never sent".
     """
-    def _recover_one(self, eid, now):
+    def _recover_one(self, eid, now, owner):
         sends = [e for e in self.journal.entries(eid) if e["kind"] == "DISPATCHED"]
         late = bool(sends) and now - sends[-1]["ts"] > self.target.dedup_window - DEDUP_MARGIN
         queryable = self.target.queryable
         self.target.queryable = queryable and not late
         try:
-            return super()._recover_one(eid, now)
+            return super()._recover_one(eid, now, owner)
         finally:
             self.target.queryable = queryable
 

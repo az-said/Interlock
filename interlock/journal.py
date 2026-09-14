@@ -35,12 +35,13 @@ Three decisions must be atomic across workers, and are on both backends:
 A claim expires after its ttl, so a crashed sender or recoverer cannot block an effect forever.
 A send, and a resend during recovery, must finish inside that ttl: time targets out sooner.
 """
-import contextlib, hashlib, json, os, sqlite3, threading, time
+import contextlib, errno, hashlib, json, os, sqlite3, threading, time
 from .escalation import closed, latest
 try:
     import fcntl
-except ImportError:                     # no flock (Windows): a file journal is single-process
+except ImportError:                     # Windows uses a byte-range lock on the same sidecar
     fcntl = None
+    import msvcrt
 
 CLAIM_TTL = 120                         # seconds
 
@@ -168,7 +169,7 @@ class Journal(_Queries):
 
     @contextlib.contextmanager
     def _exclusive(self):
-        """Serialize journal access across threads (RLock) and processes (flock on a sidecar)."""
+        """Serialize journal access across threads and processes with an OS lock on a sidecar."""
         with self._lock:
             if self._depth:
                 self._depth += 1
@@ -177,9 +178,19 @@ class Journal(_Queries):
                 finally:
                     self._depth -= 1
                 return
-            with open(self.path + ".lock", "a") as f:
+            with open(self.path + ".lock", "a+b") as f:
                 if fcntl:
                     fcntl.flock(f, fcntl.LOCK_EX)
+                else:
+                    while True:
+                        try:
+                            f.seek(0)
+                            msvcrt.locking(f.fileno(), msvcrt.LK_NBLCK, 1)
+                            break
+                        except OSError as exc:
+                            if exc.errno not in (errno.EACCES, errno.EAGAIN, errno.EDEADLK):
+                                raise
+                            time.sleep(0.01)
                 self._depth = 1
                 try:
                     yield
@@ -187,6 +198,9 @@ class Journal(_Queries):
                     self._depth = 0
                     if fcntl:
                         fcntl.flock(f, fcntl.LOCK_UN)
+                    else:
+                        f.seek(0)
+                        msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)
 
     def _drop_torn_tail(self):
         """A final line with no newline is a write that never returned, so it was never acknowledged."""

@@ -53,9 +53,27 @@ def states(entries):
 
 
 def who(entries):
-    """(agent, lease) from the first proposal."""
-    first = next((e for e in entries if e["kind"] == "PROPOSED"), {})
-    return first.get("agent"), text(first.get("lease"))
+    """Authority of the committed send, or the latest decision if it has not committed."""
+    values = identities(entries)
+    return next((value for e, value in zip(entries, values) if e["kind"] == "COMMITTED"),
+                values[-1] if values else (None, None))
+
+
+def identities(entries):
+    """Agent and authority at each entry, using only that entry's history."""
+    agent = lease = dispatched = None
+    out = []
+    for e in entries:
+        if e["kind"] == "PROPOSED":
+            agent, lease = e.get("agent"), text(e.get("lease"))
+        elif e["kind"] in ("AUTHORIZED", "DISPATCHED"):
+            lease = text(e.get("lease"))
+            if e["kind"] == "DISPATCHED":
+                dispatched = (agent, lease)
+        if e["kind"] == "COMMITTED" and dispatched is not None:
+            agent, lease = dispatched
+        out.append((agent, lease))
+    return out
 
 
 _token = (0.0, None)

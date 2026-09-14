@@ -30,12 +30,16 @@ restarted inbox (or a second one) rebuilds them and never loses or duplicates an
 Two lease stores, never mixed on one chain: Authority (a person approved this exact payload) backs
 Inbox; Envelope (the system of record bounds a payload the agent picks) backs easy and tools.
 """
-import contextlib, hashlib, json, sqlite3, time
+import contextlib, hashlib, json, math, sqlite3, time
 from .escalation import WHY, closed, diff, explain, latest, record
 from .journal import _plain, effect_id_for, open_dispatch
 
 DONE = ("COMMITTED", "DUPLICATE_IGNORED")
 ITEM = ("why", "detail", "facts", "reason", "changes", "repairs", "route", "group", "routed_to", "level", "due", "breach")
+
+
+def _finite_number(value):
+    return type(value) is int or (type(value) is float and math.isfinite(value))
 
 
 class Envelope:
@@ -105,8 +109,12 @@ class Envelope:
         if effect is not None:
             f = self.fields(effect)
             out += [f"{k} must be {v!r}, not {f.get(k)!r}" for k, v in (approval.get("match") or {}).items() if f.get(k) != v]
-            out += [f"{k} {f.get(k)!r} is over the {v!r} approved" for k, v in (approval.get("max") or {}).items()
-                    if not isinstance(f.get(k), (int, float)) or f.get(k) > v]
+            for k, maximum in (approval.get("max") or {}).items():
+                value = f.get(k)
+                if not _finite_number(value) or not _finite_number(maximum):
+                    out.append(f"{k} and its approved maximum must be finite numbers")
+                elif value > maximum:
+                    out.append(f"{k} {value!r} is over the {maximum!r} approved")
         return out
 
     def allows(self, approval, effect):
@@ -126,10 +134,14 @@ class Envelope:
         return [] if holder == effect_id else [f"approval {aid} was already used by effect {holder}"]
 
     def describe(self, approval):
+        return self.describe_effect(approval, None)
+
+    def describe_effect(self, approval, effect):
+        """Describe this attempt's authority, even when no further attempts remain."""
         aid = self.authority(approval)
         with self._db() as db:
             row = db.execute("SELECT effect_id FROM sends WHERE approval = ?", (aid,)).fetchone()
-        return {"approval": approval, "used_by": row[0] if row else None, "problems": self.problems(approval)}
+        return {"approval": approval, "used_by": row[0] if row else None, "problems": self.problems(approval, effect)}
 
     def revoke(self, approval_id, by=None):
         with self._db() as db:
