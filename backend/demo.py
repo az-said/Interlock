@@ -148,18 +148,22 @@ def _drive(run, api, live=None):
             for t in threads:
                 t.join()
     except Exception as e:
-        run.error = f"{type(e).__name__}: {e}"
+        run.error = f"{type(e).__name__}" + ("" if PUBLIC else f": {e}")
     finally:
         run.finished, run.done = time.time(), True
         BUSY.release()
+
+
+# Public mode (docs/deploy.md): a run's events name an exception's type, never its text, which can carry upstream detail.
+PUBLIC = os.environ.get("INTERLOCK_PUBLIC") == "1"
 
 
 def _column(run, mode, api, live=None):
     try:
         live(run, mode) if live else live_column(run, mode, api)
     except Exception as e:
-        run.emit(mode, "error", f"This column stopped: {type(e).__name__}: {e}")
-        run.error = run.error or f"{mode}: {e}"
+        run.emit(mode, "error", f"This column stopped: {type(e).__name__}" + ("" if PUBLIC else f": {e}"))
+        run.error = run.error or f"{mode}: " + (type(e).__name__ if PUBLIC else f"{e}")
 
 
 # ---- live ----------------------------------------------------------------------------------------------------

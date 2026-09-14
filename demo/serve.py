@@ -39,8 +39,16 @@ async def serve(env, port, ui=None):
 
 
 async def main():
+    public = os.environ.get("INTERLOCK_PUBLIC") == "1"      # docs/deploy.md
+    if public:
+        sys.path.insert(0, ROOT)
+        from backend.api import public_settings
+        try:
+            public_settings(os.environ)          # fail before starting Temporal, not after
+        except ValueError as e:
+            sys.exit(f"public mode: {e}")
     parser = argparse.ArgumentParser()
-    parser.add_argument("--port", type=int, default=8787)
+    parser.add_argument("--port", type=int, default=int(os.environ.get("PORT") or 8787) if public else 8787)
     args = parser.parse_args()
     env = {**os.environ, "INTERLOCK_API_PORT": str(args.port),
            "INTERLOCK_DATA": os.environ.get("INTERLOCK_DATA") or os.path.join(ROOT, ".interlock", "demo"),
@@ -50,15 +58,19 @@ async def main():
     ui_port = free_port()
     try:
         from temporalio.testing import WorkflowEnvironment
-        temporal = await WorkflowEnvironment.start_local(ui=True, ui_port=ui_port)
+        # public mode: no Temporal UI (it would be a link to the container's loopback), and the CLI binary baked
+        # into the image (INTERLOCK_TEMPORAL_CLI) instead of a download at start
+        temporal = await WorkflowEnvironment.start_local(ui=not public, ui_port=None if public else ui_port,
+                                                         dev_server_existing_path=os.environ.get("INTERLOCK_TEMPORAL_CLI") or None)
     except ImportError:
         reason = "temporalio is not installed"
     except Exception as e:
         reason = f"Temporal's dev server did not start: {type(e).__name__}"
     else:
+        ui = None if public else f"http://127.0.0.1:{ui_port}"
         async with temporal:
             return await serve({**env, "TEMPORAL_ADDRESS": temporal.client.service_client.config.target_host,
-                                "TEMPORAL_UI": f"http://127.0.0.1:{ui_port}"}, args.port, f"http://127.0.0.1:{ui_port}")
+                                **({"TEMPORAL_UI": ui} if ui else {})}, args.port, ui)
     print(f"Temporal demo unavailable ({reason}); serving the standalone demo.", flush=True)
     await serve({**env, "INTERLOCK_TEMPORAL_UNAVAILABLE": reason}, args.port)
 

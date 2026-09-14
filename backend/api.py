@@ -19,8 +19,13 @@ standalone demo still runs, /cases and a live /demo run answer 400, and the /dem
 No auth, bound to 127.0.0.1: this is a demo. The approval is whatever the caller of POST /cases asserts
 (customer_text and approved_cents come from the same request); a real deployment takes approvals from
 the support tool, not from the client.
+
+INTERLOCK_PUBLIC=1 is public mode, for a hosted demo (docs/deploy.md): bind 0.0.0.0, Host only from
+INTERLOCK_ALLOWED_HOSTS, POSTs only from https://<that host>, starts of runs rate-limited per client and per day, the
+/cases routes off, security headers, GET /healthz, and no exception text in responses. Off, nothing here changes.
 """
-import argparse, asyncio, contextlib, importlib, json, os, re, sqlite3, sys, threading, time, traceback, uuid
+import argparse, asyncio, base64, contextlib, hashlib, importlib, ipaddress, json, os, re, sqlite3, sys, threading, time, \
+    traceback, types, uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from backend import config, demo
@@ -169,35 +174,140 @@ ROUTES = [("GET", r"/health", health), ("POST", r"/cases", create), ("GET", r"/c
           ("GET", r"/demo/standalone/runs/(\w+)/(\d+)", lambda body, run_id, after: standalone().view(run_id, int(after)))]
 
 
+# ---- public mode (docs/deploy.md) ------------------------------------------------------------------------------
+
+PUBLIC = None           # set by main(): public_settings(os.environ), None unless INTERLOCK_PUBLIC=1
+BUSY_PUBLIC = "a run is in progress, try again in about 30 seconds"
+LIMITED_ROUTES = ("/demo/runs", "/demo/standalone/runs")
+
+
+class Limited(Exception):
+    pass
+
+
+class Limiter:
+    """Starts of runs: at most per_hour per client address in any 60 minutes, and at most per_day across all clients
+    in one UTC day (None: no daily cap). clock is injectable. A start that raises (bad request, busy) gives its slot
+    back. In memory: a restart resets the counts, and each replica counts on its own."""
+    def __init__(self, kind, per_hour, per_day=None, clock=time.time):
+        self.kind, self.per_hour, self.per_day, self.clock = kind, per_hour, per_day, clock
+        self.recent, self.day, self.lock = {}, [None, 0], threading.Lock()
+
+    @contextlib.contextmanager
+    def slot(self, ip):
+        mock_ok = " Run mock still works." if self.kind == "live" else ""
+        with self.lock:
+            now = self.clock()
+            day = int(now // 86400)
+            if self.day[0] != day:
+                self.day = [day, 0]
+            # ponytail: prunes every address on each start; fine while starts are rate-limited and one at a time
+            self.recent = {a: kept for a, ts in self.recent.items() if (kept := [t for t in ts if t > now - 3600])}
+            if len(self.recent.get(ip, ())) >= self.per_hour:
+                raise Limited(f"Limit reached: {self.per_hour} {self.kind} runs per visitor per hour. Try again later.{mock_ok}")
+            if self.per_day is not None and self.day[1] >= self.per_day:
+                raise Limited(f"This demo has used its {self.per_day} {self.kind} runs for today (UTC). "
+                              f"Try again tomorrow.{mock_ok}")
+            self.recent.setdefault(ip, []).append(now)
+            self.day[1] += 1
+        try:
+            yield
+        except BaseException:
+            with self.lock:
+                with contextlib.suppress(KeyError, ValueError):
+                    self.recent[ip].remove(now)
+                if self.day[0] == day:
+                    self.day[1] -= 1
+            raise
+
+
+def public_settings(env, clock=time.time):
+    """Public mode's settings from env, or None when INTERLOCK_PUBLIC is not "1". ValueError on a missing or malformed
+    setting, so a misconfigured server does not start."""
+    if env.get("INTERLOCK_PUBLIC") != "1":
+        return None
+    hosts = frozenset(h.strip().lower() for h in env.get("INTERLOCK_ALLOWED_HOSTS", "").split(",") if h.strip())
+    if not hosts:
+        raise ValueError("INTERLOCK_ALLOWED_HOSTS must name the public hostname(s), comma-separated")
+
+    def number(name, default):
+        value = int(env.get(name) or default)
+        if value < 0:
+            raise ValueError(f"{name} must be 0 or more")
+        return value
+    return types.SimpleNamespace(
+        hosts=hosts, hops=number("INTERLOCK_TRUSTED_PROXY_HOPS", 0), port=number("INTERLOCK_API_PORT", number("PORT", 8787)),
+        live=Limiter("live", number("INTERLOCK_LIVE_PER_IP_HOUR", 3), number("INTERLOCK_LIVE_PER_DAY", 40), clock),
+        mock=Limiter("mock", number("INTERLOCK_MOCK_PER_IP_HOUR", 30), None, clock))
+
+
+def host_allowed(host, hosts):
+    """The Host header, with or without a port, is exactly one of hosts (case-insensitive)."""
+    m = re.fullmatch(r"([A-Za-z0-9.-]+)(:\d+)?", host or "")
+    return bool(m) and m.group(1).lower() in hosts
+
+
+def client_ip(peer, forwarded, hops):
+    """The address to rate-limit. Each trusted proxy appends the address it received from to X-Forwarded-For, so with
+    `hops` of them the client is the hops-th entry from the right; anything further left is whatever the client sent.
+    hops 0, no header, too few entries or a malformed entry: the socket peer."""
+    parts = [p.strip() for p in ",".join(forwarded or ()).split(",") if p.strip()]
+    if hops and len(parts) >= hops:
+        with contextlib.suppress(ValueError):
+            return str(ipaddress.ip_address(parts[-hops]))
+    return peer
+
+
+def page_csp(page):
+    """Same origin only, plus the page's inline script by hash. Styles allow 'unsafe-inline' for the style attributes
+    in the markup. Links out (Stripe dashboard, GitHub) are plain navigation, which CSP does not restrict."""
+    hashes = "".join(" 'sha256-%s'" % base64.b64encode(hashlib.sha256(s).digest()).decode()
+                     for s in re.findall(rb"<script>(.*?)</script>", page, re.S))
+    return (f"default-src 'self'; script-src 'self'{hashes}; style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
+            "connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'")
+
+
 class Handler(BaseHTTPRequestHandler):
+    def _headers(self, content_type, length, csp="default-src 'none'; frame-ancestors 'none'"):
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(length))
+        if PUBLIC:
+            self.send_header("Content-Security-Policy", csp)
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.send_header("Referrer-Policy", "no-referrer")
+        self.end_headers()
+
     def _send(self, code, obj):
         data = json.dumps(obj, default=str).encode()
         self.send_response(code)
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(data)))
-        self.end_headers()
+        self._headers("application/json", len(data))
         self.wfile.write(data)
 
     def _route(self, method):
-        if method == "GET" and self.path.split("?")[0] in PAGES:
-            with open(PAGES[self.path.split("?")[0]], "rb") as f:
+        path = self.path.split("?")[0]
+        if PUBLIC and method == "GET" and path == "/healthz":    # before the Host check: a platform probe may use an IP
+            return self._send(200, {"ok": True})
+        if PUBLIC and not host_allowed(self.headers.get("Host"), PUBLIC.hosts):
+            return self._send(403, {"error": "unknown host"})
+        if method == "GET" and path in PAGES:
+            with open(PAGES[path], "rb") as f:
                 data = f.read()
             self.send_response(200)
-            self.send_header("Content-Type", "text/html; charset=utf-8")
-            self.send_header("Content-Length", str(len(data)))
-            self.end_headers()
+            self._headers("text/html; charset=utf-8", len(data), page_csp(data) if PUBLIC else None)
             return self.wfile.write(data)
         try:
             host = self.headers.get("Host", "")
-            if host not in (f"127.0.0.1:{self.server.server_port}", f"localhost:{self.server.server_port}"):
+            if not PUBLIC and host not in (f"127.0.0.1:{self.server.server_port}", f"localhost:{self.server.server_port}"):
                 return self._send(403, {"error": "Host must be this server (127.0.0.1 or localhost)"})   # DNS rebinding
+            if PUBLIC and re.match(r"/cases(/|$)", path):     # real payments with no limit; demo runs call them in-process
+                return self._send(404, {"error": "not found"})
             body = {}
             if method == "POST":
                 # A cross-site page can POST text/plain without a preflight; application/json forces one, and a
                 # browser always names the page's origin, which must be this server.
                 origin = self.headers.get("Origin")
                 if (self.headers.get("Content-Type") or "").split(";")[0].strip() != "application/json" \
-                        or (origin is not None and origin != f"http://{host}"):
+                        or (origin is not None and origin != f"{'https' if PUBLIC else 'http'}://{host}"):
                     return self._send(403, {"error": "POST needs Content-Type application/json from this page's origin"})
                 length = self.headers.get("Content-Length") or "0"
                 if not (length.isascii() and length.isdigit()) or int(length) > MAX_BODY:     # rejects "-1", "abc", "²"
@@ -206,21 +316,29 @@ class Handler(BaseHTTPRequestHandler):
                 if not isinstance(body, dict):
                     raise BadRequest("body must be a JSON object")
             for m, pattern, fn in ROUTES:
-                match = re.fullmatch(pattern, self.path.split("?")[0])
+                match = re.fullmatch(pattern, path)
                 if m == method and match:
-                    return self._send(200, fn(body, *match.groups()))
+                    limit = contextlib.nullcontext()
+                    if PUBLIC and method == "POST" and path in LIMITED_ROUTES:
+                        ip = client_ip(self.client_address[0], self.headers.get_all("X-Forwarded-For"), PUBLIC.hops)
+                        limit = (PUBLIC.live if body.get("kind") == "live" else PUBLIC.mock).slot(ip)
+                    with limit:
+                        out = fn(body, *match.groups())
+                    return self._send(200, out)
             self._send(404, {"error": "not found"})
+        except Limited as e:
+            self._send(429, {"error": str(e)})
         except (BadRequest, json.JSONDecodeError) as e:
             self._send(400, {"error": str(e)})
         except LookupError as e:
             self._send(404, {"error": str(e)})
         except demo.Busy as e:
-            self._send(409, {"error": str(e)})
+            self._send(409, {"error": BUSY_PUBLIC if PUBLIC else str(e)})
         except StripeError as e:
-            self._send(502, {"error": str(e)})
+            self._send(502, {"error": "Stripe test mode returned an error" if PUBLIC else str(e)})
         except Exception as e:
             traceback.print_exc()
-            self._send(500, {"error": f"{type(e).__name__}: {e}"})
+            self._send(500, {"error": "internal error" if PUBLIC else f"{type(e).__name__}: {e}"})
 
     def do_GET(self):
         self._route("GET")
@@ -230,9 +348,10 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
-    global TEMPORAL, UNAVAILABLE
+    global TEMPORAL, UNAVAILABLE, PUBLIC
+    PUBLIC = public_settings(os.environ)
     port = argparse.ArgumentParser()
-    port.add_argument("--port", type=int, default=int(os.environ.get("INTERLOCK_API_PORT", 8787)))
+    port.add_argument("--port", type=int, default=PUBLIC.port if PUBLIC else int(os.environ.get("INTERLOCK_API_PORT", 8787)))
     args = port.parse_args()
     with cases() as db, db:
         db.execute("CREATE TABLE IF NOT EXISTS cases (case_id TEXT PRIMARY KEY, mode TEXT, payment_intent TEXT, "
@@ -246,8 +365,12 @@ def main():
             UNAVAILABLE = "temporalio is not installed"
         except Exception as e:
             UNAVAILABLE = f"no Temporal server at {config.TEMPORAL}: {type(e).__name__}"
-    server = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
-    print(f"api on http://127.0.0.1:{args.port} (temporal {UNAVAILABLE or config.TEMPORAL}, data {config.DATA})", flush=True)
+    bind = "0.0.0.0" if PUBLIC else "127.0.0.1"
+    if PUBLIC:
+        Handler.timeout = 30          # a client that stops sending cannot hold a thread
+    server = ThreadingHTTPServer((bind, args.port), Handler)
+    print(f"api on http://{bind}:{args.port} (temporal {UNAVAILABLE or config.TEMPORAL}, data {config.DATA})"
+          + (f" public for {', '.join(sorted(PUBLIC.hosts))}" if PUBLIC else ""), flush=True)
     server.serve_forever()
 
 
