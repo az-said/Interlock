@@ -15,7 +15,7 @@ results record the model, the date and every tool call. The mix is an ASSUMPTION
 Reads AZURE_OPENAI_ENDPOINT (the /openai/v1 base) and AZURE_OPENAI_API_KEY. Writes
 results/repair_live_model.md and .json.
 """
-import concurrent.futures, datetime, json, os, random, sys, time, urllib.error, urllib.request
+import concurrent.futures, datetime, http.client, json, os, random, sys, time, urllib.error, urllib.request
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from repair_loop import CASE, GATED, ROOT, SEED, SYSTEMS, Shop, build
 from interlock import SimulatedCrash
@@ -45,7 +45,7 @@ def chat(messages):
         try:
             with urllib.request.urlopen(req, timeout=180) as r:
                 return json.loads(r.read())
-        except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as e:
+        except (OSError, http.client.HTTPException) as e:      # HTTP errors, dropped connections, timeouts
             if getattr(e, "code", 500) not in (408, 429, 500, 502, 503, 504) or attempt == 11:
                 raise RuntimeError(f"model API: {e}") from None
             wait = getattr(e, "headers", None) and e.headers.get("retry-after")
@@ -164,7 +164,7 @@ if __name__ == "__main__":
     def attempt(job):
         try:
             return run_case(*job)
-        except RuntimeError as e:                               # the model API gave up: report the case, don't count it
+        except Exception as e:                                  # the model API gave up: report the case, don't count it
             return {"system": job[0], "case": job[1], "kind": job[2], "error": str(e)}
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:

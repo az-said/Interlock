@@ -86,12 +86,14 @@ def hand_check(shop):
                     "message": "Already refunded under this case; not sent again."}
         left = CASE - shop.get_order(order_id)["refunded_total"]
         if not isinstance(amount, int) or amount > left:
+            step = f"You may send a refund of up to {left}." if left > 0 else "Nothing is left to refund on this case."
             return {"ok": False, "status": "OVER_LIMIT", "repair": {"may_retry": True},
-                    "message": f"Not sent: amount {amount!r} is over the {left} left on this case."}
+                    "message": f"Not sent: amount {amount!r} is over the {left} left on this case. {step}"}
         try:
             shop.create_refund(order_id, amount, reference=ref)
         except SimulatedCrash:
-            return {"ok": False, "status": "IN_FLIGHT", "repair": None, "message": "The payments service did not answer."}
+            return {"ok": False, "status": "IN_FLIGHT", "repair": None,
+                    "message": "The payments service did not answer. Retrying the same call is safe: this tool checks for an earlier refund first."}
         return {"ok": True, "status": "SENT", "repair": None, "message": "Refund sent."}
     return create_refund
 
