@@ -1,0 +1,5115 @@
+{
+  "generated": "2026-09-14 00:38 UTC",
+  "versions": {
+    "oma": "1.19.0",
+    "zod": "3.25.76",
+    "node": "v26.0.0"
+  },
+  "model": "claude-haiku-4-5-20251001",
+  "cells": [
+    {
+      "scenario": "S1_crash_after_commit",
+      "arm": "oma",
+      "outcome": "ok:REPLAYED_BY_STRIPE",
+      "invariant_held": true,
+      "ground_truth": "1 refund(s), $20.00 (want 1, $20.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNkd88KhIqqdFL1r8M1l45",
+          "amount": 2000,
+          "status": "succeeded",
+          "oma_key": "refund-9661c5f0b8e7:33f7991e-e65a-4fa9-9eb8-bdcda9dd9ca4:toolu_01VpBjcktfhtFAhejUQXfrKj"
+        }
+      ],
+      "seconds_to_settle": 60.7,
+      "lines_of_user_code": 47,
+      "payment_intent": "pi_3UFNkd88KhIqqdFL1FRIybCd",
+      "run_id": "refund-9661c5f0b8e7",
+      "reviewed": {
+        "request_id": "apr_020aad825a8845e594d280a2a491a4dc",
+        "request_hash": "46ba67cb50c66d21ec5720310b3e13cf3553b614620af695d40f989cb13f3885",
+        "tool_input": {
+          "payment_intent": "pi_3UFNkd88KhIqqdFL1FRIybCd",
+          "amount_cents": 2000,
+          "reason": "Partial refund for cracked jar - customer keeps blender"
+        },
+        "decision": "approve",
+        "reviewer_saw_refunded_cents": 0
+      },
+      "outage": null,
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 26751,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "decide",
+          "pid": 26830,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 26831,
+          "process": "node",
+          "exit": -9
+        },
+        {
+          "mode": "resume",
+          "pid": 26843,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "final_result": {
+        "success": true,
+        "status": {
+          "code": "ok"
+        },
+        "tools": [
+          {
+            "name": "get_payment",
+            "input": {
+              "payment_intent": "pi_3UFNkd88KhIqqdFL1FRIybCd"
+            },
+            "output": "{\"payment_intent\":\"pi_3UFNkd88KhIqqdFL1FRIybCd\",\"amount_cents\":10000,\"refunded_cents\":0}"
+          },
+          {
+            "name": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNkd88KhIqqdFL1FRIybCd",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked jar - customer keeps blender"
+            },
+            "output": "{\"outcome\":\"REPLAYED_BY_STRIPE\",\"refund\":\"re_3UFNkd88KhIqqdFL1r8M1l45\",\"status\":\"succeeded\"}"
+          }
+        ],
+        "receipt": {
+          "approvalDecisions": [
+            {
+              "requestId": "apr_020aad825a8845e594d280a2a491a4dc",
+              "scope": "tool_call",
+              "requestHash": "46ba67cb50c66d21ec5720310b3e13cf3553b614620af695d40f989cb13f3885",
+              "decision": "approved",
+              "reviewerId": "support-lead-7",
+              "reviewerDisplayName": "Support lead",
+              "decidedAt": "2026-09-14T00:28:08.940Z"
+            }
+          ],
+          "mode": "single",
+          "rolesExecuted": [
+            "support-agent"
+          ],
+          "workerInstancesExecuted": [
+            "support-agent"
+          ],
+          "executionOrder": [
+            "support-agent"
+          ],
+          "dependencyEdges": [],
+          "independentRolesCount": 1,
+          "independentReviewOccurred": false,
+          "totalTokens": {
+            "input": 2843,
+            "output": 278
+          },
+          "durationMs": 1200,
+          "partial": false
+        },
+        "pendingApprovals": [],
+        "approvalDecisions": [
+          {
+            "version": 1,
+            "requestId": "apr_020aad825a8845e594d280a2a491a4dc",
+            "runId": "refund-9661c5f0b8e7",
+            "scope": "tool_call",
+            "requestHash": "46ba67cb50c66d21ec5720310b3e13cf3553b614620af695d40f989cb13f3885",
+            "decision": "approved",
+            "reviewer": {
+              "id": "support-lead-7",
+              "displayName": "Support lead"
+            },
+            "decidedAt": "2026-09-14T00:28:08.940Z"
+          }
+        ],
+        "tasks": [
+          {
+            "id": "33f7991e-e65a-4fa9-9eb8-bdcda9dd9ca4",
+            "status": "completed"
+          }
+        ],
+        "leaseHeldRetries": 59
+      },
+      "record": {
+        "keys": [
+          "__oma_run__/refund-9661c5f0b8e7",
+          "__oma_checkpoint__/latest",
+          "__oma_approval__/apr_020aad825a8845e594d280a2a491a4dc"
+        ],
+        "approvals": [
+          {
+            "key": "__oma_approval__/apr_020aad825a8845e594d280a2a491a4dc",
+            "request_id": "apr_020aad825a8845e594d280a2a491a4dc",
+            "tool": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNkd88KhIqqdFL1FRIybCd",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked jar - customer keeps blender"
+            },
+            "request_hash": "46ba67cb50c66d21ec5720310b3e13cf3553b614620af695d40f989cb13f3885",
+            "decision": "approved",
+            "reviewer": "support-lead-7",
+            "decided_at": "2026-09-14T00:28:08.940Z",
+            "hash_recomputes": true
+          }
+        ],
+        "runRecords": [
+          {
+            "key": "__oma_run__/refund-9661c5f0b8e7",
+            "status": "completed",
+            "attempt": 2,
+            "fencingToken": 3,
+            "outcome": {
+              "code": "ok"
+            }
+          }
+        ],
+        "journal": {
+          "events": 48,
+          "types": {
+            "run/start": 3,
+            "plan/set": 3,
+            "task/status": 4,
+            "user/message": 3,
+            "turn/start": 3,
+            "llm/request": 3,
+            "assistant/message": 3,
+            "checkpoint/saved": 12,
+            "tool/call": 4,
+            "tool/result": 2,
+            "turn/end": 3,
+            "approval/request": 1,
+            "run/end": 2,
+            "approval/decision": 2
+          },
+          "toolEvents": [
+            {
+              "seq": 1,
+              "type": "run/start",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 9,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "get_payment",
+                "id": "toolu_01MmSD7ivr3HP3NfoD2uw38L",
+                "input": {
+                  "payment_intent": "pi_3UFNkd88KhIqqdFL1FRIybCd"
+                }
+              }
+            },
+            {
+              "seq": 10,
+              "type": "tool/result",
+              "attempt": 1,
+              "detail": {
+                "toolCallId": "toolu_01MmSD7ivr3HP3NfoD2uw38L",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01MmSD7ivr3HP3NfoD2uw38L\",\"content\":\"{\\\"payment_intent\\\":\\\"pi_3UFNkd88KhIqqdFL1FRIybCd\\\",\\\"amount_cents\\\":10000,\\\"refunded_cents\\\":0}\"}"
+              }
+            },
+            {
+              "seq": 19,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01VpBjcktfhtFAhejUQXfrKj",
+                "input": {
+                  "payment_intent": "pi_3UFNkd88KhIqqdFL1FRIybCd",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar - customer keeps blender"
+                }
+              }
+            },
+            {
+              "seq": 21,
+              "type": "approval/request",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 25,
+              "type": "run/end",
+              "attempt": 1,
+              "detail": {
+                "status": {
+                  "code": "suspended",
+                  "message": "Durable approval required before task execution can continue."
+                }
+              }
+            },
+            {
+              "seq": 26,
+              "type": "run/start",
+              "attempt": 2,
+              "detail": {}
+            },
+            {
+              "seq": 28,
+              "type": "approval/decision",
+              "attempt": 2,
+              "detail": {
+                "decision": "approved",
+                "reviewer": "support-lead-7",
+                "requestHash": "46ba67cb50c66d21ec5720310b3e13cf3553b614620af695d40f989cb13f3885"
+              }
+            },
+            {
+              "seq": 30,
+              "type": "tool/call",
+              "attempt": 2,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01VpBjcktfhtFAhejUQXfrKj",
+                "input": {
+                  "payment_intent": "pi_3UFNkd88KhIqqdFL1FRIybCd",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar - customer keeps blender"
+                }
+              }
+            },
+            {
+              "seq": 31,
+              "type": "run/start",
+              "attempt": 2,
+              "detail": {}
+            },
+            {
+              "seq": 33,
+              "type": "approval/decision",
+              "attempt": 2,
+              "detail": {
+                "decision": "approved",
+                "reviewer": "support-lead-7",
+                "requestHash": "46ba67cb50c66d21ec5720310b3e13cf3553b614620af695d40f989cb13f3885"
+              }
+            },
+            {
+              "seq": 35,
+              "type": "tool/call",
+              "attempt": 2,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01VpBjcktfhtFAhejUQXfrKj",
+                "input": {
+                  "payment_intent": "pi_3UFNkd88KhIqqdFL1FRIybCd",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar - customer keeps blender"
+                }
+              }
+            },
+            {
+              "seq": 36,
+              "type": "tool/result",
+              "attempt": 2,
+              "detail": {
+                "toolCallId": "toolu_01VpBjcktfhtFAhejUQXfrKj",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01VpBjcktfhtFAhejUQXfrKj\",\"content\":\"{\\\"outcome\\\":\\\"REPLAYED_BY_STRIPE\\\",\\\"refund\\\":\\\"re_3UFNkd88KhIqqdFL1r8M1l45\\\",\\\"status\\\":\\\"succeeded\\\"}\"}"
+              }
+            },
+            {
+              "seq": 48,
+              "type": "run/end",
+              "attempt": 2,
+              "detail": {
+                "status": {
+                  "code": "ok"
+                }
+              }
+            }
+          ]
+        },
+        "verifyRun": {
+          "ok": true,
+          "failures": [],
+          "inconclusive": 0,
+          "stats": {
+            "events": 48,
+            "requests": 3,
+            "blocksChecked": 12
+          }
+        },
+        "tamper": {
+          "approval_amount_edited": {
+            "getApprovalRecord": "rejected:APPROVAL_INTEGRITY_ERROR",
+            "hash_recomputes": false
+          },
+          "approval_amount_edited_hash_recomputed": {
+            "getApprovalRecord": "rejected:APPROVAL_INTEGRITY_ERROR",
+            "hash_recomputes": true
+          },
+          "approval_amount_edited_hash_id_key_recomputed": {
+            "getApprovalRecord": "accepted",
+            "hash_recomputes": true
+          },
+          "reviewer_id_edited": {
+            "getApprovalRecord": "accepted",
+            "hash_recomputes": true
+          },
+          "decision_flipped_to_rejected": {
+            "getApprovalRecord": "accepted",
+            "hash_recomputes": true
+          },
+          "journal_refund_id_edited_in_tool_result_only": {
+            "ok": true,
+            "failures": []
+          },
+          "journal_refund_id_edited_everywhere": {
+            "ok": false,
+            "failures": [
+              "MISSING_CONTEXT_REPLACE"
+            ]
+          },
+          "journal_refund_id_edited_everywhere_hashes_recomputed": {
+            "ok": true,
+            "failures": []
+          },
+          "journal_tail_dropped": {
+            "ok": true,
+            "failures": []
+          },
+          "journal_uncited_event_deleted_and_renumbered": {
+            "ok": true,
+            "failures": []
+          },
+          "journal_tool_result_deleted_and_renumbered_links_rewritten": {
+            "ok": true,
+            "failures": []
+          },
+          "journal_event_deleted_and_renumbered": {
+            "ok": false,
+            "failures": [
+              "BROKEN_LINK",
+              "MISSING_CONTEXT_REPLACE"
+            ]
+          }
+        }
+      },
+      "status": "RAN",
+      "rep": 1
+    },
+    {
+      "scenario": "S1_crash_after_commit",
+      "arm": "oma",
+      "outcome": "ok:REPLAYED_BY_STRIPE",
+      "invariant_held": true,
+      "ground_truth": "1 refund(s), $20.00 (want 1, $20.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNlj88KhIqqdFL1JKetT70",
+          "amount": 2000,
+          "status": "succeeded",
+          "oma_key": "refund-35ce916eb763:22c5187e-141a-4a98-8870-a2765f9a0576:toolu_01A867quMCcbzGPQvQyUndBa"
+        }
+      ],
+      "seconds_to_settle": 60.9,
+      "lines_of_user_code": 47,
+      "payment_intent": "pi_3UFNlj88KhIqqdFL16ZXy9Af",
+      "run_id": "refund-35ce916eb763",
+      "reviewed": {
+        "request_id": "apr_7d4b450f1eb9195e3344d888009181ec",
+        "request_hash": "9d7cb679aaa198dfc71a998e337c27cbf2895bf97b0c3ff151d01ff28670d0f9",
+        "tool_input": {
+          "payment_intent": "pi_3UFNlj88KhIqqdFL16ZXy9Af",
+          "amount_cents": 2000,
+          "reason": "Partial refund for cracked jar on blender; customer keeps the item"
+        },
+        "decision": "approve",
+        "reviewer_saw_refunded_cents": 0
+      },
+      "outage": null,
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 28416,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "decide",
+          "pid": 28467,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 28480,
+          "process": "node",
+          "exit": -9
+        },
+        {
+          "mode": "resume",
+          "pid": 28489,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "final_result": {
+        "success": true,
+        "status": {
+          "code": "ok"
+        },
+        "tools": [
+          {
+            "name": "get_payment",
+            "input": {
+              "payment_intent": "pi_3UFNlj88KhIqqdFL16ZXy9Af"
+            },
+            "output": "{\"payment_intent\":\"pi_3UFNlj88KhIqqdFL16ZXy9Af\",\"amount_cents\":10000,\"refunded_cents\":0}"
+          },
+          {
+            "name": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNlj88KhIqqdFL16ZXy9Af",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked jar on blender; customer keeps the item"
+            },
+            "output": "{\"outcome\":\"REPLAYED_BY_STRIPE\",\"refund\":\"re_3UFNlj88KhIqqdFL1JKetT70\",\"status\":\"succeeded\"}"
+          }
+        ],
+        "receipt": {
+          "approvalDecisions": [
+            {
+              "requestId": "apr_7d4b450f1eb9195e3344d888009181ec",
+              "scope": "tool_call",
+              "requestHash": "9d7cb679aaa198dfc71a998e337c27cbf2895bf97b0c3ff151d01ff28670d0f9",
+              "decision": "approved",
+              "reviewerId": "support-lead-7",
+              "reviewerDisplayName": "Support lead",
+              "decidedAt": "2026-09-14T00:29:18.154Z"
+            }
+          ],
+          "mode": "single",
+          "rolesExecuted": [
+            "support-agent"
+          ],
+          "workerInstancesExecuted": [
+            "support-agent"
+          ],
+          "executionOrder": [
+            "support-agent"
+          ],
+          "dependencyEdges": [],
+          "independentRolesCount": 1,
+          "independentReviewOccurred": false,
+          "totalTokens": {
+            "input": 2776,
+            "output": 243
+          },
+          "durationMs": 1147,
+          "partial": false
+        },
+        "pendingApprovals": [],
+        "approvalDecisions": [
+          {
+            "version": 1,
+            "requestId": "apr_7d4b450f1eb9195e3344d888009181ec",
+            "runId": "refund-35ce916eb763",
+            "scope": "tool_call",
+            "requestHash": "9d7cb679aaa198dfc71a998e337c27cbf2895bf97b0c3ff151d01ff28670d0f9",
+            "decision": "approved",
+            "reviewer": {
+              "id": "support-lead-7",
+              "displayName": "Support lead"
+            },
+            "decidedAt": "2026-09-14T00:29:18.154Z"
+          }
+        ],
+        "tasks": [
+          {
+            "id": "22c5187e-141a-4a98-8870-a2765f9a0576",
+            "status": "completed"
+          }
+        ],
+        "leaseHeldRetries": 59
+      },
+      "record": {
+        "keys": [
+          "__oma_run__/refund-35ce916eb763",
+          "__oma_checkpoint__/latest",
+          "__oma_approval__/apr_7d4b450f1eb9195e3344d888009181ec"
+        ],
+        "approvals": [
+          {
+            "key": "__oma_approval__/apr_7d4b450f1eb9195e3344d888009181ec",
+            "request_id": "apr_7d4b450f1eb9195e3344d888009181ec",
+            "tool": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNlj88KhIqqdFL16ZXy9Af",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked jar on blender; customer keeps the item"
+            },
+            "request_hash": "9d7cb679aaa198dfc71a998e337c27cbf2895bf97b0c3ff151d01ff28670d0f9",
+            "decision": "approved",
+            "reviewer": "support-lead-7",
+            "decided_at": "2026-09-14T00:29:18.154Z",
+            "hash_recomputes": true
+          }
+        ],
+        "runRecords": [
+          {
+            "key": "__oma_run__/refund-35ce916eb763",
+            "status": "completed",
+            "attempt": 2,
+            "fencingToken": 3,
+            "outcome": {
+              "code": "ok"
+            }
+          }
+        ],
+        "journal": {
+          "events": 48,
+          "types": {
+            "run/start": 3,
+            "plan/set": 3,
+            "task/status": 4,
+            "user/message": 3,
+            "turn/start": 3,
+            "llm/request": 3,
+            "assistant/message": 3,
+            "checkpoint/saved": 12,
+            "tool/call": 4,
+            "tool/result": 2,
+            "turn/end": 3,
+            "approval/request": 1,
+            "run/end": 2,
+            "approval/decision": 2
+          },
+          "toolEvents": [
+            {
+              "seq": 1,
+              "type": "run/start",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 9,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "get_payment",
+                "id": "toolu_01L3dX5xRifec1zTD1wyVEiy",
+                "input": {
+                  "payment_intent": "pi_3UFNlj88KhIqqdFL16ZXy9Af"
+                }
+              }
+            },
+            {
+              "seq": 10,
+              "type": "tool/result",
+              "attempt": 1,
+              "detail": {
+                "toolCallId": "toolu_01L3dX5xRifec1zTD1wyVEiy",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01L3dX5xRifec1zTD1wyVEiy\",\"content\":\"{\\\"payment_intent\\\":\\\"pi_3UFNlj88KhIqqdFL16ZXy9Af\\\",\\\"amount_cents\\\":10000,\\\"refunded_cents\\\":0}\"}"
+              }
+            },
+            {
+              "seq": 19,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01A867quMCcbzGPQvQyUndBa",
+                "input": {
+                  "payment_intent": "pi_3UFNlj88KhIqqdFL16ZXy9Af",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender; customer keeps the item"
+                }
+              }
+            },
+            {
+              "seq": 21,
+              "type": "approval/request",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 25,
+              "type": "run/end",
+              "attempt": 1,
+              "detail": {
+                "status": {
+                  "code": "suspended",
+                  "message": "Durable approval required before task execution can continue."
+                }
+              }
+            },
+            {
+              "seq": 26,
+              "type": "run/start",
+              "attempt": 2,
+              "detail": {}
+            },
+            {
+              "seq": 28,
+              "type": "approval/decision",
+              "attempt": 2,
+              "detail": {
+                "decision": "approved",
+                "reviewer": "support-lead-7",
+                "requestHash": "9d7cb679aaa198dfc71a998e337c27cbf2895bf97b0c3ff151d01ff28670d0f9"
+              }
+            },
+            {
+              "seq": 30,
+              "type": "tool/call",
+              "attempt": 2,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01A867quMCcbzGPQvQyUndBa",
+                "input": {
+                  "payment_intent": "pi_3UFNlj88KhIqqdFL16ZXy9Af",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender; customer keeps the item"
+                }
+              }
+            },
+            {
+              "seq": 31,
+              "type": "run/start",
+              "attempt": 2,
+              "detail": {}
+            },
+            {
+              "seq": 33,
+              "type": "approval/decision",
+              "attempt": 2,
+              "detail": {
+                "decision": "approved",
+                "reviewer": "support-lead-7",
+                "requestHash": "9d7cb679aaa198dfc71a998e337c27cbf2895bf97b0c3ff151d01ff28670d0f9"
+              }
+            },
+            {
+              "seq": 35,
+              "type": "tool/call",
+              "attempt": 2,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01A867quMCcbzGPQvQyUndBa",
+                "input": {
+                  "payment_intent": "pi_3UFNlj88KhIqqdFL16ZXy9Af",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender; customer keeps the item"
+                }
+              }
+            },
+            {
+              "seq": 36,
+              "type": "tool/result",
+              "attempt": 2,
+              "detail": {
+                "toolCallId": "toolu_01A867quMCcbzGPQvQyUndBa",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01A867quMCcbzGPQvQyUndBa\",\"content\":\"{\\\"outcome\\\":\\\"REPLAYED_BY_STRIPE\\\",\\\"refund\\\":\\\"re_3UFNlj88KhIqqdFL1JKetT70\\\",\\\"status\\\":\\\"succeeded\\\"}\"}"
+              }
+            },
+            {
+              "seq": 48,
+              "type": "run/end",
+              "attempt": 2,
+              "detail": {
+                "status": {
+                  "code": "ok"
+                }
+              }
+            }
+          ]
+        },
+        "verifyRun": {
+          "ok": true,
+          "failures": [],
+          "inconclusive": 0,
+          "stats": {
+            "events": 48,
+            "requests": 3,
+            "blocksChecked": 10
+          }
+        }
+      },
+      "status": "RAN",
+      "rep": 2
+    },
+    {
+      "scenario": "S1_crash_after_commit",
+      "arm": "oma_no_runstore",
+      "outcome": "ok:REPLAYED_BY_STRIPE",
+      "invariant_held": true,
+      "ground_truth": "1 refund(s), $20.00 (want 1, $20.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNmr88KhIqqdFL1sLTZgEG",
+          "amount": 2000,
+          "status": "succeeded",
+          "oma_key": "refund-2faaecceb468:13e7399c-e2e4-4a2c-8514-0261fa756204:toolu_01Aq8GPwoXC3i63evXTqyX3m"
+        }
+      ],
+      "seconds_to_settle": 1.5,
+      "lines_of_user_code": 41,
+      "payment_intent": "pi_3UFNmr88KhIqqdFL1gh5Xq3g",
+      "run_id": "refund-2faaecceb468",
+      "reviewed": {
+        "request_id": "apr_56ab693c65c4accf2888ac86c7e1b483",
+        "request_hash": "cedd84907075e0d946f427c2e883023f9999839f4feafa2888f52858e8bb038f",
+        "tool_input": {
+          "payment_intent": "pi_3UFNmr88KhIqqdFL1gh5Xq3g",
+          "amount_cents": 2000,
+          "reason": "Partial refund for cracked jar on $100 blender - customer keeping blender"
+        },
+        "decision": "approve",
+        "reviewer_saw_refunded_cents": 0
+      },
+      "outage": null,
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 29615,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "decide",
+          "pid": 29637,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 29638,
+          "process": "node",
+          "exit": -9
+        },
+        {
+          "mode": "resume",
+          "pid": 29647,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "final_result": {
+        "success": true,
+        "status": {
+          "code": "ok"
+        },
+        "tools": [
+          {
+            "name": "get_payment",
+            "input": {
+              "payment_intent": "pi_3UFNmr88KhIqqdFL1gh5Xq3g"
+            },
+            "output": "{\"payment_intent\":\"pi_3UFNmr88KhIqqdFL1gh5Xq3g\",\"amount_cents\":10000,\"refunded_cents\":0}"
+          },
+          {
+            "name": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNmr88KhIqqdFL1gh5Xq3g",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked jar on $100 blender - customer keeping blender"
+            },
+            "output": "{\"outcome\":\"REPLAYED_BY_STRIPE\",\"refund\":\"re_3UFNmr88KhIqqdFL1sLTZgEG\",\"status\":\"succeeded\"}"
+          }
+        ],
+        "receipt": {
+          "approvalDecisions": [
+            {
+              "requestId": "apr_56ab693c65c4accf2888ac86c7e1b483",
+              "scope": "tool_call",
+              "requestHash": "cedd84907075e0d946f427c2e883023f9999839f4feafa2888f52858e8bb038f",
+              "decision": "approved",
+              "reviewerId": "support-lead-7",
+              "reviewerDisplayName": "Support lead",
+              "decidedAt": "2026-09-14T00:30:26.391Z"
+            }
+          ],
+          "mode": "single",
+          "rolesExecuted": [
+            "support-agent"
+          ],
+          "workerInstancesExecuted": [
+            "support-agent"
+          ],
+          "executionOrder": [
+            "support-agent"
+          ],
+          "dependencyEdges": [],
+          "independentRolesCount": 1,
+          "independentReviewOccurred": false,
+          "totalTokens": {
+            "input": 2790,
+            "output": 245
+          },
+          "durationMs": 1082,
+          "partial": false
+        },
+        "pendingApprovals": [],
+        "approvalDecisions": [
+          {
+            "version": 1,
+            "requestId": "apr_56ab693c65c4accf2888ac86c7e1b483",
+            "runId": "refund-2faaecceb468",
+            "scope": "tool_call",
+            "requestHash": "cedd84907075e0d946f427c2e883023f9999839f4feafa2888f52858e8bb038f",
+            "decision": "approved",
+            "reviewer": {
+              "id": "support-lead-7",
+              "displayName": "Support lead"
+            },
+            "decidedAt": "2026-09-14T00:30:26.391Z"
+          }
+        ],
+        "tasks": [
+          {
+            "id": "13e7399c-e2e4-4a2c-8514-0261fa756204",
+            "status": "completed"
+          }
+        ],
+        "leaseHeldRetries": 0
+      },
+      "record": {
+        "keys": [
+          "__oma_checkpoint__/latest",
+          "__oma_approval__/apr_56ab693c65c4accf2888ac86c7e1b483"
+        ],
+        "approvals": [
+          {
+            "key": "__oma_approval__/apr_56ab693c65c4accf2888ac86c7e1b483",
+            "request_id": "apr_56ab693c65c4accf2888ac86c7e1b483",
+            "tool": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNmr88KhIqqdFL1gh5Xq3g",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked jar on $100 blender - customer keeping blender"
+            },
+            "request_hash": "cedd84907075e0d946f427c2e883023f9999839f4feafa2888f52858e8bb038f",
+            "decision": "approved",
+            "reviewer": "support-lead-7",
+            "decided_at": "2026-09-14T00:30:26.391Z",
+            "hash_recomputes": true
+          }
+        ],
+        "runRecords": [],
+        "journal": {
+          "events": 48,
+          "types": {
+            "run/start": 3,
+            "plan/set": 3,
+            "task/status": 4,
+            "user/message": 3,
+            "turn/start": 3,
+            "llm/request": 3,
+            "assistant/message": 3,
+            "checkpoint/saved": 12,
+            "tool/call": 4,
+            "tool/result": 2,
+            "turn/end": 3,
+            "approval/request": 1,
+            "run/end": 2,
+            "approval/decision": 2
+          },
+          "toolEvents": [
+            {
+              "seq": 1,
+              "type": "run/start",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 9,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "get_payment",
+                "id": "toolu_01K52hLntnf2PNKuzsequKpM",
+                "input": {
+                  "payment_intent": "pi_3UFNmr88KhIqqdFL1gh5Xq3g"
+                }
+              }
+            },
+            {
+              "seq": 10,
+              "type": "tool/result",
+              "attempt": 1,
+              "detail": {
+                "toolCallId": "toolu_01K52hLntnf2PNKuzsequKpM",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01K52hLntnf2PNKuzsequKpM\",\"content\":\"{\\\"payment_intent\\\":\\\"pi_3UFNmr88KhIqqdFL1gh5Xq3g\\\",\\\"amount_cents\\\":10000,\\\"refunded_cents\\\":0}\"}"
+              }
+            },
+            {
+              "seq": 19,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01Aq8GPwoXC3i63evXTqyX3m",
+                "input": {
+                  "payment_intent": "pi_3UFNmr88KhIqqdFL1gh5Xq3g",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on $100 blender - customer keeping blender"
+                }
+              }
+            },
+            {
+              "seq": 21,
+              "type": "approval/request",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 25,
+              "type": "run/end",
+              "attempt": 1,
+              "detail": {
+                "status": {
+                  "code": "suspended",
+                  "message": "Durable approval required before task execution can continue."
+                }
+              }
+            },
+            {
+              "seq": 26,
+              "type": "run/start",
+              "attempt": 2,
+              "detail": {}
+            },
+            {
+              "seq": 28,
+              "type": "approval/decision",
+              "attempt": 2,
+              "detail": {
+                "decision": "approved",
+                "reviewer": "support-lead-7",
+                "requestHash": "cedd84907075e0d946f427c2e883023f9999839f4feafa2888f52858e8bb038f"
+              }
+            },
+            {
+              "seq": 30,
+              "type": "tool/call",
+              "attempt": 2,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01Aq8GPwoXC3i63evXTqyX3m",
+                "input": {
+                  "payment_intent": "pi_3UFNmr88KhIqqdFL1gh5Xq3g",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on $100 blender - customer keeping blender"
+                }
+              }
+            },
+            {
+              "seq": 31,
+              "type": "run/start",
+              "attempt": 2,
+              "detail": {}
+            },
+            {
+              "seq": 33,
+              "type": "approval/decision",
+              "attempt": 2,
+              "detail": {
+                "decision": "approved",
+                "reviewer": "support-lead-7",
+                "requestHash": "cedd84907075e0d946f427c2e883023f9999839f4feafa2888f52858e8bb038f"
+              }
+            },
+            {
+              "seq": 35,
+              "type": "tool/call",
+              "attempt": 2,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01Aq8GPwoXC3i63evXTqyX3m",
+                "input": {
+                  "payment_intent": "pi_3UFNmr88KhIqqdFL1gh5Xq3g",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on $100 blender - customer keeping blender"
+                }
+              }
+            },
+            {
+              "seq": 36,
+              "type": "tool/result",
+              "attempt": 2,
+              "detail": {
+                "toolCallId": "toolu_01Aq8GPwoXC3i63evXTqyX3m",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01Aq8GPwoXC3i63evXTqyX3m\",\"content\":\"{\\\"outcome\\\":\\\"REPLAYED_BY_STRIPE\\\",\\\"refund\\\":\\\"re_3UFNmr88KhIqqdFL1sLTZgEG\\\",\\\"status\\\":\\\"succeeded\\\"}\"}"
+              }
+            },
+            {
+              "seq": 48,
+              "type": "run/end",
+              "attempt": 2,
+              "detail": {
+                "status": {
+                  "code": "ok"
+                }
+              }
+            }
+          ]
+        },
+        "verifyRun": {
+          "ok": true,
+          "failures": [],
+          "inconclusive": 0,
+          "stats": {
+            "events": 48,
+            "requests": 3,
+            "blocksChecked": 10
+          }
+        }
+      },
+      "status": "RAN",
+      "rep": 1
+    },
+    {
+      "scenario": "S1_crash_after_commit",
+      "arm": "oma_no_runstore",
+      "outcome": "ok:REPLAYED_BY_STRIPE",
+      "invariant_held": true,
+      "ground_truth": "1 refund(s), $20.00 (want 1, $20.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNmz88KhIqqdFL08x8UcMX",
+          "amount": 2000,
+          "status": "succeeded",
+          "oma_key": "refund-27236eba6587:d513acf3-fa0d-44c8-8708-2e9878077621:toolu_01BVrdCJ4oBjJK7h64tVxz8K"
+        }
+      ],
+      "seconds_to_settle": 1.4,
+      "lines_of_user_code": 41,
+      "payment_intent": "pi_3UFNmz88KhIqqdFL0dcpYrb0",
+      "run_id": "refund-27236eba6587",
+      "reviewed": {
+        "request_id": "apr_0b65e7bc0e4292b7fba63364ead9d2ab",
+        "request_hash": "45471903900cafcdc6b6e72bc7d840952e65cc9a82733448c9b58339b185c63f",
+        "tool_input": {
+          "payment_intent": "pi_3UFNmz88KhIqqdFL0dcpYrb0",
+          "amount_cents": 2000,
+          "reason": "Partial refund for cracked jar on blender; customer retains product"
+        },
+        "decision": "approve",
+        "reviewer_saw_refunded_cents": 0
+      },
+      "outage": null,
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 29666,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "decide",
+          "pid": 29790,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 29791,
+          "process": "node",
+          "exit": -9
+        },
+        {
+          "mode": "resume",
+          "pid": 29794,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "final_result": {
+        "success": true,
+        "status": {
+          "code": "ok"
+        },
+        "tools": [
+          {
+            "name": "get_payment",
+            "input": {
+              "payment_intent": "pi_3UFNmz88KhIqqdFL0dcpYrb0"
+            },
+            "output": "{\"payment_intent\":\"pi_3UFNmz88KhIqqdFL0dcpYrb0\",\"amount_cents\":10000,\"refunded_cents\":0}"
+          },
+          {
+            "name": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNmz88KhIqqdFL0dcpYrb0",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked jar on blender; customer retains product"
+            },
+            "output": "{\"outcome\":\"REPLAYED_BY_STRIPE\",\"refund\":\"re_3UFNmz88KhIqqdFL08x8UcMX\",\"status\":\"succeeded\"}"
+          }
+        ],
+        "receipt": {
+          "approvalDecisions": [
+            {
+              "requestId": "apr_0b65e7bc0e4292b7fba63364ead9d2ab",
+              "scope": "tool_call",
+              "requestHash": "45471903900cafcdc6b6e72bc7d840952e65cc9a82733448c9b58339b185c63f",
+              "decision": "approved",
+              "reviewerId": "support-lead-7",
+              "reviewerDisplayName": "Support lead",
+              "decidedAt": "2026-09-14T00:30:34.404Z"
+            }
+          ],
+          "mode": "single",
+          "rolesExecuted": [
+            "support-agent"
+          ],
+          "workerInstancesExecuted": [
+            "support-agent"
+          ],
+          "executionOrder": [
+            "support-agent"
+          ],
+          "dependencyEdges": [],
+          "independentRolesCount": 1,
+          "independentReviewOccurred": false,
+          "totalTokens": {
+            "input": 2784,
+            "output": 253
+          },
+          "durationMs": 1097,
+          "partial": false
+        },
+        "pendingApprovals": [],
+        "approvalDecisions": [
+          {
+            "version": 1,
+            "requestId": "apr_0b65e7bc0e4292b7fba63364ead9d2ab",
+            "runId": "refund-27236eba6587",
+            "scope": "tool_call",
+            "requestHash": "45471903900cafcdc6b6e72bc7d840952e65cc9a82733448c9b58339b185c63f",
+            "decision": "approved",
+            "reviewer": {
+              "id": "support-lead-7",
+              "displayName": "Support lead"
+            },
+            "decidedAt": "2026-09-14T00:30:34.404Z"
+          }
+        ],
+        "tasks": [
+          {
+            "id": "d513acf3-fa0d-44c8-8708-2e9878077621",
+            "status": "completed"
+          }
+        ],
+        "leaseHeldRetries": 0
+      },
+      "record": {
+        "keys": [
+          "__oma_checkpoint__/latest",
+          "__oma_approval__/apr_0b65e7bc0e4292b7fba63364ead9d2ab"
+        ],
+        "approvals": [
+          {
+            "key": "__oma_approval__/apr_0b65e7bc0e4292b7fba63364ead9d2ab",
+            "request_id": "apr_0b65e7bc0e4292b7fba63364ead9d2ab",
+            "tool": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNmz88KhIqqdFL0dcpYrb0",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked jar on blender; customer retains product"
+            },
+            "request_hash": "45471903900cafcdc6b6e72bc7d840952e65cc9a82733448c9b58339b185c63f",
+            "decision": "approved",
+            "reviewer": "support-lead-7",
+            "decided_at": "2026-09-14T00:30:34.404Z",
+            "hash_recomputes": true
+          }
+        ],
+        "runRecords": [],
+        "journal": {
+          "events": 48,
+          "types": {
+            "run/start": 3,
+            "plan/set": 3,
+            "task/status": 4,
+            "user/message": 3,
+            "turn/start": 3,
+            "llm/request": 3,
+            "assistant/message": 3,
+            "checkpoint/saved": 12,
+            "tool/call": 4,
+            "tool/result": 2,
+            "turn/end": 3,
+            "approval/request": 1,
+            "run/end": 2,
+            "approval/decision": 2
+          },
+          "toolEvents": [
+            {
+              "seq": 1,
+              "type": "run/start",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 9,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "get_payment",
+                "id": "toolu_011DmTZUR5azWfop8Pmoo329",
+                "input": {
+                  "payment_intent": "pi_3UFNmz88KhIqqdFL0dcpYrb0"
+                }
+              }
+            },
+            {
+              "seq": 10,
+              "type": "tool/result",
+              "attempt": 1,
+              "detail": {
+                "toolCallId": "toolu_011DmTZUR5azWfop8Pmoo329",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_011DmTZUR5azWfop8Pmoo329\",\"content\":\"{\\\"payment_intent\\\":\\\"pi_3UFNmz88KhIqqdFL0dcpYrb0\\\",\\\"amount_cents\\\":10000,\\\"refunded_cents\\\":0}\"}"
+              }
+            },
+            {
+              "seq": 19,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01BVrdCJ4oBjJK7h64tVxz8K",
+                "input": {
+                  "payment_intent": "pi_3UFNmz88KhIqqdFL0dcpYrb0",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender; customer retains product"
+                }
+              }
+            },
+            {
+              "seq": 21,
+              "type": "approval/request",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 25,
+              "type": "run/end",
+              "attempt": 1,
+              "detail": {
+                "status": {
+                  "code": "suspended",
+                  "message": "Durable approval required before task execution can continue."
+                }
+              }
+            },
+            {
+              "seq": 26,
+              "type": "run/start",
+              "attempt": 2,
+              "detail": {}
+            },
+            {
+              "seq": 28,
+              "type": "approval/decision",
+              "attempt": 2,
+              "detail": {
+                "decision": "approved",
+                "reviewer": "support-lead-7",
+                "requestHash": "45471903900cafcdc6b6e72bc7d840952e65cc9a82733448c9b58339b185c63f"
+              }
+            },
+            {
+              "seq": 30,
+              "type": "tool/call",
+              "attempt": 2,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01BVrdCJ4oBjJK7h64tVxz8K",
+                "input": {
+                  "payment_intent": "pi_3UFNmz88KhIqqdFL0dcpYrb0",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender; customer retains product"
+                }
+              }
+            },
+            {
+              "seq": 31,
+              "type": "run/start",
+              "attempt": 2,
+              "detail": {}
+            },
+            {
+              "seq": 33,
+              "type": "approval/decision",
+              "attempt": 2,
+              "detail": {
+                "decision": "approved",
+                "reviewer": "support-lead-7",
+                "requestHash": "45471903900cafcdc6b6e72bc7d840952e65cc9a82733448c9b58339b185c63f"
+              }
+            },
+            {
+              "seq": 35,
+              "type": "tool/call",
+              "attempt": 2,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01BVrdCJ4oBjJK7h64tVxz8K",
+                "input": {
+                  "payment_intent": "pi_3UFNmz88KhIqqdFL0dcpYrb0",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender; customer retains product"
+                }
+              }
+            },
+            {
+              "seq": 36,
+              "type": "tool/result",
+              "attempt": 2,
+              "detail": {
+                "toolCallId": "toolu_01BVrdCJ4oBjJK7h64tVxz8K",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01BVrdCJ4oBjJK7h64tVxz8K\",\"content\":\"{\\\"outcome\\\":\\\"REPLAYED_BY_STRIPE\\\",\\\"refund\\\":\\\"re_3UFNmz88KhIqqdFL08x8UcMX\\\",\\\"status\\\":\\\"succeeded\\\"}\"}"
+              }
+            },
+            {
+              "seq": 48,
+              "type": "run/end",
+              "attempt": 2,
+              "detail": {
+                "status": {
+                  "code": "ok"
+                }
+              }
+            }
+          ]
+        },
+        "verifyRun": {
+          "ok": true,
+          "failures": [],
+          "inconclusive": 0,
+          "stats": {
+            "events": 48,
+            "requests": 3,
+            "blocksChecked": 10
+          }
+        }
+      },
+      "status": "RAN",
+      "rep": 2
+    },
+    {
+      "scenario": "S1_crash_after_commit",
+      "arm": "oma_lease5s",
+      "outcome": "ok:REPLAYED_BY_STRIPE",
+      "invariant_held": true,
+      "ground_truth": "1 refund(s), $20.00 (want 1, $20.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNn788KhIqqdFL1FLxJH2C",
+          "amount": 2000,
+          "status": "succeeded",
+          "oma_key": "refund-4b676e5ee08f:b7cfeab3-efec-49b9-b5f2-39d6c0108f4c:toolu_01Ub9kY7d3VYzDtrY2QbZZqj"
+        }
+      ],
+      "seconds_to_settle": 5.4,
+      "lines_of_user_code": 48,
+      "payment_intent": "pi_3UFNn788KhIqqdFL11W7SLLu",
+      "run_id": "refund-4b676e5ee08f",
+      "reviewed": {
+        "request_id": "apr_25d82f05c11b4e84b312b9fe6567c080",
+        "request_hash": "78e96299699e85ad84a8d0a3c1060b08582c80bf1d2fb5900c21f200b889640c",
+        "tool_input": {
+          "payment_intent": "pi_3UFNn788KhIqqdFL11W7SLLu",
+          "amount_cents": 2000,
+          "reason": "Partial refund for cracked jar on blender; customer retains product"
+        },
+        "decision": "approve",
+        "reviewer_saw_refunded_cents": 0
+      },
+      "outage": null,
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 29844,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "decide",
+          "pid": 29857,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 29858,
+          "process": "node",
+          "exit": -9
+        },
+        {
+          "mode": "resume",
+          "pid": 29863,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "final_result": {
+        "success": true,
+        "status": {
+          "code": "ok"
+        },
+        "tools": [
+          {
+            "name": "get_payment",
+            "input": {
+              "payment_intent": "pi_3UFNn788KhIqqdFL11W7SLLu"
+            },
+            "output": "{\"payment_intent\":\"pi_3UFNn788KhIqqdFL11W7SLLu\",\"amount_cents\":10000,\"refunded_cents\":0}"
+          },
+          {
+            "name": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNn788KhIqqdFL11W7SLLu",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked jar on blender; customer retains product"
+            },
+            "output": "{\"outcome\":\"REPLAYED_BY_STRIPE\",\"refund\":\"re_3UFNn788KhIqqdFL1FLxJH2C\",\"status\":\"succeeded\"}"
+          }
+        ],
+        "receipt": {
+          "approvalDecisions": [
+            {
+              "requestId": "apr_25d82f05c11b4e84b312b9fe6567c080",
+              "scope": "tool_call",
+              "requestHash": "78e96299699e85ad84a8d0a3c1060b08582c80bf1d2fb5900c21f200b889640c",
+              "decision": "approved",
+              "reviewerId": "support-lead-7",
+              "reviewerDisplayName": "Support lead",
+              "decidedAt": "2026-09-14T00:30:42.274Z"
+            }
+          ],
+          "mode": "single",
+          "rolesExecuted": [
+            "support-agent"
+          ],
+          "workerInstancesExecuted": [
+            "support-agent"
+          ],
+          "executionOrder": [
+            "support-agent"
+          ],
+          "dependencyEdges": [],
+          "independentRolesCount": 1,
+          "independentReviewOccurred": false,
+          "totalTokens": {
+            "input": 2845,
+            "output": 281
+          },
+          "durationMs": 1067,
+          "partial": false
+        },
+        "pendingApprovals": [],
+        "approvalDecisions": [
+          {
+            "version": 1,
+            "requestId": "apr_25d82f05c11b4e84b312b9fe6567c080",
+            "runId": "refund-4b676e5ee08f",
+            "scope": "tool_call",
+            "requestHash": "78e96299699e85ad84a8d0a3c1060b08582c80bf1d2fb5900c21f200b889640c",
+            "decision": "approved",
+            "reviewer": {
+              "id": "support-lead-7",
+              "displayName": "Support lead"
+            },
+            "decidedAt": "2026-09-14T00:30:42.274Z"
+          }
+        ],
+        "tasks": [
+          {
+            "id": "b7cfeab3-efec-49b9-b5f2-39d6c0108f4c",
+            "status": "completed"
+          }
+        ],
+        "leaseHeldRetries": 4
+      },
+      "record": {
+        "keys": [
+          "__oma_run__/refund-4b676e5ee08f",
+          "__oma_checkpoint__/latest",
+          "__oma_approval__/apr_25d82f05c11b4e84b312b9fe6567c080"
+        ],
+        "approvals": [
+          {
+            "key": "__oma_approval__/apr_25d82f05c11b4e84b312b9fe6567c080",
+            "request_id": "apr_25d82f05c11b4e84b312b9fe6567c080",
+            "tool": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNn788KhIqqdFL11W7SLLu",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked jar on blender; customer retains product"
+            },
+            "request_hash": "78e96299699e85ad84a8d0a3c1060b08582c80bf1d2fb5900c21f200b889640c",
+            "decision": "approved",
+            "reviewer": "support-lead-7",
+            "decided_at": "2026-09-14T00:30:42.274Z",
+            "hash_recomputes": true
+          }
+        ],
+        "runRecords": [
+          {
+            "key": "__oma_run__/refund-4b676e5ee08f",
+            "status": "completed",
+            "attempt": 2,
+            "fencingToken": 3,
+            "outcome": {
+              "code": "ok"
+            }
+          }
+        ],
+        "journal": {
+          "events": 48,
+          "types": {
+            "run/start": 3,
+            "plan/set": 3,
+            "task/status": 4,
+            "user/message": 3,
+            "turn/start": 3,
+            "llm/request": 3,
+            "assistant/message": 3,
+            "checkpoint/saved": 12,
+            "tool/call": 4,
+            "tool/result": 2,
+            "turn/end": 3,
+            "approval/request": 1,
+            "run/end": 2,
+            "approval/decision": 2
+          },
+          "toolEvents": [
+            {
+              "seq": 1,
+              "type": "run/start",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 9,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "get_payment",
+                "id": "toolu_01QLMjbL6rPmr2MJn1PE6Mdo",
+                "input": {
+                  "payment_intent": "pi_3UFNn788KhIqqdFL11W7SLLu"
+                }
+              }
+            },
+            {
+              "seq": 10,
+              "type": "tool/result",
+              "attempt": 1,
+              "detail": {
+                "toolCallId": "toolu_01QLMjbL6rPmr2MJn1PE6Mdo",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01QLMjbL6rPmr2MJn1PE6Mdo\",\"content\":\"{\\\"payment_intent\\\":\\\"pi_3UFNn788KhIqqdFL11W7SLLu\\\",\\\"amount_cents\\\":10000,\\\"refunded_cents\\\":0}\"}"
+              }
+            },
+            {
+              "seq": 19,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01Ub9kY7d3VYzDtrY2QbZZqj",
+                "input": {
+                  "payment_intent": "pi_3UFNn788KhIqqdFL11W7SLLu",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender; customer retains product"
+                }
+              }
+            },
+            {
+              "seq": 21,
+              "type": "approval/request",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 25,
+              "type": "run/end",
+              "attempt": 1,
+              "detail": {
+                "status": {
+                  "code": "suspended",
+                  "message": "Durable approval required before task execution can continue."
+                }
+              }
+            },
+            {
+              "seq": 26,
+              "type": "run/start",
+              "attempt": 2,
+              "detail": {}
+            },
+            {
+              "seq": 28,
+              "type": "approval/decision",
+              "attempt": 2,
+              "detail": {
+                "decision": "approved",
+                "reviewer": "support-lead-7",
+                "requestHash": "78e96299699e85ad84a8d0a3c1060b08582c80bf1d2fb5900c21f200b889640c"
+              }
+            },
+            {
+              "seq": 30,
+              "type": "tool/call",
+              "attempt": 2,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01Ub9kY7d3VYzDtrY2QbZZqj",
+                "input": {
+                  "payment_intent": "pi_3UFNn788KhIqqdFL11W7SLLu",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender; customer retains product"
+                }
+              }
+            },
+            {
+              "seq": 31,
+              "type": "run/start",
+              "attempt": 2,
+              "detail": {}
+            },
+            {
+              "seq": 33,
+              "type": "approval/decision",
+              "attempt": 2,
+              "detail": {
+                "decision": "approved",
+                "reviewer": "support-lead-7",
+                "requestHash": "78e96299699e85ad84a8d0a3c1060b08582c80bf1d2fb5900c21f200b889640c"
+              }
+            },
+            {
+              "seq": 35,
+              "type": "tool/call",
+              "attempt": 2,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01Ub9kY7d3VYzDtrY2QbZZqj",
+                "input": {
+                  "payment_intent": "pi_3UFNn788KhIqqdFL11W7SLLu",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender; customer retains product"
+                }
+              }
+            },
+            {
+              "seq": 36,
+              "type": "tool/result",
+              "attempt": 2,
+              "detail": {
+                "toolCallId": "toolu_01Ub9kY7d3VYzDtrY2QbZZqj",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01Ub9kY7d3VYzDtrY2QbZZqj\",\"content\":\"{\\\"outcome\\\":\\\"REPLAYED_BY_STRIPE\\\",\\\"refund\\\":\\\"re_3UFNn788KhIqqdFL1FLxJH2C\\\",\\\"status\\\":\\\"succeeded\\\"}\"}"
+              }
+            },
+            {
+              "seq": 48,
+              "type": "run/end",
+              "attempt": 2,
+              "detail": {
+                "status": {
+                  "code": "ok"
+                }
+              }
+            }
+          ]
+        },
+        "verifyRun": {
+          "ok": true,
+          "failures": [],
+          "inconclusive": 0,
+          "stats": {
+            "events": 48,
+            "requests": 3,
+            "blocksChecked": 12
+          }
+        }
+      },
+      "status": "RAN",
+      "rep": 1
+    },
+    {
+      "scenario": "S1_crash_after_commit",
+      "arm": "oma_lease5s",
+      "outcome": "ok:REPLAYED_BY_STRIPE",
+      "invariant_held": true,
+      "ground_truth": "1 refund(s), $20.00 (want 1, $20.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNnJ88KhIqqdFL1wxjQBiA",
+          "amount": 2000,
+          "status": "succeeded",
+          "oma_key": "refund-77a1709becb9:ed89045e-4d9c-4481-99f5-4a16e7a99987:toolu_01RhJ1hmoai1DfuV77KzWU3H"
+        }
+      ],
+      "seconds_to_settle": 5.5,
+      "lines_of_user_code": 48,
+      "payment_intent": "pi_3UFNnJ88KhIqqdFL12ddasEN",
+      "run_id": "refund-77a1709becb9",
+      "reviewed": {
+        "request_id": "apr_ef3efa7a7927a3beb6e5c228398625a9",
+        "request_hash": "470ee12f0d224ff0ebc05a4533c591a0ded96e87402a2d3f798ec3efde4afeb3",
+        "tool_input": {
+          "payment_intent": "pi_3UFNnJ88KhIqqdFL12ddasEN",
+          "amount_cents": 2000,
+          "reason": "Partial refund for cracked jar on blender - customer retains item"
+        },
+        "decision": "approve",
+        "reviewer_saw_refunded_cents": 0
+      },
+      "outage": null,
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 29918,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "decide",
+          "pid": 29948,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 29949,
+          "process": "node",
+          "exit": -9
+        },
+        {
+          "mode": "resume",
+          "pid": 29993,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "final_result": {
+        "success": true,
+        "status": {
+          "code": "ok"
+        },
+        "tools": [
+          {
+            "name": "get_payment",
+            "input": {
+              "payment_intent": "pi_3UFNnJ88KhIqqdFL12ddasEN"
+            },
+            "output": "{\"payment_intent\":\"pi_3UFNnJ88KhIqqdFL12ddasEN\",\"amount_cents\":10000,\"refunded_cents\":0}"
+          },
+          {
+            "name": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNnJ88KhIqqdFL12ddasEN",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked jar on blender - customer retains item"
+            },
+            "output": "{\"outcome\":\"REPLAYED_BY_STRIPE\",\"refund\":\"re_3UFNnJ88KhIqqdFL1wxjQBiA\",\"status\":\"succeeded\"}"
+          }
+        ],
+        "receipt": {
+          "approvalDecisions": [
+            {
+              "requestId": "apr_ef3efa7a7927a3beb6e5c228398625a9",
+              "scope": "tool_call",
+              "requestHash": "470ee12f0d224ff0ebc05a4533c591a0ded96e87402a2d3f798ec3efde4afeb3",
+              "decision": "approved",
+              "reviewerId": "support-lead-7",
+              "reviewerDisplayName": "Support lead",
+              "decidedAt": "2026-09-14T00:30:54.970Z"
+            }
+          ],
+          "mode": "single",
+          "rolesExecuted": [
+            "support-agent"
+          ],
+          "workerInstancesExecuted": [
+            "support-agent"
+          ],
+          "executionOrder": [
+            "support-agent"
+          ],
+          "dependencyEdges": [],
+          "independentRolesCount": 1,
+          "independentReviewOccurred": false,
+          "totalTokens": {
+            "input": 2817,
+            "output": 276
+          },
+          "durationMs": 1092,
+          "partial": false
+        },
+        "pendingApprovals": [],
+        "approvalDecisions": [
+          {
+            "version": 1,
+            "requestId": "apr_ef3efa7a7927a3beb6e5c228398625a9",
+            "runId": "refund-77a1709becb9",
+            "scope": "tool_call",
+            "requestHash": "470ee12f0d224ff0ebc05a4533c591a0ded96e87402a2d3f798ec3efde4afeb3",
+            "decision": "approved",
+            "reviewer": {
+              "id": "support-lead-7",
+              "displayName": "Support lead"
+            },
+            "decidedAt": "2026-09-14T00:30:54.970Z"
+          }
+        ],
+        "tasks": [
+          {
+            "id": "ed89045e-4d9c-4481-99f5-4a16e7a99987",
+            "status": "completed"
+          }
+        ],
+        "leaseHeldRetries": 4
+      },
+      "record": {
+        "keys": [
+          "__oma_run__/refund-77a1709becb9",
+          "__oma_checkpoint__/latest",
+          "__oma_approval__/apr_ef3efa7a7927a3beb6e5c228398625a9"
+        ],
+        "approvals": [
+          {
+            "key": "__oma_approval__/apr_ef3efa7a7927a3beb6e5c228398625a9",
+            "request_id": "apr_ef3efa7a7927a3beb6e5c228398625a9",
+            "tool": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNnJ88KhIqqdFL12ddasEN",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked jar on blender - customer retains item"
+            },
+            "request_hash": "470ee12f0d224ff0ebc05a4533c591a0ded96e87402a2d3f798ec3efde4afeb3",
+            "decision": "approved",
+            "reviewer": "support-lead-7",
+            "decided_at": "2026-09-14T00:30:54.970Z",
+            "hash_recomputes": true
+          }
+        ],
+        "runRecords": [
+          {
+            "key": "__oma_run__/refund-77a1709becb9",
+            "status": "completed",
+            "attempt": 2,
+            "fencingToken": 3,
+            "outcome": {
+              "code": "ok"
+            }
+          }
+        ],
+        "journal": {
+          "events": 48,
+          "types": {
+            "run/start": 3,
+            "plan/set": 3,
+            "task/status": 4,
+            "user/message": 3,
+            "turn/start": 3,
+            "llm/request": 3,
+            "assistant/message": 3,
+            "checkpoint/saved": 12,
+            "tool/call": 4,
+            "tool/result": 2,
+            "turn/end": 3,
+            "approval/request": 1,
+            "run/end": 2,
+            "approval/decision": 2
+          },
+          "toolEvents": [
+            {
+              "seq": 1,
+              "type": "run/start",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 9,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "get_payment",
+                "id": "toolu_016S3N56RkN4WKLHY2W5ausG",
+                "input": {
+                  "payment_intent": "pi_3UFNnJ88KhIqqdFL12ddasEN"
+                }
+              }
+            },
+            {
+              "seq": 10,
+              "type": "tool/result",
+              "attempt": 1,
+              "detail": {
+                "toolCallId": "toolu_016S3N56RkN4WKLHY2W5ausG",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_016S3N56RkN4WKLHY2W5ausG\",\"content\":\"{\\\"payment_intent\\\":\\\"pi_3UFNnJ88KhIqqdFL12ddasEN\\\",\\\"amount_cents\\\":10000,\\\"refunded_cents\\\":0}\"}"
+              }
+            },
+            {
+              "seq": 19,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01RhJ1hmoai1DfuV77KzWU3H",
+                "input": {
+                  "payment_intent": "pi_3UFNnJ88KhIqqdFL12ddasEN",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender - customer retains item"
+                }
+              }
+            },
+            {
+              "seq": 21,
+              "type": "approval/request",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 25,
+              "type": "run/end",
+              "attempt": 1,
+              "detail": {
+                "status": {
+                  "code": "suspended",
+                  "message": "Durable approval required before task execution can continue."
+                }
+              }
+            },
+            {
+              "seq": 26,
+              "type": "run/start",
+              "attempt": 2,
+              "detail": {}
+            },
+            {
+              "seq": 28,
+              "type": "approval/decision",
+              "attempt": 2,
+              "detail": {
+                "decision": "approved",
+                "reviewer": "support-lead-7",
+                "requestHash": "470ee12f0d224ff0ebc05a4533c591a0ded96e87402a2d3f798ec3efde4afeb3"
+              }
+            },
+            {
+              "seq": 30,
+              "type": "tool/call",
+              "attempt": 2,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01RhJ1hmoai1DfuV77KzWU3H",
+                "input": {
+                  "payment_intent": "pi_3UFNnJ88KhIqqdFL12ddasEN",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender - customer retains item"
+                }
+              }
+            },
+            {
+              "seq": 31,
+              "type": "run/start",
+              "attempt": 2,
+              "detail": {}
+            },
+            {
+              "seq": 33,
+              "type": "approval/decision",
+              "attempt": 2,
+              "detail": {
+                "decision": "approved",
+                "reviewer": "support-lead-7",
+                "requestHash": "470ee12f0d224ff0ebc05a4533c591a0ded96e87402a2d3f798ec3efde4afeb3"
+              }
+            },
+            {
+              "seq": 35,
+              "type": "tool/call",
+              "attempt": 2,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01RhJ1hmoai1DfuV77KzWU3H",
+                "input": {
+                  "payment_intent": "pi_3UFNnJ88KhIqqdFL12ddasEN",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender - customer retains item"
+                }
+              }
+            },
+            {
+              "seq": 36,
+              "type": "tool/result",
+              "attempt": 2,
+              "detail": {
+                "toolCallId": "toolu_01RhJ1hmoai1DfuV77KzWU3H",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01RhJ1hmoai1DfuV77KzWU3H\",\"content\":\"{\\\"outcome\\\":\\\"REPLAYED_BY_STRIPE\\\",\\\"refund\\\":\\\"re_3UFNnJ88KhIqqdFL1wxjQBiA\\\",\\\"status\\\":\\\"succeeded\\\"}\"}"
+              }
+            },
+            {
+              "seq": 48,
+              "type": "run/end",
+              "attempt": 2,
+              "detail": {
+                "status": {
+                  "code": "ok"
+                }
+              }
+            }
+          ]
+        },
+        "verifyRun": {
+          "ok": true,
+          "failures": [],
+          "inconclusive": 0,
+          "stats": {
+            "events": 48,
+            "requests": 3,
+            "blocksChecked": 12
+          }
+        }
+      },
+      "status": "RAN",
+      "rep": 2
+    },
+    {
+      "scenario": "S2_hand_refund_during_outage",
+      "arm": "oma",
+      "outcome": "ok:REFUNDED",
+      "invariant_held": false,
+      "ground_truth": "2 refund(s), $40.00 (want 1, $20.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNnW88KhIqqdFL1BD3GAPw",
+          "amount": 2000,
+          "status": "succeeded",
+          "oma_key": "refund-05af91b4b25d:b2803a2e-1223-4668-923b-ab32b1380a20:toolu_01PssFxVyU1UzfxcDNz74Fwy"
+        },
+        {
+          "id": "re_3UFNnW88KhIqqdFL16EnXZPs",
+          "amount": 2000,
+          "status": "succeeded",
+          "oma_key": null
+        }
+      ],
+      "seconds_to_settle": 62.5,
+      "lines_of_user_code": 47,
+      "payment_intent": "pi_3UFNnW88KhIqqdFL1SiYtOaX",
+      "run_id": "refund-05af91b4b25d",
+      "reviewed": {
+        "request_id": "apr_eac9bd6018255ab9c6cfff57932aa36e",
+        "request_hash": "86c48922ab41c647f1d465487777f59dd5b98817ec4166a6bd473c993dcd6af4",
+        "tool_input": {
+          "payment_intent": "pi_3UFNnW88KhIqqdFL1SiYtOaX",
+          "amount_cents": 2000,
+          "reason": "Partial refund for cracked jar on blender - customer keeps blender"
+        },
+        "decision": "approve",
+        "reviewer_saw_refunded_cents": 0
+      },
+      "outage": {
+        "hand_refund": "re_3UFNnW88KhIqqdFL16EnXZPs"
+      },
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 30056,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "decide",
+          "pid": 30145,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 30149,
+          "process": "node",
+          "exit": -9
+        },
+        {
+          "mode": "resume",
+          "pid": 30164,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "final_result": {
+        "success": true,
+        "status": {
+          "code": "ok"
+        },
+        "tools": [
+          {
+            "name": "get_payment",
+            "input": {
+              "payment_intent": "pi_3UFNnW88KhIqqdFL1SiYtOaX"
+            },
+            "output": "{\"payment_intent\":\"pi_3UFNnW88KhIqqdFL1SiYtOaX\",\"amount_cents\":10000,\"refunded_cents\":0}"
+          },
+          {
+            "name": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNnW88KhIqqdFL1SiYtOaX",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked jar on blender - customer keeps blender"
+            },
+            "output": "{\"outcome\":\"REFUNDED\",\"refund\":\"re_3UFNnW88KhIqqdFL1BD3GAPw\",\"status\":\"succeeded\"}"
+          }
+        ],
+        "receipt": {
+          "approvalDecisions": [
+            {
+              "requestId": "apr_eac9bd6018255ab9c6cfff57932aa36e",
+              "scope": "tool_call",
+              "requestHash": "86c48922ab41c647f1d465487777f59dd5b98817ec4166a6bd473c993dcd6af4",
+              "decision": "approved",
+              "reviewerId": "support-lead-7",
+              "reviewerDisplayName": "Support lead",
+              "decidedAt": "2026-09-14T00:31:06.923Z"
+            }
+          ],
+          "mode": "single",
+          "rolesExecuted": [
+            "support-agent"
+          ],
+          "workerInstancesExecuted": [
+            "support-agent"
+          ],
+          "executionOrder": [
+            "support-agent"
+          ],
+          "dependencyEdges": [],
+          "independentRolesCount": 1,
+          "independentReviewOccurred": false,
+          "totalTokens": {
+            "input": 2778,
+            "output": 245
+          },
+          "durationMs": 1926,
+          "partial": false
+        },
+        "pendingApprovals": [],
+        "approvalDecisions": [
+          {
+            "version": 1,
+            "requestId": "apr_eac9bd6018255ab9c6cfff57932aa36e",
+            "runId": "refund-05af91b4b25d",
+            "scope": "tool_call",
+            "requestHash": "86c48922ab41c647f1d465487777f59dd5b98817ec4166a6bd473c993dcd6af4",
+            "decision": "approved",
+            "reviewer": {
+              "id": "support-lead-7",
+              "displayName": "Support lead"
+            },
+            "decidedAt": "2026-09-14T00:31:06.923Z"
+          }
+        ],
+        "tasks": [
+          {
+            "id": "b2803a2e-1223-4668-923b-ab32b1380a20",
+            "status": "completed"
+          }
+        ],
+        "leaseHeldRetries": 59
+      },
+      "record": {
+        "keys": [
+          "__oma_run__/refund-05af91b4b25d",
+          "__oma_checkpoint__/latest",
+          "__oma_approval__/apr_eac9bd6018255ab9c6cfff57932aa36e"
+        ],
+        "approvals": [
+          {
+            "key": "__oma_approval__/apr_eac9bd6018255ab9c6cfff57932aa36e",
+            "request_id": "apr_eac9bd6018255ab9c6cfff57932aa36e",
+            "tool": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNnW88KhIqqdFL1SiYtOaX",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked jar on blender - customer keeps blender"
+            },
+            "request_hash": "86c48922ab41c647f1d465487777f59dd5b98817ec4166a6bd473c993dcd6af4",
+            "decision": "approved",
+            "reviewer": "support-lead-7",
+            "decided_at": "2026-09-14T00:31:06.923Z",
+            "hash_recomputes": true
+          }
+        ],
+        "runRecords": [
+          {
+            "key": "__oma_run__/refund-05af91b4b25d",
+            "status": "completed",
+            "attempt": 2,
+            "fencingToken": 3,
+            "outcome": {
+              "code": "ok"
+            }
+          }
+        ],
+        "journal": {
+          "events": 43,
+          "types": {
+            "run/start": 2,
+            "plan/set": 2,
+            "task/status": 3,
+            "user/message": 3,
+            "turn/start": 3,
+            "llm/request": 3,
+            "assistant/message": 3,
+            "checkpoint/saved": 12,
+            "tool/call": 3,
+            "tool/result": 2,
+            "turn/end": 3,
+            "approval/request": 1,
+            "run/end": 2,
+            "approval/decision": 1
+          },
+          "toolEvents": [
+            {
+              "seq": 1,
+              "type": "run/start",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 9,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "get_payment",
+                "id": "toolu_01KTPKk6cLTvjFBEc5stsyse",
+                "input": {
+                  "payment_intent": "pi_3UFNnW88KhIqqdFL1SiYtOaX"
+                }
+              }
+            },
+            {
+              "seq": 10,
+              "type": "tool/result",
+              "attempt": 1,
+              "detail": {
+                "toolCallId": "toolu_01KTPKk6cLTvjFBEc5stsyse",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01KTPKk6cLTvjFBEc5stsyse\",\"content\":\"{\\\"payment_intent\\\":\\\"pi_3UFNnW88KhIqqdFL1SiYtOaX\\\",\\\"amount_cents\\\":10000,\\\"refunded_cents\\\":0}\"}"
+              }
+            },
+            {
+              "seq": 19,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01PssFxVyU1UzfxcDNz74Fwy",
+                "input": {
+                  "payment_intent": "pi_3UFNnW88KhIqqdFL1SiYtOaX",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender - customer keeps blender"
+                }
+              }
+            },
+            {
+              "seq": 21,
+              "type": "approval/request",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 25,
+              "type": "run/end",
+              "attempt": 1,
+              "detail": {
+                "status": {
+                  "code": "suspended",
+                  "message": "Durable approval required before task execution can continue."
+                }
+              }
+            },
+            {
+              "seq": 26,
+              "type": "run/start",
+              "attempt": 2,
+              "detail": {}
+            },
+            {
+              "seq": 28,
+              "type": "approval/decision",
+              "attempt": 2,
+              "detail": {
+                "decision": "approved",
+                "reviewer": "support-lead-7",
+                "requestHash": "86c48922ab41c647f1d465487777f59dd5b98817ec4166a6bd473c993dcd6af4"
+              }
+            },
+            {
+              "seq": 30,
+              "type": "tool/call",
+              "attempt": 2,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01PssFxVyU1UzfxcDNz74Fwy",
+                "input": {
+                  "payment_intent": "pi_3UFNnW88KhIqqdFL1SiYtOaX",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender - customer keeps blender"
+                }
+              }
+            },
+            {
+              "seq": 31,
+              "type": "tool/result",
+              "attempt": 2,
+              "detail": {
+                "toolCallId": "toolu_01PssFxVyU1UzfxcDNz74Fwy",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01PssFxVyU1UzfxcDNz74Fwy\",\"content\":\"{\\\"outcome\\\":\\\"REFUNDED\\\",\\\"refund\\\":\\\"re_3UFNnW88KhIqqdFL1BD3GAPw\\\",\\\"status\\\":\\\"succeeded\\\"}\"}"
+              }
+            },
+            {
+              "seq": 43,
+              "type": "run/end",
+              "attempt": 2,
+              "detail": {
+                "status": {
+                  "code": "ok"
+                }
+              }
+            }
+          ]
+        },
+        "verifyRun": {
+          "ok": true,
+          "failures": [],
+          "inconclusive": 0,
+          "stats": {
+            "events": 43,
+            "requests": 3,
+            "blocksChecked": 10
+          }
+        }
+      },
+      "status": "RAN",
+      "rep": 1
+    },
+    {
+      "scenario": "S2_hand_refund_during_outage",
+      "arm": "oma",
+      "outcome": "ok:REFUNDED",
+      "invariant_held": false,
+      "ground_truth": "2 refund(s), $40.00 (want 1, $20.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNoc88KhIqqdFL1HSP5l50",
+          "amount": 2000,
+          "status": "succeeded",
+          "oma_key": "refund-7a213fad0727:6183fc01-4110-4a27-b346-d845002286cf:toolu_01KMiwWiWzM99a7zdN6991Cb"
+        },
+        {
+          "id": "re_3UFNoc88KhIqqdFL1o7yQ8Y8",
+          "amount": 2000,
+          "status": "succeeded",
+          "oma_key": null
+        }
+      ],
+      "seconds_to_settle": 62.7,
+      "lines_of_user_code": 47,
+      "payment_intent": "pi_3UFNoc88KhIqqdFL1Ay25pIp",
+      "run_id": "refund-7a213fad0727",
+      "reviewed": {
+        "request_id": "apr_92b6aa98fa84d68f1fc7296ce2e46f89",
+        "request_hash": "3d8f356e07d5cd908cedb03f93cded0dc7dde44f24b04f3f8108d5f324f42083",
+        "tool_input": {
+          "payment_intent": "pi_3UFNoc88KhIqqdFL1Ay25pIp",
+          "amount_cents": 2000,
+          "reason": "Partial refund for cracked jar on blender; customer retains product"
+        },
+        "decision": "approve",
+        "reviewer_saw_refunded_cents": 0
+      },
+      "outage": {
+        "hand_refund": "re_3UFNoc88KhIqqdFL1o7yQ8Y8"
+      },
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 31794,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "decide",
+          "pid": 31884,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 31886,
+          "process": "node",
+          "exit": -9
+        },
+        {
+          "mode": "resume",
+          "pid": 31905,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "final_result": {
+        "success": true,
+        "status": {
+          "code": "ok"
+        },
+        "tools": [
+          {
+            "name": "get_payment",
+            "input": {
+              "payment_intent": "pi_3UFNoc88KhIqqdFL1Ay25pIp"
+            },
+            "output": "{\"payment_intent\":\"pi_3UFNoc88KhIqqdFL1Ay25pIp\",\"amount_cents\":10000,\"refunded_cents\":0}"
+          },
+          {
+            "name": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNoc88KhIqqdFL1Ay25pIp",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked jar on blender; customer retains product"
+            },
+            "output": "{\"outcome\":\"REFUNDED\",\"refund\":\"re_3UFNoc88KhIqqdFL1HSP5l50\",\"status\":\"succeeded\"}"
+          }
+        ],
+        "receipt": {
+          "approvalDecisions": [
+            {
+              "requestId": "apr_92b6aa98fa84d68f1fc7296ce2e46f89",
+              "scope": "tool_call",
+              "requestHash": "3d8f356e07d5cd908cedb03f93cded0dc7dde44f24b04f3f8108d5f324f42083",
+              "decision": "approved",
+              "reviewerId": "support-lead-7",
+              "reviewerDisplayName": "Support lead",
+              "decidedAt": "2026-09-14T00:32:14.985Z"
+            }
+          ],
+          "mode": "single",
+          "rolesExecuted": [
+            "support-agent"
+          ],
+          "workerInstancesExecuted": [
+            "support-agent"
+          ],
+          "executionOrder": [
+            "support-agent"
+          ],
+          "dependencyEdges": [],
+          "independentRolesCount": 1,
+          "independentReviewOccurred": false,
+          "totalTokens": {
+            "input": 2762,
+            "output": 238
+          },
+          "durationMs": 1973,
+          "partial": false
+        },
+        "pendingApprovals": [],
+        "approvalDecisions": [
+          {
+            "version": 1,
+            "requestId": "apr_92b6aa98fa84d68f1fc7296ce2e46f89",
+            "runId": "refund-7a213fad0727",
+            "scope": "tool_call",
+            "requestHash": "3d8f356e07d5cd908cedb03f93cded0dc7dde44f24b04f3f8108d5f324f42083",
+            "decision": "approved",
+            "reviewer": {
+              "id": "support-lead-7",
+              "displayName": "Support lead"
+            },
+            "decidedAt": "2026-09-14T00:32:14.985Z"
+          }
+        ],
+        "tasks": [
+          {
+            "id": "6183fc01-4110-4a27-b346-d845002286cf",
+            "status": "completed"
+          }
+        ],
+        "leaseHeldRetries": 59
+      },
+      "record": {
+        "keys": [
+          "__oma_run__/refund-7a213fad0727",
+          "__oma_checkpoint__/latest",
+          "__oma_approval__/apr_92b6aa98fa84d68f1fc7296ce2e46f89"
+        ],
+        "approvals": [
+          {
+            "key": "__oma_approval__/apr_92b6aa98fa84d68f1fc7296ce2e46f89",
+            "request_id": "apr_92b6aa98fa84d68f1fc7296ce2e46f89",
+            "tool": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNoc88KhIqqdFL1Ay25pIp",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked jar on blender; customer retains product"
+            },
+            "request_hash": "3d8f356e07d5cd908cedb03f93cded0dc7dde44f24b04f3f8108d5f324f42083",
+            "decision": "approved",
+            "reviewer": "support-lead-7",
+            "decided_at": "2026-09-14T00:32:14.985Z",
+            "hash_recomputes": true
+          }
+        ],
+        "runRecords": [
+          {
+            "key": "__oma_run__/refund-7a213fad0727",
+            "status": "completed",
+            "attempt": 2,
+            "fencingToken": 3,
+            "outcome": {
+              "code": "ok"
+            }
+          }
+        ],
+        "journal": {
+          "events": 43,
+          "types": {
+            "run/start": 2,
+            "plan/set": 2,
+            "task/status": 3,
+            "user/message": 3,
+            "turn/start": 3,
+            "llm/request": 3,
+            "assistant/message": 3,
+            "checkpoint/saved": 12,
+            "tool/call": 3,
+            "tool/result": 2,
+            "turn/end": 3,
+            "approval/request": 1,
+            "run/end": 2,
+            "approval/decision": 1
+          },
+          "toolEvents": [
+            {
+              "seq": 1,
+              "type": "run/start",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 9,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "get_payment",
+                "id": "toolu_01ChBKEqtyz7CXKGTYAcw5vk",
+                "input": {
+                  "payment_intent": "pi_3UFNoc88KhIqqdFL1Ay25pIp"
+                }
+              }
+            },
+            {
+              "seq": 10,
+              "type": "tool/result",
+              "attempt": 1,
+              "detail": {
+                "toolCallId": "toolu_01ChBKEqtyz7CXKGTYAcw5vk",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01ChBKEqtyz7CXKGTYAcw5vk\",\"content\":\"{\\\"payment_intent\\\":\\\"pi_3UFNoc88KhIqqdFL1Ay25pIp\\\",\\\"amount_cents\\\":10000,\\\"refunded_cents\\\":0}\"}"
+              }
+            },
+            {
+              "seq": 19,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01KMiwWiWzM99a7zdN6991Cb",
+                "input": {
+                  "payment_intent": "pi_3UFNoc88KhIqqdFL1Ay25pIp",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender; customer retains product"
+                }
+              }
+            },
+            {
+              "seq": 21,
+              "type": "approval/request",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 25,
+              "type": "run/end",
+              "attempt": 1,
+              "detail": {
+                "status": {
+                  "code": "suspended",
+                  "message": "Durable approval required before task execution can continue."
+                }
+              }
+            },
+            {
+              "seq": 26,
+              "type": "run/start",
+              "attempt": 2,
+              "detail": {}
+            },
+            {
+              "seq": 28,
+              "type": "approval/decision",
+              "attempt": 2,
+              "detail": {
+                "decision": "approved",
+                "reviewer": "support-lead-7",
+                "requestHash": "3d8f356e07d5cd908cedb03f93cded0dc7dde44f24b04f3f8108d5f324f42083"
+              }
+            },
+            {
+              "seq": 30,
+              "type": "tool/call",
+              "attempt": 2,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01KMiwWiWzM99a7zdN6991Cb",
+                "input": {
+                  "payment_intent": "pi_3UFNoc88KhIqqdFL1Ay25pIp",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender; customer retains product"
+                }
+              }
+            },
+            {
+              "seq": 31,
+              "type": "tool/result",
+              "attempt": 2,
+              "detail": {
+                "toolCallId": "toolu_01KMiwWiWzM99a7zdN6991Cb",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01KMiwWiWzM99a7zdN6991Cb\",\"content\":\"{\\\"outcome\\\":\\\"REFUNDED\\\",\\\"refund\\\":\\\"re_3UFNoc88KhIqqdFL1HSP5l50\\\",\\\"status\\\":\\\"succeeded\\\"}\"}"
+              }
+            },
+            {
+              "seq": 43,
+              "type": "run/end",
+              "attempt": 2,
+              "detail": {
+                "status": {
+                  "code": "ok"
+                }
+              }
+            }
+          ]
+        },
+        "verifyRun": {
+          "ok": true,
+          "failures": [],
+          "inconclusive": 0,
+          "stats": {
+            "events": 43,
+            "requests": 3,
+            "blocksChecked": 10
+          }
+        }
+      },
+      "status": "RAN",
+      "rep": 2
+    },
+    {
+      "scenario": "S2_hand_refund_during_outage",
+      "arm": "oma_recheck",
+      "outcome": "ok:REFUSED:stale_premise",
+      "invariant_held": true,
+      "ground_truth": "1 refund(s), $20.00 (want 1, $20.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNpi88KhIqqdFL0L7lC4tQ",
+          "amount": 2000,
+          "status": "succeeded",
+          "oma_key": null
+        }
+      ],
+      "seconds_to_settle": 62.1,
+      "lines_of_user_code": 56,
+      "payment_intent": "pi_3UFNpi88KhIqqdFL0Ta15ZP5",
+      "run_id": "refund-788e42604b68",
+      "reviewed": {
+        "request_id": "apr_b779f5582160924014c381fe07966cfe",
+        "request_hash": "f51f8dda89e3ecee7a1c3ebc6d465852cdf5d39966aa159b811b6ef6d796fc58",
+        "tool_input": {
+          "payment_intent": "pi_3UFNpi88KhIqqdFL0Ta15ZP5",
+          "amount_cents": 2000,
+          "reason": "Partial refund for cracked jar on blender; customer keeps product"
+        },
+        "decision": "approve",
+        "reviewer_saw_refunded_cents": 0
+      },
+      "outage": {
+        "hand_refund": "re_3UFNpi88KhIqqdFL0L7lC4tQ"
+      },
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 33668,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "decide",
+          "pid": 33755,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 33761,
+          "process": "node",
+          "exit": -9
+        },
+        {
+          "mode": "resume",
+          "pid": 33866,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "final_result": {
+        "success": true,
+        "status": {
+          "code": "ok"
+        },
+        "tools": [
+          {
+            "name": "get_payment",
+            "input": {
+              "payment_intent": "pi_3UFNpi88KhIqqdFL0Ta15ZP5"
+            },
+            "output": "{\"payment_intent\":\"pi_3UFNpi88KhIqqdFL0Ta15ZP5\",\"amount_cents\":10000,\"refunded_cents\":0}"
+          },
+          {
+            "name": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNpi88KhIqqdFL0Ta15ZP5",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked jar on blender; customer keeps product"
+            },
+            "output": "{\"outcome\":\"REFUSED:stale_premise\",\"was\":0,\"now\":2000}"
+          }
+        ],
+        "receipt": {
+          "approvalDecisions": [
+            {
+              "requestId": "apr_b779f5582160924014c381fe07966cfe",
+              "scope": "tool_call",
+              "requestHash": "f51f8dda89e3ecee7a1c3ebc6d465852cdf5d39966aa159b811b6ef6d796fc58",
+              "decision": "approved",
+              "reviewerId": "support-lead-7",
+              "reviewerDisplayName": "Support lead",
+              "decidedAt": "2026-09-14T00:33:24.689Z"
+            }
+          ],
+          "mode": "single",
+          "rolesExecuted": [
+            "support-agent"
+          ],
+          "workerInstancesExecuted": [
+            "support-agent"
+          ],
+          "executionOrder": [
+            "support-agent"
+          ],
+          "dependencyEdges": [],
+          "independentRolesCount": 1,
+          "independentReviewOccurred": false,
+          "totalTokens": {
+            "input": 2747,
+            "output": 253
+          },
+          "durationMs": 1629,
+          "partial": false
+        },
+        "pendingApprovals": [],
+        "approvalDecisions": [
+          {
+            "version": 1,
+            "requestId": "apr_b779f5582160924014c381fe07966cfe",
+            "runId": "refund-788e42604b68",
+            "scope": "tool_call",
+            "requestHash": "f51f8dda89e3ecee7a1c3ebc6d465852cdf5d39966aa159b811b6ef6d796fc58",
+            "decision": "approved",
+            "reviewer": {
+              "id": "support-lead-7",
+              "displayName": "Support lead"
+            },
+            "decidedAt": "2026-09-14T00:33:24.689Z"
+          }
+        ],
+        "tasks": [
+          {
+            "id": "a24f9a44-d68f-4943-ae33-2567d0af0997",
+            "status": "completed"
+          }
+        ],
+        "leaseHeldRetries": 59
+      },
+      "record": {
+        "keys": [
+          "__oma_run__/refund-788e42604b68",
+          "__oma_checkpoint__/latest",
+          "app/snapshot/toolu_01Xca9oXEhfWuowMqAxN67qW",
+          "__oma_approval__/apr_b779f5582160924014c381fe07966cfe"
+        ],
+        "approvals": [
+          {
+            "key": "__oma_approval__/apr_b779f5582160924014c381fe07966cfe",
+            "request_id": "apr_b779f5582160924014c381fe07966cfe",
+            "tool": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNpi88KhIqqdFL0Ta15ZP5",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked jar on blender; customer keeps product"
+            },
+            "request_hash": "f51f8dda89e3ecee7a1c3ebc6d465852cdf5d39966aa159b811b6ef6d796fc58",
+            "decision": "approved",
+            "reviewer": "support-lead-7",
+            "decided_at": "2026-09-14T00:33:24.689Z",
+            "hash_recomputes": true
+          }
+        ],
+        "runRecords": [
+          {
+            "key": "__oma_run__/refund-788e42604b68",
+            "status": "completed",
+            "attempt": 2,
+            "fencingToken": 3,
+            "outcome": {
+              "code": "ok"
+            }
+          }
+        ],
+        "journal": {
+          "events": 48,
+          "types": {
+            "run/start": 3,
+            "plan/set": 3,
+            "task/status": 4,
+            "user/message": 3,
+            "turn/start": 3,
+            "llm/request": 3,
+            "assistant/message": 3,
+            "checkpoint/saved": 12,
+            "tool/call": 4,
+            "tool/result": 2,
+            "turn/end": 3,
+            "approval/request": 1,
+            "run/end": 2,
+            "approval/decision": 2
+          },
+          "toolEvents": [
+            {
+              "seq": 1,
+              "type": "run/start",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 9,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "get_payment",
+                "id": "toolu_01RizvqBFQwvtkhkgNoH5FCW",
+                "input": {
+                  "payment_intent": "pi_3UFNpi88KhIqqdFL0Ta15ZP5"
+                }
+              }
+            },
+            {
+              "seq": 10,
+              "type": "tool/result",
+              "attempt": 1,
+              "detail": {
+                "toolCallId": "toolu_01RizvqBFQwvtkhkgNoH5FCW",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01RizvqBFQwvtkhkgNoH5FCW\",\"content\":\"{\\\"payment_intent\\\":\\\"pi_3UFNpi88KhIqqdFL0Ta15ZP5\\\",\\\"amount_cents\\\":10000,\\\"refunded_cents\\\":0}\"}"
+              }
+            },
+            {
+              "seq": 19,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01Xca9oXEhfWuowMqAxN67qW",
+                "input": {
+                  "payment_intent": "pi_3UFNpi88KhIqqdFL0Ta15ZP5",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender; customer keeps product"
+                }
+              }
+            },
+            {
+              "seq": 21,
+              "type": "approval/request",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 25,
+              "type": "run/end",
+              "attempt": 1,
+              "detail": {
+                "status": {
+                  "code": "suspended",
+                  "message": "Durable approval required before task execution can continue."
+                }
+              }
+            },
+            {
+              "seq": 26,
+              "type": "run/start",
+              "attempt": 2,
+              "detail": {}
+            },
+            {
+              "seq": 28,
+              "type": "approval/decision",
+              "attempt": 2,
+              "detail": {
+                "decision": "approved",
+                "reviewer": "support-lead-7",
+                "requestHash": "f51f8dda89e3ecee7a1c3ebc6d465852cdf5d39966aa159b811b6ef6d796fc58"
+              }
+            },
+            {
+              "seq": 30,
+              "type": "tool/call",
+              "attempt": 2,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01Xca9oXEhfWuowMqAxN67qW",
+                "input": {
+                  "payment_intent": "pi_3UFNpi88KhIqqdFL0Ta15ZP5",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender; customer keeps product"
+                }
+              }
+            },
+            {
+              "seq": 31,
+              "type": "run/start",
+              "attempt": 2,
+              "detail": {}
+            },
+            {
+              "seq": 33,
+              "type": "approval/decision",
+              "attempt": 2,
+              "detail": {
+                "decision": "approved",
+                "reviewer": "support-lead-7",
+                "requestHash": "f51f8dda89e3ecee7a1c3ebc6d465852cdf5d39966aa159b811b6ef6d796fc58"
+              }
+            },
+            {
+              "seq": 35,
+              "type": "tool/call",
+              "attempt": 2,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01Xca9oXEhfWuowMqAxN67qW",
+                "input": {
+                  "payment_intent": "pi_3UFNpi88KhIqqdFL0Ta15ZP5",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender; customer keeps product"
+                }
+              }
+            },
+            {
+              "seq": 36,
+              "type": "tool/result",
+              "attempt": 2,
+              "detail": {
+                "toolCallId": "toolu_01Xca9oXEhfWuowMqAxN67qW",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01Xca9oXEhfWuowMqAxN67qW\",\"content\":\"{\\\"outcome\\\":\\\"REFUSED:stale_premise\\\",\\\"was\\\":0,\\\"now\\\":2000}\",\"is_error\":true}"
+              }
+            },
+            {
+              "seq": 48,
+              "type": "run/end",
+              "attempt": 2,
+              "detail": {
+                "status": {
+                  "code": "ok"
+                }
+              }
+            }
+          ]
+        },
+        "verifyRun": {
+          "ok": true,
+          "failures": [],
+          "inconclusive": 0,
+          "stats": {
+            "events": 48,
+            "requests": 3,
+            "blocksChecked": 10
+          }
+        }
+      },
+      "status": "RAN",
+      "rep": 1
+    },
+    {
+      "scenario": "S2_hand_refund_during_outage",
+      "arm": "oma_recheck",
+      "outcome": "ok:REFUSED:stale_premise",
+      "invariant_held": true,
+      "ground_truth": "1 refund(s), $20.00 (want 1, $20.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNqq88KhIqqdFL0OXJVFFO",
+          "amount": 2000,
+          "status": "succeeded",
+          "oma_key": null
+        }
+      ],
+      "seconds_to_settle": 61.2,
+      "lines_of_user_code": 56,
+      "payment_intent": "pi_3UFNqq88KhIqqdFL009V6T0R",
+      "run_id": "refund-47da28efe113",
+      "reviewed": {
+        "request_id": "apr_cf49e782b2d166f16c1a9132e82cc368",
+        "request_hash": "170c611ee07eb517c0cdc230e88315bca2d68ca7b81d2afbbf4ab850d9b7c542",
+        "tool_input": {
+          "payment_intent": "pi_3UFNqq88KhIqqdFL009V6T0R",
+          "amount_cents": 2000,
+          "reason": "Partial refund for cracked blender jar; customer retains blender"
+        },
+        "decision": "approve",
+        "reviewer_saw_refunded_cents": 0
+      },
+      "outage": {
+        "hand_refund": "re_3UFNqq88KhIqqdFL0OXJVFFO"
+      },
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 34952,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "decide",
+          "pid": 35036,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 35038,
+          "process": "node",
+          "exit": -9
+        },
+        {
+          "mode": "resume",
+          "pid": 35105,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "final_result": {
+        "success": true,
+        "status": {
+          "code": "ok"
+        },
+        "tools": [
+          {
+            "name": "get_payment",
+            "input": {
+              "payment_intent": "pi_3UFNqq88KhIqqdFL009V6T0R"
+            },
+            "output": "{\"payment_intent\":\"pi_3UFNqq88KhIqqdFL009V6T0R\",\"amount_cents\":10000,\"refunded_cents\":0}"
+          },
+          {
+            "name": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNqq88KhIqqdFL009V6T0R",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked blender jar; customer retains blender"
+            },
+            "output": "{\"outcome\":\"REFUSED:stale_premise\",\"was\":0,\"now\":2000}"
+          }
+        ],
+        "receipt": {
+          "approvalDecisions": [
+            {
+              "requestId": "apr_cf49e782b2d166f16c1a9132e82cc368",
+              "scope": "tool_call",
+              "requestHash": "170c611ee07eb517c0cdc230e88315bca2d68ca7b81d2afbbf4ab850d9b7c542",
+              "decision": "approved",
+              "reviewerId": "support-lead-7",
+              "reviewerDisplayName": "Support lead",
+              "decidedAt": "2026-09-14T00:34:34.700Z"
+            }
+          ],
+          "mode": "single",
+          "rolesExecuted": [
+            "support-agent"
+          ],
+          "workerInstancesExecuted": [
+            "support-agent"
+          ],
+          "executionOrder": [
+            "support-agent"
+          ],
+          "dependencyEdges": [],
+          "independentRolesCount": 1,
+          "independentReviewOccurred": false,
+          "totalTokens": {
+            "input": 2838,
+            "output": 289
+          },
+          "durationMs": 1300,
+          "partial": false
+        },
+        "pendingApprovals": [],
+        "approvalDecisions": [
+          {
+            "version": 1,
+            "requestId": "apr_cf49e782b2d166f16c1a9132e82cc368",
+            "runId": "refund-47da28efe113",
+            "scope": "tool_call",
+            "requestHash": "170c611ee07eb517c0cdc230e88315bca2d68ca7b81d2afbbf4ab850d9b7c542",
+            "decision": "approved",
+            "reviewer": {
+              "id": "support-lead-7",
+              "displayName": "Support lead"
+            },
+            "decidedAt": "2026-09-14T00:34:34.700Z"
+          }
+        ],
+        "tasks": [
+          {
+            "id": "1deb59ed-cecf-4006-b880-1d4c1c03e816",
+            "status": "completed"
+          }
+        ],
+        "leaseHeldRetries": 58
+      },
+      "record": {
+        "keys": [
+          "__oma_run__/refund-47da28efe113",
+          "__oma_checkpoint__/latest",
+          "app/snapshot/toolu_013Z9VsLUbAgLBJPsBXwmu5e",
+          "__oma_approval__/apr_cf49e782b2d166f16c1a9132e82cc368"
+        ],
+        "approvals": [
+          {
+            "key": "__oma_approval__/apr_cf49e782b2d166f16c1a9132e82cc368",
+            "request_id": "apr_cf49e782b2d166f16c1a9132e82cc368",
+            "tool": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNqq88KhIqqdFL009V6T0R",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked blender jar; customer retains blender"
+            },
+            "request_hash": "170c611ee07eb517c0cdc230e88315bca2d68ca7b81d2afbbf4ab850d9b7c542",
+            "decision": "approved",
+            "reviewer": "support-lead-7",
+            "decided_at": "2026-09-14T00:34:34.700Z",
+            "hash_recomputes": true
+          }
+        ],
+        "runRecords": [
+          {
+            "key": "__oma_run__/refund-47da28efe113",
+            "status": "completed",
+            "attempt": 2,
+            "fencingToken": 3,
+            "outcome": {
+              "code": "ok"
+            }
+          }
+        ],
+        "journal": {
+          "events": 48,
+          "types": {
+            "run/start": 3,
+            "plan/set": 3,
+            "task/status": 4,
+            "user/message": 3,
+            "turn/start": 3,
+            "llm/request": 3,
+            "assistant/message": 3,
+            "checkpoint/saved": 12,
+            "tool/call": 4,
+            "tool/result": 2,
+            "turn/end": 3,
+            "approval/request": 1,
+            "run/end": 2,
+            "approval/decision": 2
+          },
+          "toolEvents": [
+            {
+              "seq": 1,
+              "type": "run/start",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 9,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "get_payment",
+                "id": "toolu_01VkHqyaqKznTUGCp3nPgCca",
+                "input": {
+                  "payment_intent": "pi_3UFNqq88KhIqqdFL009V6T0R"
+                }
+              }
+            },
+            {
+              "seq": 10,
+              "type": "tool/result",
+              "attempt": 1,
+              "detail": {
+                "toolCallId": "toolu_01VkHqyaqKznTUGCp3nPgCca",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01VkHqyaqKznTUGCp3nPgCca\",\"content\":\"{\\\"payment_intent\\\":\\\"pi_3UFNqq88KhIqqdFL009V6T0R\\\",\\\"amount_cents\\\":10000,\\\"refunded_cents\\\":0}\"}"
+              }
+            },
+            {
+              "seq": 19,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_013Z9VsLUbAgLBJPsBXwmu5e",
+                "input": {
+                  "payment_intent": "pi_3UFNqq88KhIqqdFL009V6T0R",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked blender jar; customer retains blender"
+                }
+              }
+            },
+            {
+              "seq": 21,
+              "type": "approval/request",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 25,
+              "type": "run/end",
+              "attempt": 1,
+              "detail": {
+                "status": {
+                  "code": "suspended",
+                  "message": "Durable approval required before task execution can continue."
+                }
+              }
+            },
+            {
+              "seq": 26,
+              "type": "run/start",
+              "attempt": 2,
+              "detail": {}
+            },
+            {
+              "seq": 28,
+              "type": "approval/decision",
+              "attempt": 2,
+              "detail": {
+                "decision": "approved",
+                "reviewer": "support-lead-7",
+                "requestHash": "170c611ee07eb517c0cdc230e88315bca2d68ca7b81d2afbbf4ab850d9b7c542"
+              }
+            },
+            {
+              "seq": 30,
+              "type": "tool/call",
+              "attempt": 2,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_013Z9VsLUbAgLBJPsBXwmu5e",
+                "input": {
+                  "payment_intent": "pi_3UFNqq88KhIqqdFL009V6T0R",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked blender jar; customer retains blender"
+                }
+              }
+            },
+            {
+              "seq": 31,
+              "type": "run/start",
+              "attempt": 2,
+              "detail": {}
+            },
+            {
+              "seq": 33,
+              "type": "approval/decision",
+              "attempt": 2,
+              "detail": {
+                "decision": "approved",
+                "reviewer": "support-lead-7",
+                "requestHash": "170c611ee07eb517c0cdc230e88315bca2d68ca7b81d2afbbf4ab850d9b7c542"
+              }
+            },
+            {
+              "seq": 35,
+              "type": "tool/call",
+              "attempt": 2,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_013Z9VsLUbAgLBJPsBXwmu5e",
+                "input": {
+                  "payment_intent": "pi_3UFNqq88KhIqqdFL009V6T0R",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked blender jar; customer retains blender"
+                }
+              }
+            },
+            {
+              "seq": 36,
+              "type": "tool/result",
+              "attempt": 2,
+              "detail": {
+                "toolCallId": "toolu_013Z9VsLUbAgLBJPsBXwmu5e",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_013Z9VsLUbAgLBJPsBXwmu5e\",\"content\":\"{\\\"outcome\\\":\\\"REFUSED:stale_premise\\\",\\\"was\\\":0,\\\"now\\\":2000}\",\"is_error\":true}"
+              }
+            },
+            {
+              "seq": 48,
+              "type": "run/end",
+              "attempt": 2,
+              "detail": {
+                "status": {
+                  "code": "ok"
+                }
+              }
+            }
+          ]
+        },
+        "verifyRun": {
+          "ok": true,
+          "failures": [],
+          "inconclusive": 0,
+          "stats": {
+            "events": 48,
+            "requests": 3,
+            "blocksChecked": 12
+          }
+        }
+      },
+      "status": "RAN",
+      "rep": 2
+    },
+    {
+      "scenario": "S3_approval_revoked_during_outage",
+      "arm": "oma",
+      "outcome": "ERROR:RUN_ALREADY_TERMINAL",
+      "invariant_held": true,
+      "ground_truth": "0 refund(s), $0.00 (want 0, $0.00)",
+      "refunds": [],
+      "seconds_to_settle": 1.6,
+      "lines_of_user_code": 49,
+      "payment_intent": "pi_3UFNry88KhIqqdFL1RuIuOtj",
+      "run_id": "refund-437260352a0a",
+      "reviewed": {
+        "request_id": "apr_1116876bf6ebaa91ee7ab355f8cc3006",
+        "request_hash": "1367643acbd9b2a99a6ff8dd66490675dcdd789026915f1402915e9a6ba87c55",
+        "tool_input": {
+          "payment_intent": "pi_3UFNry88KhIqqdFL1RuIuOtj",
+          "amount_cents": 2000,
+          "reason": "Partial refund for cracked blender jar; customer retains blender"
+        },
+        "decision": "approve",
+        "reviewer_saw_refunded_cents": 0
+      },
+      "outage": {
+        "revoked": "RunLedger.cancel",
+        "exit": 0,
+        "record": {
+          "status": "cancelled",
+          "fencingToken": 3,
+          "outcome": {
+            "code": "cancelled",
+            "message": "approval revoked during outage"
+          }
+        },
+        "pid": 37766
+      },
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 37639,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "decide",
+          "pid": 37748,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 37756,
+          "process": "node",
+          "exit": -9
+        },
+        {
+          "mode": "resume",
+          "pid": 37775,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "final_result": {
+        "error": "RUN_ALREADY_TERMINAL",
+        "message": "Run \"refund-437260352a0a\" already finished as \"cancelled\" and cannot be acquired.",
+        "leaseHeldRetries": 0
+      },
+      "record": {
+        "keys": [
+          "__oma_run__/refund-437260352a0a",
+          "__oma_checkpoint__/latest",
+          "__oma_approval__/apr_1116876bf6ebaa91ee7ab355f8cc3006"
+        ],
+        "approvals": [
+          {
+            "key": "__oma_approval__/apr_1116876bf6ebaa91ee7ab355f8cc3006",
+            "request_id": "apr_1116876bf6ebaa91ee7ab355f8cc3006",
+            "tool": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNry88KhIqqdFL1RuIuOtj",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked blender jar; customer retains blender"
+            },
+            "request_hash": "1367643acbd9b2a99a6ff8dd66490675dcdd789026915f1402915e9a6ba87c55",
+            "decision": "approved",
+            "reviewer": "support-lead-7",
+            "decided_at": "2026-09-14T00:35:44.195Z",
+            "hash_recomputes": true
+          }
+        ],
+        "runRecords": [
+          {
+            "key": "__oma_run__/refund-437260352a0a",
+            "status": "cancelled",
+            "attempt": 1,
+            "fencingToken": 3,
+            "outcome": {
+              "code": "cancelled",
+              "message": "approval revoked during outage"
+            }
+          }
+        ],
+        "journal": {
+          "events": 25,
+          "types": {
+            "run/start": 1,
+            "plan/set": 1,
+            "task/status": 1,
+            "user/message": 2,
+            "turn/start": 2,
+            "llm/request": 2,
+            "assistant/message": 2,
+            "checkpoint/saved": 7,
+            "tool/call": 2,
+            "tool/result": 1,
+            "turn/end": 2,
+            "approval/request": 1,
+            "run/end": 1
+          },
+          "toolEvents": [
+            {
+              "seq": 1,
+              "type": "run/start",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 9,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "get_payment",
+                "id": "toolu_01MbMHtKvqBJWejRgqYhQkGf",
+                "input": {
+                  "payment_intent": "pi_3UFNry88KhIqqdFL1RuIuOtj"
+                }
+              }
+            },
+            {
+              "seq": 10,
+              "type": "tool/result",
+              "attempt": 1,
+              "detail": {
+                "toolCallId": "toolu_01MbMHtKvqBJWejRgqYhQkGf",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01MbMHtKvqBJWejRgqYhQkGf\",\"content\":\"{\\\"payment_intent\\\":\\\"pi_3UFNry88KhIqqdFL1RuIuOtj\\\",\\\"amount_cents\\\":10000,\\\"refunded_cents\\\":0}\"}"
+              }
+            },
+            {
+              "seq": 19,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01FbZbGQmrm8jN7JSqciB5WL",
+                "input": {
+                  "payment_intent": "pi_3UFNry88KhIqqdFL1RuIuOtj",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked blender jar; customer retains blender"
+                }
+              }
+            },
+            {
+              "seq": 21,
+              "type": "approval/request",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 25,
+              "type": "run/end",
+              "attempt": 1,
+              "detail": {
+                "status": {
+                  "code": "suspended",
+                  "message": "Durable approval required before task execution can continue."
+                }
+              }
+            }
+          ]
+        },
+        "verifyRun": {
+          "ok": true,
+          "failures": [],
+          "inconclusive": 0,
+          "stats": {
+            "events": 25,
+            "requests": 2,
+            "blocksChecked": 4
+          }
+        }
+      },
+      "status": "RAN",
+      "rep": 1
+    },
+    {
+      "scenario": "S3_approval_revoked_during_outage",
+      "arm": "oma",
+      "outcome": "ERROR:RUN_ALREADY_TERMINAL",
+      "invariant_held": true,
+      "ground_truth": "0 refund(s), $0.00 (want 0, $0.00)",
+      "refunds": [],
+      "seconds_to_settle": 1.8,
+      "lines_of_user_code": 49,
+      "payment_intent": "pi_3UFNs888KhIqqdFL0PbAxjuu",
+      "run_id": "refund-10c96360ba4b",
+      "reviewed": {
+        "request_id": "apr_0001d6b9da9b2eb692bbf45d4af91ef9",
+        "request_hash": "ce19c37df9b07917224ae8acf6f91be8df9961cfa0766637e739d555b7c95cba",
+        "tool_input": {
+          "payment_intent": "pi_3UFNs888KhIqqdFL0PbAxjuu",
+          "amount_cents": 2000,
+          "reason": "Partial refund for cracked jar on blender - customer retains item"
+        },
+        "decision": "approve",
+        "reviewer_saw_refunded_cents": 0
+      },
+      "outage": {
+        "revoked": "RunLedger.cancel",
+        "exit": 0,
+        "record": {
+          "status": "cancelled",
+          "fencingToken": 3,
+          "outcome": {
+            "code": "cancelled",
+            "message": "approval revoked during outage"
+          }
+        },
+        "pid": 38047
+      },
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 37847,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "decide",
+          "pid": 38031,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 38041,
+          "process": "node",
+          "exit": -9
+        },
+        {
+          "mode": "resume",
+          "pid": 38097,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "final_result": {
+        "error": "RUN_ALREADY_TERMINAL",
+        "message": "Run \"refund-10c96360ba4b\" already finished as \"cancelled\" and cannot be acquired.",
+        "leaseHeldRetries": 0
+      },
+      "record": {
+        "keys": [
+          "__oma_run__/refund-10c96360ba4b",
+          "__oma_checkpoint__/latest",
+          "__oma_approval__/apr_0001d6b9da9b2eb692bbf45d4af91ef9"
+        ],
+        "approvals": [
+          {
+            "key": "__oma_approval__/apr_0001d6b9da9b2eb692bbf45d4af91ef9",
+            "request_id": "apr_0001d6b9da9b2eb692bbf45d4af91ef9",
+            "tool": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNs888KhIqqdFL0PbAxjuu",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked jar on blender - customer retains item"
+            },
+            "request_hash": "ce19c37df9b07917224ae8acf6f91be8df9961cfa0766637e739d555b7c95cba",
+            "decision": "approved",
+            "reviewer": "support-lead-7",
+            "decided_at": "2026-09-14T00:35:53.778Z",
+            "hash_recomputes": true
+          }
+        ],
+        "runRecords": [
+          {
+            "key": "__oma_run__/refund-10c96360ba4b",
+            "status": "cancelled",
+            "attempt": 1,
+            "fencingToken": 3,
+            "outcome": {
+              "code": "cancelled",
+              "message": "approval revoked during outage"
+            }
+          }
+        ],
+        "journal": {
+          "events": 18,
+          "types": {
+            "run/start": 1,
+            "plan/set": 1,
+            "task/status": 1,
+            "user/message": 1,
+            "turn/start": 1,
+            "llm/request": 1,
+            "assistant/message": 1,
+            "checkpoint/saved": 5,
+            "tool/call": 2,
+            "approval/request": 1,
+            "tool/result": 1,
+            "turn/end": 1,
+            "run/end": 1
+          },
+          "toolEvents": [
+            {
+              "seq": 1,
+              "type": "run/start",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 9,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "get_payment",
+                "id": "toolu_01LPYRfgxYUbAGaguYSRytw7",
+                "input": {
+                  "payment_intent": "pi_3UFNs888KhIqqdFL0PbAxjuu"
+                }
+              }
+            },
+            {
+              "seq": 10,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01E1VJHaFnjXou2ah5pJxYCY",
+                "input": {
+                  "payment_intent": "pi_3UFNs888KhIqqdFL0PbAxjuu",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender - customer retains item"
+                }
+              }
+            },
+            {
+              "seq": 12,
+              "type": "approval/request",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 13,
+              "type": "tool/result",
+              "attempt": 1,
+              "detail": {
+                "toolCallId": "toolu_01LPYRfgxYUbAGaguYSRytw7",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01LPYRfgxYUbAGaguYSRytw7\",\"content\":\"{\\\"payment_intent\\\":\\\"pi_3UFNs888KhIqqdFL0PbAxjuu\\\",\\\"amount_cents\\\":10000,\\\"refunded_cents\\\":0}\"}"
+              }
+            },
+            {
+              "seq": 18,
+              "type": "run/end",
+              "attempt": 1,
+              "detail": {
+                "status": {
+                  "code": "suspended",
+                  "message": "Durable approval required before task execution can continue."
+                }
+              }
+            }
+          ]
+        },
+        "verifyRun": {
+          "ok": true,
+          "failures": [],
+          "inconclusive": 0,
+          "stats": {
+            "events": 18,
+            "requests": 1,
+            "blocksChecked": 1
+          }
+        }
+      },
+      "status": "RAN",
+      "rep": 2
+    },
+    {
+      "scenario": "S3_approval_revoked_during_outage",
+      "arm": "oma_no_runstore",
+      "outcome": "ok:REFUNDED",
+      "invariant_held": false,
+      "ground_truth": "1 refund(s), $20.00 (want 0, $0.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNsH88KhIqqdFL1OqrQAs9",
+          "amount": 2000,
+          "status": "succeeded",
+          "oma_key": "refund-36e8a8961f3d:d13303e4-af9a-4a8e-8499-90ee565b09ee:toolu_01HaTop63odwozEzJzDHodpM"
+        }
+      ],
+      "seconds_to_settle": 4.4,
+      "lines_of_user_code": 41,
+      "payment_intent": "pi_3UFNsH88KhIqqdFL10NDcxra",
+      "run_id": "refund-36e8a8961f3d",
+      "reviewed": {
+        "request_id": "apr_7ef321f77b54a679acbea94e99b008b8",
+        "request_hash": "889c0b65b7b86b4c251733551beb475472c6a0a10416cfd9644938cf7236b7dd",
+        "tool_input": {
+          "payment_intent": "pi_3UFNsH88KhIqqdFL10NDcxra",
+          "amount_cents": 2000,
+          "reason": "Partial refund for cracked blender jar; customer retains blender"
+        },
+        "decision": "approve",
+        "reviewer_saw_refunded_cents": 0
+      },
+      "outage": {
+        "revoked": "application record only (OMA: no revocation of a recorded decision)"
+      },
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 38276,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "decide",
+          "pid": 38430,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 38453,
+          "process": "node",
+          "exit": -9
+        },
+        {
+          "mode": "resume",
+          "pid": 38538,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "final_result": {
+        "success": true,
+        "status": {
+          "code": "ok"
+        },
+        "tools": [
+          {
+            "name": "get_payment",
+            "input": {
+              "payment_intent": "pi_3UFNsH88KhIqqdFL10NDcxra"
+            },
+            "output": "{\"payment_intent\":\"pi_3UFNsH88KhIqqdFL10NDcxra\",\"amount_cents\":10000,\"refunded_cents\":0}"
+          },
+          {
+            "name": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNsH88KhIqqdFL10NDcxra",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked blender jar; customer retains blender"
+            },
+            "output": "{\"outcome\":\"REFUNDED\",\"refund\":\"re_3UFNsH88KhIqqdFL1OqrQAs9\",\"status\":\"succeeded\"}"
+          }
+        ],
+        "receipt": {
+          "approvalDecisions": [
+            {
+              "requestId": "apr_7ef321f77b54a679acbea94e99b008b8",
+              "scope": "tool_call",
+              "requestHash": "889c0b65b7b86b4c251733551beb475472c6a0a10416cfd9644938cf7236b7dd",
+              "decision": "approved",
+              "reviewerId": "support-lead-7",
+              "reviewerDisplayName": "Support lead",
+              "decidedAt": "2026-09-14T00:36:03.466Z"
+            }
+          ],
+          "mode": "single",
+          "rolesExecuted": [
+            "support-agent"
+          ],
+          "workerInstancesExecuted": [
+            "support-agent"
+          ],
+          "executionOrder": [
+            "support-agent"
+          ],
+          "dependencyEdges": [],
+          "independentRolesCount": 1,
+          "independentReviewOccurred": false,
+          "totalTokens": {
+            "input": 2756,
+            "output": 237
+          },
+          "durationMs": 2445,
+          "partial": false
+        },
+        "pendingApprovals": [],
+        "approvalDecisions": [
+          {
+            "version": 1,
+            "requestId": "apr_7ef321f77b54a679acbea94e99b008b8",
+            "runId": "refund-36e8a8961f3d",
+            "scope": "tool_call",
+            "requestHash": "889c0b65b7b86b4c251733551beb475472c6a0a10416cfd9644938cf7236b7dd",
+            "decision": "approved",
+            "reviewer": {
+              "id": "support-lead-7",
+              "displayName": "Support lead"
+            },
+            "decidedAt": "2026-09-14T00:36:03.466Z"
+          }
+        ],
+        "tasks": [
+          {
+            "id": "d13303e4-af9a-4a8e-8499-90ee565b09ee",
+            "status": "completed"
+          }
+        ],
+        "leaseHeldRetries": 0
+      },
+      "record": {
+        "keys": [
+          "__oma_checkpoint__/latest",
+          "__oma_approval__/apr_7ef321f77b54a679acbea94e99b008b8"
+        ],
+        "approvals": [
+          {
+            "key": "__oma_approval__/apr_7ef321f77b54a679acbea94e99b008b8",
+            "request_id": "apr_7ef321f77b54a679acbea94e99b008b8",
+            "tool": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNsH88KhIqqdFL10NDcxra",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked blender jar; customer retains blender"
+            },
+            "request_hash": "889c0b65b7b86b4c251733551beb475472c6a0a10416cfd9644938cf7236b7dd",
+            "decision": "approved",
+            "reviewer": "support-lead-7",
+            "decided_at": "2026-09-14T00:36:03.466Z",
+            "hash_recomputes": true
+          }
+        ],
+        "runRecords": [],
+        "journal": {
+          "events": 43,
+          "types": {
+            "run/start": 2,
+            "plan/set": 2,
+            "task/status": 3,
+            "user/message": 3,
+            "turn/start": 3,
+            "llm/request": 3,
+            "assistant/message": 3,
+            "checkpoint/saved": 12,
+            "tool/call": 3,
+            "tool/result": 2,
+            "turn/end": 3,
+            "approval/request": 1,
+            "run/end": 2,
+            "approval/decision": 1
+          },
+          "toolEvents": [
+            {
+              "seq": 1,
+              "type": "run/start",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 9,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "get_payment",
+                "id": "toolu_019C85anH8aza6jXz718ER7m",
+                "input": {
+                  "payment_intent": "pi_3UFNsH88KhIqqdFL10NDcxra"
+                }
+              }
+            },
+            {
+              "seq": 10,
+              "type": "tool/result",
+              "attempt": 1,
+              "detail": {
+                "toolCallId": "toolu_019C85anH8aza6jXz718ER7m",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_019C85anH8aza6jXz718ER7m\",\"content\":\"{\\\"payment_intent\\\":\\\"pi_3UFNsH88KhIqqdFL10NDcxra\\\",\\\"amount_cents\\\":10000,\\\"refunded_cents\\\":0}\"}"
+              }
+            },
+            {
+              "seq": 19,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01HaTop63odwozEzJzDHodpM",
+                "input": {
+                  "payment_intent": "pi_3UFNsH88KhIqqdFL10NDcxra",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked blender jar; customer retains blender"
+                }
+              }
+            },
+            {
+              "seq": 21,
+              "type": "approval/request",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 25,
+              "type": "run/end",
+              "attempt": 1,
+              "detail": {
+                "status": {
+                  "code": "suspended",
+                  "message": "Durable approval required before task execution can continue."
+                }
+              }
+            },
+            {
+              "seq": 26,
+              "type": "run/start",
+              "attempt": 2,
+              "detail": {}
+            },
+            {
+              "seq": 28,
+              "type": "approval/decision",
+              "attempt": 2,
+              "detail": {
+                "decision": "approved",
+                "reviewer": "support-lead-7",
+                "requestHash": "889c0b65b7b86b4c251733551beb475472c6a0a10416cfd9644938cf7236b7dd"
+              }
+            },
+            {
+              "seq": 30,
+              "type": "tool/call",
+              "attempt": 2,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_01HaTop63odwozEzJzDHodpM",
+                "input": {
+                  "payment_intent": "pi_3UFNsH88KhIqqdFL10NDcxra",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked blender jar; customer retains blender"
+                }
+              }
+            },
+            {
+              "seq": 31,
+              "type": "tool/result",
+              "attempt": 2,
+              "detail": {
+                "toolCallId": "toolu_01HaTop63odwozEzJzDHodpM",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01HaTop63odwozEzJzDHodpM\",\"content\":\"{\\\"outcome\\\":\\\"REFUNDED\\\",\\\"refund\\\":\\\"re_3UFNsH88KhIqqdFL1OqrQAs9\\\",\\\"status\\\":\\\"succeeded\\\"}\"}"
+              }
+            },
+            {
+              "seq": 43,
+              "type": "run/end",
+              "attempt": 2,
+              "detail": {
+                "status": {
+                  "code": "ok"
+                }
+              }
+            }
+          ]
+        },
+        "verifyRun": {
+          "ok": true,
+          "failures": [],
+          "inconclusive": 0,
+          "stats": {
+            "events": 43,
+            "requests": 3,
+            "blocksChecked": 10
+          }
+        }
+      },
+      "status": "RAN",
+      "rep": 1
+    },
+    {
+      "scenario": "S3_approval_revoked_during_outage",
+      "arm": "oma_no_runstore",
+      "outcome": "ok:REFUNDED",
+      "invariant_held": false,
+      "ground_truth": "1 refund(s), $20.00 (want 0, $0.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNsY88KhIqqdFL1ez2l1iC",
+          "amount": 2000,
+          "status": "succeeded",
+          "oma_key": "refund-324a6b6d95d8:ceb04c48-dd2a-40d0-a9cf-33d4edaa4f13:toolu_018wavPnRHtqQpVe8YYAoYoN"
+        }
+      ],
+      "seconds_to_settle": 3.8,
+      "lines_of_user_code": 41,
+      "payment_intent": "pi_3UFNsY88KhIqqdFL1yvfllup",
+      "run_id": "refund-324a6b6d95d8",
+      "reviewed": {
+        "request_id": "apr_f341b80fd4ef4c95d5625dfc34d63847",
+        "request_hash": "29d73cae7925027fe6f37bdd1a48a26367a9ca1809f95bf763d005118fb48d82",
+        "tool_input": {
+          "payment_intent": "pi_3UFNsY88KhIqqdFL1yvfllup",
+          "amount_cents": 2000,
+          "reason": "Partial refund for cracked jar on blender; customer keeps the blender"
+        },
+        "decision": "approve",
+        "reviewer_saw_refunded_cents": 0
+      },
+      "outage": {
+        "revoked": "application record only (OMA: no revocation of a recorded decision)"
+      },
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 38948,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "decide",
+          "pid": 39035,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 39053,
+          "process": "node",
+          "exit": -9
+        },
+        {
+          "mode": "resume",
+          "pid": 39066,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "final_result": {
+        "success": true,
+        "status": {
+          "code": "ok"
+        },
+        "tools": [
+          {
+            "name": "get_payment",
+            "input": {
+              "payment_intent": "pi_3UFNsY88KhIqqdFL1yvfllup"
+            },
+            "output": "{\"payment_intent\":\"pi_3UFNsY88KhIqqdFL1yvfllup\",\"amount_cents\":10000,\"refunded_cents\":0}"
+          },
+          {
+            "name": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNsY88KhIqqdFL1yvfllup",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked jar on blender; customer keeps the blender"
+            },
+            "output": "{\"outcome\":\"REFUNDED\",\"refund\":\"re_3UFNsY88KhIqqdFL1ez2l1iC\",\"status\":\"succeeded\"}"
+          }
+        ],
+        "receipt": {
+          "approvalDecisions": [
+            {
+              "requestId": "apr_f341b80fd4ef4c95d5625dfc34d63847",
+              "scope": "tool_call",
+              "requestHash": "29d73cae7925027fe6f37bdd1a48a26367a9ca1809f95bf763d005118fb48d82",
+              "decision": "approved",
+              "reviewerId": "support-lead-7",
+              "reviewerDisplayName": "Support lead",
+              "decidedAt": "2026-09-14T00:36:20.470Z"
+            }
+          ],
+          "mode": "single",
+          "rolesExecuted": [
+            "support-agent"
+          ],
+          "workerInstancesExecuted": [
+            "support-agent"
+          ],
+          "executionOrder": [
+            "support-agent"
+          ],
+          "dependencyEdges": [],
+          "independentRolesCount": 1,
+          "independentReviewOccurred": false,
+          "totalTokens": {
+            "input": 2771,
+            "output": 248
+          },
+          "durationMs": 3058,
+          "partial": false
+        },
+        "pendingApprovals": [],
+        "approvalDecisions": [
+          {
+            "version": 1,
+            "requestId": "apr_f341b80fd4ef4c95d5625dfc34d63847",
+            "runId": "refund-324a6b6d95d8",
+            "scope": "tool_call",
+            "requestHash": "29d73cae7925027fe6f37bdd1a48a26367a9ca1809f95bf763d005118fb48d82",
+            "decision": "approved",
+            "reviewer": {
+              "id": "support-lead-7",
+              "displayName": "Support lead"
+            },
+            "decidedAt": "2026-09-14T00:36:20.470Z"
+          }
+        ],
+        "tasks": [
+          {
+            "id": "ceb04c48-dd2a-40d0-a9cf-33d4edaa4f13",
+            "status": "completed"
+          }
+        ],
+        "leaseHeldRetries": 0
+      },
+      "record": {
+        "keys": [
+          "__oma_checkpoint__/latest",
+          "__oma_approval__/apr_f341b80fd4ef4c95d5625dfc34d63847"
+        ],
+        "approvals": [
+          {
+            "key": "__oma_approval__/apr_f341b80fd4ef4c95d5625dfc34d63847",
+            "request_id": "apr_f341b80fd4ef4c95d5625dfc34d63847",
+            "tool": "issue_refund",
+            "input": {
+              "payment_intent": "pi_3UFNsY88KhIqqdFL1yvfllup",
+              "amount_cents": 2000,
+              "reason": "Partial refund for cracked jar on blender; customer keeps the blender"
+            },
+            "request_hash": "29d73cae7925027fe6f37bdd1a48a26367a9ca1809f95bf763d005118fb48d82",
+            "decision": "approved",
+            "reviewer": "support-lead-7",
+            "decided_at": "2026-09-14T00:36:20.470Z",
+            "hash_recomputes": true
+          }
+        ],
+        "runRecords": [],
+        "journal": {
+          "events": 43,
+          "types": {
+            "run/start": 2,
+            "plan/set": 2,
+            "task/status": 3,
+            "user/message": 3,
+            "turn/start": 3,
+            "llm/request": 3,
+            "assistant/message": 3,
+            "checkpoint/saved": 12,
+            "tool/call": 3,
+            "tool/result": 2,
+            "turn/end": 3,
+            "approval/request": 1,
+            "run/end": 2,
+            "approval/decision": 1
+          },
+          "toolEvents": [
+            {
+              "seq": 1,
+              "type": "run/start",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 9,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "get_payment",
+                "id": "toolu_01EHnfL6SupLT9kwKYbqkKwv",
+                "input": {
+                  "payment_intent": "pi_3UFNsY88KhIqqdFL1yvfllup"
+                }
+              }
+            },
+            {
+              "seq": 10,
+              "type": "tool/result",
+              "attempt": 1,
+              "detail": {
+                "toolCallId": "toolu_01EHnfL6SupLT9kwKYbqkKwv",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01EHnfL6SupLT9kwKYbqkKwv\",\"content\":\"{\\\"payment_intent\\\":\\\"pi_3UFNsY88KhIqqdFL1yvfllup\\\",\\\"amount_cents\\\":10000,\\\"refunded_cents\\\":0}\"}"
+              }
+            },
+            {
+              "seq": 19,
+              "type": "tool/call",
+              "attempt": 1,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_018wavPnRHtqQpVe8YYAoYoN",
+                "input": {
+                  "payment_intent": "pi_3UFNsY88KhIqqdFL1yvfllup",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender; customer keeps the blender"
+                }
+              }
+            },
+            {
+              "seq": 21,
+              "type": "approval/request",
+              "attempt": 1,
+              "detail": {}
+            },
+            {
+              "seq": 25,
+              "type": "run/end",
+              "attempt": 1,
+              "detail": {
+                "status": {
+                  "code": "suspended",
+                  "message": "Durable approval required before task execution can continue."
+                }
+              }
+            },
+            {
+              "seq": 26,
+              "type": "run/start",
+              "attempt": 2,
+              "detail": {}
+            },
+            {
+              "seq": 28,
+              "type": "approval/decision",
+              "attempt": 2,
+              "detail": {
+                "decision": "approved",
+                "reviewer": "support-lead-7",
+                "requestHash": "29d73cae7925027fe6f37bdd1a48a26367a9ca1809f95bf763d005118fb48d82"
+              }
+            },
+            {
+              "seq": 30,
+              "type": "tool/call",
+              "attempt": 2,
+              "detail": {
+                "name": "issue_refund",
+                "id": "toolu_018wavPnRHtqQpVe8YYAoYoN",
+                "input": {
+                  "payment_intent": "pi_3UFNsY88KhIqqdFL1yvfllup",
+                  "amount_cents": 2000,
+                  "reason": "Partial refund for cracked jar on blender; customer keeps the blender"
+                }
+              }
+            },
+            {
+              "seq": 31,
+              "type": "tool/result",
+              "attempt": 2,
+              "detail": {
+                "toolCallId": "toolu_018wavPnRHtqQpVe8YYAoYoN",
+                "result": "{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_018wavPnRHtqQpVe8YYAoYoN\",\"content\":\"{\\\"outcome\\\":\\\"REFUNDED\\\",\\\"refund\\\":\\\"re_3UFNsY88KhIqqdFL1ez2l1iC\\\",\\\"status\\\":\\\"succeeded\\\"}\"}"
+              }
+            },
+            {
+              "seq": 43,
+              "type": "run/end",
+              "attempt": 2,
+              "detail": {
+                "status": {
+                  "code": "ok"
+                }
+              }
+            }
+          ]
+        },
+        "verifyRun": {
+          "ok": true,
+          "failures": [],
+          "inconclusive": 0,
+          "stats": {
+            "events": 43,
+            "requests": 3,
+            "blocksChecked": 10
+          }
+        }
+      },
+      "status": "RAN",
+      "rep": 2
+    },
+    {
+      "scenario": "S4_two_approvals_racing_30_cap",
+      "arm": "oma",
+      "outcome": "ok:REFUNDED / ok:REFUNDED",
+      "invariant_held": false,
+      "ground_truth": "2 refund(s), $40.00 (cap $30.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNsk88KhIqqdFL0IcpTb7N",
+          "amount": 2000,
+          "status": "succeeded"
+        },
+        {
+          "id": "re_3UFNsk88KhIqqdFL0UHv07yF",
+          "amount": 2000,
+          "status": "succeeded"
+        }
+      ],
+      "seconds_to_settle": 3.4,
+      "lines_of_user_code": 47,
+      "cap_reservations_succeeded": 0,
+      "payment_intent": "pi_3UFNsk88KhIqqdFL0uI8a0d4",
+      "reviewed": [
+        {
+          "decision": "approve",
+          "reviewer_saw_refunded_cents": 0,
+          "tool_input": {
+            "payment_intent": "pi_3UFNsk88KhIqqdFL0uI8a0d4",
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked jar on blender; customer keeps blender"
+          }
+        },
+        {
+          "decision": "approve",
+          "reviewer_saw_refunded_cents": 0,
+          "tool_input": {
+            "payment_intent": "pi_3UFNsk88KhIqqdFL0uI8a0d4",
+            "amount_cents": 2000,
+            "reason": "Customer did not receive express shipping - partial refund approved"
+          }
+        }
+      ],
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 39390,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "start",
+          "pid": 39391,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 39630,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 39631,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "status": "RAN",
+      "rep": 1
+    },
+    {
+      "scenario": "S4_two_approvals_racing_30_cap",
+      "arm": "oma",
+      "outcome": "ok:REFUNDED / ok:REFUNDED",
+      "invariant_held": false,
+      "ground_truth": "2 refund(s), $40.00 (cap $30.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNsx88KhIqqdFL0lZVhWJp",
+          "amount": 2000,
+          "status": "succeeded"
+        },
+        {
+          "id": "re_3UFNsx88KhIqqdFL0Lvpf9px",
+          "amount": 2000,
+          "status": "succeeded"
+        }
+      ],
+      "seconds_to_settle": 3.4,
+      "lines_of_user_code": 47,
+      "cap_reservations_succeeded": 0,
+      "payment_intent": "pi_3UFNsx88KhIqqdFL0R52lLbE",
+      "reviewed": [
+        {
+          "decision": "approve",
+          "reviewer_saw_refunded_cents": 0,
+          "tool_input": {
+            "payment_intent": "pi_3UFNsx88KhIqqdFL0R52lLbE",
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked jar on blender - customer retains item"
+          }
+        },
+        {
+          "decision": "approve",
+          "reviewer_saw_refunded_cents": 0,
+          "tool_input": {
+            "payment_intent": "pi_3UFNsx88KhIqqdFL0R52lLbE",
+            "amount_cents": 2000,
+            "reason": "Refund for undelivered express shipping charge"
+          }
+        }
+      ],
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 39881,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "start",
+          "pid": 39882,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 40039,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 40040,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "status": "RAN",
+      "rep": 2
+    },
+    {
+      "scenario": "S4_two_approvals_racing_30_cap",
+      "arm": "oma",
+      "outcome": "ok:REFUNDED / ok:REFUNDED",
+      "invariant_held": false,
+      "ground_truth": "2 refund(s), $40.00 (cap $30.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNt888KhIqqdFL1QUR5PHq",
+          "amount": 2000,
+          "status": "succeeded"
+        },
+        {
+          "id": "re_3UFNt888KhIqqdFL14W2maXC",
+          "amount": 2000,
+          "status": "succeeded"
+        }
+      ],
+      "seconds_to_settle": 3.5,
+      "lines_of_user_code": 47,
+      "cap_reservations_succeeded": 0,
+      "payment_intent": "pi_3UFNt888KhIqqdFL1XQ1VNdE",
+      "reviewed": [
+        {
+          "decision": "approve",
+          "reviewer_saw_refunded_cents": 0,
+          "tool_input": {
+            "payment_intent": "pi_3UFNt888KhIqqdFL1XQ1VNdE",
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked jar on blender - customer keeps blender"
+          }
+        },
+        {
+          "decision": "approve",
+          "reviewer_saw_refunded_cents": 0,
+          "tool_input": {
+            "payment_intent": "pi_3UFNt888KhIqqdFL1XQ1VNdE",
+            "amount_cents": 2000,
+            "reason": "Refund for express shipping not received - Billing ticket #9012"
+          }
+        }
+      ],
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 40274,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "start",
+          "pid": 40275,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 40492,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 40493,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "status": "RAN",
+      "rep": 3
+    },
+    {
+      "scenario": "S4_two_approvals_racing_30_cap",
+      "arm": "oma",
+      "outcome": "ok:REFUNDED / ok:REFUNDED",
+      "invariant_held": false,
+      "ground_truth": "2 refund(s), $40.00 (cap $30.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNtL88KhIqqdFL1WLvvxXC",
+          "amount": 2000,
+          "status": "succeeded"
+        },
+        {
+          "id": "re_3UFNtL88KhIqqdFL1K709h2p",
+          "amount": 2000,
+          "status": "succeeded"
+        }
+      ],
+      "seconds_to_settle": 3.3,
+      "lines_of_user_code": 47,
+      "cap_reservations_succeeded": 0,
+      "payment_intent": "pi_3UFNtL88KhIqqdFL1YJ2vzN4",
+      "reviewed": [
+        {
+          "decision": "approve",
+          "reviewer_saw_refunded_cents": 0,
+          "tool_input": {
+            "payment_intent": "pi_3UFNtL88KhIqqdFL1YJ2vzN4",
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked jar on blender - customer keeps item"
+          }
+        },
+        {
+          "decision": "approve",
+          "reviewer_saw_refunded_cents": 0,
+          "tool_input": {
+            "payment_intent": "pi_3UFNtL88KhIqqdFL1YJ2vzN4",
+            "amount_cents": 2000,
+            "reason": "Refund for express shipping not received - billing ticket #9012"
+          }
+        }
+      ],
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 40702,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "start",
+          "pid": 40703,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 40887,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 40888,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "status": "RAN",
+      "rep": 4
+    },
+    {
+      "scenario": "S4_two_approvals_racing_30_cap",
+      "arm": "oma",
+      "outcome": "ok:REFUNDED / ok:REFUNDED",
+      "invariant_held": false,
+      "ground_truth": "2 refund(s), $40.00 (cap $30.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNtZ88KhIqqdFL1u1JX3mu",
+          "amount": 2000,
+          "status": "succeeded"
+        },
+        {
+          "id": "re_3UFNtZ88KhIqqdFL16MwOUer",
+          "amount": 2000,
+          "status": "succeeded"
+        }
+      ],
+      "seconds_to_settle": 4.1,
+      "lines_of_user_code": 47,
+      "cap_reservations_succeeded": 0,
+      "payment_intent": "pi_3UFNtZ88KhIqqdFL12warcdi",
+      "reviewed": [
+        {
+          "decision": "approve",
+          "reviewer_saw_refunded_cents": 0,
+          "tool_input": {
+            "payment_intent": "pi_3UFNtZ88KhIqqdFL12warcdi",
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked jar on blender; customer retains product"
+          }
+        },
+        {
+          "decision": "approve",
+          "reviewer_saw_refunded_cents": 0,
+          "tool_input": {
+            "payment_intent": "pi_3UFNtZ88KhIqqdFL12warcdi",
+            "amount_cents": 2000,
+            "reason": "Refund for express shipping not received"
+          }
+        }
+      ],
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 41222,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "start",
+          "pid": 41221,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 41392,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 41391,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "status": "RAN",
+      "rep": 5
+    },
+    {
+      "scenario": "S4_two_approvals_racing_30_cap",
+      "arm": "oma_cap",
+      "outcome": "ok:REFUNDED / ok:REFUSED:over_cap",
+      "invariant_held": true,
+      "ground_truth": "1 refund(s), $20.00 (cap $30.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNtm88KhIqqdFL1HOTH2Do",
+          "amount": 2000,
+          "status": "succeeded"
+        }
+      ],
+      "seconds_to_settle": 2.3,
+      "lines_of_user_code": 56,
+      "cap_reservations_succeeded": 1,
+      "payment_intent": "pi_3UFNtm88KhIqqdFL1nLxWAjh",
+      "reviewed": [
+        {
+          "decision": "approve",
+          "reviewer_saw_refunded_cents": 0,
+          "tool_input": {
+            "payment_intent": "pi_3UFNtm88KhIqqdFL1nLxWAjh",
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked jar on blender; customer keeps the product"
+          }
+        },
+        {
+          "decision": "approve",
+          "reviewer_saw_refunded_cents": 0,
+          "tool_input": {
+            "payment_intent": "pi_3UFNtm88KhIqqdFL1nLxWAjh",
+            "amount_cents": 2000,
+            "reason": "Refund for undelivered express shipping charge"
+          }
+        }
+      ],
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 41656,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "start",
+          "pid": 41657,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 41725,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 41726,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "status": "RAN",
+      "rep": 1
+    },
+    {
+      "scenario": "S4_two_approvals_racing_30_cap",
+      "arm": "oma_cap",
+      "outcome": "ok:REFUNDED / ok:REFUNDED",
+      "invariant_held": false,
+      "ground_truth": "2 refund(s), $40.00 (cap $30.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNty88KhIqqdFL1P1GSy62",
+          "amount": 2000,
+          "status": "succeeded"
+        },
+        {
+          "id": "re_3UFNty88KhIqqdFL15O4lEmP",
+          "amount": 2000,
+          "status": "succeeded"
+        }
+      ],
+      "seconds_to_settle": 3.2,
+      "lines_of_user_code": 56,
+      "cap_reservations_succeeded": 2,
+      "payment_intent": "pi_3UFNty88KhIqqdFL1Uly8w86",
+      "reviewed": [
+        {
+          "decision": "approve",
+          "reviewer_saw_refunded_cents": 0,
+          "tool_input": {
+            "payment_intent": "pi_3UFNty88KhIqqdFL1Uly8w86",
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked blender jar - customer retains blender"
+          }
+        },
+        {
+          "decision": "approve",
+          "reviewer_saw_refunded_cents": 0,
+          "tool_input": {
+            "payment_intent": "pi_3UFNty88KhIqqdFL1Uly8w86",
+            "amount_cents": 2000,
+            "reason": "Customer charged for express shipping that was not received"
+          }
+        }
+      ],
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 41790,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "start",
+          "pid": 41791,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 41850,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 41851,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "status": "RAN",
+      "rep": 2
+    },
+    {
+      "scenario": "S4_two_approvals_racing_30_cap",
+      "arm": "oma_cap",
+      "outcome": "ok:REFUSED:over_cap / ok:REFUNDED",
+      "invariant_held": true,
+      "ground_truth": "1 refund(s), $20.00 (cap $30.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNuB88KhIqqdFL1pDyz0bR",
+          "amount": 2000,
+          "status": "succeeded"
+        }
+      ],
+      "seconds_to_settle": 2.5,
+      "lines_of_user_code": 56,
+      "cap_reservations_succeeded": 1,
+      "payment_intent": "pi_3UFNuB88KhIqqdFL1272yAj4",
+      "reviewed": [
+        {
+          "decision": "approve",
+          "reviewer_saw_refunded_cents": 0,
+          "tool_input": {
+            "payment_intent": "pi_3UFNuB88KhIqqdFL1272yAj4",
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked blender jar - customer keeps the blender"
+          }
+        },
+        {
+          "decision": "approve",
+          "reviewer_saw_refunded_cents": 0,
+          "tool_input": {
+            "payment_intent": "pi_3UFNuB88KhIqqdFL1272yAj4",
+            "amount_cents": 2000,
+            "reason": "Refund for express shipping not received"
+          }
+        }
+      ],
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 41964,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "start",
+          "pid": 41965,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 42170,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 42172,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "status": "RAN",
+      "rep": 3
+    },
+    {
+      "scenario": "S4_two_approvals_racing_30_cap",
+      "arm": "oma_cap",
+      "outcome": "ok:REFUNDED / ok:REFUNDED",
+      "invariant_held": false,
+      "ground_truth": "2 refund(s), $40.00 (cap $30.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNuO88KhIqqdFL1NQuzxEk",
+          "amount": 2000,
+          "status": "succeeded"
+        },
+        {
+          "id": "re_3UFNuO88KhIqqdFL1DKVqvIk",
+          "amount": 2000,
+          "status": "succeeded"
+        }
+      ],
+      "seconds_to_settle": 3.5,
+      "lines_of_user_code": 56,
+      "cap_reservations_succeeded": 2,
+      "payment_intent": "pi_3UFNuO88KhIqqdFL16Eq3Rbd",
+      "reviewed": [
+        {
+          "decision": "approve",
+          "reviewer_saw_refunded_cents": 0,
+          "tool_input": {
+            "payment_intent": "pi_3UFNuO88KhIqqdFL16Eq3Rbd",
+            "amount_cents": 2000,
+            "reason": "Cracked jar on blender - partial refund approved"
+          }
+        },
+        {
+          "decision": "approve",
+          "reviewer_saw_refunded_cents": 0,
+          "tool_input": {
+            "payment_intent": "pi_3UFNuO88KhIqqdFL16Eq3Rbd",
+            "amount_cents": 2000,
+            "reason": "Refund for express shipping not received"
+          }
+        }
+      ],
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 42239,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "start",
+          "pid": 42238,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 42395,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 42396,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "status": "RAN",
+      "rep": 4
+    },
+    {
+      "scenario": "S4_two_approvals_racing_30_cap",
+      "arm": "oma_cap",
+      "outcome": "ok:REFUNDED / ok:REFUNDED",
+      "invariant_held": false,
+      "ground_truth": "2 refund(s), $40.00 (cap $30.00)",
+      "refunds": [
+        {
+          "id": "re_3UFNub88KhIqqdFL11drujvu",
+          "amount": 2000,
+          "status": "succeeded"
+        },
+        {
+          "id": "re_3UFNub88KhIqqdFL17xpk6tN",
+          "amount": 2000,
+          "status": "succeeded"
+        }
+      ],
+      "seconds_to_settle": 3.5,
+      "lines_of_user_code": 56,
+      "cap_reservations_succeeded": 2,
+      "payment_intent": "pi_3UFNub88KhIqqdFL1SagOyi3",
+      "reviewed": [
+        {
+          "decision": "approve",
+          "reviewer_saw_refunded_cents": 0,
+          "tool_input": {
+            "payment_intent": "pi_3UFNub88KhIqqdFL1SagOyi3",
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked jar - customer keeps blender"
+          }
+        },
+        {
+          "decision": "approve",
+          "reviewer_saw_refunded_cents": 0,
+          "tool_input": {
+            "payment_intent": "pi_3UFNub88KhIqqdFL1SagOyi3",
+            "amount_cents": 2000,
+            "reason": "Refund for express shipping not received"
+          }
+        }
+      ],
+      "processes": [
+        {
+          "mode": "start",
+          "pid": 42563,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "start",
+          "pid": 42564,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 42853,
+          "process": "node",
+          "exit": 0
+        },
+        {
+          "mode": "resume",
+          "pid": 42852,
+          "process": "node",
+          "exit": 0
+        }
+      ],
+      "status": "RAN",
+      "rep": 5
+    }
+  ],
+  "user_code": {
+    "base": 41,
+    "runstore": 1,
+    "lease_retry": 5,
+    "lease5s": 1,
+    "recheck": 9,
+    "cap": 9,
+    "revoke": 2
+  }
+}

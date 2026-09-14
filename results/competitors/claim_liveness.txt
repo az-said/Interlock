@@ -1,0 +1,13 @@
+# claim liveness probe, 2026-09-13 20:23:25 EDT, claim_ttl=10s, one trial per cell, local file target
+jsonl after_commit core_ttl {"sender_exit": -9, "status": "COMMITTED_BY_RETRY", "crash_to_recovered_s": 10.03, "effects_at_target": 1}
+jsonl after_commit liveness {"sender_exit": -9, "status": "COMMITTED_BY_RETRY", "crash_to_recovered_s": 0.01, "effects_at_target": 1}
+jsonl before_send core_ttl {"sender_exit": -9, "status": "COMMITTED_BY_RETRY", "crash_to_recovered_s": 10.04, "effects_at_target": 1}
+jsonl before_send liveness {"sender_exit": -9, "status": "COMMITTED_BY_RETRY", "crash_to_recovered_s": 0.0, "effects_at_target": 1}
+jsonl slow core_ttl {"sender_exit": 0, "took_over_live_sender": false}
+jsonl slow liveness {"sender_exit": 0, "took_over_live_sender": false}
+sqlite after_commit core_ttl {"sender_exit": -9, "status": "COMMITTED_BY_RETRY", "crash_to_recovered_s": 10.08, "effects_at_target": 1}
+sqlite after_commit liveness {"sender_exit": -9, "status": "COMMITTED_BY_RETRY", "crash_to_recovered_s": 0.01, "effects_at_target": 1}
+sqlite before_send core_ttl {"sender_exit": -9, "status": "COMMITTED_BY_RETRY", "crash_to_recovered_s": 10.0, "effects_at_target": 1}
+sqlite before_send liveness {"sender_exit": -9, "status": "COMMITTED_BY_RETRY", "crash_to_recovered_s": 0.01, "effects_at_target": 1}
+sqlite slow core_ttl {"sender_exit": 0, "took_over_live_sender": false}
+sqlite slow liveness {"sender_exit": 0, "took_over_live_sender": false}

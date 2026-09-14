@@ -1,0 +1,6788 @@
+{
+  "generated": "2026-09-14 00:36 UTC",
+  "model": "anthropic/claude-haiku-4-5-20251001",
+  "adk": "2.9.0",
+  "reps": 2,
+  "cap_reps": 6,
+  "arms": {
+    "adk_confirm": "ADK: require_confirmation + resumable App + SQLite sessions + call-id idempotency key",
+    "adk_confirm_reject": "ADK as above; the approver's revocation is sent as ToolConfirmation(confirmed=False) and that message resumes the invocation",
+    "adk_confirm_checked": "ADK as above plus a hand-written re-check in the tool body (lookup, approval row, refunds unchanged)",
+    "adk_app_state": "ADK as above; the $30 cap is ADK `app:` state shared by both bots' sessions",
+    "adk_flock": "ADK as above; the cap check (Stripe read) and POST inside an fcntl.flock both bots open"
+  },
+  "user_lines": {
+    "recheck": 9,
+    "tool": 10,
+    "cap_app_state": 4,
+    "cap_flock": 7,
+    "wiring": 6,
+    "approver": 3
+  },
+  "interlock_reference": {
+    "crash_after_commit": {
+      "interlock": {
+        "outcome": "COMMITTED_BY_RETRY",
+        "invariant_held": true,
+        "seconds_crash_to_done": 45.1,
+        "refunded_cents": 2000,
+        "answer_matches_stripe": true
+      },
+      "adk_checked": {
+        "outcome": "FOUND_BY_LOOKUP",
+        "invariant_held": true,
+        "seconds_crash_to_done": 7.9,
+        "refunded_cents": 2000,
+        "answer_matches_stripe": true
+      }
+    },
+    "hand_refund_during_outage": {
+      "interlock": {
+        "outcome": "REFUSED:stale_premise_at_recovery",
+        "invariant_held": true,
+        "seconds_crash_to_done": 45.7,
+        "refunded_cents": 2000,
+        "answer_matches_stripe": true
+      },
+      "adk_checked": {
+        "outcome": "REFUSED:stale_premise",
+        "invariant_held": true,
+        "seconds_crash_to_done": 9.7,
+        "refunded_cents": 2000,
+        "answer_matches_stripe": true
+      }
+    },
+    "approval_revoked_during_outage": {
+      "interlock": {
+        "outcome": "REFUSED:lease_at_recovery",
+        "invariant_held": true,
+        "seconds_crash_to_done": 46.3,
+        "refunded_cents": 0,
+        "answer_matches_stripe": true
+      },
+      "adk_checked": {
+        "outcome": "REFUSED:mandate",
+        "invariant_held": true,
+        "seconds_crash_to_done": 10.4,
+        "refunded_cents": 0,
+        "answer_matches_stripe": true
+      }
+    }
+  },
+  "tamper": {
+    "adk": {
+      "rows_edited": 3,
+      "loaded_without_error": true,
+      "edited_amount_visible": true,
+      "edited_approver_visible": true,
+      "adk_integrity_check": "none found in google/adk/sessions/sqlite_session_service.py"
+    },
+    "interlock": {
+      "source": "results/adk_live.json, crash_after_commit / interlock receipt",
+      "unsigned_edit_without_rehash_valid": false,
+      "unsigned_edit_with_rehash_valid": true,
+      "unsigned_edit_with_rehash_tamper_evident_field": true,
+      "signed_original_valid_with_key": true,
+      "signed_then_rehashed_forgery_valid_with_key": false
+    }
+  },
+  "cells": [
+    {
+      "scenario": "crash_after_commit",
+      "arm": "adk_confirm",
+      "rep": 0,
+      "ran_at": "2026-09-14 00:30 UTC",
+      "payment_intent": "pi_3UFNmX88KhIqqdFL0w60Cg3c",
+      "customer": "cus_VFtZtdHMfHZVpf",
+      "case_id": "f568762d2daf",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "agent",
+          "pid": 29305,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "agent",
+          "pid": 29499,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "resume",
+          "bot": "agent",
+          "pid": 29505,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "nudged": false,
+      "sigkill": true,
+      "crash_window_missed": [],
+      "outage_action": null,
+      "model_call": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - case #4471"
+      },
+      "outcome": "REPLAYED_BY_STRIPE",
+      "answer": {
+        "status": "REPLAYED_BY_STRIPE",
+        "refund_id": "re_3UFNmX88KhIqqdFL0060kpvo"
+      },
+      "answer_sent": true,
+      "refund_ids": [
+        "re_3UFNmX88KhIqqdFL0060kpvo"
+      ],
+      "agent_refund_ids": [
+        "re_3UFNmX88KhIqqdFL0060kpvo"
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 5.1,
+      "session_record": {
+        "events": 10,
+        "confirmations": [
+          {
+            "confirmed": true,
+            "payload": {
+              "approver": "finance-lead"
+            }
+          }
+        ],
+        "issue_refund_calls": [
+          {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - case #4471"
+          }
+        ],
+        "issue_refund_responses": [
+          {
+            "error": "This tool call requires confirmation, please approve or reject."
+          },
+          {
+            "status": "REPLAYED_BY_STRIPE",
+            "refund_id": "re_3UFNmX88KhIqqdFL0060kpvo"
+          }
+        ],
+        "app_state": null,
+        "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+      },
+      "final_text": "The approved $20.00 refund has been successfully issued to the customer for the cracked jar (refund ID: re_3UFNmX88KhIqqdFL0060kpvo)."
+    },
+    {
+      "scenario": "crash_after_commit",
+      "arm": "adk_confirm",
+      "rep": 1,
+      "ran_at": "2026-09-14 00:30 UTC",
+      "payment_intent": "pi_3UFNmX88KhIqqdFL1tBcEB1l",
+      "customer": "cus_VFtZDKNUcOhTMV",
+      "case_id": "aeb3b1f7a6b6",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "agent",
+          "pid": 29306,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "agent",
+          "pid": 29500,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "resume",
+          "bot": "agent",
+          "pid": 29506,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "nudged": false,
+      "sigkill": true,
+      "crash_window_missed": [],
+      "outage_action": null,
+      "model_call": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar; customer retains blender (Case #4471)"
+      },
+      "outcome": "REPLAYED_BY_STRIPE",
+      "answer": {
+        "status": "REPLAYED_BY_STRIPE",
+        "refund_id": "re_3UFNmX88KhIqqdFL1oflVApK"
+      },
+      "answer_sent": true,
+      "refund_ids": [
+        "re_3UFNmX88KhIqqdFL1oflVApK"
+      ],
+      "agent_refund_ids": [
+        "re_3UFNmX88KhIqqdFL1oflVApK"
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 5.0,
+      "session_record": {
+        "events": 10,
+        "confirmations": [
+          {
+            "confirmed": true,
+            "payload": {
+              "approver": "finance-lead"
+            }
+          }
+        ],
+        "issue_refund_calls": [
+          {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar; customer retains blender (Case #4471)"
+          }
+        ],
+        "issue_refund_responses": [
+          {
+            "error": "This tool call requires confirmation, please approve or reject."
+          },
+          {
+            "status": "REPLAYED_BY_STRIPE",
+            "refund_id": "re_3UFNmX88KhIqqdFL1oflVApK"
+          }
+        ],
+        "app_state": null,
+        "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+      },
+      "final_text": "The approved $20.00 refund has been successfully issued to the customer for the cracked glass jar."
+    },
+    {
+      "scenario": "crash_after_commit",
+      "arm": "adk_confirm_checked",
+      "rep": 0,
+      "ran_at": "2026-09-14 00:30 UTC",
+      "payment_intent": "pi_3UFNmp88KhIqqdFL1U4HeMMf",
+      "customer": "cus_VFtZrSAxMSPL9T",
+      "case_id": "f86c9fdd9eac",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "agent",
+          "pid": 29554,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "agent",
+          "pid": 29641,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "resume",
+          "bot": "agent",
+          "pid": 29663,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "nudged": false,
+      "sigkill": true,
+      "crash_window_missed": [],
+      "outage_action": null,
+      "model_call": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer keeps blender (Case #4471)"
+      },
+      "outcome": "FOUND_BY_LOOKUP",
+      "answer": {
+        "status": "FOUND_BY_LOOKUP",
+        "refund_id": "re_3UFNmp88KhIqqdFL1dPbFp7x"
+      },
+      "answer_sent": true,
+      "refund_ids": [
+        "re_3UFNmp88KhIqqdFL1dPbFp7x"
+      ],
+      "agent_refund_ids": [
+        "re_3UFNmp88KhIqqdFL1dPbFp7x"
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 5.5,
+      "session_record": {
+        "events": 10,
+        "confirmations": [
+          {
+            "confirmed": true,
+            "payload": {
+              "approver": "finance-lead"
+            }
+          }
+        ],
+        "issue_refund_calls": [
+          {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - customer keeps blender (Case #4471)"
+          }
+        ],
+        "issue_refund_responses": [
+          {
+            "error": "This tool call requires confirmation, please approve or reject."
+          },
+          {
+            "status": "FOUND_BY_LOOKUP",
+            "refund_id": "re_3UFNmp88KhIqqdFL1dPbFp7x"
+          }
+        ],
+        "app_state": null,
+        "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+      },
+      "final_text": "The approved refund of $20.00 has been successfully issued to the customer for the cracked jar."
+    },
+    {
+      "scenario": "crash_after_commit",
+      "arm": "adk_confirm_checked",
+      "rep": 1,
+      "ran_at": "2026-09-14 00:30 UTC",
+      "payment_intent": "pi_3UFNmp88KhIqqdFL1822089h",
+      "customer": "cus_VFtZhHrws9PZ7w",
+      "case_id": "fd9164bc0452",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "agent",
+          "pid": 29555,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "agent",
+          "pid": 29642,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "resume",
+          "bot": "agent",
+          "pid": 29662,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "nudged": false,
+      "sigkill": true,
+      "crash_window_missed": [],
+      "outage_action": null,
+      "model_call": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - case #4471"
+      },
+      "outcome": "FOUND_BY_LOOKUP",
+      "answer": {
+        "status": "FOUND_BY_LOOKUP",
+        "refund_id": "re_3UFNmp88KhIqqdFL1vz4pkZz"
+      },
+      "answer_sent": true,
+      "refund_ids": [
+        "re_3UFNmp88KhIqqdFL1vz4pkZz"
+      ],
+      "agent_refund_ids": [
+        "re_3UFNmp88KhIqqdFL1vz4pkZz"
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 5.5,
+      "session_record": {
+        "events": 10,
+        "confirmations": [
+          {
+            "confirmed": true,
+            "payload": {
+              "approver": "finance-lead"
+            }
+          }
+        ],
+        "issue_refund_calls": [
+          {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - case #4471"
+          }
+        ],
+        "issue_refund_responses": [
+          {
+            "error": "This tool call requires confirmation, please approve or reject."
+          },
+          {
+            "status": "FOUND_BY_LOOKUP",
+            "refund_id": "re_3UFNmp88KhIqqdFL1vz4pkZz"
+          }
+        ],
+        "app_state": null,
+        "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+      },
+      "final_text": "The $20.00 refund has been successfully issued to the customer for the cracked glass jar."
+    },
+    {
+      "scenario": "hand_refund_during_outage",
+      "arm": "adk_confirm",
+      "rep": 0,
+      "ran_at": "2026-09-14 00:30 UTC",
+      "payment_intent": "pi_3UFNn888KhIqqdFL0IowSMAI",
+      "customer": "cus_VFtadN5bwWi8BP",
+      "case_id": "2db06bca46fb",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "agent",
+          "pid": 29847,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "agent",
+          "pid": 29872,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "resume",
+          "bot": "agent",
+          "pid": 29880,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "nudged": false,
+      "sigkill": true,
+      "crash_window_missed": [],
+      "outage_action": {
+        "hand_refund": "re_3UFNn888KhIqqdFL0CFOKKob"
+      },
+      "model_call": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer retains blender"
+      },
+      "outcome": "REFUNDED",
+      "answer": {
+        "status": "REFUNDED",
+        "refund_id": "re_3UFNn888KhIqqdFL0X176bud"
+      },
+      "answer_sent": true,
+      "refund_ids": [
+        "re_3UFNn888KhIqqdFL0X176bud",
+        "re_3UFNn888KhIqqdFL0CFOKKob"
+      ],
+      "agent_refund_ids": [
+        "re_3UFNn888KhIqqdFL0X176bud"
+      ],
+      "refunded_cents": 4000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": false,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 8.9,
+      "session_record": {
+        "events": 10,
+        "confirmations": [
+          {
+            "confirmed": true,
+            "payload": {
+              "approver": "finance-lead"
+            }
+          }
+        ],
+        "issue_refund_calls": [
+          {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - customer retains blender"
+          }
+        ],
+        "issue_refund_responses": [
+          {
+            "error": "This tool call requires confirmation, please approve or reject."
+          },
+          {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNn888KhIqqdFL0X176bud"
+          }
+        ],
+        "app_state": null,
+        "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+      },
+      "final_text": "The approved partial refund of $20.00 has been successfully issued to the customer for the cracked jar on order #881."
+    },
+    {
+      "scenario": "hand_refund_during_outage",
+      "arm": "adk_confirm",
+      "rep": 1,
+      "ran_at": "2026-09-14 00:30 UTC",
+      "payment_intent": "pi_3UFNn888KhIqqdFL0MIMYaKE",
+      "customer": "cus_VFtaJwKvLcr548",
+      "case_id": "d35285714629",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "agent",
+          "pid": 29848,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "agent",
+          "pid": 29876,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "resume",
+          "bot": "agent",
+          "pid": 29892,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "nudged": false,
+      "sigkill": true,
+      "crash_window_missed": [],
+      "outage_action": {
+        "hand_refund": "re_3UFNn888KhIqqdFL0K1rUELV"
+      },
+      "model_call": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar; customer keeps blender (Case #4471)"
+      },
+      "outcome": "REFUNDED",
+      "answer": {
+        "status": "REFUNDED",
+        "refund_id": "re_3UFNn888KhIqqdFL0LrQTPyk"
+      },
+      "answer_sent": true,
+      "refund_ids": [
+        "re_3UFNn888KhIqqdFL0LrQTPyk",
+        "re_3UFNn888KhIqqdFL0K1rUELV"
+      ],
+      "agent_refund_ids": [
+        "re_3UFNn888KhIqqdFL0LrQTPyk"
+      ],
+      "refunded_cents": 4000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": false,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 7.0,
+      "session_record": {
+        "events": 10,
+        "confirmations": [
+          {
+            "confirmed": true,
+            "payload": {
+              "approver": "finance-lead"
+            }
+          }
+        ],
+        "issue_refund_calls": [
+          {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar; customer keeps blender (Case #4471)"
+          }
+        ],
+        "issue_refund_responses": [
+          {
+            "error": "This tool call requires confirmation, please approve or reject."
+          },
+          {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNn888KhIqqdFL0LrQTPyk"
+          }
+        ],
+        "app_state": null,
+        "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+      },
+      "final_text": "The $20.00 partial refund for the cracked glass jar has been successfully issued to the customer for Order #881 (refund ID: re_3UFNn888KhIqqdFL0LrQTPyk)."
+    },
+    {
+      "scenario": "hand_refund_during_outage",
+      "arm": "adk_confirm_checked",
+      "rep": 0,
+      "ran_at": "2026-09-14 00:31 UTC",
+      "payment_intent": "pi_3UFNnR88KhIqqdFL0T80aAvD",
+      "customer": "cus_VFtasN6RrhoMD9",
+      "case_id": "696171eb6128",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "agent",
+          "pid": 30009,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "agent",
+          "pid": 30062,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "resume",
+          "bot": "agent",
+          "pid": 30158,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "nudged": false,
+      "sigkill": true,
+      "crash_window_missed": [],
+      "outage_action": {
+        "hand_refund": "re_3UFNnR88KhIqqdFL0t7cmo4U"
+      },
+      "model_call": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - case #4471"
+      },
+      "outcome": "REFUSED:stale_premise",
+      "answer": {
+        "status": "REFUSED:stale_premise"
+      },
+      "answer_sent": false,
+      "refund_ids": [
+        "re_3UFNnR88KhIqqdFL0t7cmo4U"
+      ],
+      "agent_refund_ids": [],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 6.8,
+      "session_record": {
+        "events": 10,
+        "confirmations": [
+          {
+            "confirmed": true,
+            "payload": {
+              "approver": "finance-lead"
+            }
+          }
+        ],
+        "issue_refund_calls": [
+          {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - case #4471"
+          }
+        ],
+        "issue_refund_responses": [
+          {
+            "error": "This tool call requires confirmation, please approve or reject."
+          },
+          {
+            "status": "REFUSED:stale_premise"
+          }
+        ],
+        "app_state": null,
+        "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+      },
+      "final_text": "The refund was refused due to a stale premise error and cannot be retried."
+    },
+    {
+      "scenario": "hand_refund_during_outage",
+      "arm": "adk_confirm_checked",
+      "rep": 1,
+      "ran_at": "2026-09-14 00:31 UTC",
+      "payment_intent": "pi_3UFNnS88KhIqqdFL1fJNUbzB",
+      "customer": "cus_VFta8E71NNBwh0",
+      "case_id": "ccc123725b91",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "agent",
+          "pid": 30025,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "agent",
+          "pid": 30104,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "resume",
+          "bot": "agent",
+          "pid": 30159,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "nudged": false,
+      "sigkill": true,
+      "crash_window_missed": [],
+      "outage_action": {
+        "hand_refund": "re_3UFNnS88KhIqqdFL1mqpWqt3"
+      },
+      "model_call": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer retains blender"
+      },
+      "outcome": "REFUSED:stale_premise",
+      "answer": {
+        "status": "REFUSED:stale_premise"
+      },
+      "answer_sent": false,
+      "refund_ids": [
+        "re_3UFNnS88KhIqqdFL1mqpWqt3"
+      ],
+      "agent_refund_ids": [],
+      "refunded_cents": 2000,
+      "expected_cents": 2000,
+      "expected_refunds": 1,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 6.9,
+      "session_record": {
+        "events": 10,
+        "confirmations": [
+          {
+            "confirmed": true,
+            "payload": {
+              "approver": "finance-lead"
+            }
+          }
+        ],
+        "issue_refund_calls": [
+          {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - customer retains blender"
+          }
+        ],
+        "issue_refund_responses": [
+          {
+            "error": "This tool call requires confirmation, please approve or reject."
+          },
+          {
+            "status": "REFUSED:stale_premise"
+          }
+        ],
+        "app_state": null,
+        "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+      },
+      "final_text": "The refund was refused due to a stale premise error, which typically indicates a technical issue with the payment or case status; the refund could not be processed at this time."
+    },
+    {
+      "scenario": "approval_revoked_during_outage",
+      "arm": "adk_confirm",
+      "rep": 0,
+      "ran_at": "2026-09-14 00:31 UTC",
+      "payment_intent": "pi_3UFNnj88KhIqqdFL1sCXfRvG",
+      "customer": "cus_VFtawfd4mc5VqP",
+      "case_id": "ebef711c31e7",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "agent",
+          "pid": 30327,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "agent",
+          "pid": 30419,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "resume",
+          "bot": "agent",
+          "pid": 30470,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "nudged": false,
+      "sigkill": true,
+      "crash_window_missed": [],
+      "outage_action": {
+        "revoked": true,
+        "delivered_to_adk": false
+      },
+      "model_call": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - case #4471"
+      },
+      "outcome": "REFUNDED",
+      "answer": {
+        "status": "REFUNDED",
+        "refund_id": "re_3UFNnj88KhIqqdFL1ITRrQDl"
+      },
+      "answer_sent": true,
+      "refund_ids": [
+        "re_3UFNnj88KhIqqdFL1ITRrQDl"
+      ],
+      "agent_refund_ids": [
+        "re_3UFNnj88KhIqqdFL1ITRrQDl"
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 0,
+      "expected_refunds": 0,
+      "invariant_held": false,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 7.1,
+      "session_record": {
+        "events": 10,
+        "confirmations": [
+          {
+            "confirmed": true,
+            "payload": {
+              "approver": "finance-lead"
+            }
+          }
+        ],
+        "issue_refund_calls": [
+          {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - case #4471"
+          }
+        ],
+        "issue_refund_responses": [
+          {
+            "error": "This tool call requires confirmation, please approve or reject."
+          },
+          {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNnj88KhIqqdFL1ITRrQDl"
+          }
+        ],
+        "app_state": null,
+        "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+      },
+      "final_text": "The $20.00 refund has been successfully issued to the customer for the cracked jar on order #881."
+    },
+    {
+      "scenario": "approval_revoked_during_outage",
+      "arm": "adk_confirm",
+      "rep": 1,
+      "ran_at": "2026-09-14 00:31 UTC",
+      "payment_intent": "pi_3UFNnk88KhIqqdFL0XsHJpwK",
+      "customer": "cus_VFta90J4aL1an6",
+      "case_id": "d02a28662831",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "agent",
+          "pid": 30344,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "agent",
+          "pid": 30437,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "resume",
+          "bot": "agent",
+          "pid": 30502,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "nudged": false,
+      "sigkill": true,
+      "crash_window_missed": [],
+      "outage_action": {
+        "revoked": true,
+        "delivered_to_adk": false
+      },
+      "model_call": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar; customer keeps blender (Case #4471)"
+      },
+      "outcome": "REFUNDED",
+      "answer": {
+        "status": "REFUNDED",
+        "refund_id": "re_3UFNnk88KhIqqdFL0wmacX1W"
+      },
+      "answer_sent": true,
+      "refund_ids": [
+        "re_3UFNnk88KhIqqdFL0wmacX1W"
+      ],
+      "agent_refund_ids": [
+        "re_3UFNnk88KhIqqdFL0wmacX1W"
+      ],
+      "refunded_cents": 2000,
+      "expected_cents": 0,
+      "expected_refunds": 0,
+      "invariant_held": false,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 6.0,
+      "session_record": {
+        "events": 10,
+        "confirmations": [
+          {
+            "confirmed": true,
+            "payload": {
+              "approver": "finance-lead"
+            }
+          }
+        ],
+        "issue_refund_calls": [
+          {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar; customer keeps blender (Case #4471)"
+          }
+        ],
+        "issue_refund_responses": [
+          {
+            "error": "This tool call requires confirmation, please approve or reject."
+          },
+          {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNnk88KhIqqdFL0wmacX1W"
+          }
+        ],
+        "app_state": null,
+        "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+      },
+      "final_text": "The approved $20.00 refund has been successfully issued to the customer for the cracked jar."
+    },
+    {
+      "scenario": "approval_revoked_during_outage",
+      "arm": "adk_confirm_reject",
+      "rep": 0,
+      "ran_at": "2026-09-14 00:31 UTC",
+      "payment_intent": "pi_3UFNo288KhIqqdFL0XVBktY7",
+      "customer": "cus_VFtbZk8hqwcjoM",
+      "case_id": "ca187c841024",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "agent",
+          "pid": 30838,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "agent",
+          "pid": 30975,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "reject",
+          "bot": "agent",
+          "pid": 31035,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "nudged": false,
+      "sigkill": true,
+      "crash_window_missed": [],
+      "outage_action": {
+        "revoked": true,
+        "delivered_to_adk": true
+      },
+      "model_call": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar; customer keeps blender"
+      },
+      "outcome": "REJECTED_BY_APPROVER",
+      "answer": {
+        "error": "This tool call is rejected."
+      },
+      "answer_sent": false,
+      "refund_ids": [],
+      "agent_refund_ids": [],
+      "refunded_cents": 0,
+      "expected_cents": 0,
+      "expected_refunds": 0,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 10.2,
+      "session_record": {
+        "events": 11,
+        "confirmations": [
+          {
+            "confirmed": true,
+            "payload": {
+              "approver": "finance-lead"
+            }
+          },
+          {
+            "confirmed": false,
+            "payload": {
+              "approver": "finance-lead"
+            }
+          }
+        ],
+        "issue_refund_calls": [
+          {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar; customer keeps blender"
+          }
+        ],
+        "issue_refund_responses": [
+          {
+            "error": "This tool call requires confirmation, please approve or reject."
+          },
+          {
+            "error": "This tool call is rejected."
+          }
+        ],
+        "app_state": null,
+        "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+      },
+      "final_text": "The refund was rejected and cannot be processed at this time."
+    },
+    {
+      "scenario": "approval_revoked_during_outage",
+      "arm": "adk_confirm_reject",
+      "rep": 1,
+      "ran_at": "2026-09-14 00:31 UTC",
+      "payment_intent": "pi_3UFNo288KhIqqdFL1rzYRoQI",
+      "customer": "cus_VFtbG3ZgzRPwMu",
+      "case_id": "b167c0db5139",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "agent",
+          "pid": 30840,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "agent",
+          "pid": 30981,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "reject",
+          "bot": "agent",
+          "pid": 31043,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "nudged": false,
+      "sigkill": true,
+      "crash_window_missed": [],
+      "outage_action": {
+        "revoked": true,
+        "delivered_to_adk": true
+      },
+      "model_call": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer retains blender"
+      },
+      "outcome": "REJECTED_BY_APPROVER",
+      "answer": {
+        "error": "This tool call is rejected."
+      },
+      "answer_sent": false,
+      "refund_ids": [],
+      "agent_refund_ids": [],
+      "refunded_cents": 0,
+      "expected_cents": 0,
+      "expected_refunds": 0,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 10.1,
+      "session_record": {
+        "events": 11,
+        "confirmations": [
+          {
+            "confirmed": true,
+            "payload": {
+              "approver": "finance-lead"
+            }
+          },
+          {
+            "confirmed": false,
+            "payload": {
+              "approver": "finance-lead"
+            }
+          }
+        ],
+        "issue_refund_calls": [
+          {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - customer retains blender"
+          }
+        ],
+        "issue_refund_responses": [
+          {
+            "error": "This tool call requires confirmation, please approve or reject."
+          },
+          {
+            "error": "This tool call is rejected."
+          }
+        ],
+        "app_state": null,
+        "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+      },
+      "final_text": "The refund request was rejected by the payment processor and could not be processed."
+    },
+    {
+      "scenario": "approval_revoked_during_outage",
+      "arm": "adk_confirm_checked",
+      "rep": 0,
+      "ran_at": "2026-09-14 00:32 UTC",
+      "payment_intent": "pi_3UFNoP88KhIqqdFL0LNdLGpp",
+      "customer": "cus_VFtb1vdSvduUY6",
+      "case_id": "a3f06ee66210",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "agent",
+          "pid": 31423,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "agent",
+          "pid": 31803,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "resume",
+          "bot": "agent",
+          "pid": 31885,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "nudged": false,
+      "sigkill": true,
+      "crash_window_missed": [],
+      "outage_action": {
+        "revoked": true,
+        "delivered_to_adk": false
+      },
+      "model_call": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - case #4471"
+      },
+      "outcome": "REFUSED:approval_revoked",
+      "answer": {
+        "status": "REFUSED:approval_revoked"
+      },
+      "answer_sent": false,
+      "refund_ids": [],
+      "agent_refund_ids": [],
+      "refunded_cents": 0,
+      "expected_cents": 0,
+      "expected_refunds": 0,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 7.5,
+      "session_record": {
+        "events": 10,
+        "confirmations": [
+          {
+            "confirmed": true,
+            "payload": {
+              "approver": "finance-lead"
+            }
+          }
+        ],
+        "issue_refund_calls": [
+          {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - case #4471"
+          }
+        ],
+        "issue_refund_responses": [
+          {
+            "error": "This tool call requires confirmation, please approve or reject."
+          },
+          {
+            "status": "REFUSED:approval_revoked"
+          }
+        ],
+        "app_state": null,
+        "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+      },
+      "final_text": "The refund was refused because the approval was revoked. The $20.00 refund for the cracked jar cannot be processed at this time."
+    },
+    {
+      "scenario": "approval_revoked_during_outage",
+      "arm": "adk_confirm_checked",
+      "rep": 1,
+      "ran_at": "2026-09-14 00:32 UTC",
+      "payment_intent": "pi_3UFNoQ88KhIqqdFL1RIQ9EWn",
+      "customer": "cus_VFtbRPXok5ikUu",
+      "case_id": "9b1dc121dfda",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "agent",
+          "pid": 31425,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "agent",
+          "pid": 31822,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "resume",
+          "bot": "agent",
+          "pid": 31894,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "nudged": false,
+      "sigkill": true,
+      "crash_window_missed": [],
+      "outage_action": {
+        "revoked": true,
+        "delivered_to_adk": false
+      },
+      "model_call": {
+        "amount_cents": 2000,
+        "reason": "Partial refund for cracked glass jar - customer approved to keep blender"
+      },
+      "outcome": "REFUSED:approval_revoked",
+      "answer": {
+        "status": "REFUSED:approval_revoked"
+      },
+      "answer_sent": false,
+      "refund_ids": [],
+      "agent_refund_ids": [],
+      "refunded_cents": 0,
+      "expected_cents": 0,
+      "expected_refunds": 0,
+      "invariant_held": true,
+      "answer_matches_stripe": true,
+      "seconds_crash_to_done": 7.0,
+      "session_record": {
+        "events": 10,
+        "confirmations": [
+          {
+            "confirmed": true,
+            "payload": {
+              "approver": "finance-lead"
+            }
+          }
+        ],
+        "issue_refund_calls": [
+          {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar - customer approved to keep blender"
+          }
+        ],
+        "issue_refund_responses": [
+          {
+            "error": "This tool call requires confirmation, please approve or reject."
+          },
+          {
+            "status": "REFUSED:approval_revoked"
+          }
+        ],
+        "app_state": null,
+        "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+      },
+      "final_text": "The refund request was refused because the approval has been revoked, so the $20.00 partial refund for the cracked glass jar could not be processed."
+    }
+  ],
+  "cap_runs": [
+    {
+      "crash": "after_commit",
+      "arm": "adk_app_state",
+      "rep": 0,
+      "payment_intent": "pi_3UFNor88KhIqqdFL1BoOfaFv",
+      "customer": "cus_VFtcvkACX2DTlX",
+      "case_id": "045a1a0f39e2",
+      "ran_at": "2026-09-14 00:32 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 32104,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 32105,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 32714,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 32715,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "support-bot",
+          "pid": 32782,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "support-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNor88KhIqqdFL1TLVC0TI",
+        "re_3UFNor88KhIqqdFL1GpSLxVl"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNor88KhIqqdFL1TLVC0TI",
+          "amount": 2000,
+          "bot": "billing-bot"
+        },
+        {
+          "id": "re_3UFNor88KhIqqdFL1GpSLxVl",
+          "amount": 2000,
+          "bot": "support-bot"
+        }
+      ],
+      "refunded_cents": 4000,
+      "invariant_held": false,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap",
+            "spent_cents": 2000
+          },
+          "own_refunds": [
+            "re_3UFNor88KhIqqdFL1GpSLxVl"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": false,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Cracked glass jar - partial refund approved"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Cracked glass jar - partial refund approved"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap",
+                "spent_cents": 2000
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNor88KhIqqdFL1TLVC0TI"
+          },
+          "own_refunds": [
+            "re_3UFNor88KhIqqdFL1TLVC0TI"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNor88KhIqqdFL1TLVC0TI"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": false,
+      "seconds_crash_to_settled": 11.8
+    },
+    {
+      "crash": "after_commit",
+      "arm": "adk_app_state",
+      "rep": 1,
+      "payment_intent": "pi_3UFNor88KhIqqdFL08RNLtdu",
+      "customer": "cus_VFtcP7oSCcG77Z",
+      "case_id": "053b03c299e1",
+      "ran_at": "2026-09-14 00:32 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 32110,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 32111,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 32717,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 32718,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "support-bot",
+          "pid": 32804,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "support-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNor88KhIqqdFL0BkOwWOt",
+        "re_3UFNor88KhIqqdFL0G17BhHf"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNor88KhIqqdFL0BkOwWOt",
+          "amount": 2000,
+          "bot": "billing-bot"
+        },
+        {
+          "id": "re_3UFNor88KhIqqdFL0G17BhHf",
+          "amount": 2000,
+          "bot": "support-bot"
+        }
+      ],
+      "refunded_cents": 4000,
+      "invariant_held": false,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap",
+            "spent_cents": 2000
+          },
+          "own_refunds": [
+            "re_3UFNor88KhIqqdFL0G17BhHf"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": false,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap",
+                "spent_cents": 2000
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNor88KhIqqdFL0BkOwWOt"
+          },
+          "own_refunds": [
+            "re_3UFNor88KhIqqdFL0BkOwWOt"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNor88KhIqqdFL0BkOwWOt"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": false,
+      "seconds_crash_to_settled": 11.9
+    },
+    {
+      "crash": "after_commit",
+      "arm": "adk_app_state",
+      "rep": 2,
+      "payment_intent": "pi_3UFNor88KhIqqdFL0br1O8ee",
+      "customer": "cus_VFtcIEmhqFZj6f",
+      "case_id": "fe97fefe25fc",
+      "ran_at": "2026-09-14 00:32 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 32112,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 32113,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 32725,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 32724,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "billing-bot",
+          "pid": 32836,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "billing-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNor88KhIqqdFL0SrQOQrv",
+        "re_3UFNor88KhIqqdFL0mqTO1Zs"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNor88KhIqqdFL0SrQOQrv",
+          "amount": 2000,
+          "bot": "support-bot"
+        },
+        {
+          "id": "re_3UFNor88KhIqqdFL0mqTO1Zs",
+          "amount": 2000,
+          "bot": "billing-bot"
+        }
+      ],
+      "refunded_cents": 4000,
+      "invariant_held": false,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNor88KhIqqdFL0SrQOQrv"
+          },
+          "own_refunds": [
+            "re_3UFNor88KhIqqdFL0SrQOQrv"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNor88KhIqqdFL0SrQOQrv"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap",
+            "spent_cents": 2000
+          },
+          "own_refunds": [
+            "re_3UFNor88KhIqqdFL0mqTO1Zs"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": false,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day delivery delay"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day delivery delay"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap",
+                "spent_cents": 2000
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": false,
+      "seconds_crash_to_settled": 11.5
+    },
+    {
+      "crash": "after_commit",
+      "arm": "adk_app_state",
+      "rep": 3,
+      "payment_intent": "pi_3UFNor88KhIqqdFL1EZJb25H",
+      "customer": "cus_VFtcLZROND9Vrw",
+      "case_id": "307a0756abc2",
+      "ran_at": "2026-09-14 00:32 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 32108,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 32109,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 32708,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 32707,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "billing-bot",
+          "pid": 32789,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "billing-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNor88KhIqqdFL19BQgwtx",
+        "re_3UFNor88KhIqqdFL15Tmrg33"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNor88KhIqqdFL19BQgwtx",
+          "amount": 2000,
+          "bot": "support-bot"
+        },
+        {
+          "id": "re_3UFNor88KhIqqdFL15Tmrg33",
+          "amount": 2000,
+          "bot": "billing-bot"
+        }
+      ],
+      "refunded_cents": 4000,
+      "invariant_held": false,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNor88KhIqqdFL19BQgwtx"
+          },
+          "own_refunds": [
+            "re_3UFNor88KhIqqdFL19BQgwtx"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Glass jar arrived cracked - partial refund approved"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Glass jar arrived cracked - partial refund approved"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNor88KhIqqdFL19BQgwtx"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap",
+            "spent_cents": 2000
+          },
+          "own_refunds": [
+            "re_3UFNor88KhIqqdFL15Tmrg33"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": false,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap",
+                "spent_cents": 2000
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": false,
+      "seconds_crash_to_settled": 12.0
+    },
+    {
+      "crash": "after_commit",
+      "arm": "adk_app_state",
+      "rep": 4,
+      "payment_intent": "pi_3UFNpQ88KhIqqdFL11H1oJfm",
+      "customer": "cus_VFtcPCkg7KUmln",
+      "case_id": "9f587abe2d49",
+      "ran_at": "2026-09-14 00:33 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 33263,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 33266,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 33525,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 33528,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "support-bot",
+          "pid": 33638,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "support-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNpQ88KhIqqdFL19aMai12",
+        "re_3UFNpQ88KhIqqdFL1zq5B2O9"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNpQ88KhIqqdFL19aMai12",
+          "amount": 2000,
+          "bot": "billing-bot"
+        },
+        {
+          "id": "re_3UFNpQ88KhIqqdFL1zq5B2O9",
+          "amount": 2000,
+          "bot": "support-bot"
+        }
+      ],
+      "refunded_cents": 4000,
+      "invariant_held": false,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap",
+            "spent_cents": 2000
+          },
+          "own_refunds": [
+            "re_3UFNpQ88KhIqqdFL1zq5B2O9"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": false,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap",
+                "spent_cents": 2000
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNpQ88KhIqqdFL19aMai12"
+          },
+          "own_refunds": [
+            "re_3UFNpQ88KhIqqdFL19aMai12"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNpQ88KhIqqdFL19aMai12"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": false,
+      "seconds_crash_to_settled": 9.5
+    },
+    {
+      "crash": "after_commit",
+      "arm": "adk_app_state",
+      "rep": 5,
+      "payment_intent": "pi_3UFNpQ88KhIqqdFL0eiv2z30",
+      "customer": "cus_VFtcxGTTEWhxbN",
+      "case_id": "ba679ed126e0",
+      "ran_at": "2026-09-14 00:33 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 33264,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 33267,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 33522,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 33523,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "support-bot",
+          "pid": 33642,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "support-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNpQ88KhIqqdFL0i4S1dci",
+        "re_3UFNpQ88KhIqqdFL0slv0mq6"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNpQ88KhIqqdFL0i4S1dci",
+          "amount": 2000,
+          "bot": "billing-bot"
+        },
+        {
+          "id": "re_3UFNpQ88KhIqqdFL0slv0mq6",
+          "amount": 2000,
+          "bot": "support-bot"
+        }
+      ],
+      "refunded_cents": 4000,
+      "invariant_held": false,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap",
+            "spent_cents": 2000
+          },
+          "own_refunds": [
+            "re_3UFNpQ88KhIqqdFL0slv0mq6"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": false,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap",
+                "spent_cents": 2000
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNpQ88KhIqqdFL0i4S1dci"
+          },
+          "own_refunds": [
+            "re_3UFNpQ88KhIqqdFL0i4S1dci"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNpQ88KhIqqdFL0i4S1dci"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": false,
+      "seconds_crash_to_settled": 10.1
+    },
+    {
+      "crash": "after_commit",
+      "arm": "adk_flock",
+      "rep": 0,
+      "payment_intent": "pi_3UFNpQ88KhIqqdFL0TLSBsBq",
+      "customer": "cus_VFtchhZbDfXHjt",
+      "case_id": "ec1532691c76",
+      "ran_at": "2026-09-14 00:33 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 33241,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 33242,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 33519,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 33520,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "support-bot",
+          "pid": 33636,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "support-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNpQ88KhIqqdFL05pxfJkj"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNpQ88KhIqqdFL05pxfJkj",
+          "amount": 2000,
+          "bot": "support-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "FOUND_BY_LOOKUP",
+          "answer": {
+            "status": "FOUND_BY_LOOKUP",
+            "refund_id": "re_3UFNpQ88KhIqqdFL05pxfJkj"
+          },
+          "own_refunds": [
+            "re_3UFNpQ88KhIqqdFL05pxfJkj"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "FOUND_BY_LOOKUP",
+                "refund_id": "re_3UFNpQ88KhIqqdFL05pxfJkj"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap"
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": 9.2
+    },
+    {
+      "crash": "after_commit",
+      "arm": "adk_flock",
+      "rep": 1,
+      "payment_intent": "pi_3UFNpQ88KhIqqdFL0Z1Oy1iF",
+      "customer": "cus_VFtcypOAYb3p3s",
+      "case_id": "4e6b0b1eb574",
+      "ran_at": "2026-09-14 00:33 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 33239,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 33240,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 33555,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 33556,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "support-bot",
+          "pid": 33667,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "support-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNpQ88KhIqqdFL06Lno8K7"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNpQ88KhIqqdFL06Lno8K7",
+          "amount": 2000,
+          "bot": "support-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "FOUND_BY_LOOKUP",
+          "answer": {
+            "status": "FOUND_BY_LOOKUP",
+            "refund_id": "re_3UFNpQ88KhIqqdFL06Lno8K7"
+          },
+          "own_refunds": [
+            "re_3UFNpQ88KhIqqdFL06Lno8K7"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "FOUND_BY_LOOKUP",
+                "refund_id": "re_3UFNpQ88KhIqqdFL06Lno8K7"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap"
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": 8.5
+    },
+    {
+      "crash": "after_commit",
+      "arm": "adk_flock",
+      "rep": 2,
+      "payment_intent": "pi_3UFNpt88KhIqqdFL1cV9Styk",
+      "customer": "cus_VFtd6At2lkdMUZ",
+      "case_id": "32c7c5ca5711",
+      "ran_at": "2026-09-14 00:34 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 33921,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 33922,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 34187,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 34188,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "support-bot",
+          "pid": 34263,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "support-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNpt88KhIqqdFL1VwQkL18"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNpt88KhIqqdFL1VwQkL18",
+          "amount": 2000,
+          "bot": "support-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "FOUND_BY_LOOKUP",
+          "answer": {
+            "status": "FOUND_BY_LOOKUP",
+            "refund_id": "re_3UFNpt88KhIqqdFL1VwQkL18"
+          },
+          "own_refunds": [
+            "re_3UFNpt88KhIqqdFL1VwQkL18"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Cracked glass jar - partial refund approved"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Cracked glass jar - partial refund approved"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "FOUND_BY_LOOKUP",
+                "refund_id": "re_3UFNpt88KhIqqdFL1VwQkL18"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap"
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": 15.1
+    },
+    {
+      "crash": "after_commit",
+      "arm": "adk_flock",
+      "rep": 3,
+      "payment_intent": "pi_3UFNpu88KhIqqdFL0MAsvJbc",
+      "customer": "cus_VFtdG8IwiUrz0j",
+      "case_id": "677f065f3201",
+      "ran_at": "2026-09-14 00:34 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 33936,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 33937,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 34190,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 34189,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "billing-bot",
+          "pid": 34265,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "billing-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNpu88KhIqqdFL0oih601A"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNpu88KhIqqdFL0oih601A",
+          "amount": 2000,
+          "bot": "billing-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap"
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Glass jar arrived cracked - partial refund approved"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Glass jar arrived cracked - partial refund approved"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "FOUND_BY_LOOKUP",
+          "answer": {
+            "status": "FOUND_BY_LOOKUP",
+            "refund_id": "re_3UFNpu88KhIqqdFL0oih601A"
+          },
+          "own_refunds": [
+            "re_3UFNpu88KhIqqdFL0oih601A"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "FOUND_BY_LOOKUP",
+                "refund_id": "re_3UFNpu88KhIqqdFL0oih601A"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": 15.4
+    },
+    {
+      "crash": "after_commit",
+      "arm": "adk_flock",
+      "rep": 4,
+      "payment_intent": "pi_3UFNpu88KhIqqdFL1OuS1C4w",
+      "customer": "cus_VFtdAc2cklXmHY",
+      "case_id": "4f6b621901e0",
+      "ran_at": "2026-09-14 00:34 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 33940,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 33941,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 34211,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 34212,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "support-bot",
+          "pid": 34277,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "support-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNpu88KhIqqdFL1H03xlRM"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNpu88KhIqqdFL1H03xlRM",
+          "amount": 2000,
+          "bot": "support-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "FOUND_BY_LOOKUP",
+          "answer": {
+            "status": "FOUND_BY_LOOKUP",
+            "refund_id": "re_3UFNpu88KhIqqdFL1H03xlRM"
+          },
+          "own_refunds": [
+            "re_3UFNpu88KhIqqdFL1H03xlRM"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "FOUND_BY_LOOKUP",
+                "refund_id": "re_3UFNpu88KhIqqdFL1H03xlRM"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap"
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for 6-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for 6-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": 15.2
+    },
+    {
+      "crash": "after_commit",
+      "arm": "adk_flock",
+      "rep": 5,
+      "payment_intent": "pi_3UFNpv88KhIqqdFL1MaGMAYb",
+      "customer": "cus_VFtdcfTF7dIV1X",
+      "case_id": "3f695602e920",
+      "ran_at": "2026-09-14 00:34 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 33942,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 33943,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 34203,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 34202,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "billing-bot",
+          "pid": 34274,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "billing-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNpv88KhIqqdFL1lC7cGBM"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNpv88KhIqqdFL1lC7cGBM",
+          "amount": 2000,
+          "bot": "billing-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap"
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Cracked glass jar - partial refund approved"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Cracked glass jar - partial refund approved"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "FOUND_BY_LOOKUP",
+          "answer": {
+            "status": "FOUND_BY_LOOKUP",
+            "refund_id": "re_3UFNpv88KhIqqdFL1lC7cGBM"
+          },
+          "own_refunds": [
+            "re_3UFNpv88KhIqqdFL1lC7cGBM"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "FOUND_BY_LOOKUP",
+                "refund_id": "re_3UFNpv88KhIqqdFL1lC7cGBM"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": 15.2
+    },
+    {
+      "crash": "before_send",
+      "arm": "adk_app_state",
+      "rep": 0,
+      "payment_intent": "pi_3UFNqT88KhIqqdFL0PjQIU83",
+      "customer": "cus_VFtdGz86JHIi3r",
+      "case_id": "27224bf5648a",
+      "ran_at": "2026-09-14 00:34 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 34549,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 34550,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 34746,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 34748,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "support-bot",
+          "pid": 34834,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "support-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNqT88KhIqqdFL0ZRv8rwF"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNqT88KhIqqdFL0ZRv8rwF",
+          "amount": 2000,
+          "bot": "billing-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap",
+            "spent_cents": 2000
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap",
+                "spent_cents": 2000
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNqT88KhIqqdFL0ZRv8rwF"
+          },
+          "own_refunds": [
+            "re_3UFNqT88KhIqqdFL0ZRv8rwF"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for late delivery (6 days)"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for late delivery (6 days)"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNqT88KhIqqdFL0ZRv8rwF"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": 15.7
+    },
+    {
+      "crash": "before_send",
+      "arm": "adk_app_state",
+      "rep": 1,
+      "payment_intent": "pi_3UFNqU88KhIqqdFL1OHNfZhP",
+      "customer": "cus_VFtd0lwc2hqDs4",
+      "case_id": "983dcf898b2d",
+      "ran_at": "2026-09-14 00:34 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 34566,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 34567,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 34796,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 34795,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "billing-bot",
+          "pid": 34882,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "billing-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNqU88KhIqqdFL112LJ22I"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNqU88KhIqqdFL112LJ22I",
+          "amount": 2000,
+          "bot": "support-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNqU88KhIqqdFL112LJ22I"
+          },
+          "own_refunds": [
+            "re_3UFNqU88KhIqqdFL112LJ22I"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNqU88KhIqqdFL112LJ22I"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap",
+            "spent_cents": 2000
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap",
+                "spent_cents": 2000
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": 16.3
+    },
+    {
+      "crash": "before_send",
+      "arm": "adk_app_state",
+      "rep": 2,
+      "payment_intent": "pi_3UFNqV88KhIqqdFL12PYm35s",
+      "customer": "cus_VFtdkExYSfjOPm",
+      "case_id": "49e57893fbab",
+      "ran_at": "2026-09-14 00:34 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 34575,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 34576,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 34841,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 34842,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "support-bot",
+          "pid": 34924,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "support-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNqV88KhIqqdFL1KldV3FU"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNqV88KhIqqdFL1KldV3FU",
+          "amount": 2000,
+          "bot": "billing-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap",
+            "spent_cents": 2000
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap",
+                "spent_cents": 2000
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNqV88KhIqqdFL1KldV3FU"
+          },
+          "own_refunds": [
+            "re_3UFNqV88KhIqqdFL1KldV3FU"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNqV88KhIqqdFL1KldV3FU"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": 15.6
+    },
+    {
+      "crash": "before_send",
+      "arm": "adk_app_state",
+      "rep": 3,
+      "payment_intent": "pi_3UFNqV88KhIqqdFL09PlKz3Q",
+      "customer": "cus_VFtdCndGN6jq25",
+      "case_id": "953f3282de0a",
+      "ran_at": "2026-09-14 00:34 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 34572,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 34573,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 34836,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 34835,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "billing-bot",
+          "pid": 34913,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "billing-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNqV88KhIqqdFL0DIUfrvn"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNqV88KhIqqdFL0DIUfrvn",
+          "amount": 2000,
+          "bot": "support-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNqV88KhIqqdFL0DIUfrvn"
+          },
+          "own_refunds": [
+            "re_3UFNqV88KhIqqdFL0DIUfrvn"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Cracked glass jar - partial refund approved"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Cracked glass jar - partial refund approved"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNqV88KhIqqdFL0DIUfrvn"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap",
+            "spent_cents": 2000
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap",
+                "spent_cents": 2000
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": 15.8
+    },
+    {
+      "crash": "before_send",
+      "arm": "adk_app_state",
+      "rep": 4,
+      "payment_intent": "pi_3UFNr488KhIqqdFL1xwYywEO",
+      "customer": "cus_VFtehIKkZdGjcN",
+      "case_id": "d03f1a0db7a0",
+      "ran_at": "2026-09-14 00:35 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 35229,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 35230,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 35620,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 35618,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "billing-bot",
+          "pid": 35804,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "billing-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNr488KhIqqdFL1yBKLciI"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNr488KhIqqdFL1yBKLciI",
+          "amount": 2000,
+          "bot": "support-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNr488KhIqqdFL1yBKLciI"
+          },
+          "own_refunds": [
+            "re_3UFNr488KhIqqdFL1yBKLciI"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNr488KhIqqdFL1yBKLciI"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap",
+            "spent_cents": 2000
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day delivery delay"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day delivery delay"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap",
+                "spent_cents": 2000
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": 15.9
+    },
+    {
+      "crash": "before_send",
+      "arm": "adk_app_state",
+      "rep": 5,
+      "payment_intent": "pi_3UFNr688KhIqqdFL18N7L4cd",
+      "customer": "cus_VFtezXnXTCwTXD",
+      "case_id": "9c18b16fdb99",
+      "ran_at": "2026-09-14 00:35 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 35275,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 35276,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 35795,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 35794,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "billing-bot",
+          "pid": 35994,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "billing-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNr688KhIqqdFL17zQSpwk"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNr688KhIqqdFL17zQSpwk",
+          "amount": 2000,
+          "bot": "support-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNr688KhIqqdFL17zQSpwk"
+          },
+          "own_refunds": [
+            "re_3UFNr688KhIqqdFL17zQSpwk"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Cracked glass jar - partial refund approved"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Cracked glass jar - partial refund approved"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNr688KhIqqdFL17zQSpwk"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap",
+            "spent_cents": 2000
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for 6-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for 6-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap",
+                "spent_cents": 2000
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": 14.4
+    },
+    {
+      "crash": "before_send",
+      "arm": "adk_flock",
+      "rep": 0,
+      "payment_intent": "pi_3UFNr888KhIqqdFL04L2tuwQ",
+      "customer": "cus_VFte4bS11ae3tx",
+      "case_id": "1fb1c534c4e3",
+      "ran_at": "2026-09-14 00:35 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 35334,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 35335,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 35921,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 35922,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "support-bot",
+          "pid": 36346,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "support-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNr888KhIqqdFL0MyuDYwV"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNr888KhIqqdFL0MyuDYwV",
+          "amount": 2000,
+          "bot": "billing-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap"
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNr888KhIqqdFL0MyuDYwV"
+          },
+          "own_refunds": [
+            "re_3UFNr888KhIqqdFL0MyuDYwV"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNr888KhIqqdFL0MyuDYwV"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": 14.4
+    },
+    {
+      "crash": "before_send",
+      "arm": "adk_flock",
+      "rep": 1,
+      "payment_intent": "pi_3UFNr888KhIqqdFL0JsK8x5q",
+      "customer": "cus_VFteeITp832bd9",
+      "case_id": "6b37e94a59b4",
+      "ran_at": "2026-09-14 00:35 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 35338,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 35339,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 35930,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 35931,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "support-bot",
+          "pid": 36391,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "support-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNr888KhIqqdFL0MFfQJUw"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNr888KhIqqdFL0MFfQJUw",
+          "amount": 2000,
+          "bot": "billing-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap"
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNr888KhIqqdFL0MFfQJUw"
+          },
+          "own_refunds": [
+            "re_3UFNr888KhIqqdFL0MFfQJUw"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Delivery was six days late - goodwill adjustment"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Delivery was six days late - goodwill adjustment"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNr888KhIqqdFL0MFfQJUw"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": 13.9
+    },
+    {
+      "crash": "before_send",
+      "arm": "adk_flock",
+      "rep": 2,
+      "payment_intent": "pi_3UFNrj88KhIqqdFL0vFh3GX5",
+      "customer": "cus_VFtfT8s1X8oC26",
+      "case_id": "71887e608203",
+      "ran_at": "2026-09-14 00:36 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 37168,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 37169,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 37636,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 37635,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "billing-bot",
+          "pid": 37757,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "billing-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNrj88KhIqqdFL05J3eWGH"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNrj88KhIqqdFL05J3eWGH",
+          "amount": 2000,
+          "bot": "support-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNrj88KhIqqdFL05J3eWGH"
+          },
+          "own_refunds": [
+            "re_3UFNrj88KhIqqdFL05J3eWGH"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNrj88KhIqqdFL05J3eWGH"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap"
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": 30.7
+    },
+    {
+      "crash": "before_send",
+      "arm": "adk_flock",
+      "rep": 3,
+      "payment_intent": "pi_3UFNrl88KhIqqdFL0Il8bUMp",
+      "customer": "cus_VFtfBVZ0CcCW4b",
+      "case_id": "a076cc67bf59",
+      "ran_at": "2026-09-14 00:36 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 37254,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 37257,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 37744,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 37743,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "billing-bot",
+          "pid": 37953,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "billing-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNrl88KhIqqdFL0YfeFm9H"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNrl88KhIqqdFL0YfeFm9H",
+          "amount": 2000,
+          "bot": "support-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNrl88KhIqqdFL0YfeFm9H"
+          },
+          "own_refunds": [
+            "re_3UFNrl88KhIqqdFL0YfeFm9H"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNrl88KhIqqdFL0YfeFm9H"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap"
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": 28.9
+    },
+    {
+      "crash": "before_send",
+      "arm": "adk_flock",
+      "rep": 4,
+      "payment_intent": "pi_3UFNrn88KhIqqdFL0GCO1ctP",
+      "customer": "cus_VFtfRkrFroBXBL",
+      "case_id": "b1cc6da15a1c",
+      "ran_at": "2026-09-14 00:36 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 37359,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 37362,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 37782,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 37783,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "support-bot",
+          "pid": 38045,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "support-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNrn88KhIqqdFL0APTjkeE"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNrn88KhIqqdFL0APTjkeE",
+          "amount": 2000,
+          "bot": "billing-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap"
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNrn88KhIqqdFL0APTjkeE"
+          },
+          "own_refunds": [
+            "re_3UFNrn88KhIqqdFL0APTjkeE"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for late delivery (6 days late)"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for late delivery (6 days late)"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNrn88KhIqqdFL0APTjkeE"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": 28.0
+    },
+    {
+      "crash": "before_send",
+      "arm": "adk_flock",
+      "rep": 5,
+      "payment_intent": "pi_3UFNro88KhIqqdFL0HWZraGk",
+      "customer": "cus_VFtfWg7eIkiWsk",
+      "case_id": "258eaf0271e5",
+      "ran_at": "2026-09-14 00:36 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 37381,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 37385,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 37787,
+          "process": "python",
+          "exit": -9
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 37785,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "resume",
+          "bot": "billing-bot",
+          "pid": 38046,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": "billing-bot",
+      "sigkill": true,
+      "refund_ids": [
+        "re_3UFNro88KhIqqdFL0Rsicjd7"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNro88KhIqqdFL0Rsicjd7",
+          "amount": 2000,
+          "bot": "support-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNro88KhIqqdFL0Rsicjd7"
+          },
+          "own_refunds": [
+            "re_3UFNro88KhIqqdFL0Rsicjd7"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNro88KhIqqdFL0Rsicjd7"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap"
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for 6-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for 6-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": 28.5
+    },
+    {
+      "crash": "none",
+      "arm": "adk_app_state",
+      "rep": 0,
+      "payment_intent": "pi_3UFNuJ88KhIqqdFL1liJ82lu",
+      "customer": "cus_VFthW8YXNqry1U",
+      "case_id": "87d36166be5e",
+      "ran_at": "2026-09-14 00:38 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 42188,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 42190,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 42698,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 42697,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": null,
+      "sigkill": false,
+      "refund_ids": [
+        "re_3UFNuJ88KhIqqdFL1uANxCar",
+        "re_3UFNuJ88KhIqqdFL1Fl4q5eM"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNuJ88KhIqqdFL1uANxCar",
+          "amount": 2000,
+          "bot": "support-bot"
+        },
+        {
+          "id": "re_3UFNuJ88KhIqqdFL1Fl4q5eM",
+          "amount": 2000,
+          "bot": "billing-bot"
+        }
+      ],
+      "refunded_cents": 4000,
+      "invariant_held": false,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNuJ88KhIqqdFL1uANxCar"
+          },
+          "own_refunds": [
+            "re_3UFNuJ88KhIqqdFL1uANxCar"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Glass jar arrived cracked - partial refund approved"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Glass jar arrived cracked - partial refund approved"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNuJ88KhIqqdFL1uANxCar"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNuJ88KhIqqdFL1Fl4q5eM"
+          },
+          "own_refunds": [
+            "re_3UFNuJ88KhIqqdFL1Fl4q5eM"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNuJ88KhIqqdFL1Fl4q5eM"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": null,
+      "seconds_approval_to_settled": 18.9
+    },
+    {
+      "crash": "none",
+      "arm": "adk_app_state",
+      "rep": 1,
+      "payment_intent": "pi_3UFNuJ88KhIqqdFL0jSbtslu",
+      "customer": "cus_VFthUQVUePmlw3",
+      "case_id": "0cb26af3b927",
+      "ran_at": "2026-09-14 00:38 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 42186,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 42187,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 42700,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 42699,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": null,
+      "sigkill": false,
+      "refund_ids": [
+        "re_3UFNuJ88KhIqqdFL093VDJ63",
+        "re_3UFNuJ88KhIqqdFL0T5qwqaP"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNuJ88KhIqqdFL093VDJ63",
+          "amount": 2000,
+          "bot": "support-bot"
+        },
+        {
+          "id": "re_3UFNuJ88KhIqqdFL0T5qwqaP",
+          "amount": 2000,
+          "bot": "billing-bot"
+        }
+      ],
+      "refunded_cents": 4000,
+      "invariant_held": false,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNuJ88KhIqqdFL093VDJ63"
+          },
+          "own_refunds": [
+            "re_3UFNuJ88KhIqqdFL093VDJ63"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNuJ88KhIqqdFL093VDJ63"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNuJ88KhIqqdFL0T5qwqaP"
+          },
+          "own_refunds": [
+            "re_3UFNuJ88KhIqqdFL0T5qwqaP"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNuJ88KhIqqdFL0T5qwqaP"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": null,
+      "seconds_approval_to_settled": 19.0
+    },
+    {
+      "crash": "none",
+      "arm": "adk_app_state",
+      "rep": 2,
+      "payment_intent": "pi_3UFNuJ88KhIqqdFL1KHgghqT",
+      "customer": "cus_VFthFq9lfZOaSN",
+      "case_id": "f4cef058afb8",
+      "ran_at": "2026-09-14 00:38 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 42184,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 42185,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 42605,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 42604,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": null,
+      "sigkill": false,
+      "refund_ids": [
+        "re_3UFNuJ88KhIqqdFL1IWOPiiE",
+        "re_3UFNuJ88KhIqqdFL17iPi0LT"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNuJ88KhIqqdFL1IWOPiiE",
+          "amount": 2000,
+          "bot": "support-bot"
+        },
+        {
+          "id": "re_3UFNuJ88KhIqqdFL17iPi0LT",
+          "amount": 2000,
+          "bot": "billing-bot"
+        }
+      ],
+      "refunded_cents": 4000,
+      "invariant_held": false,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNuJ88KhIqqdFL1IWOPiiE"
+          },
+          "own_refunds": [
+            "re_3UFNuJ88KhIqqdFL1IWOPiiE"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Cracked glass jar - partial refund approved"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Cracked glass jar - partial refund approved"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNuJ88KhIqqdFL1IWOPiiE"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNuJ88KhIqqdFL17iPi0LT"
+          },
+          "own_refunds": [
+            "re_3UFNuJ88KhIqqdFL17iPi0LT"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for delivery six days late"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for delivery six days late"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNuJ88KhIqqdFL17iPi0LT"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": null,
+      "seconds_approval_to_settled": 19.3
+    },
+    {
+      "crash": "none",
+      "arm": "adk_app_state",
+      "rep": 3,
+      "payment_intent": "pi_3UFNuJ88KhIqqdFL1RGCpLqI",
+      "customer": "cus_VFthDatv90tPTD",
+      "case_id": "1677300cfb57",
+      "ran_at": "2026-09-14 00:38 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 42191,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 42192,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 42648,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 42649,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": null,
+      "sigkill": false,
+      "refund_ids": [
+        "re_3UFNuJ88KhIqqdFL1EeCY94s",
+        "re_3UFNuJ88KhIqqdFL1xtbUEK3"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNuJ88KhIqqdFL1EeCY94s",
+          "amount": 2000,
+          "bot": "billing-bot"
+        },
+        {
+          "id": "re_3UFNuJ88KhIqqdFL1xtbUEK3",
+          "amount": 2000,
+          "bot": "support-bot"
+        }
+      ],
+      "refunded_cents": 4000,
+      "invariant_held": false,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNuJ88KhIqqdFL1xtbUEK3"
+          },
+          "own_refunds": [
+            "re_3UFNuJ88KhIqqdFL1xtbUEK3"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNuJ88KhIqqdFL1xtbUEK3"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNuJ88KhIqqdFL1EeCY94s"
+          },
+          "own_refunds": [
+            "re_3UFNuJ88KhIqqdFL1EeCY94s"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNuJ88KhIqqdFL1EeCY94s"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": null,
+      "seconds_approval_to_settled": 19.7
+    },
+    {
+      "crash": "none",
+      "arm": "adk_app_state",
+      "rep": 4,
+      "payment_intent": "pi_3UFNv588KhIqqdFL0IMla1oG",
+      "customer": "cus_VFtiKatHIDZUuS",
+      "case_id": "98d3413eaa94",
+      "ran_at": "2026-09-14 00:39 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 43342,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 43343,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 43914,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 43913,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": null,
+      "sigkill": false,
+      "refund_ids": [
+        "re_3UFNv588KhIqqdFL0JTlFsph",
+        "re_3UFNv588KhIqqdFL0uqnMHRP"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNv588KhIqqdFL0JTlFsph",
+          "amount": 2000,
+          "bot": "support-bot"
+        },
+        {
+          "id": "re_3UFNv588KhIqqdFL0uqnMHRP",
+          "amount": 2000,
+          "bot": "billing-bot"
+        }
+      ],
+      "refunded_cents": 4000,
+      "invariant_held": false,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNv588KhIqqdFL0JTlFsph"
+          },
+          "own_refunds": [
+            "re_3UFNv588KhIqqdFL0JTlFsph"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNv588KhIqqdFL0JTlFsph"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNv588KhIqqdFL0uqnMHRP"
+          },
+          "own_refunds": [
+            "re_3UFNv588KhIqqdFL0uqnMHRP"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for delivery six days late"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for delivery six days late"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNv588KhIqqdFL0uqnMHRP"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": null,
+      "seconds_approval_to_settled": 12.2
+    },
+    {
+      "crash": "none",
+      "arm": "adk_app_state",
+      "rep": 5,
+      "payment_intent": "pi_3UFNv588KhIqqdFL17RNFawu",
+      "customer": "cus_VFtiWitAXu4fyc",
+      "case_id": "be13b3765f09",
+      "ran_at": "2026-09-14 00:39 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 43354,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 43355,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 43925,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 43926,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": null,
+      "sigkill": false,
+      "refund_ids": [
+        "re_3UFNv588KhIqqdFL1qzPLzx4",
+        "re_3UFNv588KhIqqdFL1efhV3XL"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNv588KhIqqdFL1qzPLzx4",
+          "amount": 2000,
+          "bot": "billing-bot"
+        },
+        {
+          "id": "re_3UFNv588KhIqqdFL1efhV3XL",
+          "amount": 2000,
+          "bot": "support-bot"
+        }
+      ],
+      "refunded_cents": 4000,
+      "invariant_held": false,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNv588KhIqqdFL1efhV3XL"
+          },
+          "own_refunds": [
+            "re_3UFNv588KhIqqdFL1efhV3XL"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Cracked glass jar - partial refund approved"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Cracked glass jar - partial refund approved"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNv588KhIqqdFL1efhV3XL"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNv588KhIqqdFL1qzPLzx4"
+          },
+          "own_refunds": [
+            "re_3UFNv588KhIqqdFL1qzPLzx4"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNv588KhIqqdFL1qzPLzx4"
+              }
+            ],
+            "app_state": {
+              "case_refunded_cents": 2000
+            },
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": null,
+      "seconds_approval_to_settled": 11.8
+    },
+    {
+      "crash": "none",
+      "arm": "adk_flock",
+      "rep": 0,
+      "payment_intent": "pi_3UFNv588KhIqqdFL177rdOI9",
+      "customer": "cus_VFtiJxeHnSZffx",
+      "case_id": "4091ddd0b07b",
+      "ran_at": "2026-09-14 00:39 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 43356,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 43357,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 43919,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 43920,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": null,
+      "sigkill": false,
+      "refund_ids": [
+        "re_3UFNv588KhIqqdFL1tvvGoQH"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNv588KhIqqdFL1tvvGoQH",
+          "amount": 2000,
+          "bot": "support-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNv588KhIqqdFL1tvvGoQH"
+          },
+          "own_refunds": [
+            "re_3UFNv588KhIqqdFL1tvvGoQH"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNv588KhIqqdFL1tvvGoQH"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap"
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": null,
+      "seconds_approval_to_settled": 11.5
+    },
+    {
+      "crash": "none",
+      "arm": "adk_flock",
+      "rep": 1,
+      "payment_intent": "pi_3UFNv588KhIqqdFL1yBJ7RX0",
+      "customer": "cus_VFti82JoeMeOgt",
+      "case_id": "992f0823f9b4",
+      "ran_at": "2026-09-14 00:39 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 43352,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 43353,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 43930,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 43929,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": null,
+      "sigkill": false,
+      "refund_ids": [
+        "re_3UFNv588KhIqqdFL1C4mcnmA"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNv588KhIqqdFL1C4mcnmA",
+          "amount": 2000,
+          "bot": "billing-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap"
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNv588KhIqqdFL1C4mcnmA"
+          },
+          "own_refunds": [
+            "re_3UFNv588KhIqqdFL1C4mcnmA"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNv588KhIqqdFL1C4mcnmA"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": null,
+      "seconds_approval_to_settled": 11.1
+    },
+    {
+      "crash": "none",
+      "arm": "adk_flock",
+      "rep": 2,
+      "payment_intent": "pi_3UFNvn88KhIqqdFL1jQi7cDH",
+      "customer": "cus_VFtjnFoiGNntq0",
+      "case_id": "fa7903f06894",
+      "ran_at": "2026-09-14 00:40 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 44474,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 44475,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 45078,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 45079,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": null,
+      "sigkill": false,
+      "refund_ids": [
+        "re_3UFNvn88KhIqqdFL1EJeg42Y"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNvn88KhIqqdFL1EJeg42Y",
+          "amount": 2000,
+          "bot": "support-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNvn88KhIqqdFL1EJeg42Y"
+          },
+          "own_refunds": [
+            "re_3UFNvn88KhIqqdFL1EJeg42Y"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNvn88KhIqqdFL1EJeg42Y"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap"
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six days late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six days late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": null,
+      "seconds_approval_to_settled": 13.5
+    },
+    {
+      "crash": "none",
+      "arm": "adk_flock",
+      "rep": 3,
+      "payment_intent": "pi_3UFNvn88KhIqqdFL1GlaFi8o",
+      "customer": "cus_VFtjigrdwzWdGp",
+      "case_id": "70e90be9152f",
+      "ran_at": "2026-09-14 00:40 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 44499,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 44500,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 45086,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 45087,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": null,
+      "sigkill": false,
+      "refund_ids": [
+        "re_3UFNvn88KhIqqdFL1m7xkjR7"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNvn88KhIqqdFL1m7xkjR7",
+          "amount": 2000,
+          "bot": "support-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNvn88KhIqqdFL1m7xkjR7"
+          },
+          "own_refunds": [
+            "re_3UFNvn88KhIqqdFL1m7xkjR7"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Cracked glass jar - partial refund approved"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Cracked glass jar - partial refund approved"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNvn88KhIqqdFL1m7xkjR7"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap"
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day delivery delay"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day delivery delay"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": null,
+      "seconds_approval_to_settled": 13.2
+    },
+    {
+      "crash": "none",
+      "arm": "adk_flock",
+      "rep": 4,
+      "payment_intent": "pi_3UFNvn88KhIqqdFL1ilsYHLh",
+      "customer": "cus_VFtjlxmv2dhJ8f",
+      "case_id": "ca8545bde8a7",
+      "ran_at": "2026-09-14 00:40 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 44498,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 44502,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 45112,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 45113,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": null,
+      "sigkill": false,
+      "refund_ids": [
+        "re_3UFNvn88KhIqqdFL1YxpcMiv"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNvn88KhIqqdFL1YxpcMiv",
+          "amount": 2000,
+          "bot": "support-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNvn88KhIqqdFL1YxpcMiv"
+          },
+          "own_refunds": [
+            "re_3UFNvn88KhIqqdFL1YxpcMiv"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Partial refund for cracked glass jar"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Partial refund for cracked glass jar"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNvn88KhIqqdFL1YxpcMiv"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap"
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": null,
+      "seconds_approval_to_settled": 13.3
+    },
+    {
+      "crash": "none",
+      "arm": "adk_flock",
+      "rep": 5,
+      "payment_intent": "pi_3UFNvn88KhIqqdFL0DGhQn3Z",
+      "customer": "cus_VFtjbktkIwKkit",
+      "case_id": "cde9166487bc",
+      "ran_at": "2026-09-14 00:40 UTC",
+      "procs": [
+        {
+          "phase": "new",
+          "bot": "support-bot",
+          "pid": 44487,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "new",
+          "bot": "billing-bot",
+          "pid": 44488,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "billing-bot",
+          "pid": 45069,
+          "process": "python",
+          "exit": 0
+        },
+        {
+          "phase": "confirm",
+          "bot": "support-bot",
+          "pid": 45068,
+          "process": "python",
+          "exit": 0
+        }
+      ],
+      "crashed_bot": null,
+      "sigkill": false,
+      "refund_ids": [
+        "re_3UFNvn88KhIqqdFL0I3SjnKp"
+      ],
+      "refunds": [
+        {
+          "id": "re_3UFNvn88KhIqqdFL0I3SjnKp",
+          "amount": 2000,
+          "bot": "billing-bot"
+        }
+      ],
+      "refunded_cents": 2000,
+      "invariant_held": true,
+      "per_bot": {
+        "support-bot": {
+          "outcome": "REFUSED:over_cap",
+          "answer": {
+            "status": "REFUSED:over_cap"
+          },
+          "own_refunds": [],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Cracked glass jar - partial refund approved"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Cracked glass jar - partial refund approved"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUSED:over_cap"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        },
+        "billing-bot": {
+          "outcome": "REFUNDED",
+          "answer": {
+            "status": "REFUNDED",
+            "refund_id": "re_3UFNvn88KhIqqdFL0I3SjnKp"
+          },
+          "own_refunds": [
+            "re_3UFNvn88KhIqqdFL0I3SjnKp"
+          ],
+          "nudged": false,
+          "answer_matches_stripe": true,
+          "model_call": {
+            "amount_cents": 2000,
+            "reason": "Goodwill refund for six-day late delivery"
+          },
+          "session_record": {
+            "events": 10,
+            "confirmations": [
+              {
+                "confirmed": true,
+                "payload": {
+                  "approver": "finance-lead"
+                }
+              }
+            ],
+            "issue_refund_calls": [
+              {
+                "amount_cents": 2000,
+                "reason": "Goodwill refund for six-day late delivery"
+              }
+            ],
+            "issue_refund_responses": [
+              {
+                "error": "This tool call requires confirmation, please approve or reject."
+              },
+              {
+                "status": "REFUNDED",
+                "refund_id": "re_3UFNvn88KhIqqdFL0I3SjnKp"
+              }
+            ],
+            "app_state": null,
+            "integrity": "none: JSON rows in sessions.db, no hash chain, no signature"
+          }
+        }
+      },
+      "answers_match_stripe": true,
+      "seconds_crash_to_settled": null,
+      "seconds_approval_to_settled": 13.9
+    }
+  ],
+  "reruns": [
+    {
+      "at": "2026-09-14 00:40 UTC",
+      "added": [
+        "cap_none:adk_app_state",
+        "cap_none:adk_flock"
+      ]
+    }
+  ]
+}
