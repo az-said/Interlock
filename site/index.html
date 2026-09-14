@@ -3,8 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Interlock · safe refunds for AI agents</title>
-<meta name="description" content="Your AI agent refunded a customer, then crashed. Interlock checks what happened before anything is sent again, so a refund never goes out twice.">
+<title>Interlock · receipts for AI agent actions</title>
+<meta name="description" content="A receipt for every AI agent action: proof it happened once, was allowed when it fired, and the facts behind it still held, even through a crash. Plain Python or an MCP proxy, Temporal optional.">
+<link rel="canonical" href="https://az-said.github.io/Interlock/site/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Interlock">
+<meta property="og:url" content="https://az-said.github.io/Interlock/site/">
+<meta property="og:title" content="Interlock · receipts for AI agent actions">
+<meta property="og:description" content="Your AI agent refunded a customer, then crashed. Interlock checks the facts again before anything is sent twice, and gives every action a receipt.">
+<meta property="og:image" content="https://az-said.github.io/Interlock/site/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="An AI agent crashes mid-refund. Without Interlock, $40 refunded. With Interlock, $20 refunded.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0c0e12">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230c0e12'/%3E%3Ccircle cx='38' cy='50' r='22' fill='none' stroke='%23e8eaee' stroke-width='9'/%3E%3Ccircle cx='62' cy='50' r='22' fill='none' stroke='%2334d399' stroke-width='9'/%3E%3C/svg%3E">
 <style>
   /* Tokens. Photos carry the color. Status colors match the Remotion video:
      green = held, amber = unclear or a person stepped in, red = money went wrong. */
@@ -12,7 +25,7 @@
     --ink: #0c0e12;
     --text: #e8eaee;
     --dim: rgba(232, 234, 238, .7);
-    --faint: rgba(232, 234, 238, .46);
+    --faint: rgba(232, 234, 238, .55);
     --line: rgba(255, 255, 255, .1);
     --glass: rgba(14, 16, 20, .4);
     --accent: #a8f0f6;
@@ -25,7 +38,7 @@
   }
 
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; background: var(--ink); }
+  html { scroll-behavior: smooth; background: var(--ink); overflow-x: clip; }
   body { margin: 0; background: var(--ink); color: var(--text); font: 16px/1.6 var(--font); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
   button, a, [role="button"], summary { cursor: pointer; }
   button { font: inherit; color: inherit; }
@@ -50,15 +63,16 @@
 
   /* Photos paint on the section itself, not a fixed layer, so WebKit blurs them behind the glass. */
   .scene { position: relative; background-color: var(--ink); background-size: cover; background-position: center; background-repeat: no-repeat; }
-  .scene-night     { background-image: linear-gradient(180deg, rgba(12,14,18,.2) 0%, rgba(12,14,18,.3) 55%, var(--ink) 100%), url(img/night.jpg); background-position: center 70%; }
-  .scene-ridges    { background-image: linear-gradient(180deg, var(--ink) 0%, rgba(12,14,18,.4) 20%, rgba(12,14,18,.5) 80%, var(--ink) 100%), url(img/ridges.jpg); background-position: center 62%; }
-  .scene-haze      { background-image: linear-gradient(180deg, var(--ink) 0%, rgba(12,14,18,.45) 20%, rgba(12,14,18,.55) 80%, var(--ink) 100%), url(img/haze.jpg); background-position: center 80%; }
-  .scene-dolomites { background-image: linear-gradient(180deg, var(--ink) 0%, rgba(12,14,18,.4) 20%, rgba(12,14,18,.55) 80%, var(--ink) 100%), url(img/dolomites.jpg); }
-  .scene-dusk      { background-image: linear-gradient(180deg, var(--ink) 0%, rgba(12,14,18,.4) 22%, rgba(12,14,18,.6) 80%, var(--ink) 100%), url(img/dusk.jpg); }
-  .scene-summit    { background-image: linear-gradient(180deg, var(--ink) 0%, rgba(12,14,18,.2) 30%, rgba(12,14,18,.55) 100%), url(img/summit.jpg); background-position: center 40%; }
+  .scene-night     { background-image: linear-gradient(180deg, rgba(12,14,18,.2) 0%, rgba(12,14,18,.3) 55%, var(--ink) 100%), var(--photo); background-position: center 70%; --photo: url(img/night.webp); --photo-sm: url(img/night-sm.webp); }
+  .scene-ridges    { background-image: linear-gradient(180deg, var(--ink) 0%, rgba(12,14,18,.4) 20%, rgba(12,14,18,.5) 80%, var(--ink) 100%), var(--photo); background-position: center 62%; --photo: url(img/ridges.webp); --photo-sm: url(img/ridges-sm.webp); }
+  .scene-haze      { background-image: linear-gradient(180deg, var(--ink) 0%, rgba(12,14,18,.45) 20%, rgba(12,14,18,.55) 80%, var(--ink) 100%), var(--photo); background-position: center 80%; --photo: url(img/haze.webp); --photo-sm: url(img/haze-sm.webp); }
+  .scene-dolomites { background-image: linear-gradient(180deg, var(--ink) 0%, rgba(12,14,18,.4) 20%, rgba(12,14,18,.55) 80%, var(--ink) 100%), var(--photo); --photo: url(img/dolomites.webp); --photo-sm: url(img/dolomites-sm.webp); }
+  .scene-dusk      { background-image: linear-gradient(180deg, var(--ink) 0%, rgba(12,14,18,.4) 22%, rgba(12,14,18,.6) 80%, var(--ink) 100%), var(--photo); --photo: url(img/dusk.webp); --photo-sm: url(img/dusk-sm.webp); }
+  .scene-summit    { background-image: linear-gradient(180deg, var(--ink) 0%, rgba(12,14,18,.2) 30%, rgba(12,14,18,.55) 100%), var(--photo); background-position: center 40%; --photo: url(img/summit.webp); --photo-sm: url(img/summit-sm.webp); }
+  @media (max-width: 700px) { .scene[class] { --photo: var(--photo-sm); } }   /* phones get the 900px photos */
 
   /* The video's BlurBlob: drifting blurred color with a grain layer, for sections with no photo. */
-  .dark { overflow: hidden; }
+  .dark { overflow: clip; }
   .blob { position: absolute; z-index: 0; border-radius: 5rem 2rem 5rem 50%; filter: blur(110px); pointer-events: none;
     background: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"), var(--tone);
     animation: drift 18s ease-in-out infinite alternate; will-change: transform; }
@@ -80,6 +94,10 @@
   .js [data-play]:not(.on) .in { opacity: 0; }
   [data-play].on .in { animation: enter .8s var(--ease) backwards; animation-delay: calc(var(--d, 0) * 1ms); }
   @keyframes enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  /* Met from above (scrolling back up, or a restored mid-page scroll): the finished state, no replay.
+     Only the one-time entrances; the faults table and the demo keep their click animations. */
+  [data-play].seen .in, [data-play].seen .sync-line i, [data-play].seen .choice, [data-play].seen .choice.last, [data-play].seen .bar i, [data-play].seen .ln.hl::before { animation: none; }
+  [data-play].seen .after, [data-play].seen .trace .tr-play { transition: none; }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
   /* Nav */
@@ -152,6 +170,16 @@
   .alert b { display: block; color: var(--bad); font-size: 14px; }
   .alert span { display: block; color: var(--dim); font-size: 13px; margin-top: .15rem; }
   .js .hero-run:not(.crashed) .alert { opacity: 0; transform: translateY(10px); }
+  /* After the crash: the same moment with and without Interlock. */
+  .outcomes { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: .6rem; }
+  @media (max-width: 560px) { .outcomes { grid-template-columns: 1fr; } }
+  .oc { padding: .75rem .95rem; border-radius: 12px; border: 1px solid rgba(248, 113, 113, .35); background: rgba(0, 0, 0, .2); transition: opacity .5s var(--ease), transform .6s var(--ease); }
+  .oc.good { border-color: rgba(52, 211, 153, .45); background: rgba(52, 211, 153, .07); transition-delay: .35s; }
+  .oc-k { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); }
+  .oc-v { margin-top: .2rem; font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .oc.bad .oc-v { color: var(--bad); } .oc.good .oc-v { color: var(--good); }
+  .oc-s { margin-top: .2rem; font-size: 13.5px; line-height: 1.4; color: var(--dim); }
+  .js .hero-run:not(.resolved) .oc { opacity: 0; transform: translateY(10px); transition-delay: 0s; }
 
   /* Agent trace, ported from agent-trace.tsx. Rows are real HTML so the end state renders
      without JavaScript; the script only drives --p, --t and the text. */
@@ -189,6 +217,73 @@
   .tr-rail { flex: 1; height: 4px; border-radius: 99px; background: rgba(255,255,255,.1); overflow: hidden; }
   .tr-rail i { display: block; height: 100%; transform-origin: left; transform: scaleX(var(--t, 1)); background: var(--accent); }
   @media (max-width: 560px) { .trace { --gutter: 7.4rem; --meta: 3.4rem; } .tr-meta em { display: none; } }
+
+  /* Try it: pick a fault and play it on a clock you can pause. The code lights the lines the current
+     moment depends on; the timeline reuses the trace renderer above, fed from the recorded run. */
+  .dm { margin-top: 3.5rem; overflow: hidden; }
+  .dm-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem 1.2rem; padding: .8rem 1rem; }
+  .dm-pick { max-width: 100%; padding: .45rem .8rem; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,.06); color: var(--text); font: 13.5px var(--font); cursor: pointer; }
+  .dm-pick option { background: var(--ink); }
+  .dm-steps { display: flex; flex: 1; justify-content: center; align-items: center; gap: .5rem; margin: 0; padding: 0; list-style: none; counter-reset: dm; }
+  .dm-steps li { counter-increment: dm; display: flex; align-items: center; gap: .5rem; }
+  .dm-steps li + li::before { content: ""; width: 1.6rem; height: 1px; background: var(--line); }
+  .dm-steps button { padding: .3rem .1rem; border: 0; border-bottom: 2px solid transparent; background: none; font-size: 14px; color: var(--faint); transition: color .3s var(--ease), border-color .3s var(--ease); }
+  .dm-steps button::before { content: counter(dm, decimal-leading-zero) "  "; font: 11px ui-monospace, Menlo, monospace; }
+  .dm-steps button:hover, .dm-steps button.past { color: var(--dim); }
+  .dm-steps button[aria-current="step"] { color: var(--text); border-color: var(--good); }
+  .dm-actions { display: flex; gap: .5rem; margin-left: auto; }
+  .dm-play, .dm-reset { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; padding: .45rem 1rem; border-radius: 999px; border: 1px solid var(--line); background: transparent; font-size: 13.5px; color: var(--dim); transition: transform .2s var(--ease), color .2s, border-color .2s; }
+  .dm-play { min-width: 7.2rem; background: var(--text); border-color: var(--text); color: var(--ink); font-weight: 700; }
+  .dm-play:hover, .dm-reset:hover { transform: translateY(-2px); }
+  .dm-reset:hover { color: var(--text); border-color: rgba(255,255,255,.25); }
+  .dm-rail { height: 2px; background: var(--line); }
+  .dm-rail i { display: block; height: 100%; transform-origin: left; transform: scaleX(var(--k, 0)); background: linear-gradient(90deg, var(--accent), var(--good)); }
+  .dm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; padding: 1rem; }
+  .dm-grid > *, .dm-left { min-width: 0; }
+  @media (max-width: 960px) { .dm-grid { grid-template-columns: 1fr; } .dm-steps { order: 3; flex-basis: 100%; justify-content: flex-start; flex-wrap: wrap; } }
+  .dm-left { display: grid; gap: 1rem; align-content: start; }
+  .dm-win { border: 1px solid var(--line); border-radius: 12px; background: rgba(0,0,0,.28); overflow: hidden; }
+  .dm-head { display: flex; align-items: center; justify-content: space-between; gap: .6rem; padding: .6rem .9rem; border-bottom: 1px solid var(--line); font: 12px ui-monospace, Menlo, monospace; color: var(--dim); }
+  .dm-copy { padding: .15rem .6rem; border-radius: 999px; border: 1px solid var(--line); background: none; font-size: 11.5px; color: var(--faint); }
+  .dm-copy:hover { color: var(--text); }
+  .dm-code { padding: .8rem 0; overflow-x: auto; font: 12.5px/1.75 ui-monospace, Menlo, monospace; }
+  .dm-ln { position: relative; width: max-content; min-width: 100%; padding-inline: .9rem; white-space: pre; color: var(--dim); transition: color .35s var(--ease), background-color .35s var(--ease); }
+  .dm-ln::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--good); opacity: 0; transition: opacity .35s var(--ease); }
+  .dm-code.lit .dm-ln { color: var(--faint); }
+  .dm-code.lit .dm-ln.on { color: var(--text); background: rgba(52, 211, 153, .08); }
+  .dm-ln.on::before { opacity: 1; }
+  .dm-tabs { display: flex; flex-wrap: wrap; gap: .4rem 1.1rem; padding: .55rem .9rem; border-top: 1px solid var(--line); }
+  .dm-tabs button { padding: .2rem 0; border: 0; border-bottom: 2px solid transparent; background: none; font: 11.5px ui-monospace, Menlo, monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); }
+  .dm-tabs button:hover { color: var(--dim); }
+  .dm-tabs button[aria-pressed="true"] { color: var(--text); border-color: var(--good); }
+  .dm-console { height: 10.5rem; overflow-y: auto; padding: .8rem .9rem; font: 12.5px/1.65 ui-monospace, Menlo, monospace; color: var(--dim); }
+  .dm-console p { animation: fadeIn .3s var(--ease) both; }
+  .dm-console .dim { color: var(--faint); } .dm-console .bad { color: var(--bad); } .dm-console .warn { color: var(--warn); } .dm-console .good { color: var(--good); }
+  .dm-right { display: flex; flex-direction: column; }
+  .dm-trace { flex: 1; display: flex; flex-direction: column; margin: 0; border: 0; border-radius: 0; background: none; }
+  .dm-trace .tr-body { flex: 1; min-height: 22rem; }
+  .dm-trace .tr-row { transition: opacity .3s var(--ease); }
+  .dm-trace .tr-row[data-state="queued"] { opacity: 0; }
+  .tr-row[data-kind="world"] .tr-bar i { background: var(--warn); }
+  .tr-row[data-kind="good"] .tr-bar i { background: var(--good); }
+  .tr-row[data-kind="good"][data-state="done"] .tr-meta em { color: var(--good); }
+  .dm-score { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
+  .dm-score p { padding: .7rem .9rem; font-size: 12px; color: var(--faint); }
+  .dm-score p + p { border-left: 1px solid var(--line); }
+  .dm-score b { display: block; min-height: 2rem; margin-top: .15rem; font-size: 1.35rem; color: var(--bad); font-variant-numeric: tabular-nums; }
+  .dm-score b.ok { color: var(--good); }
+  .dm-note { margin-top: .9rem; font-size: 13px; color: var(--faint); }
+  /* Touch screens: every small control gets a 44px tap target. */
+  @media (pointer: coarse) {
+    .btn, .dm-steps button, .dm-tabs button, .dm-copy, .replay, .dm-play, .dm-reset, .dm-pick, .calc-in input { min-height: 44px; }
+    .dm-copy, .replay { min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }
+    .brand { padding-block: .6rem; }
+  }
+  @media (max-width: 560px) {
+    .dm-steps { gap: .3rem 1rem; }
+    .dm-steps li + li::before { display: none; }
+    .dm-code { font-size: 11.5px; }
+  }
 
   /* Out of sync: the video's Scene2. Two tables, a red line draws between the rows that disagree. */
   .sync { display: grid; grid-template-columns: 1fr 7.5rem 1fr; align-items: center; margin-top: 3.5rem; }
@@ -269,18 +364,39 @@
 
   /* Competitor table */
   .cmp { margin-top: 3.5rem; overflow: hidden; }
-  .scroll { overflow-x: auto; }
-  .cmp table { width: 100%; min-width: 680px; border-collapse: collapse; font-size: 14.5px; }
+  .scroll { overflow: visible; }
+  .cmp table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
   .cmp th { text-align: left; font-weight: 400; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); padding: 1rem 1.1rem; border-bottom: 1px solid var(--line); vertical-align: bottom; }
   .cmp td { padding: 1rem 1.1rem; border-bottom: 1px solid var(--line); vertical-align: middle; }
-  .cmp td:first-child b { display: block; }
-  .cmp td:first-child span { font-size: 12.5px; color: var(--faint); }
+  .cmp thead th { color: var(--text); font-size: 15px; font-weight: 700; letter-spacing: 0; text-transform: none; }
+  .cmp thead th span { display: block; margin-top: .25rem; font-size: 12px; font-weight: 400; color: var(--faint); }
+  .cmp td:first-child { font-weight: 700; }
   .cmp tr:last-child td { border-bottom: 0; }
   .yes, .no-mark, .part { display: inline-flex; align-items: center; gap: .45rem; font-size: 13.5px; }
   .yes svg, .no-mark svg { width: 17px; height: 17px; }
   .yes { color: var(--good); } .no-mark { color: var(--faint); } .part { color: var(--warn); }
-  .cmp tr.us td { background: rgba(52, 211, 153, .08); }
-  .cmp tr.us td:first-child { box-shadow: inset 3px 0 0 var(--good); }
+  .cmp .us { background: rgba(52, 211, 153, .08); }
+  .cmp th.us { box-shadow: inset 0 3px 0 var(--good); }
+  @media (max-width: 760px) {
+    .cmp th, .cmp td, .full th, .full td { padding: .65rem .45rem; font-size: 12px; }
+    .cmp thead th { font-size: 12.5px; }
+    .cmp thead th span { display: none; }
+    .yes svg, .no-mark svg, .part svg { display: none; }
+    .code-body { font-size: 12.5px; padding: 1rem; }
+  }
+  @media (max-width: 560px) {
+    .code-body { font-size: 11px; line-height: 1.8; padding: .9rem; }
+    .cmp table, .cmp tbody, .full, .full tbody { display: block; }
+    .cmp thead, .full thead { display: none; }
+    .cmp tr, .full tr { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem .8rem; padding: .9rem 1rem; border-top: 1px solid var(--line); }
+    .cmp tbody tr:first-child { border-top: 0; }
+    .cmp td, .all .full td { display: block; padding: 0; border: 0; font-size: 12.5px; }
+    .cmp td:first-child, .all .full td:first-child { grid-column: 1 / -1; font-size: 14px; font-weight: 700; color: var(--text); }
+    .cmp td[data-label]::before, .full td[data-label]::before { content: attr(data-label); display: block; margin-bottom: .15rem; font-size: 10.5px; font-weight: 400; color: var(--faint); }
+    .cmp td.us { background: transparent; }
+    .cmp td.us::before { color: var(--good); }
+    .yes svg, .no-mark svg, .part svg { display: inline; }
+  }
   .cmp-note { padding: 1rem 1.1rem; border-top: 1px solid var(--line); font-size: 13px; color: var(--faint); }
 
   /* Tested: bars that grow and count, like the video's Market charts. */
@@ -294,6 +410,39 @@
   .js [data-play]:not(.on) .bar i { width: 0; }
   .on .bar i { animation: grow 1s var(--ease) backwards; animation-delay: calc(var(--d, 0) * 1ms); }
   @keyframes grow { from { width: 0; } }
+  .loss { margin-top: 1rem; padding: 1.6rem 1.8rem; }
+  .loss-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .8rem 1rem; }
+  .loss-title { font-size: 15px; color: var(--dim); }
+  .loss-title b { color: var(--text); }
+  .loss-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.3rem; }
+  @media (max-width: 720px) { .loss-grid { grid-template-columns: 1fr; } }
+  .loss-card { padding: 1.2rem 1.3rem; border-radius: 12px; border: 1px solid var(--line); background: rgba(0,0,0,.18); }
+  .loss-card.us { border-color: rgba(52, 211, 153, .4); background: rgba(52, 211, 153, .07); }
+  .loss-who { font-size: 13px; color: var(--faint); }
+  .loss-n { margin-top: .35rem; font-size: clamp(1.9rem, 3.4vw, 2.6rem); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .loss-n.bad { color: var(--bad); } .loss-n.good { color: var(--good); }
+  .loss-sub { margin-top: .35rem; font-size: 15px; line-height: 1.45; color: var(--dim); }
+  /* The money: sourced stats in two columns, then the approval calculator. */
+  .money-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 3.5rem; }
+  @media (max-width: 860px) { .money-grid { grid-template-columns: 1fr; } }
+  .money { padding: 1.6rem 1.8rem; }
+  .money h3 { font-size: 11px; font-weight: 400; letter-spacing: .16em; text-transform: uppercase; color: var(--warn); }
+  .stat { margin-top: 1.1rem; }
+  .stat + .stat { padding-top: 1.1rem; border-top: 1px solid var(--line); }
+  .stat b { display: block; font-size: clamp(1.7rem, 3vw, 2.2rem); letter-spacing: -.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .stat p { margin-top: .4rem; font-size: 17px; line-height: 1.5; color: var(--dim); }
+  .stat cite { display: block; margin-top: .4rem; font-size: 13px; font-style: normal; color: var(--faint); }
+  .stat cite a { text-decoration-color: rgba(232, 234, 238, .3); text-underline-offset: 2px; }
+  .stat cite a:hover { color: var(--text); }
+  .calc-line { margin-top: .6rem; font-size: 15px; color: var(--dim); max-width: 48rem; }
+  .calc-line b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .calc-in { display: grid; grid-template-columns: repeat(5, 1fr); gap: .8rem; margin-top: 1.2rem; }
+  @media (max-width: 860px) { .calc-in { grid-template-columns: repeat(2, 1fr); } }
+  .calc-in label { display: flex; flex-direction: column; justify-content: space-between; gap: .35rem; font-size: 12px; color: var(--faint); }
+  .calc-in input { width: 100%; padding: .5rem .7rem; border-radius: 10px; border: 1px solid var(--line); background: rgba(0,0,0,.25); color: var(--text); font: 15px var(--font); font-variant-numeric: tabular-nums; }
+  .calc-in input:hover { border-color: rgba(255,255,255,.25); }
+  .calc-note { margin-top: 1rem; font-size: 13px; color: var(--faint); }
+  .calc-note code { color: var(--dim); overflow-wrap: anywhere; }
   .score-row .n { font-size: 1.5rem; font-weight: 700; text-align: right; color: var(--bad); }
   .score-row.us .n { color: var(--good); }
   .score-row.us .name { font-weight: 700; }
@@ -304,9 +453,15 @@
   details.all { margin-top: 1rem; overflow: hidden; }
   details.all summary { list-style: none; display: flex; justify-content: space-between; padding: 1rem 1.3rem; font-size: 15px; font-weight: 700; }
   details.all summary::-webkit-details-marker { display: none; }
-  details.all summary::after { content: "+"; color: var(--faint); font-weight: 400; transition: transform .3s var(--ease); }
-  details.all[open] summary::after { transform: rotate(45deg); }
-  .full { width: 100%; min-width: 720px; border-collapse: collapse; font-size: 13.5px; }
+  details.all summary::after { content: "+"; color: var(--faint); font-weight: 400; font-size: 18px; line-height: 1; transition: transform .45s var(--ease), color .3s; }
+  details.all summary:hover::after { color: var(--text); }
+  details.all[open]:not(.closing) summary::after { transform: rotate(45deg); }
+  /* Expand: the script animates the panel height; rows fade and rise in order, the way the video lists land. */
+  details.all .panel { overflow: hidden; }
+  details.all .full tbody tr { transition: opacity .4s var(--ease), transform .5s var(--ease); transition-delay: calc(var(--r, 0) * 40ms + 60ms); }
+  .js details.all:not(.shown) .full tbody tr { opacity: 0; transform: translateY(10px); }
+  details.all.closing .full tbody tr { transition-duration: .2s; transition-delay: 0s; }
+  .full { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   .full th, .full td { text-align: left; padding: .7rem 1.1rem; border-top: 1px solid var(--line); }
   .full th { font-weight: 400; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
   .full td { color: var(--dim); }
@@ -317,10 +472,10 @@
   .int-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.2rem; margin-top: 3.5rem; align-items: start; }
   @media (max-width: 960px) { .int-grid { grid-template-columns: 1fr; } }
   .int-grid > * { min-width: 0; }
-  .code-body { position: relative; z-index: 0; padding: 1.2rem 1.4rem; overflow-x: auto; font-size: 13.5px; line-height: 1.85; }
-  .ln { position: relative; white-space: pre; color: var(--dim); }
-  .ln.lit { color: var(--text); }
-  .ln.hl::before { content: ""; position: absolute; z-index: -1; top: 0; bottom: 0; left: -1.4rem; right: -1.4rem; border-left: 2px solid var(--warn); background: rgba(245, 165, 36, .13); }
+  .code-body { position: relative; z-index: 0; padding: 1.4rem 1.6rem; overflow: hidden; font-size: 14.5px; line-height: 2; }
+  .ln { position: relative; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--faint); filter: blur(2.5px); user-select: none; }
+  .ln.lit { color: var(--text); filter: none; user-select: text; }
+  .ln.hl::before { content: ""; position: absolute; z-index: -1; top: 0; bottom: 0; left: -1.4rem; right: -1.4rem; border-left: 2px solid var(--good); background: rgba(52, 211, 153, .07); }
   .js [data-play]:not(.on) .ln.hl::before { opacity: 0; }
   .on .ln.hl::before { animation: fadeIn .5s backwards; animation-delay: calc(var(--m) * 1ms); }
   .you { padding: 1.6rem; }
@@ -328,6 +483,30 @@
   .chips { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .7rem; }
   .chips span { padding: .3rem .8rem; border-radius: 99px; border: 1px solid var(--line); font-size: 12.5px; }
   .you .fine { margin-top: .7rem; font-size: 12.5px; color: var(--faint); }
+
+  /* Receipt: verify() output as a checklist that ticks in, beside what the receipt handles. */
+  .receipt-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.2rem; margin-top: 3.5rem; align-items: start; }
+  @media (max-width: 960px) { .receipt-grid { grid-template-columns: 1fr; } }
+  .receipt-grid > * { min-width: 0; }
+  .proof { list-style: none; margin: 0; padding: .4rem 1.3rem 1rem; }
+  .proof li { display: flex; gap: .85rem; align-items: flex-start; padding: .85rem 0; }
+  .proof li + li { border-top: 1px solid var(--line); }
+  .proof li svg { flex: none; width: 20px; height: 20px; margin-top: 2px; color: var(--good); }
+  .proof li b { display: block; font-size: 15.5px; }
+  .proof li span { display: block; font-size: 13.5px; color: var(--dim); }
+
+  /* Approvals: the stale-approval timeline reuses the event cards; the result card is the good twin of .outcome. */
+  .events.three { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 960px) { .events.three { grid-template-columns: 1fr; } }
+  .outcome.good { border-color: rgba(52, 211, 153, .45); }
+  .outcome.good .who { color: var(--good); }
+  .score-row.us .bar i { background: var(--good); }
+
+  /* Add it, zero-code variant */
+  .zero { margin-top: 1.2rem; padding: 1.3rem 1.6rem; }
+  .zero p { color: var(--dim); font-size: 15px; }
+  .zero b { color: var(--text); }
+  .zero .cmd { margin-top: .7rem; color: var(--text); font-size: 13.5px; overflow-wrap: anywhere; }
 
   /* FAQ */
   .faq { margin-top: 3.5rem; overflow: hidden; }
@@ -344,6 +523,9 @@
   .final-card .mark { width: 44px; height: 44px; margin-bottom: 1.2rem; }
   footer { border-top: 1px solid var(--line); padding-block: 2rem; font-size: 12px; line-height: 1.6; color: var(--faint); letter-spacing: .04em; }
   footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; }
+  .foot-links { display: flex; flex-wrap: wrap; gap: 0 1.4rem; width: 100%; font-size: 14px; letter-spacing: 0; }
+  .foot-links a { padding-block: .6rem; color: var(--dim); text-decoration: none; transition: color .2s var(--ease); }
+  .foot-links a:hover { color: var(--text); }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: .001ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
@@ -364,6 +546,7 @@
   <symbol id="i-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/></g></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></g></symbol>
   <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 5v14l11-7z" fill="currentColor"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></symbol>
 </svg>
 
 <header class="nav">
@@ -377,10 +560,11 @@
         <a href="#tested">Tested</a>
         <a href="#problem">The problem</a>
         <a href="#fix">How Interlock works</a>
+        <a href="#approvals">Approvals</a>
         <a href="#compare">Other tools</a>
         <a href="#add">Add Interlock</a>
       </nav>
-      <a class="btn btn-sm" href="https://github.com/shawnzhu02/Interlock">Get Interlock</a>
+      <a class="btn btn-sm" href="https://github.com/az-said/Interlock">Get Interlock</a>
     </div>
   </div>
 </header>
@@ -393,14 +577,14 @@
     <div class="wrap hero-grid">
       <div>
         <h1 class="in" style="--d:80">Your AI agent refunded a customer. <em>Then it crashed.</em></h1>
-        <p class="lede in" style="--d:160">Did the refund go through? Is it safe to try again? Right now nothing can tell you, so customers get paid back twice, or not at all. Interlock checks before anything is sent a second time.</p>
+        <p class="lede in" style="--d:160">Interlock gives every agent action a receipt: proof it happened once, was allowed when it fired, and still made sense, even through a crash.</p>
         <div class="in" style="--d:240;margin-top:2rem">
-          <a class="btn" href="https://github.com/shawnzhu02/Interlock">Get Interlock <span aria-hidden="true">&rarr;</span></a>
+          <a class="btn" href="https://github.com/az-said/Interlock">Get Interlock <span aria-hidden="true">&rarr;</span></a>
           <p class="micro">Open source · Python · MIT licensed</p>
         </div>
       </div>
 
-      <div class="glass win hero-run busy crashed in" style="--d:200" data-hero>
+      <div class="glass win hero-run busy crashed resolved in" style="--d:200" data-hero>
         <div class="win-bar"><i></i><i></i><i></i><span class="title">support · case #4471</span>
           <button class="replay" type="button" data-replay aria-label="Replay the crash"><svg width="10" height="10" aria-hidden="true"><use href="#i-play"/></svg>Replay</button>
         </div>
@@ -436,6 +620,12 @@
             <svg aria-hidden="true"><use href="#i-alert"/></svg>
             <div><b>Agent crashed mid-refund</b><span>The payment service got the request. Your records never heard back.</span></div>
           </div>
+
+          <!-- What happens next, both ways. The "crash after sending, before the reply" row of results/refund_agent.md. -->
+          <div class="outcomes">
+            <div class="oc bad"><p class="oc-k">Without Interlock</p><p class="oc-v">$40 refunded</p><p class="oc-s">The agent restarts and sends the refund again.</p></div>
+            <div class="oc good"><p class="oc-k">With Interlock</p><p class="oc-v">$20 refunded</p><p class="oc-s">Interlock finds the refund already landed and sends nothing.</p></div>
+          </div>
         </div>
       </div>
     </div>
@@ -445,34 +635,33 @@
        results/refund_agent.md. The full table stays one click away for engineers. -->
   <section id="tested" class="scene scene-dusk pad" data-play>
     <div class="wrap">
-      <h2 class="in" style="--d:80">We broke a $20 refund 10 ways. <em>Here's who paid out wrong.</em></h2>
-      <p class="lede in" style="--d:160">Crashes at every step, duplicate requests, a model that changes its mind, a person refunding by hand, permission pulled mid-flight. Same faults for every approach.</p>
+      <h2 class="in" style="--d:0">We broke a $20 refund 10 ways. <em>Here's who paid out wrong.</em></h2>
+      <p class="lede in" style="--d:40">Crashes at every step, duplicate requests, a model that changes its mind, a person refunding by hand, permission pulled mid-flight. Same faults for every approach.</p>
 
-      <div class="glass score in" style="--d:250">
+      <div class="glass score in" style="--d:80">
         <p class="score-label">Wrong outcomes, out of 10 faults</p>
-        <div class="score-row" style="margin-top:.6rem"><p class="name">Plain retry<small>What most agents do today</small></p><div class="bar"><i style="--v:9;--d:500"></i></div><p class="n" data-count="9" data-delay="500">9</p></div>
-        <div class="score-row"><p class="name">Request IDs<small>The standard fix</small></p><div class="bar"><i style="--v:5;--d:750"></i></div><p class="n" data-count="5" data-delay="750">5</p></div>
-        <div class="score-row"><p class="name">Durable workflows<small>Temporal-style, used as documented</small></p><div class="bar"><i style="--v:5;--d:1000"></i></div><p class="n" data-count="5" data-delay="1000">5</p></div>
-        <div class="score-row us"><p class="name">Interlock<small>Same faults, same service</small></p><div class="bar"><i style="--v:0;--d:1250"></i></div><p class="n" data-count="0" data-delay="1250">0</p></div>
-        <p class="score-note">Honest limits: the payment service is a simulation and the faults are injected on purpose. Against a service that can neither ignore repeats nor be looked up, Interlock gets 0 wrong by <b>flagging 5 of the 10 cases for a person</b> instead of guessing. A real Stripe connection is not built yet.</p>
+        <div class="score-row" style="margin-top:.6rem"><p class="name">Plain retry<small>What most agents do today</small></p><div class="bar"><i style="--v:9;--d:150"></i></div><p class="n" data-count="9" data-delay="150">9</p></div>
+        <div class="score-row"><p class="name">Request IDs<small>The standard fix</small></p><div class="bar"><i style="--v:5;--d:200"></i></div><p class="n" data-count="5" data-delay="200">5</p></div>
+        <div class="score-row"><p class="name">Durable workflows<small>Temporal-style, used as documented</small></p><div class="bar"><i style="--v:5;--d:250"></i></div><p class="n" data-count="5" data-delay="250">5</p></div>
+        <div class="score-row us"><p class="name">Interlock<small>Same faults, same service</small></p><div class="bar"><i style="--v:0;--d:300"></i></div><p class="n" data-count="0" data-delay="300">0</p></div>
       </div>
 
-      <details class="glass all in" style="--d:350">
+      <details class="glass all in" style="--d:120">
         <summary>See all 10 faults</summary>
-        <div class="scroll">
+        <div class="scroll panel">
           <table class="full">
             <thead><tr><th>Fault</th><th>Plain retry</th><th>Request IDs</th><th>Durable workflows</th><th>Interlock</th></tr></thead>
             <tbody>
-              <tr><td>Crash before the refund is sent</td><td class="v">$20</td><td class="v">$20</td><td class="v">$20</td><td class="v">$20</td></tr>
-              <tr><td>Crash after sending, before the reply</td><td class="x">$40</td><td class="v">$20</td><td class="v">$20</td><td class="v">$20</td></tr>
-              <tr><td>Same request submitted twice</td><td class="x">$40</td><td class="v">$20</td><td class="v">$20</td><td class="v">$20</td></tr>
-              <tr><td>Model says $30 on the retry</td><td class="x">$50</td><td class="v">$20</td><td class="v">$20</td><td class="v">$20, $30 refused</td></tr>
-              <tr><td>Same request, different amount</td><td class="x">$50</td><td class="v">$20</td><td class="v">$20</td><td class="v">refused</td></tr>
-              <tr><td>Permission pulled before the refund lands</td><td class="x">refunded</td><td class="x">refunded</td><td class="x">refunded</td><td class="v">refused</td></tr>
-              <tr><td>Order stops being eligible</td><td class="x">refunded</td><td class="x">refunded</td><td class="x">refunded</td><td class="v">refused</td></tr>
-              <tr><td>Support refunds by hand during the outage</td><td class="x">$40</td><td class="x">$40</td><td class="x">$40</td><td class="v">$20, retry refused</td></tr>
-              <tr><td>Permission pulled during the outage</td><td class="x">refunded</td><td class="x">refunded</td><td class="x">refunded</td><td class="v">refused</td></tr>
-              <tr><td>Retry after the 24-hour ID window</td><td class="x">$40</td><td class="x">$40</td><td class="x">$40</td><td class="v">$20, found by lookup</td></tr>
+              <tr><td>Crash before the refund is sent</td><td data-label="Plain retry" class="v">$20</td><td data-label="Request IDs" class="v">$20</td><td data-label="Durable workflows" class="v">$20</td><td data-label="Interlock" class="v">$20</td></tr>
+              <tr><td>Crash after sending, before the reply</td><td data-label="Plain retry" class="x">$40</td><td data-label="Request IDs" class="v">$20</td><td data-label="Durable workflows" class="v">$20</td><td data-label="Interlock" class="v">$20</td></tr>
+              <tr><td>Same request submitted twice</td><td data-label="Plain retry" class="x">$40</td><td data-label="Request IDs" class="v">$20</td><td data-label="Durable workflows" class="v">$20</td><td data-label="Interlock" class="v">$20</td></tr>
+              <tr><td>Model says $30 on the retry</td><td data-label="Plain retry" class="x">$50</td><td data-label="Request IDs" class="v">$20</td><td data-label="Durable workflows" class="v">$20</td><td data-label="Interlock" class="v">$20, $30 refused</td></tr>
+              <tr><td>Same request, different amount</td><td data-label="Plain retry" class="x">$50</td><td data-label="Request IDs" class="v">$20</td><td data-label="Durable workflows" class="v">$20</td><td data-label="Interlock" class="v">refused</td></tr>
+              <tr><td>Permission pulled before the refund lands</td><td data-label="Plain retry" class="x">refunded</td><td data-label="Request IDs" class="x">refunded</td><td data-label="Durable workflows" class="x">refunded</td><td data-label="Interlock" class="v">refused</td></tr>
+              <tr><td>Order stops being eligible</td><td data-label="Plain retry" class="x">refunded</td><td data-label="Request IDs" class="x">refunded</td><td data-label="Durable workflows" class="x">refunded</td><td data-label="Interlock" class="v">refused</td></tr>
+              <tr><td>Support refunds by hand during the outage</td><td data-label="Plain retry" class="x">$40</td><td data-label="Request IDs" class="x">$40</td><td data-label="Durable workflows" class="x">$40</td><td data-label="Interlock" class="v">$20, retry refused</td></tr>
+              <tr><td>Permission pulled during the outage</td><td data-label="Plain retry" class="x">refunded</td><td data-label="Request IDs" class="x">refunded</td><td data-label="Durable workflows" class="x">refunded</td><td data-label="Interlock" class="v">refused</td></tr>
+              <tr><td>Retry after the 24-hour ID window</td><td data-label="Plain retry" class="x">$40</td><td data-label="Request IDs" class="x">$40</td><td data-label="Durable workflows" class="x">$40</td><td data-label="Interlock" class="v">$20, found by lookup</td></tr>
             </tbody>
           </table>
         </div>
@@ -613,6 +802,128 @@
     </div>
   </section>
 
+  <!-- Try it yourself. Four faults from the tested table, replayed from the gate's real journal
+       (viewer/traces.js, built by viewer/build.py from experiments/refund_agent.py). The code is
+       the real integration; each step lights the lines it depends on. Only the pacing is added. -->
+  <section id="demo" class="dark pad" data-play>
+    <span class="blob" style="--tone:var(--blue);width:720px;height:720px;right:-180px;top:-120px;opacity:.36"></span>
+    <div class="wrap">
+      <h2 class="in" style="--d:80">Pick what goes wrong. <em>Watch the refund come out right.</em></h2>
+      <p class="lede in" style="--d:160">Choose a fault and press play. Every journal entry on the right comes from the recorded test run, slowed down so you can follow it.</p>
+
+      <div class="glass dm in" style="--d:250" data-demo>
+        <div class="dm-bar">
+          <select class="dm-pick" data-scenario aria-label="Fault to replay">
+            <option value="outage">Support refunds by hand during the outage</option>
+            <option value="revoked">Permission pulled during the outage</option>
+            <option value="expired">Retry after the 24-hour ID window</option>
+            <option value="redecide">Model says $30 on the retry</option>
+          </select>
+          <ol class="dm-steps">
+            <li><button type="button" data-step="1">Agent decides</button></li>
+            <li><button type="button" data-step="2">Something breaks</button></li>
+            <li><button type="button" data-step="3">Interlock checks</button></li>
+          </ol>
+          <div class="dm-actions">
+            <button type="button" class="dm-play" data-play-demo><svg width="10" height="10" aria-hidden="true"><use href="#i-play"/></svg>Play</button>
+            <button type="button" class="dm-reset" data-reset>Start over</button>
+          </div>
+        </div>
+        <div class="dm-rail"><i></i></div>
+
+        <div class="dm-grid">
+          <div class="dm-left">
+            <div class="dm-win">
+              <div class="dm-head"><span>Your code</span><button type="button" class="dm-copy" data-copy>Copy</button></div>
+              <div class="dm-code" data-code="python">
+<div class="dm-ln">from interlock import Interlock</div>
+<div class="dm-ln">gate = Interlock(".interlock")</div>
+<div class="dm-ln"> </div>
+<div class="dm-ln" data-k="decide key">@gate.effect(</div>
+<div class="dm-ln" data-k="decide key">    key=lambda order, amount: f"refund:{order}",</div>
+<div class="dm-ln" data-k="decide facts">    premises=lambda order, amount, idempotency_key: {</div>
+<div class="dm-ln" data-k="decide facts">        "eligible": is_eligible(order),</div>
+<div class="dm-ln" data-k="decide facts">        "refunded_by_others": refunded_total(order, excluding=idempotency_key)},</div>
+<div class="dm-ln" data-k="decide allowed">    allowed=lambda order, amount: can_refund(order),</div>
+<div class="dm-ln" data-k="lookup">    lookup=lambda order, amount, idempotency_key: refund_exists(idempotency_key),</div>
+<div class="dm-ln" data-k="decide">    dedupes=True)</div>
+<div class="dm-ln" data-k="send">def refund_money(order, amount, idempotency_key):</div>
+<div class="dm-ln" data-k="send">    return stripe.Refund.create(charge=charge_for(order), amount=amount,</div>
+<div class="dm-ln" data-k="send">                                idempotency_key=idempotency_key)</div>
+<div class="dm-ln"> </div>
+<div class="dm-ln" data-k="recover">gate.recover()   # once, on startup</div>
+              </div>
+              <div class="dm-code" data-code="temporal" hidden>
+<div class="dm-ln">from interlock.temporal import gated</div>
+<div class="dm-ln"> </div>
+<div class="dm-ln" data-k="decide">@activity.defn</div>
+<div class="dm-ln" data-k="decide">def refund(order: str, amount: int) -> str:</div>
+<div class="dm-ln" data-k="recover">    # recovers this refund if a crash left it in flight, else submits</div>
+<div class="dm-ln" data-k="decide recover facts allowed lookup key">    return gated(refund_money.gate, refund_money.proposal(order, amount))</div>
+<div class="dm-ln"> </div>
+<div class="dm-ln">@workflow.defn</div>
+<div class="dm-ln">class RefundWorkflow:</div>
+<div class="dm-ln">    @workflow.run</div>
+<div class="dm-ln">    async def run(self, order: str) -> str:</div>
+<div class="dm-ln" data-k="send">        return await workflow.execute_activity(</div>
+<div class="dm-ln" data-k="send">            refund, args=[order, 20],</div>
+<div class="dm-ln">            start_to_close_timeout=timedelta(seconds=30),</div>
+<div class="dm-ln" data-k="recover">            retry_policy=RetryPolicy(maximum_attempts=5))</div>
+              </div>
+              <div class="dm-code" data-code="mcp" hidden>
+<div class="dm-ln">{</div>
+<div class="dm-ln">  "journal_dir": ".interlock/mcp",</div>
+<div class="dm-ln">  "tools": {</div>
+<div class="dm-ln" data-k="send">    "create_refund": {</div>
+<div class="dm-ln" data-k="decide key">      "key": ["order_id"],</div>
+<div class="dm-ln" data-k="decide facts">      "premises": {"tool": "get_order",</div>
+<div class="dm-ln" data-k="decide facts">                   "arguments": {"order_id": "order_id"},</div>
+<div class="dm-ln" data-k="decide facts">                   "fields": ["refunded_total"]},</div>
+<div class="dm-ln" data-k="lookup">      "lookup": {"tool": "find_refund",</div>
+<div class="dm-ln" data-k="lookup">                 "arguments": {"reference": "$effect_id"}, "found": "found"},</div>
+<div class="dm-ln" data-k="send">      "idempotency_argument": "reference",</div>
+<div class="dm-ln">      "dedupes": false</div>
+<div class="dm-ln">    }</div>
+<div class="dm-ln">  }</div>
+<div class="dm-ln">}</div>
+<div class="dm-ln"> </div>
+<div class="dm-ln" data-k="recover">$ python3 -m interlock.mcp_proxy --config interlock.mcp.json -- python3 payments_server.py</div>
+              </div>
+              <div class="dm-tabs" role="group" aria-label="Integration">
+                <button type="button" aria-pressed="true" data-tab="python">Python</button>
+                <button type="button" aria-pressed="false" data-tab="temporal">Temporal activity</button>
+                <button type="button" aria-pressed="false" data-tab="mcp">MCP proxy, no code</button>
+              </div>
+            </div>
+
+            <div class="dm-win">
+              <div class="dm-head"><span>Console</span></div>
+              <div class="dm-console" data-console aria-live="polite"><p class="dim"># Press Play to replay the recorded run.</p></div>
+            </div>
+          </div>
+
+          <div class="dm-win dm-right">
+            <div class="trace dm-trace" data-demo-trace data-total="9000" data-stop="9000" data-done="Refused" data-end-tone="good">
+              <div class="tr-head"><span class="dot"></span><b>order 881</b><span class="muted">refund-agent + interlock</span><span class="pill" data-status>Ready</span></div>
+              <div class="tr-body">
+                <div class="tr-grid"></div>
+                <ol class="tr-rows"></ol>
+                <div class="tr-play"><div></div></div>
+              </div>
+              <div class="tr-foot"><div class="tr-rail"><i></i></div><span data-clock>0.00s / 9.00s</span></div>
+            </div>
+            <div class="dm-score">
+              <p>Plain retry<b data-s="naive"></b></p>
+              <p>Request IDs<b data-s="idem"></b></p>
+              <p>Interlock<b data-s="gate"></b></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="dm-note in" style="--d:300">Amounts refunded on a $20 refund. Journal entries and totals are from experiments/refund_agent.py, the same run as the table above.</p>
+    </div>
+  </section>
+
   <!-- The before and after, side by side, same events. Ported from the video's Result scene. -->
   <section class="scene scene-dolomites pad" data-play>
     <div class="wrap">
@@ -643,6 +954,105 @@
     </div>
   </section>
 
+  <!-- The receipt. Each line is a claim interlock/receipts.py verify() re-derives from the
+       hash-chained journal entries alone; tampering and forged signatures fail the check. -->
+  <section id="receipt" class="dark pad" data-play>
+    <span class="blob" style="--tone:var(--good);width:640px;height:640px;left:-160px;top:-120px;opacity:.16"></span>
+    <span class="blob" style="--tone:var(--blue);width:720px;height:720px;right:-200px;bottom:-200px;opacity:.36;animation-delay:-7s"></span>
+    <div class="wrap">
+      <h2 class="in" style="--d:80">Every action gets a receipt. <em>Anyone can check it.</em></h2>
+      <p class="lede in" style="--d:160">Not a log you have to take on trust. Each step is chained to the one before, so changing an amount or deleting a step breaks the chain. Hand the receipt to the payment service or an auditor and they can confirm the same story.</p>
+
+      <div class="receipt-grid">
+        <div class="glass win in" style="--d:250">
+          <div class="win-bar"><i></i><i></i><i></i><span class="title">interlock-verify receipt.json</span></div>
+          <ul class="proof">
+            <li class="in" style="--d:500"><svg aria-hidden="true"><use href="#i-check"/></svg><span><b>Happened once</b>One $20 refund on order 881, never sent twice</span></li>
+            <li class="in" style="--d:750"><svg aria-hidden="true"><use href="#i-check"/></svg><span><b>Allowed when it fired</b>Refund permission checked right before the send, not only when the agent decided</span></li>
+            <li class="in" style="--d:1000"><svg aria-hidden="true"><use href="#i-check"/></svg><span><b>Still made sense</b>"Nothing refunded yet" checked again right before the send</span></li>
+            <li class="in" style="--d:1250"><svg aria-hidden="true"><use href="#i-check"/></svg><span><b>Nothing edited</b>Every step is chained to the step before it</span></li>
+            <li class="in" style="--d:1500"><svg aria-hidden="true"><use href="#i-check"/></svg><span><b>Both sides agree</b>Signed with a key the payment service also holds</span></li>
+          </ul>
+        </div>
+        <div class="glass steps in" style="--d:400">
+          <div class="step"><p class="k">After a crash nobody can resolve</p><p>The receipt says unknown instead of guessing, and the case goes to a person.</p></div>
+          <div class="step"><p class="k">If someone edits the record</p><p>Change $20 to $2,000 anywhere in the receipt and the check fails, naming the step that was changed.</p></div>
+          <div class="step"><p class="k">Checked on real services</p><p>Three of the faults ran against Stripe in test mode and four against a real Temporal server, with the same results.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- The approvals goal, as money, in the order the pitch says it: what manual control costs today,
+       what teams do with agents right now, then the calculator. Every stat names its source on the page;
+       stats without a findable source were left out. The calculator is experiments/approval_cost.py with
+       the same defaults. The 33% reviewed share is results/approval_inbox.md, a synthetic day. -->
+  <section id="approvals" class="scene scene-ridges pad" data-play>
+    <div class="wrap">
+      <h2 class="in" style="--d:80">Fewer approvals. <em>Zero wrong refunds.</em></h2>
+      <p class="lede in" style="--d:160">Finance teams put a person on every action their agents take, and that person becomes the bottleneck. Most of what they check is mechanical: is the order still eligible, was it already refunded, is this still allowed. Interlock checks exactly that at the moment of sending, so people only review what needs judgment.</p>
+
+      <div class="money-grid">
+        <div class="glass money in" style="--d:250">
+          <h3>By hand today</h3>
+          <div class="stat"><b>0.8% to 2%</b><p>of payments go out duplicated or wrong, from the best finance teams to the worst.</p><cite><a target="_blank" rel="noopener" href="https://www.apqc.org/resources/benchmarking/open-standards-benchmarking/measures/percentage-total-annual-number">APQC accounts payable benchmark</a></cite></div>
+          <div class="stat"><b>0.1% to 0.5%</b><p>paid twice, even at careful organizations.</p><cite><a target="_blank" rel="noopener" href="https://www.iofm.com/ap/process-improvement/payment/duplicate-payment-prevent">IOFM</a></cite></div>
+          <div class="stat"><b>$15 to $16</b><p>to handle one invoice by hand, most of it people's time.</p><cite>IOFM and Levvel Research benchmarks, labor share (62%) from APQC, <a target="_blank" rel="noopener" href="https://resolvepay.com/blog/13-statistics-that-quantify-cost-per-invoice-in-manual-vs-automated-flows">as compiled by Resolve</a></cite></div>
+        </div>
+        <div class="glass money in" style="--d:350">
+          <h3>With agents, right now</h3>
+          <div class="stat"><b>Under 15%</b><p>of finance leaders let AI act on its own in six of seven processes. The usual setup: AI recommends, a person approves.</p><cite><a target="_blank" rel="noopener" href="https://www.journalofaccountancy.com/news/2026/jul/are-finance-leaders-moving-too-fast-on-agentic-ai/">Avalara survey of 1,500+ finance leaders with agentic AI experience</a></cite></div>
+          <div class="stat"><b>23%</b><p>say it would be unclear who is accountable for a serious AI error.</p><cite><a target="_blank" rel="noopener" href="https://www.journalofaccountancy.com/news/2026/jul/are-finance-leaders-moving-too-fast-on-agentic-ai/">Same Avalara survey</a></cite></div>
+          <div class="stat"><b>95.5%</b><p>of organizations added a safeguard after an AI agent incident, most often a person in the loop.</p><cite><a target="_blank" rel="noopener" href="https://www.avepoint.com/blog/strategy-blog/human-in-the-loop-ai">AvePoint</a>, <a target="_blank" rel="noopener" href="https://www.avepoint.com/blog/manage/state-of-ai-2026-report">State of AI 2026</a>: 750 IT leaders in financial services, healthcare and government</cite></div>
+        </div>
+      </div>
+
+      <div class="glass loss in" style="--d:300" data-calc>
+        <div class="loss-head">
+          <p class="loss-title">What approving every agent action costs a year</p>
+        </div>
+        <p class="calc-line">A person's approval costs <b data-out="per">$4.17</b> and grows with every action. A receipt takes no reviewer time. With rules plus Interlock, a person reviews <b data-out="share">33%</b> of actions, the ones that need judgment.</p>
+        <div class="calc-in">
+          <label>Agent actions a day<input type="number" name="actions" value="2000" min="0" step="100" inputmode="numeric"></label>
+          <label>Minutes per review<input type="number" name="minutes" value="5" min="0" step="0.5" inputmode="decimal"></label>
+          <label>Loaded cost per hour ($)<input type="number" name="hourly" value="50" min="0" step="5" inputmode="decimal"></label>
+          <label>Working days a year<input type="number" name="days" value="250" min="0" step="10" inputmode="numeric"></label>
+          <label>Still reviewed with Interlock (%)<input type="number" name="share" value="33" min="0" max="100" step="1" inputmode="numeric"></label>
+        </div>
+        <div class="loss-grid">
+          <div class="loss-card"><p class="loss-who">Every action approved</p><p class="loss-n bad" data-out="all">$2,083,333</p><p class="loss-sub">in review time a year</p></div>
+          <div class="loss-card"><p class="loss-who">Rules plus Interlock</p><p class="loss-n" data-out="with">$687,500</p><p class="loss-sub">in review time a year</p></div>
+          <div class="loss-card us"><p class="loss-who">Saved</p><p class="loss-n good" data-out="saved">$1,395,833</p><p class="loss-sub">a year, before recovered duplicate payments</p></div>
+        </div>
+        <p class="calc-note">Labor only. The 33% comes from a synthetic day of 100 refund requests (results/approval_inbox.md), so treat it as an assumption and change it. The same math, with every assumption as a flag: <code>python3 experiments/approval_cost.py</code></p>
+      </div>
+
+      <div class="events three">
+        <article class="glass event in" style="--d:400">
+          <p class="who"><svg aria-hidden="true"><use href="#i-user"/></svg>9:00 · Manager</p>
+          <h3>Approves a $120 refund</h3>
+          <p>Sees: nothing refunded yet</p>
+        </article>
+        <article class="glass event in" style="--d:750">
+          <p class="who amber"><svg aria-hidden="true"><use href="#i-user"/></svg>11:40 · Support rep</p>
+          <h3>Refunds the $120 by hand</h3>
+          <p>The customer called in</p>
+        </article>
+        <article class="glass event in" style="--d:1100">
+          <p class="who"><svg aria-hidden="true"><use href="#i-bot"/></svg>15:00 · Agent</p>
+          <h3>Sends the approved refund</h3>
+          <p>Interlock checks the facts the manager saw</p>
+        </article>
+      </div>
+
+      <article class="glass outcome good in" style="--d:1500">
+        <p class="who"><svg aria-hidden="true"><use href="#i-shield"/></svg>Refused and sent back to the manager</p>
+        <h3>The approval went stale. No second refund.</h3>
+        <p>The refund returns to the queue saying what changed since it was approved. Approvals can also expire, and stop working the moment the approver loses access.</p>
+      </article>
+    </div>
+  </section>
+
   <!-- The judge's first question: what exists, and what does it miss. Three plain columns a
        non-engineer can read. Classification follows docs/03-landscape.md. -->
   <section id="compare" class="dark pad" data-play>
@@ -656,17 +1066,16 @@
         <div class="scroll">
           <table>
             <thead>
-              <tr><th style="width:30%">Tool</th><th>Picks up after a crash</th><th>Won't repeat the same request</th><th>Checks the reason still holds</th></tr>
+              <tr><th style="width:24%"></th><th>Request IDs<span>Stripe and most payment services</span></th><th>Durable workflows<span>Temporal, Restate, DBOS</span></th><th>Agent checkpoints<span>LangGraph</span></th><th class="us">Interlock<span>Needs none of these. Fits inside them.</span></th></tr>
             </thead>
             <tbody>
-              <tr class="in" style="--d:450"><td><b>Request IDs</b><span>Stripe and most payment services</span></td><td><span class="no-mark"><svg aria-hidden="true"><use href="#i-x"/></svg>No</span></td><td><span class="part"><svg width="17" height="17" aria-hidden="true"><use href="#i-check"/></svg>Same request only</span></td><td><span class="no-mark"><svg aria-hidden="true"><use href="#i-x"/></svg>No</span></td></tr>
-              <tr class="in" style="--d:700"><td><b>Durable workflows</b><span>Temporal, Restate, DBOS</span></td><td><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes</span></td><td><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes, with an ID</span></td><td><span class="no-mark"><svg aria-hidden="true"><use href="#i-x"/></svg>No, replays the old decision</span></td></tr>
-              <tr class="in" style="--d:950"><td><b>Agent checkpoints</b><span>LangGraph</span></td><td><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes</span></td><td><span class="no-mark"><svg aria-hidden="true"><use href="#i-x"/></svg>No</span></td><td><span class="no-mark"><svg aria-hidden="true"><use href="#i-x"/></svg>No</span></td></tr>
-              <tr class="us in" style="--d:1300"><td><b>Interlock</b><span>Works alongside any of these</span></td><td><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes</span></td><td><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes</span></td><td><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes, before every send</span></td></tr>
+              <tr class="in" style="--d:450"><td>Picks up after a crash</td><td data-label="Request IDs"><span class="no-mark"><svg aria-hidden="true"><use href="#i-x"/></svg>No</span></td><td data-label="Durable workflows"><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes</span></td><td data-label="Agent checkpoints"><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes</span></td><td data-label="Interlock" class="us"><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes</span></td></tr>
+              <tr class="in" style="--d:700"><td>Won't repeat the same request</td><td data-label="Request IDs"><span class="part"><svg width="17" height="17" aria-hidden="true"><use href="#i-check"/></svg>Same request only</span></td><td data-label="Durable workflows"><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes, with an ID</span></td><td data-label="Agent checkpoints"><span class="no-mark"><svg aria-hidden="true"><use href="#i-x"/></svg>No</span></td><td data-label="Interlock" class="us"><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes</span></td></tr>
+              <tr class="in" style="--d:950"><td>Checks the reason still holds</td><td data-label="Request IDs"><span class="no-mark"><svg aria-hidden="true"><use href="#i-x"/></svg>No</span></td><td data-label="Durable workflows"><span class="no-mark"><svg aria-hidden="true"><use href="#i-x"/></svg>No, replays the old decision</span></td><td data-label="Agent checkpoints"><span class="no-mark"><svg aria-hidden="true"><use href="#i-x"/></svg>No</span></td><td data-label="Interlock" class="us"><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes, before every send</span></td></tr>
+              <tr class="in" style="--d:1200"><td>Gives a receipt both sides can check</td><td data-label="Request IDs"><span class="part"><svg width="17" height="17" aria-hidden="true"><use href="#i-check"/></svg>The service's own record</span></td><td data-label="Durable workflows"><span class="part"><svg width="17" height="17" aria-hidden="true"><use href="#i-check"/></svg>Internal history only</span></td><td data-label="Agent checkpoints"><span class="no-mark"><svg aria-hidden="true"><use href="#i-x"/></svg>No</span></td><td data-label="Interlock" class="us"><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>Yes, chained and signed</span></td></tr>
             </tbody>
           </table>
         </div>
-        <p class="cmp-note">Research papers this summer (ATR from Huawei, Cordon from Tsinghua) each cover a piece. None re-checks the facts after a crash, and none ships a working library.</p>
       </div>
     </div>
   </section>
@@ -706,15 +1115,19 @@
           <div class="step in" style="--d:2100"><p class="k">You list the facts</p><p>What the decision depends on. The one thing no library can guess for you.</p></div>
           <div class="step in" style="--d:2700"><p class="k">You say how the service helps</p><p>The service ignores repeats, can be looked up, or neither.</p></div>
           <div class="step in" style="--d:3300"><p class="k">Interlock runs inside</p>
-            <div class="chips"><span>plain Python</span><span>a Temporal activity</span><span>a LangGraph tool</span></div>
-            <p class="fine">Framework examples are sketches in docs/04-integration.md, not packaged adapters yet.</p>
+            <div class="chips"><span>plain Python</span><span>a Temporal activity</span><span>an MCP server</span><span>a LangGraph tool</span></div>
           </div>
         </div>
+      </div>
+
+      <div class="glass zero in" style="--d:500">
+        <p><b>Or change no code at all.</b> Put Interlock in front of the MCP server your agent already uses, and name the tools that move money. Every other message passes straight through.</p>
+        <p class="cmd">python3 -m interlock.mcp_proxy --config interlock.mcp.json -- python3 payments_server.py</p>
       </div>
     </div>
   </section>
 
-  <!-- The three objections a non-engineer buyer or a judge actually raises. -->
+  <!-- The objections a buyer or a judge actually raises. Speed and hand-check answers are results/e2e_live.md. -->
   <section class="scene scene-summit pad" data-play style="background-image:none">
     <div class="wrap">
       <h2 class="in" style="--d:80">The fair questions.</h2>
@@ -724,12 +1137,24 @@
           <p>For a plain crash or a double click, yes, and you should keep using them. They can't help when something changes while your agent is down, like a person refunding by hand or a permission being pulled. The ID only knows the request, not the reason behind it.</p>
         </details>
         <details>
-          <summary>We run agents on Temporal. Doesn't that handle crashes?</summary>
-          <p>Temporal picks up where the crash left off, which is the right tool for that job. Temporal replays the decision the agent already made instead of asking whether it still holds. Interlock runs inside a Temporal step and adds that check.</p>
+          <summary>Do we need Temporal? We already run it.</summary>
+          <p>You don't need it. Interlock works in plain Python, or in front of the MCP server your agent already uses. If you run Temporal, keep it: it picks up where a crash left off, and Interlock can be the step that sends the refund, checking whether the reason still holds. On a real Temporal server, a hand refund during an outage became $40 with Temporal alone and $20 with Interlock inside the step.</p>
+        </details>
+        <details>
+          <summary>Does Interlock replace the people who approve refunds?</summary>
+          <p>Only the mechanical part of their work. Checking that an order is still eligible, that nothing was already refunded, and that the agent is still allowed happens automatically, right before every send. Deciding whether a $400 refund for a flagged customer is fair stays with a person. When a person does approve, Interlock checks the facts they saw again at the moment the refund goes out, so a stale approval can't pay out twice.</p>
+        </details>
+        <details>
+          <summary>Couldn't we write this check ourselves?</summary>
+          <p>Yes, and on money it would tie. In our live runs, a careful hand-written check left Stripe with the same refunds as Interlock in every case. Interlock is that check written once instead of in every step, plus a claim so two workers can't both send, an honest "can't tell" when nobody can know, and a receipt that proves what happened.</p>
+        </details>
+        <details>
+          <summary>How much does it slow things down?</summary>
+          <p>An ordinary send adds a journal write and one more read of the facts. Recovery is slower: in our live runs the median from crash to a closed case was 43 seconds with Interlock, against 15 to 16 seconds without, because Interlock waits out any send still in flight before it decides.</p>
         </details>
         <details>
           <summary>What can't Interlock do?</summary>
-          <p>Interlock can't tell you whether the agent's decision was a good one. A carefully executed bad refund is still a bad refund. When a service gives no way to confirm what happened, Interlock stops and flags the case for a person instead. The real Stripe connection is next on the list.</p>
+          <p>Interlock can't tell you whether the agent's decision was a good one. A carefully executed bad refund is still a bad refund. When a service gives no way to confirm what happened, Interlock stops and flags the case for a person instead.</p>
         </details>
       </div>
     </div>
@@ -743,7 +1168,7 @@
         <h2>Let your agent touch real money. <em>Once.</em></h2>
         <p class="lede">Run the crash demo in one command, then read every result the demo produces.</p>
         <div style="margin-top:2rem">
-          <a class="btn" href="https://github.com/shawnzhu02/Interlock">Get Interlock <span aria-hidden="true">&rarr;</span></a>
+          <a class="btn" href="https://github.com/az-said/Interlock">Get Interlock <span aria-hidden="true">&rarr;</span></a>
           <p class="micro">python3 demo.py 2 · no dependencies · MIT licensed</p>
         </div>
       </div>
@@ -753,6 +1178,13 @@
 
 <footer>
   <div class="wrap">
+    <nav class="foot-links" aria-label="Project links">
+      <a href="https://github.com/az-said/Interlock">GitHub</a>
+      <a href="https://github.com/az-said/Interlock/blob/main/docs/00-the-whole-story.md">Docs</a>
+      <a href="https://github.com/az-said/Interlock/tree/main/results">Results</a>
+      <a href="https://github.com/az-said/Interlock/blob/main/LICENSE">MIT license</a>
+      <a href="https://github.com/az-said/Interlock/issues">Contact</a>
+    </nav>
     <span>Interlock · Battle of the Coasts 2026 · Cloud AI track, Boston</span>
     <span>Photos: Daniel Leone, Ivana Cajina, Antoine Rault, Cristina Gottardi, Jerry Zhang, Mads Schmidt Rasmussen on Unsplash</span>
   </div>
@@ -812,16 +1244,21 @@
     let timers = [];
     const run = () => {
       timers.forEach(clearTimeout);
-      hero.classList.remove("busy", "crashed", "go");
+      hero.classList.remove("busy", "crashed", "resolved", "go");
       tr.paint(0);
       void hero.offsetWidth;
       hero.classList.add("go");
       timers = [setTimeout(() => {
         hero.classList.add("busy");
-        tr.play(() => timers.push(setTimeout(() => hero.classList.add("crashed"), 250)));
+        tr.play(() => timers.push(
+          setTimeout(() => hero.classList.add("crashed"), 250),
+          setTimeout(() => hero.classList.add("resolved"), 1100)));   // then both outcomes, once the alert has landed
       }, 1300)];
     };
-    if (reduce) tr.end(); else run();
+    // Runs when the hero first shows; a reload that lands below it finds the run already over.
+    const section = hero.closest("[data-play]");
+    if (reduce) tr.end();
+    else { section.addEventListener("play", run, { once: true }); section.addEventListener("seen", () => tr.end(), { once: true }); }
     hero.querySelector("[data-replay]").addEventListener("click", run);
   }
 
@@ -832,36 +1269,257 @@
     root.querySelector("[data-replay]").addEventListener("click", go);
     if (reduce) { tr.end(); after.classList.add("on"); return; }
     tr.paint(0);
-    new IntersectionObserver((entries, io) => {
-      if (entries[0].isIntersecting) { setTimeout(go, 500); io.disconnect(); }
+    new IntersectionObserver(([e], io) => {
+      if (!e.isIntersecting) return;
+      io.disconnect();
+      if (e.boundingClientRect.top < 0) { root.closest("[data-play]").classList.add("seen"); tr.end(); after.classList.add("on"); }   // met from above: already finished
+      else setTimeout(go, 500);
     }, { threshold: 0.4 }).observe(root);
   });
 
+  // Try it: replays one fault on a clock you can pause. Journal kinds, reasons and totals are copied
+  // from viewer/traces.js (gate@tier1, naive, idempotency@tier1); re-run python3 viewer/build.py and
+  // update these if the gate changes. Uppercase rows are journal entries; lowercase rows are the
+  // actors and the injected fault. Timings are pacing for the eye, not measurements.
+  const RUN = 9000;
+  // [kind, label, start ms, end ms, detail, failed, depth]
+  const DECIDE_ROWS = [
+    ["agent", "refund-agent", 0, 3000, "crashed", 1, 0],
+    ["model", "decide_refund", 150, 900, "refund $20", 0, 1],
+    ["io", "PROPOSED", 950, 1300, "facts saved", 0, 1],
+    ["io", "AUTHORIZED", 1350, 1600, "lease live", 0, 1],
+    ["io", "DISPATCHED", 1650, 1950, "checks passed", 0, 1],
+  ];
+  const DECIDE_LOG = [
+    [150, "", "# Agent decides: refund $20 on order 881."],
+    [950, "", "# PROPOSED is journaled with its facts: refunded $0, order eligible."],
+    [1650, "", "# DISPATCHED: permission and facts checked right before the send."],
+  ];
+  const DEMO = {
+    outage: {
+      recover: 5400, end: "Refused", hl: ["facts", "recover"], want: "$20", totals: { naive: "$40", idem: "$40", gate: "$20" },
+      rows: [...DECIDE_ROWS, ["tool", "payments.refund", 2000, 2900, "never sent", 1, 1], ["world", "support", 3300, 4700, "refunds $20", 0, 0],
+        ["agent", "interlock.recover", 5400, 8600, "", 0, 0], ["tool", "premises", 5600, 6800, "refunded $20", 1, 1], ["good", "REFUSED", 6900, 8400, "nothing sent", 0, 1]],
+      log: [...DECIDE_LOG, [2900, "bad", "# The process dies before the refund goes out."], [3300, "warn", "# The agent is down. Support refunds the $20 by hand."],
+        [5400, "", "# Restart. interlock.recover() reads the saved facts again."], [6800, "warn", "# refunded was $0, now $20. The decision no longer holds."],
+        [8400, "good", "# REFUSED:stale_premise_at_recovery. Nothing sent. $20 total."], [8800, "dim", "# Request IDs alone pay $40: the agent's ID was never used."]],
+    },
+    revoked: {
+      recover: 5400, end: "Refused", hl: ["allowed", "recover"], want: "$0", totals: { naive: "$20", idem: "$20", gate: "$0" },
+      rows: [...DECIDE_ROWS, ["tool", "payments.refund", 2000, 2900, "never sent", 1, 1], ["world", "permission", 3300, 4700, "revoked", 0, 0],
+        ["agent", "interlock.recover", 5400, 8600, "", 0, 0], ["tool", "allowed", 5600, 6800, "not live", 1, 1], ["good", "REFUSED", 6900, 8400, "$0 refunded", 0, 1]],
+      log: [...DECIDE_LOG, [2900, "bad", "# The process dies before the refund goes out."], [3300, "warn", "# The agent is down. Its refund permission is revoked."],
+        [5400, "", "# Restart. interlock.recover() checks permission again."], [6800, "warn", "# The lease is no longer live."],
+        [8400, "good", "# REFUSED:lease_at_recovery. Nothing sent. $0 refunded."], [8800, "dim", "# Request IDs alone still send it: $20 without permission."]],
+    },
+    expired: {
+      recover: 5400, end: "Committed", hl: ["lookup", "recover"], want: "$20", totals: { naive: "$40", idem: "$40", gate: "$20" },
+      rows: [...DECIDE_ROWS, ["tool", "payments.refund", 2000, 2700, "$20 lands", 0, 1], ["world", "clock", 3200, 5000, "24h ID window", 0, 0],
+        ["agent", "interlock.recover", 5400, 8600, "", 0, 0], ["tool", "lookup", 5600, 6800, "refund found", 0, 1], ["good", "COMMITTED", 6900, 8400, "nothing resent", 0, 1]],
+      log: [...DECIDE_LOG, [2700, "warn", "# The refund lands at the payment service."], [2900, "bad", "# The process dies before the reply comes back."],
+        [3200, "warn", "# Recovery runs after the 24-hour request ID window."], [5400, "", "# Restart. A resend now would count as a new refund."],
+        [6800, "", "# interlock.recover() looks the refund up instead: found."], [8400, "good", "# COMMITTED_ON_QUERY. Nothing resent. $20 total."],
+        [8800, "dim", "# Request IDs alone pay $40: the ID had expired."]],
+    },
+    redecide: {
+      recover: 5000, end: "Refused", hl: ["key", "recover"], want: "$20", totals: { naive: "$50", idem: "$20", gate: "$20" },
+      rows: [...DECIDE_ROWS, ["tool", "payments.refund", 2000, 2700, "$20 lands", 0, 1], ["model", "decide_refund", 3300, 4400, "now $30", 0, 0],
+        ["agent", "interlock", 5000, 8600, "", 0, 0], ["good", "COMMITTED", 5200, 6000, "$20, deduped", 0, 1], ["io", "PROPOSED", 6100, 6700, "refund $30", 0, 1],
+        ["good", "REFUSED", 6800, 8400, "payload differs", 0, 1]],
+      log: [...DECIDE_LOG, [2700, "warn", "# The refund lands at the payment service."], [2900, "bad", "# The process dies before the reply comes back."],
+        [3300, "warn", "# On the re-run, the model asks for $30 instead."], [5000, "", "# Restart. The recorded $20 retries under its own ID: already done."],
+        [6100, "", "# The $30 arrives under the same request name."], [8400, "good", "# REFUSED:conflicting_payload. $20 total, as approved."],
+        [8800, "dim", "# Plain retry pays $50. Request IDs return an error to handle."]],
+    },
+  };
+
+  document.querySelectorAll("[data-demo]").forEach((box) => {
+    const $ = (s) => box.querySelector(s), $$ = (s) => [...box.querySelectorAll(s)];
+    const pick = $("[data-scenario]"), root = $("[data-demo-trace]"), list = root.querySelector(".tr-rows");
+    const con = $("[data-console]"), play = $("[data-play-demo]"), rail = $(".dm-rail");
+    let sc, tr, t = 0, raf = 0, last = 0, playing = false, said = 0, stepNow = -1;
+
+    const light = (keys) => $$(".dm-code").forEach((code) => {
+      let any = false;
+      code.querySelectorAll(".dm-ln").forEach((l) => {
+        const on = keys.some((k) => (l.dataset.k || "").split(" ").includes(k));
+        l.classList.toggle("on", on); any = any || on;
+      });
+      code.classList.toggle("lit", any);
+    });
+    const say = ([, tone, text]) => {
+      const p = document.createElement("p");
+      p.className = tone; p.textContent = text;
+      con.append(p); con.scrollTop = con.scrollHeight;
+    };
+    const label = (text, icon) => { play.querySelector("use").setAttribute("href", icon); play.lastChild.textContent = text; };
+
+    // Paint everything for time t. Idempotent, so play, pause and jumping to a step all share it.
+    const render = () => {
+      tr.paint(t);
+      root.classList.toggle("done", t >= RUN);
+      if (t === 0) root.querySelector("[data-status]").textContent = "Ready";
+      rail.style.setProperty("--k", (t / RUN).toFixed(4));
+      const due = t === 0 ? 0 : sc.log.filter((l) => l[0] <= t).length;
+      if (due < said || (!said && due)) { con.textContent = ""; said = 0; }
+      for (; said < due; said++) say(sc.log[said]);
+      if (!due && !con.firstChild) say([0, "dim", "# Press Play to replay the recorded run."]);
+      const step = t === 0 ? 0 : t < 2000 ? 1 : t < sc.recover ? 2 : 3;
+      if (step !== stepNow) {
+        stepNow = step;
+        light([[], ["decide"], ["send"], sc.hl][step]);
+        $$("[data-step]").forEach((b) => { const k = +b.dataset.step; b.classList.toggle("past", k < step); k === step ? b.setAttribute("aria-current", "step") : b.removeAttribute("aria-current"); });
+      }
+      $$("[data-s]").forEach((b) => {
+        const v = t >= RUN ? sc.totals[b.dataset.s] : "";
+        if (b.textContent !== v) { b.textContent = v; b.className = v && v === sc.want ? "ok" : ""; }
+      });
+    };
+
+    const pause = () => { cancelAnimationFrame(raf); playing = false; label(t >= RUN ? "Play again" : t ? "Resume" : "Play", "#i-play"); };
+    const frame = (now) => {
+      t = Math.min(RUN, t + now - last); last = now;
+      render();
+      if (t < RUN) raf = requestAnimationFrame(frame); else pause();
+    };
+    const start = () => {
+      if (reduce) { t = RUN; render(); return pause(); }
+      if (t >= RUN) { t = 0; render(); }
+      playing = true; label("Pause", "#i-pause");
+      last = performance.now(); raf = requestAnimationFrame(frame);
+    };
+    const load = () => {
+      cancelAnimationFrame(raf);
+      sc = DEMO[pick.value];
+      list.textContent = "";
+      for (const [kind, name, s, e, detail, failed, depth] of sc.rows) {
+        const li = document.createElement("li");
+        li.className = "tr-row";
+        Object.assign(li.dataset, { kind, start: s, end: e, detail, state: "queued" });
+        if (failed) li.dataset.err = "";
+        li.style.setProperty("--depth", depth);
+        li.innerHTML = `<span class="tr-label"></span><span class="tr-track"><span class="tr-bar" style="left:${(s / RUN * 100).toFixed(2)}%;width:${((e - s) / RUN * 100).toFixed(2)}%"><i></i></span></span><span class="tr-meta"><em></em><time></time></span>`;
+        li.firstChild.textContent = name;
+        list.append(li);
+      }
+      root.dataset.done = sc.end;
+      tr = Trace(root);
+      t = 0; said = 0; stepNow = -1; con.textContent = "";
+      render(); pause();
+    };
+
+    play.addEventListener("click", () => (playing ? pause() : start()));
+    // A step jumps the clock to where that step begins; Play carries on from there.
+    $$("[data-step]").forEach((b) => b.addEventListener("click", () => {
+      t = [1, 2000, sc.recover][b.dataset.step - 1];
+      render();
+      if (!playing) pause();
+    }));
+    $("[data-reset]").addEventListener("click", load);
+    pick.addEventListener("change", load);
+    $$("[data-tab]").forEach((tab) => tab.addEventListener("click", () => {
+      $$("[data-tab]").forEach((o) => o.setAttribute("aria-pressed", String(o === tab)));
+      $$("[data-code]").forEach((c) => (c.hidden = c.dataset.code !== tab.dataset.tab));
+    }));
+    $("[data-copy]").addEventListener("click", (e) => {
+      const code = $$("[data-code]").find((c) => !c.hidden);
+      navigator.clipboard?.writeText([...code.children].map((l) => l.textContent).join("\n")).then(() => {
+        e.target.textContent = "Copied";
+        setTimeout(() => (e.target.textContent = "Copy"), 1500);
+      });
+    });
+    load();
+  });
+
   // Counters on the tested bars.
-  const countUp = (el) => {
-    const n = +el.dataset.count;
-    el.textContent = "0";
+  const countUp = (el, instant) => {
+    const n = +el.dataset.count, suffix = el.dataset.suffix || "", prefix = el.dataset.prefix || "";
+    const dec = (el.dataset.count.split(".")[1] || "").length;
+    const show = (v) => prefix + v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec }) + suffix;
+    if (instant) { el.textContent = show(n); return; }
+    el.textContent = show(0);
     setTimeout(() => {
       const t0 = performance.now();
       const f = (now) => {
         const k = Math.min(1, Math.max(0, (now - t0) / 1000));
-        el.textContent = Math.round(n * (1 - Math.pow(1 - k, 3)));
+        el.textContent = show(n * (1 - Math.pow(1 - k, 3)));
         if (k < 1) requestAnimationFrame(f);
       };
       requestAnimationFrame(f);
     }, +el.dataset.delay);
   };
 
-  // Each section plays its entrances once, the first time it is on screen.
+  // Approval cost: the same arithmetic and defaults as experiments/approval_cost.py.
+  document.querySelectorAll("[data-calc]").forEach((box) => {
+    const val = (name) => Math.max(0, +box.querySelector(`[name="${name}"]`).value || 0);
+    const usd = (v) => "$" + Math.round(v).toLocaleString("en-US");
+    const out = (key, text) => (box.querySelector(`[data-out="${key}"]`).textContent = text);
+    const update = () => {
+      const perReview = val("minutes") / 60 * val("hourly");
+      const allHuman = val("actions") * val("days") * perReview;
+      const share = Math.min(100, val("share")) / 100;
+      out("per", "$" + perReview.toFixed(2));
+      out("share", Math.round(share * 100) + "%");
+      out("all", usd(allHuman));
+      out("with", usd(allHuman * share));
+      out("saved", usd(allHuman * (1 - share)));
+    };
+    box.addEventListener("input", update);
+    update();
+  });
+
+  // "See all 10 faults": animate the height open and closed instead of the native jump.
+  // Clicking again mid-animation reverses from wherever the panel is.
+  document.querySelectorAll("details.all").forEach((d) => {
+    const panel = d.querySelector(".panel");
+    let anim = null;
+    d.querySelectorAll(".full tbody tr").forEach((tr, i) => tr.style.setProperty("--r", i));
+    d.addEventListener("toggle", () => { if (d.open && !d.classList.contains("closing")) requestAnimationFrame(() => d.classList.add("shown")); });
+    d.querySelector("summary").addEventListener("click", (e) => {
+      if (reduce) { if (d.open) d.classList.remove("shown"); return; }
+      e.preventDefault();
+      const opening = !d.open || d.classList.contains("closing");
+      const from = d.open ? panel.getBoundingClientRect().height : 0;
+      if (anim) { anim.onfinish = null; anim.cancel(); }
+      if (opening) {
+        d.classList.remove("closing");
+        d.open = true;
+        requestAnimationFrame(() => d.classList.add("shown"));
+        // Table layout height, not scrollHeight: the rows' rise transform would overshoot by 10px, then snap.
+        anim = panel.animate({ height: [from + "px", panel.firstElementChild.offsetHeight + "px"] }, { duration: 560, easing: "cubic-bezier(.16, 1, .3, 1)" });
+      } else {
+        d.classList.add("closing");
+        d.classList.remove("shown");
+        // Hold at 0 until closed, or the full table flashes for a frame before open=false lands.
+        anim = panel.animate({ height: [from + "px", "0px"] }, { duration: 420, easing: "cubic-bezier(.4, 0, .2, 1)", fill: "forwards" });
+        anim.onfinish = () => { d.open = false; d.classList.remove("closing"); anim.cancel(); anim = null; };
+      }
+    });
+  });
+
+  // Each section plays its entrances once, the first time it is on screen. A section first met from
+  // above (scrolling back up, or a reload that restored a mid-page scroll) shows its finished state.
   const io = new IntersectionObserver((entries) => {
     for (const e of entries) {
       if (!e.isIntersecting) continue;
+      const seen = e.boundingClientRect.top < -innerHeight / 4;   // well above the fold; the hero sits 72px under the nav and still plays
       e.target.classList.add("on");
-      e.target.querySelectorAll("[data-count]").forEach(countUp);
+      if (seen) e.target.classList.add("seen");
+      e.target.querySelectorAll("[data-count]").forEach((el) => countUp(el, seen));
+      e.target.dispatchEvent(new Event(seen ? "seen" : "play"));
       io.unobserve(e.target);
     }
-  }, { threshold: 0.15 });
-  document.querySelectorAll("[data-play]").forEach((s) => (reduce ? s.classList.add("on") : io.observe(s)));
+  }, { threshold: 0, rootMargin: "0px 0px 25% 0px" });     // start a quarter screen before a section arrives
+  // Start entrances once the first screen has settled. Parsing, first layout and the hero photo decode
+  // all land in the first few hundred ms, and an animation started under that load skips instead of gliding.
+  const sections = document.querySelectorAll("[data-play]");
+  if (reduce) sections.forEach((s) => s.classList.add("on"));
+  else {
+    const photo = new Image();
+    photo.src = (getComputedStyle(document.querySelector(".hero")).backgroundImage.match(/url\("?([^")]+)"?\)/) || [])[1] || "";   // the file the hero really uses (WebP, smaller on phones)
+    const settled = Promise.race([photo.decode().catch(() => {}), new Promise((r) => setTimeout(r, 600))]);   // ponytail: slow network caps the wait at 600ms
+    settled.then(() => requestAnimationFrame(() => requestAnimationFrame(() => sections.forEach((s) => io.observe(s)))));
+  }
 </script>
 </body>
 </html>
