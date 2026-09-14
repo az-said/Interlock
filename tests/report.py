@@ -276,7 +276,7 @@ MERGE = [
 
 
 def check_bugs():
-    readme = read("README.md")
+    readme = read("docs/proof.md")
     n = int(re.search(r"found (\d+) real bugs", readme).group(1))
     assert n == len(BEFORE), (n, len(BEFORE))
     merge_cases = len(re.findall(r"^class \w+\(unittest\.TestCase\)", read("tests/test_merge_defects.py"), re.M))
@@ -435,7 +435,7 @@ def main():
     # bugs
     w("## 3. Bugs found by testing\n")
     w("Every fix below has a test in `tests/` that failed before the fix.\n")
-    w("### Before the escalation build (%d, from README.md)\n" % before)
+    w("### Before the escalation build (%d, from docs/proof.md)\n" % before)
     w("The first six were found writing the tests; the other nine by an adversarial review of the package.\n")
     for i, b in enumerate(BEFORE, 1):
         w("%d. %s" % (i, b))
