@@ -14,7 +14,7 @@ curl http://localhost:8080/healthz          # {"ok": true}
 
 With no keys, Run live is off and Run mock works (labeled MOCK). A browser on `http://localhost:8080` can load the page but cannot start runs, because public mode accepts POSTs only from an `https://` origin; test runs behind TLS, or run `python3 demo/serve.py` locally without public mode.
 
-The image is `python:3.12-slim` with `temporalio==1.32.0` installed and the Temporal CLI 1.4.1 binary downloaded at build time to `/opt/temporal/temporal` (build arguments `TEMPORALIO_VERSION` and `TEMPORAL_CLI_VERSION`). It runs as the non-root user `interlock` (uid 10001), writes run data to `/home/interlock/data`, and listens on 8080.
+The image is `python:3.12-slim` with `temporalio==1.32.0` installed and the Temporal CLI 1.4.1 binary downloaded at build time to `/opt/temporal/temporal` (build arguments `TEMPORALIO_VERSION` and `TEMPORAL_CLI_VERSION`). `tini` is PID 1: on SIGTERM (`docker stop`, a revision swap) `serve.py` stops the API process group and exits, and tini reaps any leftover process. It runs as the non-root user `interlock` (uid 10001), writes run data to `/home/interlock/data`, and listens on 8080.
 
 ## Environment variables
 
@@ -24,9 +24,10 @@ The image is `python:3.12-slim` with `temporalio==1.32.0` installed and the Temp
 | `INTERLOCK_ALLOWED_HOSTS` | none, required | Comma-separated hostnames the server answers to, exact match, case-insensitive, port ignored. Example: `interlock-demo.example.azurecontainerapps.io`. The server refuses to start in public mode without it. |
 | `PORT` | `8080` in the image, else `8787` | Listening port. `INTERLOCK_API_PORT` wins if both are set. Binds `0.0.0.0`. |
 | `INTERLOCK_TRUSTED_PROXY_HOPS` | `0` | How many reverse proxies you run in front of the server. Set `1` on Azure Container Apps (its ingress appends one `X-Forwarded-For` entry). With `0` the header is ignored and the socket peer is the client. Do not set it higher than the proxies you actually have: each extra hop lets a client choose its own address. |
-| `INTERLOCK_LIVE_PER_IP_HOUR` | `3` | Live runs one client address may start in any 60 minutes. |
-| `INTERLOCK_LIVE_PER_DAY` | `40` | Live runs all clients together may start in one UTC day. |
-| `INTERLOCK_MOCK_PER_IP_HOUR` | `30` | Mock runs one client address may start in any 60 minutes. No daily cap. |
+| `INTERLOCK_LIVE_PER_IP_HOUR` | `3` | Live runs one visitor may start in any 60 minutes. |
+| `INTERLOCK_LIVE_PER_IP_DAY` | `6` | Live runs one visitor may start in one UTC day. Keep it well under `INTERLOCK_LIVE_PER_DAY`, so one visitor cannot use up the day. |
+| `INTERLOCK_LIVE_PER_DAY` | `40` | Live runs all visitors together may start in one UTC day. |
+| `INTERLOCK_MOCK_PER_IP_HOUR` | `30` | Mock runs one visitor may start in any 60 minutes. No daily cap. |
 | `ANTHROPIC_API_KEY` | none | Needed for live runs. Set it as a platform secret. |
 | `STRIPE_SECRET_KEY` | none | Needed for live runs. Must be a test-mode key (`sk_test_`); anything else is refused. Set it as a platform secret. |
 | `INTERLOCK_TEMPORAL_CLI` | `/opt/temporal/temporal` in the image | Existing Temporal CLI binary for the dev server, so starting never downloads. |
@@ -37,7 +38,9 @@ The image is `python:3.12-slim` with `temporalio==1.32.0` installed and the Temp
 ## Limits
 
 - One run at a time across both demos, live or mock. A start while one is going gets HTTP 409: "a run is in progress, try again in about 30 seconds".
-- Starting a live run counts against the client's hourly limit and the daily limit. Over either, HTTP 429 with a message naming the limit. The page shows it in its notice area.
+- A visitor is one IPv4 address, or one IPv6 /64 (a single subscriber usually holds a whole /64).
+- Starting a live run counts against the visitor's hourly and daily limits and the global daily limit. Over any of them, HTTP 429 with a message naming the limit. The page shows it in its notice area.
+- The server keeps the last 50 runs in memory and drops older finished ones; polling a dropped run answers 404.
 - A start that fails (bad request, busy, missing keys) does not use up a slot.
 - Counts live in the server's memory: a restart resets them, and each replica counts on its own. Run one replica so the one-run guard and the daily cap mean what they say.
 - Polling a run and loading pages are not limited. A connection that stops sending is dropped after 30 seconds.

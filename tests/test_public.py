@@ -52,8 +52,10 @@ class Settings(unittest.TestCase):
 
     def test_defaults_and_bad_settings(self):
         s = api.public_settings(ENV)
-        self.assertEqual((s.hosts, s.hops, s.port, s.live.per_hour, s.live.per_day, s.mock.per_hour, s.mock.per_day),
-                         (frozenset({HOST, "other.example"}), 0, 8787, 3, 40, 30, None))
+        self.assertEqual((s.hosts, s.hops, s.port, s.live.per_hour, s.live.per_day, s.live.per_ip_day, s.mock.per_hour,
+                          s.mock.per_day, s.mock.per_ip_day),
+                         (frozenset({HOST, "other.example"}), 0, 8787, 3, 40, 6, 30, None, None))
+        self.assertEqual(api.public_settings({**ENV, "INTERLOCK_LIVE_PER_IP_DAY": "2"}).live.per_ip_day, 2)
         self.assertEqual(api.public_settings({**ENV, "PORT": "8080"}).port, 8080)
         self.assertEqual(api.public_settings({**ENV, "PORT": "8080", "INTERLOCK_API_PORT": "9000"}).port, 9000)
         for bad in ({"INTERLOCK_ALLOWED_HOSTS": " , "}, {"INTERLOCK_TRUSTED_PROXY_HOPS": "-1"},
@@ -85,7 +87,9 @@ class Settings(unittest.TestCase):
         for name in ("standalone.html", "index.html"):
             with open(os.path.join(ROOT, "demo", name), encoding="utf-8") as f:
                 page = f.read()
-            self.assertIn("Live runs use Stripe test mode and a real model. Limited to a few runs per visitor.", page)
+            # the limit sentence is added only when /info says public, since local mode has no per-visitor limit
+            self.assertIn('<p class="fineprint" id="fineprint">Live runs use Stripe test mode and a real model.</p>', page)
+            self.assertIn('if (info.public) $("#fineprint").append(" Limited to a few runs per visitor.");', page)
             for anchor in ('id="notice"', 'id="live"', 'id="mock"', 'id="scenario"', 'id="status"', 'id="banner"'):
                 self.assertIn(anchor, page)
 
@@ -124,6 +128,33 @@ class Limits(unittest.TestCase):
         self.assertIn("2 live runs for today (UTC)", str(e.exception))
         clock.t += 10
         take(live, "c")
+
+    def test_per_visitor_daily_cap_under_the_global_cap(self):
+        clock = Clock(86400 * 20000)
+        live = api.Limiter("live", 3, 40, clock, per_ip_day=6)
+        for _ in range(6):
+            take(live, "203.0.113.1")
+            clock.t += 3601                         # never over the hourly limit
+        with self.assertRaises(api.Limited) as e:
+            take(live, "203.0.113.1")
+        self.assertIn("6 live runs per visitor per day (UTC)", str(e.exception))
+        take(live, "203.0.113.2")
+        clock.t = 86400 * 20001                     # next UTC day
+        take(live, "203.0.113.1")
+
+    def test_ipv6_counts_by_64(self):
+        self.assertEqual(api.visitor("2001:db8::1"), "2001:db8::/64")
+        self.assertEqual(api.visitor("2001:db8:0:0:ffff::9"), "2001:db8::/64")
+        self.assertEqual(api.visitor("2001:db8:0:1::1"), "2001:db8:0:1::/64")
+        self.assertEqual(api.visitor("203.0.113.7"), "203.0.113.7")
+        self.assertEqual(api.visitor("::ffff:203.0.113.7"), "::ffff:203.0.113.7")
+        self.assertEqual(api.visitor("not-an-ip"), "not-an-ip")
+        live = api.Limiter("live", 3, 40, Clock())
+        for i in range(3):
+            take(live, f"2001:db8::{i + 1}")
+        with self.assertRaises(api.Limited):
+            take(live, "2001:db8::abcd")
+        take(live, "2001:db8:0:1::1")
 
     def test_a_start_that_fails_gives_its_slot_back(self):
         live = api.Limiter("live", 1, 1, Clock())
@@ -228,6 +259,10 @@ class PublicServer(unittest.TestCase):
         self.assertEqual(self.post({"kind": "mock", "fail": "boom"}), (500, {"error": "internal error"}))
         self.assertEqual(self.post({"kind": "mock", "fail": "stripe"}), (502, {"error": "Stripe test mode returned an error"}))
 
+    def test_info_says_public(self):
+        status, data, _ = send(self.server, "GET", "/demo/standalone/info", headers={"Host": HOST})
+        self.assertEqual((status, json.loads(data)["public"]), (200, True))
+
     def test_run_events_carry_no_exception_text(self):
         def live(run, mode):
             raise RuntimeError("detail from deep inside")
@@ -247,11 +282,63 @@ class PublicModeOff(unittest.TestCase):
         self.assertEqual(send(server, "GET", "/healthz", headers={"Host": "10.0.0.5:8080"})[0], 403)
         self.assertEqual(send(server, "GET", "/demo/info", headers={"Host": HOST})[0], 403)
         self.assertIsNone(send(server, "GET", "/", headers={"Host": local})[2]["Content-Security-Policy"])
+        stub = types.SimpleNamespace(info=lambda: {"latest": None})
+        with mock.patch.dict(sys.modules, {"backend.standalone": stub}):
+            self.assertEqual(json.loads(send(server, "GET", "/demo/standalone/info", headers={"Host": local})[1]), {"latest": None})
         self.assertEqual(send(server, "POST", "/demo/runs", {"kind": "sideways"},
                               {"Host": local, "Content-Type": "application/json", "Origin": "https://" + local})[0], 403)
 
 
+class Runs(unittest.TestCase):
+    def test_only_the_last_runs_are_kept(self):
+        runs, latest = {f"old{i}": types.SimpleNamespace(done=True) for i in range(60)}, [None]
+        runs["old5"].done = False                   # an unfinished run is never dropped
+
+        def drive(run, a, live):
+            run.done = True
+            demo.BUSY.release()
+        view = demo.start({"kind": "mock"}, api, drive=drive, runs=runs, latest=latest)
+        self.assertTrue(demo.BUSY.acquire(timeout=10))
+        demo.BUSY.release()
+        self.assertEqual(len(runs), demo.KEEP_RUNS)
+        self.assertEqual((latest[0], list(runs)[-1]), (view["id"], view["id"]))
+        self.assertIn("old5", runs)
+        self.assertNotIn("old11", runs)
+        self.assertIn("old12", runs)
+
+
 class PublicProcess(unittest.TestCase):
+    def test_serve_stops_the_api_on_sigterm(self):
+        with socket.socket() as s:
+            s.bind(("127.0.0.1", 0))
+            port = s.getsockname()[1]
+        env = {**os.environ, **ENV, "PORT": str(port), "INTERLOCK_DATA": tempfile.mkdtemp(),
+               "INTERLOCK_TEMPORAL_CLI": os.path.join(tempfile.mkdtemp(), "no-temporal")}   # fail fast if temporalio is installed
+        env.pop("INTERLOCK_API_PORT", None)
+        proc = subprocess.Popen([sys.executable, os.path.join(ROOT, "demo", "serve.py")], env=env,
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            deadline = time.time() + 60
+            while True:
+                with contextlib.suppress(OSError):
+                    conn = http.client.HTTPConnection("127.0.0.1", port, timeout=2)
+                    conn.request("GET", "/healthz")
+                    if conn.getresponse().status == 200:
+                        break
+                self.assertLess(time.time(), deadline, "serve.py never answered /healthz")
+                time.sleep(0.2)
+            children = subprocess.run(["pgrep", "-P", str(proc.pid)], capture_output=True, text=True).stdout.split()
+            self.assertEqual(len(children), 1, children)
+            api_pid = int(children[0])
+            proc.terminate()                            # SIGTERM
+            proc.wait(30)
+            with self.assertRaises(ProcessLookupError):
+                os.kill(api_pid, 0)
+        finally:
+            if proc.poll() is None:
+                proc.kill()
+                proc.wait(30)
+
     def test_api_binds_all_interfaces_and_serves_healthz(self):
         with socket.socket() as s:
             s.bind(("127.0.0.1", 0))

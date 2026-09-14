@@ -202,7 +202,7 @@ footer { margin-block: 3rem 4rem; display: grid; gap: .6rem; max-width: 60rem; f
         <button id="live" class="btn" type="button">Run live</button>
       </div>
       <p class="notice" id="notice" role="alert"></p>
-      <p class="fineprint">Live runs use Stripe test mode and a real model. Limited to a few runs per visitor.</p>
+      <p class="fineprint" id="fineprint">Live runs use Stripe test mode and a real model.</p>
     </div>
   </section>
 
@@ -257,6 +257,7 @@ async function init() {
   $("#scenario").onchange = () => { $("#story").textContent = info.scenarios[$("#scenario").value].story; };
   $("#scenario").onchange();
   $("#settings").textContent = `Model ${info.model}. Interlock claim TTL ${info.claim_ttl}s, Stripe request timeout ${info.stripe_timeout}s (the backend defaults are 40s and 30s; the timeout always stays inside the claim).`;
+  if (info.public) $("#fineprint").append(" Limited to a few runs per visitor.");
   if (info.live_missing.length) $("#notice").textContent = "Run live is off on this server: it needs " + info.live_missing.join(" and ") + ". Run mock still works and is labeled MOCK.";
   busy(false);
   $("#live").onclick = () => start("live");

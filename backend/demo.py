@@ -78,6 +78,7 @@ class DemoError(RuntimeError):
 
 
 RUNS, BUSY, LATEST = {}, threading.Lock(), [None]
+KEEP_RUNS = 50          # start() drops the oldest finished runs past this, so memory stays bounded
 
 
 class Run:
@@ -133,6 +134,8 @@ def start(body, api, drive=None, modes=("temporal", "temporal_checked", "interlo
         raise Busy("a run is already going; wait for it to finish")
     run = Run(kind, name, modes if kind == "live" and body.get("hand_check") is True else (modes[0], modes[2]), columns)
     runs[run.id], latest[0] = run, run.id
+    for old in [r for r, v in runs.items() if v.done][:max(0, len(runs) - KEEP_RUNS)]:     # oldest first
+        del runs[old]
     threading.Thread(target=drive or _drive, args=(run, api, live), daemon=True).start()
     return run.view()
 

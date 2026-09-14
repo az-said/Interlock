@@ -203,7 +203,7 @@ footer { margin-block: 3rem 4rem; display: grid; gap: .6rem; max-width: 60rem; f
         <button id="live" class="btn" type="button">Run live</button>
       </div>
       <p class="notice" id="notice" role="alert"></p>
-      <p class="fineprint">Live runs use Stripe test mode and a real model. Limited to a few runs per visitor.</p>
+      <p class="fineprint" id="fineprint">Live runs use Stripe test mode and a real model.</p>
     </div>
   </section>
 
@@ -266,6 +266,7 @@ async function init() {
       Object.assign(el("a", "", "The standalone demo runs without Temporal."), { href: "/demo/standalone" }));
     $("#unavailable").hidden = false;
   }
+  if (info.public) $("#fineprint").append(" Limited to a few runs per visitor.");
   if (info.live_missing.length) $("#notice").textContent = "Run live is off on this server: it needs " + info.live_missing.join(" and ") + ". Run mock still works and is labeled MOCK.";
   busy(false);
   $("#live").onclick = () => start("live");

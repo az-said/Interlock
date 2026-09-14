@@ -9,7 +9,8 @@ ARG TARGETARCH
 
 # temporalio is the Temporal demo's only dependency. The Temporal CLI (its dev server) is fetched here so a start never
 # downloads anything; if it cannot run, serve.py marks the Temporal demo unavailable and serves the standalone demo.
-RUN pip install --no-cache-dir "temporalio==${TEMPORALIO_VERSION}" \
+RUN apt-get update && apt-get install -y --no-install-recommends tini && rm -rf /var/lib/apt/lists/* \
+ && pip install --no-cache-dir "temporalio==${TEMPORALIO_VERSION}" \
  && python -c "import io, sys, tarfile, urllib.request; \
 url = 'https://temporal.download/cli/archive/v%s?platform=linux&arch=%s' % (sys.argv[1], sys.argv[2] or 'amd64'); \
 req = urllib.request.Request(url, headers={'User-Agent': 'interlock-docker-build'}); \
@@ -27,4 +28,6 @@ ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 \
     INTERLOCK_DATA=/home/interlock/data \
     INTERLOCK_TEMPORAL_CLI=/opt/temporal/temporal
 EXPOSE 8080
+# tini is PID 1: it forwards SIGTERM to serve.py (which stops the api process group) and reaps orphaned processes
+ENTRYPOINT ["/usr/bin/tini", "--"]
 CMD ["python", "demo/serve.py"]

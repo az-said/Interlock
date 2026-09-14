@@ -157,6 +157,7 @@ def demo_start(body):
 
 
 standalone = lambda: importlib.import_module("backend.standalone")     # no temporalio anywhere it reaches
+public_flag = lambda: {"public": True} if PUBLIC else {}     # the pages mention the per-visitor limit only then
 
 
 API = sys.modules[__name__]        # demo.py drives cases through this module's functions
@@ -166,10 +167,10 @@ PAGES = {"/": STANDALONE_PAGE, "/demo/standalone": STANDALONE_PAGE, "/demo/stand
          "/demo": PAGE, "/demo/": PAGE}
 ROUTES = [("GET", r"/health", health), ("POST", r"/cases", create), ("GET", r"/cases/([\w-]+)", show),
           ("POST", r"/cases/([\w-]+)/revoke", revoke), ("POST", r"/cases/([\w-]+)/manual-refund", manual_refund),
-          ("GET", r"/demo/info", lambda body: {**demo.info(), "temporal_unavailable": UNAVAILABLE}),
+          ("GET", r"/demo/info", lambda body: {**demo.info(), "temporal_unavailable": UNAVAILABLE, **public_flag()}),
           ("POST", r"/demo/runs", demo_start),
           ("GET", r"/demo/runs/(\w+)/(\d+)", lambda body, run_id, after: demo.view(run_id, int(after))),
-          ("GET", r"/demo/standalone/info", lambda body: standalone().info()),
+          ("GET", r"/demo/standalone/info", lambda body: {**standalone().info(), **public_flag()}),
           ("POST", r"/demo/standalone/runs", lambda body: standalone().start(body, API)),
           ("GET", r"/demo/standalone/runs/(\w+)/(\d+)", lambda body, run_id, after: standalone().view(run_id, int(after)))]
 
@@ -185,26 +186,43 @@ class Limited(Exception):
     pass
 
 
+def visitor(ip):
+    """The key a client is counted under: an IPv6 address by its /64 (one subscriber usually holds a whole /64), any
+    other address as is."""
+    with contextlib.suppress(ValueError):
+        addr = ipaddress.ip_address(ip)
+        if addr.version == 6 and not addr.ipv4_mapped:
+            return str(ipaddress.ip_network(f"{addr}/64", strict=False))
+    return ip
+
+
 class Limiter:
-    """Starts of runs: at most per_hour per client address in any 60 minutes, and at most per_day across all clients
-    in one UTC day (None: no daily cap). clock is injectable. A start that raises (bad request, busy) gives its slot
-    back. In memory: a restart resets the counts, and each replica counts on its own."""
-    def __init__(self, kind, per_hour, per_day=None, clock=time.time):
-        self.kind, self.per_hour, self.per_day, self.clock = kind, per_hour, per_day, clock
+    """Starts of runs: at most per_hour per visitor (see visitor()) in any 60 minutes, at most per_ip_day per visitor
+    in one UTC day, and at most per_day across all visitors in one UTC day (None: no such cap). clock is injectable.
+    A start that raises (bad request, busy) gives its slot back. In memory: a restart resets the counts, and each
+    replica counts on its own."""
+    def __init__(self, kind, per_hour, per_day=None, clock=time.time, per_ip_day=None):
+        self.kind, self.per_hour, self.per_day, self.per_ip_day, self.clock = kind, per_hour, per_day, per_ip_day, clock
         self.recent, self.day, self.lock = {}, [None, 0], threading.Lock()
 
     @contextlib.contextmanager
     def slot(self, ip):
+        ip = visitor(ip)
         mock_ok = " Run mock still works." if self.kind == "live" else ""
         with self.lock:
             now = self.clock()
             day = int(now // 86400)
             if self.day[0] != day:
                 self.day = [day, 0]
-            # ponytail: prunes every address on each start; fine while starts are rate-limited and one at a time
-            self.recent = {a: kept for a, ts in self.recent.items() if (kept := [t for t in ts if t > now - 3600])}
-            if len(self.recent.get(ip, ())) >= self.per_hour:
+            since = min(now - 3600, day * 86400)
+            # ponytail: prunes every visitor on each start; fine while starts are rate-limited and one at a time
+            self.recent = {a: kept for a, ts in self.recent.items() if (kept := [t for t in ts if t >= since])}
+            mine = self.recent.get(ip, ())
+            if sum(t > now - 3600 for t in mine) >= self.per_hour:
                 raise Limited(f"Limit reached: {self.per_hour} {self.kind} runs per visitor per hour. Try again later.{mock_ok}")
+            if self.per_ip_day is not None and sum(t >= day * 86400 for t in mine) >= self.per_ip_day:
+                raise Limited(f"Limit reached: {self.per_ip_day} {self.kind} runs per visitor per day (UTC). "
+                              f"Try again tomorrow.{mock_ok}")
             if self.per_day is not None and self.day[1] >= self.per_day:
                 raise Limited(f"This demo has used its {self.per_day} {self.kind} runs for today (UTC). "
                               f"Try again tomorrow.{mock_ok}")
@@ -237,7 +255,8 @@ def public_settings(env, clock=time.time):
         return value
     return types.SimpleNamespace(
         hosts=hosts, hops=number("INTERLOCK_TRUSTED_PROXY_HOPS", 0), port=number("INTERLOCK_API_PORT", number("PORT", 8787)),
-        live=Limiter("live", number("INTERLOCK_LIVE_PER_IP_HOUR", 3), number("INTERLOCK_LIVE_PER_DAY", 40), clock),
+        live=Limiter("live", number("INTERLOCK_LIVE_PER_IP_HOUR", 3), number("INTERLOCK_LIVE_PER_DAY", 40), clock,
+                     number("INTERLOCK_LIVE_PER_IP_DAY", 6)),
         mock=Limiter("mock", number("INTERLOCK_MOCK_PER_IP_HOUR", 30), None, clock))
 
 

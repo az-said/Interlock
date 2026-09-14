@@ -39,6 +39,8 @@ async def serve(env, port, ui=None):
 
 
 async def main():
+    # SIGTERM (docker stop, a platform revision swap) cancels this task, so serve()'s finally stops the api process group
+    asyncio.get_running_loop().add_signal_handler(signal.SIGTERM, asyncio.current_task().cancel)
     public = os.environ.get("INTERLOCK_PUBLIC") == "1"      # docs/deploy.md
     if public:
         sys.path.insert(0, ROOT)
@@ -76,5 +78,5 @@ async def main():
 
 
 if __name__ == "__main__":
-    with contextlib.suppress(KeyboardInterrupt):
+    with contextlib.suppress(KeyboardInterrupt, asyncio.CancelledError):
         asyncio.run(main())
