@@ -79,12 +79,15 @@ class Interlock:
         self.gates = {}
 
     def effect(self, key, premises=None, lookup=None, dedupes=False, allowed=None, dedup_window=24 * 3600,
-               approval=None, fields=None):
+               approval=None, fields=None, attempts=None, seen=None):
         """
         `approval(*args)` returns the approval this call runs under (see approvals.Envelope), read from
         the system of record. With it, the agent may re-decide after a refusal: each distinct set of
         arguments is its own attempt, only one that fits the approval is sent, and only once.
         `fields(args)` names the arguments for its match and max (default: by parameter name).
+        `attempts` caps the distinct attempts per approval (default: no cap).
+        `seen(*args)` returns the facts the decision was made on, such as what the agent itself read,
+        or None to read them now. It is used only when the call is proposed; every re-check reads the world.
         """
         if approval and allowed:
             raise ValueError("approval= and allowed= both authorize the call; give one")
@@ -97,7 +100,8 @@ class Interlock:
             if approval:
                 names = [p for p in inspect.signature(fn).parameters if p != "idempotency_key"]
                 named = fields or (lambda args: dict(zip(names, args)))
-                leases = Envelope(os.path.join(self.directory, f"{name}.approvals.db"), fields=lambda effect: named(effect["args"]))
+                leases = Envelope(os.path.join(self.directory, f"{name}.approvals.db"),
+                                  fields=lambda effect: named(effect["args"]), attempts=attempts)
             else:
                 leases = _Allowed(allowed)
             gate = Gate(target, os.path.join(self.directory, f"{name}.jsonl"), leases, claim_ttl=self.claim_ttl)
@@ -113,9 +117,11 @@ class Interlock:
                 args = json.loads(json.dumps(list(args)))
                 request = request_id(*args)
                 eid = effect_id_for({"request_id": request})
+                facts = seen(*args) if seen else None
                 return {"agent": name, "lease": json.loads(json.dumps(approval(*args))) if approval else args,
                         "request_id": request,
-                        "premises": {"args": args, "facts": target.facts(args, eid)},
+                        "premises": {"args": args, "facts": target.facts(args, eid) if facts is None
+                                     else json.loads(json.dumps(facts, default=str))},
                         "effect": {"args": args}}
 
             @functools.wraps(fn)

@@ -159,6 +159,20 @@ class McpProxy(unittest.TestCase):
         finally:
             s.close()
 
+    def test_a_change_after_the_agents_own_read_is_caught(self):
+        s = Session(self.dir, self.state)
+        try:
+            read = s.request("tools/call", {"name": "get_order", "arguments": {"order_id": "881"}})   # the agent reads: $0 refunded
+            self.assertEqual(read["structuredContent"]["refunded_total"], 0)
+            with open(self.state, "w") as f:                     # support refunds $5 before the agent's call arrives
+                json.dump({"refunds": [{"order_id": "881", "amount": 5, "reference": None}]}, f)
+            late = s.refund("881", 20)
+            self.assertTrue(late.get("isError"), late)
+            self.assertIn("refunded_total: was 0, now 5", late["content"][0]["text"])
+            self.assertEqual(len(self.refunds()), 1)
+        finally:
+            s.close()
+
     def test_agent_repairs_a_refused_call_within_its_approval(self):
         config = json.loads(json.dumps(CONFIG))
         config["tools"]["create_refund"]["approval"] = {"tool": "get_approval", "arguments": {"order_id": "order_id"}}

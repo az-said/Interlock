@@ -51,6 +51,58 @@
       }
     }
   },
+  "hand check": {
+    "total": {
+      "no person": 97,
+      "person": 3,
+      "wrong payout": 0,
+      "overpaid": 0
+    },
+    "by_kind": {
+      "routine": {
+        "no person": 60,
+        "person": 0,
+        "wrong payout": 0,
+        "overpaid": 0
+      },
+      "partial_hand": {
+        "no person": 12,
+        "person": 0,
+        "wrong payout": 0,
+        "overpaid": 0
+      },
+      "full_hand": {
+        "no person": 5,
+        "person": 0,
+        "wrong payout": 0,
+        "overpaid": 0
+      },
+      "overshoot": {
+        "no person": 10,
+        "person": 0,
+        "wrong payout": 0,
+        "overpaid": 0
+      },
+      "stubborn": {
+        "no person": 0,
+        "person": 3,
+        "wrong payout": 0,
+        "overpaid": 0
+      },
+      "crash": {
+        "no person": 5,
+        "person": 0,
+        "wrong payout": 0,
+        "overpaid": 0
+      },
+      "duplicate": {
+        "no person": 5,
+        "person": 0,
+        "wrong payout": 0,
+        "overpaid": 0
+      }
+    }
+  },
   "interlock": {
     "total": {
       "no person": 83,

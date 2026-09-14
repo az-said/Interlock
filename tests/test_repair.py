@@ -13,13 +13,13 @@ from repair_loop import MIX, Shop, results
 
 
 class RepairLoop(unittest.TestCase):
-    def tools(self, shop, approval=True):
+    def tools(self, shop, approval=True, attempts=None):
         spec = {"key": ["order_id"],
                 "premises": {"tool": "get_order", "arguments": {"order_id": "order_id"}, "fields": ["refunded_total"]},
                 "lookup": {"tool": "find_refund", "arguments": {"reference": "$effect_id"}, "found": "found"},
                 "idempotency_argument": "reference"}
         if approval:
-            spec["approval"] = {"tool": "get_approval", "arguments": {"order_id": "order_id"}}
+            spec["approval"] = {"tool": "get_approval", "arguments": {"order_id": "order_id"}, "attempts": attempts}
         fns = {n: getattr(shop, n) for n in ("get_order", "get_approval", "create_refund", "find_refund")}
         return protect(fns, {"journal_dir": tempfile.mkdtemp(), "claim_ttl": 0, "tools": {"create_refund": spec}})
 
@@ -36,6 +36,16 @@ class RepairLoop(unittest.TestCase):
         fixed = tools["create_refund"](order_id="881", amount=left)
         self.assertEqual((fixed["status"], shop.total("881")), ("COMMITTED", 20))
 
+    def test_a_change_between_the_agents_read_and_its_call_is_caught(self):
+        shop = Shop()
+        tools = self.tools(shop, approval=False)
+        tools["get_order"](order_id="881")                              # the agent reads $0 refunded, and decides
+        shop.refunds.append({"order_id": "881", "amount": 5, "reference": None})   # support refunds $5 meanwhile
+        out = tools["create_refund"](order_id="881", amount=20)
+        self.assertEqual(out["status"], "REFUSED:stale_premise")
+        self.assertEqual(out["repair"]["changed"], ["refunded_total: was 0, now 5"])
+        self.assertEqual(shop.total("881"), 5)
+
     def test_overshoot_is_refused_with_the_limit_then_corrected(self):
         shop = Shop()
         tools = self.tools(shop)
@@ -44,6 +54,18 @@ class RepairLoop(unittest.TestCase):
         self.assertTrue(out["repair"]["may_retry"])
         self.assertTrue(tools["create_refund"](order_id="881", amount=20)["ok"])
         self.assertEqual(shop.total("881"), 20)
+
+    def test_attempts_cap_stops_a_model_that_keeps_re_deciding(self):
+        shop = Shop()
+        tools = self.tools(shop, attempts=2)
+        self.assertTrue(tools["create_refund"](order_id="881", amount=30)["repair"]["may_retry"])
+        second = tools["create_refund"](order_id="881", amount=25)
+        self.assertEqual(second["status"], "REFUSED:lease")
+        self.assertFalse(second["repair"]["may_retry"])                  # that was the last attempt
+        third = tools["create_refund"](order_id="881", amount=20)       # fits, but comes too late
+        self.assertEqual(third["status"], "REFUSED:lease")
+        self.assertIn("approval case-881 has had its 2 attempts", third["repair"]["changed"])
+        self.assertEqual(shop.refunds, [])
 
     def test_duplicate_is_ignored_and_a_second_decision_cannot_use_the_approval(self):
         shop = Shop()
@@ -93,6 +115,7 @@ class RepairLoop(unittest.TestCase):
         r = results()
         self.assertEqual(r["interlock+repair"]["total"], {"no person": 97, "person": 3, "wrong payout": 0, "overpaid": 0})
         self.assertEqual(r["interlock"]["total"]["wrong payout"], MIX["overshoot"] + MIX["stubborn"])   # no amount bound
+        self.assertEqual(r["hand check"]["total"], r["interlock+repair"]["total"])                      # a fair check ties here
         with open(os.path.join(ROOT, "results", "repair_loop.json")) as f:
             self.assertEqual(json.load(f), r)                                   # results/ matches the code
 

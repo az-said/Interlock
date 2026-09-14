@@ -21,7 +21,7 @@ removed; both are checked when the effect is sent, not when the button was click
     inbox.submit(request)             # runs now, or waits for a person
     inbox.approve(request_id, "alice")
 """
-import contextlib, sqlite3, time
+import contextlib, hashlib, json, sqlite3, time
 from .journal import effect_id_for
 
 DONE = ("COMMITTED", "DUPLICATE_IGNORED")
@@ -47,13 +47,20 @@ class Envelope:
                                    refused. A reservation is never given back: once something may have
                                    been sent, a different attempt needs a new approval
 
-    `fields(effect)` returns the effect's named values (default: the effect itself).
+    `fields(effect)` returns the effect's named values (default: the effect itself). `attempts` caps the
+    distinct effects tried under one approval: the first `attempts` are judged on their merits, any later
+    one is refused, so a model that keeps re-deciding is stopped by the gate, not only by its own loop.
     """
-    def __init__(self, path, fields=lambda effect: effect, clock=time.time):
-        self.path, self.fields, self.clock = path, fields, clock
+    def __init__(self, path, fields=lambda effect: effect, clock=time.time, attempts=None):
+        self.path, self.fields, self.clock, self.attempts = path, fields, clock, attempts
         with self._db() as db:
             db.execute("CREATE TABLE IF NOT EXISTS sends (approval TEXT PRIMARY KEY, effect_id TEXT NOT NULL, at REAL NOT NULL)")
             db.execute("CREATE TABLE IF NOT EXISTS revoked (approval TEXT PRIMARY KEY, at REAL NOT NULL, by TEXT)")
+            db.execute("CREATE TABLE IF NOT EXISTS attempts (approval TEXT NOT NULL, attempt TEXT NOT NULL, PRIMARY KEY (approval, attempt))")
+
+    @staticmethod
+    def _attempt(effect):
+        return hashlib.sha256(json.dumps(effect, sort_keys=True, default=str).encode()).hexdigest()[:16]
 
     @contextlib.contextmanager
     def _db(self):
@@ -73,6 +80,13 @@ class Envelope:
         with self._db() as db:
             if db.execute("SELECT 1 FROM revoked WHERE approval = ?", (aid,)).fetchone():
                 out.append(f"approval {aid} was revoked")
+        if self.attempts is not None:
+            with self._db() as db:
+                tried = [a for (a,) in db.execute("SELECT attempt FROM attempts WHERE approval = ? ORDER BY rowid", (aid,))]
+            over = (len(tried) >= self.attempts if effect is None
+                    else self._attempt(effect) not in tried[:self.attempts] and len(tried) >= self.attempts)
+            if over:
+                out.append(f"approval {aid} has had its {self.attempts} attempts")
         if effect is not None:
             f = self.fields(effect)
             out += [f"{k} must be {v!r}, not {f.get(k)!r}" for k, v in (approval.get("match") or {}).items() if f.get(k) != v]
@@ -81,6 +95,9 @@ class Envelope:
         return out
 
     def allows(self, approval, effect):
+        if self.attempts is not None and isinstance(approval, dict) and approval.get("id"):
+            with self._db() as db:                  # count this attempt before judging it
+                db.execute("INSERT OR IGNORE INTO attempts VALUES (?, ?)", (approval["id"], self._attempt(effect)))
         return not self.problems(approval, effect)
 
     def is_live(self, approval):

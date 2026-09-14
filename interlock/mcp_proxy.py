@@ -94,8 +94,13 @@ class Proxy:
         self.tools = {name: gated(self.interlock, name, spec, self.upstream.call_tool, module=__name__)
                       for name, spec in config["tools"].items()}
         self.recovered = False
+        self.reads = {}                                   # client request id -> (tool, arguments) of a passthrough call
 
     def to_client(self, msg):
+        read = self.reads.pop(msg.get("id"), None) if "result" in msg else None
+        if read:                                          # the agent read a tool: its facts are what it decides on
+            for call in self.tools.values():
+                call.observe(*read, msg["result"])
         with self.out:
             sys.stdout.write(json.dumps(msg) + "\n")
             sys.stdout.flush()
@@ -129,6 +134,9 @@ class Proxy:
             if msg.get("method") == "tools/call" and (msg.get("params") or {}).get("name") in self.tools:
                 threading.Thread(target=self.handle_call, args=(msg,), daemon=True).start()
                 continue
+            if msg.get("method") == "tools/call" and "id" in msg:
+                params = msg.get("params") or {}
+                self.reads[msg["id"]] = (params.get("name"), params.get("arguments") or {})
             self.upstream.send(msg)
             if msg.get("method") == "notifications/initialized" and not self.recovered:
                 self.recovered = True                     # upstream is ready: resolve what a crash left in flight
