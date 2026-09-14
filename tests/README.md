@@ -98,7 +98,7 @@ The approval inbox: routine requests never reach a person, judgment calls do, an
 
 ### `tests/test_azure_deploy.py` (9)
 
-Offline checks for infra/azure/deploy.sh. The dry run prints the plan without calling az or leaking secret values, and a Stripe key that is not test mode is refused. A real run against a stub az (logs its argv, returns canned values) in a throwaway git repo covers create vs update, the FQDN re-apply, the empty-FQDN stop, the env-name guard, the committed-only build context and temp file cleanup. Skipped if bash or git is missing.
+Offline checks for infra/azure/deploy.sh. The dry run prints the plan without calling az or leaking secret values, and a Stripe key that is not test mode is refused. A real run against a stub az (logs its argv, returns canned values) in a throwaway git repo covers the app PUT and provisioning wait, the FQDN re-apply, the empty-FQDN stop, the env-name guard, the committed-only build context and temp file cleanup. Skipped if bash or git is missing.
 
 **AzureDeployScript** (9)
 

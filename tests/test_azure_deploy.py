@@ -3,31 +3,32 @@
 
 Offline checks for infra/azure/deploy.sh. The dry run prints the plan without calling az or leaking secret values,
 and a Stripe key that is not test mode is refused. A real run against a stub az (logs its argv, returns canned
-values) in a throwaway git repo covers create vs update, the FQDN re-apply, the empty-FQDN stop, the env-name guard,
+values) in a throwaway git repo covers the app PUT and provisioning wait, the FQDN re-apply, the empty-FQDN stop, the env-name guard,
 the committed-only build context and temp file cleanup. Skipped if bash or git is missing.
 """
-import os, shutil, subprocess, tempfile, textwrap, unittest
+import json, os, shutil, subprocess, sys, tempfile, textwrap, unittest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCRIPT = os.path.join(ROOT, "infra", "azure", "deploy.sh")
 BASH, GIT = shutil.which("bash"), shutil.which("git")
 ANTHROPIC, STRIPE = "sk-ant-offlinetest-9f3e1a", "sk_test_offlinetest_7c2b4d"
-BASE_PATH = os.pathsep.join(dict.fromkeys([os.path.dirname(GIT or "/usr/bin/git"), "/usr/bin", "/bin"]))
+BASE_PATH = os.pathsep.join(dict.fromkeys([os.path.dirname(GIT or "/usr/bin/git"), os.path.dirname(sys.executable), "/usr/bin", "/bin"]))
 
 STUB_AZ = r"""#!/usr/bin/env bash
 printf '%s\n' "$*" >> "$STUB_LOG"
 case "$*" in
   "account show"*) echo 11111111-2222-3333-4444-555555555555 ;;
   "acr build"*) ctx="${@: -4:1}"; (cd "$ctx" && find . -type f | sort) > "$STUB_LOG.ctx" ;;
+  *"--query location"*) echo "West US 2" ;;
   *"--query properties.defaultDomain"*) echo predicted.eastus.azurecontainerapps.io ;;
   *"--query properties.configuration.ingress.fqdn"*) echo "$STUB_FQDN" ;;
   *"--query properties.latestRevisionName"*) echo interlock-demo--rev1 ;;
   "role assignment list"*) echo "${STUB_ROLE_ID:-}" ;;
+  "containerapp show -n interlock-demo -g interlock-demo-rg --query properties.provisioningState"*) echo "${STUB_APP_STATE:-Succeeded}" ;;
   *"--query properties.provisioningState"*) echo "${STUB_ENV_STATE:-Succeeded}" ;;
   *"--query"*) echo "/subscriptions/x/resourceGroups/rg/providers/p/$2" ;;
-  "containerapp show -n interlock-demo -g interlock-demo-rg") exit "$STUB_APP_MISSING" ;;
-  "containerapp create"*|"containerapp update"*)
-    prev=""; for a in "$@"; do [ "$prev" = --yaml ] && y="$a"; prev="$a"; done
-    echo "YAML $y" >> "$STUB_LOG"; grep -A1 'INTERLOCK_ALLOWED_HOSTS' "$y" >> "$STUB_LOG" ;;
+  "rest --method put"*)
+    prev=""; for a in "$@"; do [ "$prev" = --body ] && y="${a#@}"; prev="$a"; done
+    echo "BODY $y" >> "$STUB_LOG"; grep -A1 'INTERLOCK_ALLOWED_HOSTS' "$y" >> "$STUB_LOG"; grep '"location"' "$y" >> "$STUB_LOG" ;;
   *"show"*) exit 0 ;;
 esac
 exit 0
@@ -41,22 +42,38 @@ class AzureDeployScript(unittest.TestCase):
         return subprocess.run([BASH, SCRIPT, *args], cwd=cwd, env={**base, **env},
                               capture_output=True, text=True, timeout=60)
 
+    def dry_spec(self, **env):  # the JSON app spec printed by a dry run
+        p = self.run_script("--dry-run", ANTHROPIC_API_KEY=ANTHROPIC, STRIPE_SECRET_KEY=STRIPE, **env)
+        self.assertEqual(p.returncode, 0, p.stderr)
+        lines = p.stdout.splitlines()
+        start = lines.index("{")
+        return p, json.loads("\n".join(lines[start:lines.index("}", start) + 1]))
+
     def test_dry_run_redacts_secrets(self):
         p = self.run_script("--dry-run", ANTHROPIC_API_KEY=ANTHROPIC, STRIPE_SECRET_KEY=STRIPE)
         out = p.stdout + p.stderr
         self.assertEqual(p.returncode, 0, out)
         self.assertNotIn("offlinetest", out)
-        for expected in ("az acr build", "secretRef: stripe-secret-key", "minReplicas: 1", "maxReplicas: 1",
-                         "path: /healthz", "INTERLOCK_PUBLIC", "INTERLOCK_TRUSTED_PROXY_HOPS", "<redacted>"):
+        for expected in ("az acr build", "az rest --method put", "api-version=2024-03-01", "<redacted>"):
             self.assertIn(expected, out)
+        _, spec = self.dry_spec()
+        props = spec["properties"]
+        self.assertEqual(props["template"]["scale"], {"minReplicas": 1, "maxReplicas": 1})
+        c = props["template"]["containers"][0]
+        env = {e["name"]: e for e in c["env"]}
+        self.assertEqual(env["STRIPE_SECRET_KEY"], {"name": "STRIPE_SECRET_KEY", "secretRef": "stripe-secret-key"})
+        self.assertEqual(env["INTERLOCK_PUBLIC"]["value"], "1")
+        self.assertEqual(env["INTERLOCK_TRUSTED_PROXY_HOPS"]["value"], "1")
+        self.assertEqual([p["httpGet"]["path"] for p in c["probes"]], ["/healthz", "/healthz"])
+        self.assertEqual([s["value"] for s in props["configuration"]["secrets"]], ["<redacted>", "<redacted>"])
 
     def test_port_is_consistent(self):
-        p = self.run_script("--dry-run", ANTHROPIC_API_KEY=ANTHROPIC, STRIPE_SECRET_KEY=STRIPE, INTERLOCK_PORT="9000")
-        self.assertEqual(p.returncode, 0, p.stderr)
+        p, spec = self.dry_spec(INTERLOCK_PORT="9000")
         self.assertNotIn("9000", p.stdout)
-        self.assertEqual(p.stdout.count("port: 8787"), 2)
-        self.assertIn("targetPort: 8787", p.stdout)
-        self.assertIn('- name: PORT\n        value: "8787"', p.stdout)
+        c = spec["properties"]["template"]["containers"][0]
+        self.assertEqual([p["httpGet"]["port"] for p in c["probes"]], [8787, 8787])
+        self.assertEqual(spec["properties"]["configuration"]["ingress"]["targetPort"], 8787)
+        self.assertIn({"name": "PORT", "value": "8787"}, c["env"])
 
     def test_refuses_live_stripe_key(self):
         p = self.run_script("--dry-run", ANTHROPIC_API_KEY="x", STRIPE_SECRET_KEY="sk_live_offlinetest")
@@ -96,11 +113,11 @@ class AzureDeployScript(unittest.TestCase):
             f.write("x\n")
         return d
 
-    def deploy(self, repo, fqdn, app_missing, role_id="", **env):
+    def deploy(self, repo, fqdn, role_id="", **env):
         log = os.path.join(repo, "az.log")
         p = self.run_script(cwd=repo, path=os.path.join(repo, "bin") + os.pathsep + BASE_PATH,
                             ANTHROPIC_API_KEY=ANTHROPIC, STRIPE_SECRET_KEY=STRIPE, STUB_LOG=log,
-                            STUB_FQDN=fqdn, STUB_APP_MISSING="1" if app_missing else "0", STUB_ROLE_ID=role_id, **env)
+                            STUB_FQDN=fqdn, STUB_ROLE_ID=role_id, **env)
         calls = ""
         if os.path.exists(log):
             with open(log) as f:
@@ -110,18 +127,19 @@ class AzureDeployScript(unittest.TestCase):
     def test_create_then_reapply_with_real_fqdn(self):
         repo = self.make_repo()
         real = "interlock-demo.other.eastus.azurecontainerapps.io"
-        p, calls = self.deploy(repo, real, app_missing=True)
+        p, calls = self.deploy(repo, real)
         self.assertEqual(p.returncode, 0, p.stderr)
         self.assertEqual(p.stdout.strip(), "https://" + real)
         lines = calls.splitlines()
-        self.assertEqual(sum(l.startswith("containerapp create") for l in lines), 2)
-        self.assertEqual(sum(l.startswith("containerapp update") for l in lines), 0)
+        self.assertEqual(sum(l.startswith("rest --method put") for l in lines), 2)
+        self.assertEqual(sum(l.startswith("containerapp create") or l.startswith("containerapp update") for l in lines), 0)
         hosts = [lines[i + 1] for i, l in enumerate(lines) if "INTERLOCK_ALLOWED_HOSTS" in l]
         self.assertIn("interlock-demo.predicted.eastus.azurecontainerapps.io", hosts[0])
         self.assertIn(real, hosts[1])
-        self.assertNotIn("offlinetest", "\n".join(l for l in lines if not l.startswith("        value")))
+        self.assertIn('"location": "westus2"', calls)     # the environment's region, not AZURE_LOCATION
+        self.assertNotIn("offlinetest", calls)
         self.assertNotIn("offlinetest", p.stdout + p.stderr)
-        for y in {l.split()[1] for l in lines if l.startswith("YAML ")}:
+        for y in {l.split()[1] for l in lines if l.startswith("BODY ")}:
             self.assertFalse(os.path.exists(y))
         with open(os.path.join(repo, "az.log.ctx")) as f:
             ctx = f.read().split()
@@ -130,39 +148,43 @@ class AzureDeployScript(unittest.TestCase):
         self.assertNotIn("./uncommitted.txt", ctx)
         self.assertEqual(sum(l.startswith("role assignment create") for l in lines), 1)
 
-    def test_update_when_app_exists_and_fqdn_matches(self):
+    def test_rerun_keeps_role_and_failed_provisioning_stops(self):
         repo = self.make_repo()
-        p, calls = self.deploy(repo, "interlock-demo.predicted.eastus.azurecontainerapps.io", app_missing=False,
-                               role_id="existing-assignment")
+        fqdn = "interlock-demo.predicted.eastus.azurecontainerapps.io"
+        p, calls = self.deploy(repo, fqdn, role_id="existing-assignment")
         self.assertEqual(p.returncode, 0, p.stderr)
         lines = calls.splitlines()
-        self.assertEqual(sum(l.startswith("containerapp update") for l in lines), 1)
-        self.assertEqual(sum(l.startswith("containerapp create") for l in lines), 0)
+        self.assertEqual(sum(l.startswith("rest --method put") for l in lines), 1)
         self.assertEqual(sum(l.startswith("role assignment create") for l in lines), 0)
+        os.remove(os.path.join(repo, "az.log"))
+        p, calls = self.deploy(repo, fqdn, role_id="existing-assignment", STUB_APP_STATE="Failed")
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("provisioning ended Failed", p.stderr)
+        self.assertNotIn("https://", p.stdout)
 
     def test_failed_environment_is_replaced_and_existing_group_kept(self):
         repo = self.make_repo()
         fqdn = "interlock-demo.predicted.eastus.azurecontainerapps.io"
-        p, calls = self.deploy(repo, fqdn, app_missing=True, STUB_ENV_STATE="Failed")
+        p, calls = self.deploy(repo, fqdn, STUB_ENV_STATE="Failed")
         self.assertEqual(p.returncode, 0, p.stderr)
         lines = calls.splitlines()
         self.assertEqual(sum(l.startswith("group create") for l in lines), 0)
         self.assertEqual(sum(l.startswith("containerapp env delete") for l in lines), 1)
         os.remove(os.path.join(repo, "az.log"))
-        p, calls = self.deploy(repo, fqdn, app_missing=True)
+        p, calls = self.deploy(repo, fqdn)
         self.assertEqual(sum(l.startswith("containerapp env delete") for l in calls.splitlines()), 0)
 
     def test_empty_fqdn_stops(self):
         repo = self.make_repo()
-        p, calls = self.deploy(repo, "", app_missing=False)
+        p, calls = self.deploy(repo, "")
         self.assertNotEqual(p.returncode, 0)
         self.assertIn("FQDN is empty", p.stderr)
         self.assertNotIn("https://", p.stdout)
-        self.assertEqual(sum(l.startswith("containerapp update") for l in calls.splitlines()), 1)
+        self.assertEqual(sum(l.startswith("rest --method put") for l in calls.splitlines()), 1)
 
     def test_refuses_env_names_the_server_does_not_read(self):
         repo = self.make_repo(reads_names=False)
-        p, calls = self.deploy(repo, "x", app_missing=True)
+        p, calls = self.deploy(repo, "x")
         self.assertNotEqual(p.returncode, 0)
         self.assertIn("INTERLOCK_LIVE_PER_IP_HOUR", p.stderr)
         self.assertEqual(calls, "")         # refused before any az call
@@ -176,15 +198,15 @@ class AzureDeployScript(unittest.TestCase):
             with self.subTest(label):
                 repo = self.make_repo(api_source=others + extra,
                                       extra_files={"backend/README.md": '"INTERLOCK_LIVE_PER_DAY"\n'})
-                p, calls = self.deploy(repo, "x", app_missing=True)
+                p, calls = self.deploy(repo, "x")
                 self.assertNotEqual(p.returncode, 0)
                 self.assertIn("INTERLOCK_LIVE_PER_DAY", p.stderr)
                 self.assertEqual(calls, "")
 
     def test_limits_pass_through_only_when_set(self):
-        d = self.run_script("--dry-run", ANTHROPIC_API_KEY=ANTHROPIC, STRIPE_SECRET_KEY=STRIPE,
-                            INTERLOCK_LIVE_PER_DAY="7", INTERLOCK_RATE_LIMIT_PER_MINUTE="99")
-        self.assertIn('- name: INTERLOCK_LIVE_PER_DAY\n        value: "7"', d.stdout)
+        d, spec = self.dry_spec(INTERLOCK_LIVE_PER_DAY="7", INTERLOCK_RATE_LIMIT_PER_MINUTE="99")
+        env = spec["properties"]["template"]["containers"][0]["env"]
+        self.assertIn({"name": "INTERLOCK_LIVE_PER_DAY", "value": "7"}, env)
         self.assertNotIn("INTERLOCK_LIVE_PER_IP_HOUR", d.stdout)
         self.assertNotIn("INTERLOCK_RATE_LIMIT", d.stdout)
 

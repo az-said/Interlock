@@ -6,7 +6,9 @@ image tag (short commit plus a UTC timestamp), so running it again rolls out a n
 ## Before you run it
 
 - `az login`, with access to the subscription named `Azure subscription 1` (override with `AZURE_SUBSCRIPTION`).
-- The `containerapp` az extension installed and the `Microsoft.App` provider registered.
+- The `containerapp` az extension installed, the `Microsoft.App` provider registered, and `python3` on the PATH (it
+  renders the app spec). The app itself is applied with `az rest` as a PUT at API version `2024-03-01`, not
+  `az containerapp create --yaml`: extension 1.3.0b4 sends that through a preview API that rejected the spec with a 400.
 - A committed `Dockerfile` at the repo root. The build context is `git archive HEAD`, so only committed files are
   uploaded; ignored files (`.env*`, `.interlock/`, `site/.vercel/`, demo data) and uncommitted edits never reach the
   registry. Commit before deploying. The image is built remotely with `az acr build`; local Docker is not needed.
@@ -16,7 +18,7 @@ image tag (short commit plus a UTC timestamp), so running it again rolls out a n
 ## Run
 
 ```bash
-infra/azure/deploy.sh --dry-run   # print the az commands and app YAML, secrets redacted; creates nothing
+infra/azure/deploy.sh --dry-run   # print the az commands and app spec JSON, secrets redacted; creates nothing
 infra/azure/deploy.sh             # deploy; prints status lines and the public URL
 ```
 
@@ -36,7 +38,8 @@ placeholders.
 
 Region is `eastus` unless `AZURE_LOCATION` is set. If a region is out of Container Apps capacity, rerun with another
 `AZURE_LOCATION`: an existing resource group keeps its region, and an environment whose provisioning state is not
-`Succeeded` is deleted and created again in the new region. The image tag is `<short commit>-<UTC timestamp>` unless `IMAGE_TAG` is set.
+`Succeeded` is deleted and created again in the new region. The container app always goes in the environment's region, so later
+runs work without repeating `AZURE_LOCATION`. The image tag is `<short commit>-<UTC timestamp>` unless `IMAGE_TAG` is set.
 
 ## The container app
 
@@ -55,7 +58,8 @@ Region is `eastus` unless `AZURE_LOCATION` is set. If a region is out of Contain
   so nothing it echoes back reaches the terminal.
 - `INTERLOCK_PUBLIC=1`, `INTERLOCK_TRUSTED_PROXY_HOPS=1`, and `INTERLOCK_ALLOWED_HOSTS` set to the app's FQDN. The
   script predicts the FQDN from the environment domain, reads the real one after the app is created, and applies the
-  spec again if they differ. It stops with an error if the FQDN comes back empty.
+  spec again if they differ. It stops with an error if the FQDN comes back empty. After each PUT it waits (up to 10
+  minutes) for the app's provisioning state to reach `Succeeded`, and stops if it ends `Failed` or `Canceled`.
 - Rate limits use the names public mode reads: `INTERLOCK_LIVE_PER_IP_HOUR`, `INTERLOCK_LIVE_PER_DAY` and
   `INTERLOCK_MOCK_PER_IP_HOUR`. The script sends only the ones set in your environment; unset ones fall back to the
   server's own defaults. Before touching Azure, the script checks that every `INTERLOCK_*` name it sets or relies on

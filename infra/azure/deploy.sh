@@ -52,9 +52,9 @@ exists() { [ "$DRY_RUN" = 0 ] && "$@" >/dev/null 2>&1; }
 # Build context: committed files only (git archive HEAD), so ignored local secrets and demo state never reach ACR.
 [ "$(git rev-parse --show-toplevel 2>/dev/null)" = "$(pwd -P)" ] || { echo "run from the repo root" >&2; exit 1; }
 CTX="$(mktemp -d)"
-YAML="$(mktemp)"
-chmod 600 "$YAML"
-trap 'rm -rf "$CTX" "$YAML"' EXIT
+BODY="$(mktemp)"
+chmod 600 "$BODY"
+trap 'rm -rf "$CTX" "$BODY"' EXIT
 git archive HEAD | tar -x -C "$CTX"
 [ -f "$CTX/Dockerfile" ] || [ "$DRY_RUN" = 1 ] || { echo "no committed Dockerfile at the repo root" >&2; exit 1; }
 
@@ -131,74 +131,63 @@ ENV_ID="$(query "/subscriptions/$SUB_ID/resourceGroups/$RG/providers/Microsoft.A
   az containerapp env show -n "$ENV_NAME" -g "$RG" --query id -o tsv)"
 DOMAIN="$(query "<env-default-domain>" az containerapp env show -n "$ENV_NAME" -g "$RG" --query properties.defaultDomain -o tsv)"
 
-yaml_str() { local s="${1//\\/\\\\}"; printf '"%s"' "${s//\"/\\\"}"; }
+# The app goes in the environment's region, whatever AZURE_LOCATION says on this run.
+ENV_LOCATION="$(query "$LOCATION" az containerapp env show -n "$ENV_NAME" -g "$RG" --query location -o tsv)"
 
-render() {  # $1 = allowed host
-  local name probe
-  cat <<EOF
-location: $LOCATION
-identity:
-  type: UserAssigned
-  userAssignedIdentities:
-    $(yaml_str "$IDENTITY_ID"): {}
-properties:
-  managedEnvironmentId: $(yaml_str "$ENV_ID")
-  configuration:
-    activeRevisionsMode: Single
-    ingress:
-      external: true
-      targetPort: $PORT
-      transport: auto
-    registries:
-    - server: $ACR.azurecr.io
-      identity: $(yaml_str "$IDENTITY_ID")
-    secrets:
-    - name: anthropic-api-key
-      value: $(yaml_str "$ANTHROPIC_API_KEY")
-    - name: stripe-secret-key
-      value: $(yaml_str "$STRIPE_SECRET_KEY")
-  template:
-    scale:
-      minReplicas: 1
-      maxReplicas: 1
-    containers:
-    - name: $APP
-      image: $IMAGE
-      resources:
-        cpu: 2.0
-        memory: 4Gi
-      env:
-      - name: ANTHROPIC_API_KEY
-        secretRef: anthropic-api-key
-      - name: STRIPE_SECRET_KEY
-        secretRef: stripe-secret-key
-      - name: PORT
-        value: "$PORT"
-      - name: INTERLOCK_PUBLIC
-        value: "1"
-      - name: INTERLOCK_ALLOWED_HOSTS
-        value: $(yaml_str "$1")
-      - name: INTERLOCK_TRUSTED_PROXY_HOPS
-        value: "1"
-EOF
-  while IFS= read -r name; do
-    if [ -n "$name" ]; then printf '      - name: %s\n        value: %s\n' "$name" "$(yaml_str "${!name}")"; fi
-  done <<< "$RATE_NAMES"
-  printf '      probes:\n'
-  for probe in Liveness Readiness; do
-    printf '      - type: %s\n        httpGet:\n          path: /healthz\n          port: %s\n        periodSeconds: 10\n' "$probe" "$PORT"
-  done
+render() {  # $1 = allowed host. JSON app spec; secrets and rate limits are read from the environment, never argv.
+  ALLOWED_HOST="$1" ENV_LOCATION="$ENV_LOCATION" IDENTITY_ID="$IDENTITY_ID" ENV_ID="$ENV_ID" ACR="$ACR" APP="$APP" \
+  IMAGE="$IMAGE" PORT="$PORT" RATE_NAMES="$RATE_NAMES" \
+  ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" STRIPE_SECRET_KEY="$STRIPE_SECRET_KEY" python3 - <<'PY'
+import json, os
+e = os.environ
+port = int(e["PORT"])
+env = [{"name": "ANTHROPIC_API_KEY", "secretRef": "anthropic-api-key"},
+       {"name": "STRIPE_SECRET_KEY", "secretRef": "stripe-secret-key"},
+       {"name": "PORT", "value": str(port)},
+       {"name": "INTERLOCK_PUBLIC", "value": "1"},
+       {"name": "INTERLOCK_ALLOWED_HOSTS", "value": e["ALLOWED_HOST"]},
+       {"name": "INTERLOCK_TRUSTED_PROXY_HOPS", "value": "1"}]
+env += [{"name": n, "value": e[n]} for n in e["RATE_NAMES"].split()]
+print(json.dumps({
+    "location": e["ENV_LOCATION"].replace(" ", "").lower(),
+    "identity": {"type": "UserAssigned", "userAssignedIdentities": {e["IDENTITY_ID"]: {}}},
+    "properties": {
+        "managedEnvironmentId": e["ENV_ID"],
+        "configuration": {
+            "activeRevisionsMode": "Single",
+            "ingress": {"external": True, "targetPort": port, "transport": "auto"},
+            "registries": [{"server": e["ACR"] + ".azurecr.io", "identity": e["IDENTITY_ID"]}],
+            "secrets": [{"name": "anthropic-api-key", "value": e["ANTHROPIC_API_KEY"]},
+                        {"name": "stripe-secret-key", "value": e["STRIPE_SECRET_KEY"]}]},
+        "template": {
+            "scale": {"minReplicas": 1, "maxReplicas": 1},
+            "containers": [{
+                "name": e["APP"], "image": e["IMAGE"], "resources": {"cpu": 2.0, "memory": "4Gi"}, "env": env,
+                "probes": [{"type": t, "httpGet": {"path": "/healthz", "port": port}, "periodSeconds": 10}
+                           for t in ("Liveness", "Readiness")]}]}}}, indent=2))
+PY
 }
 
+# Plain ARM PUT (create or replace) at a stable API version. az containerapp create/update --yaml goes through the
+# extension's preview API, which rejected this spec with a 400 on the first live deploy.
+APP_URL="https://management.azure.com/subscriptions/$SUB_ID/resourceGroups/$RG/providers/Microsoft.App/containerApps/$APP?api-version=2024-03-01"
 apply() {  # $1 = allowed host
-  render "$1" > "$YAML"
+  render "$1" > "$BODY"
   if [ "$DRY_RUN" = 1 ]; then
-    redact "$(printf '+ az containerapp create|update -n %s -g %s --yaml <file>:\n%s' "$APP" "$RG" "$(cat "$YAML")")"
-  elif exists az containerapp show -n "$APP" -g "$RG"; then
-    az containerapp update -n "$APP" -g "$RG" --yaml "$YAML" -o none
-  else
-    az containerapp create -n "$APP" -g "$RG" --environment "$ENV_NAME" --yaml "$YAML" -o none
+    redact "$(printf '+ az rest --method put --url %s --body @<file>:\n%s' "$APP_URL" "$(cat "$BODY")")"
+    return
   fi
+  az rest --method put --url "$APP_URL" --body "@$BODY" -o none
+  local state="" i
+  for i in $(seq 120); do  # the PUT returns before provisioning ends; wait up to 10 minutes
+    state="$(az containerapp show -n "$APP" -g "$RG" --query properties.provisioningState -o tsv)"
+    case "$state" in
+      Succeeded) return ;;
+      Failed|Canceled) echo "container app provisioning ended $state" >&2; exit 1 ;;
+    esac
+    sleep 5
+  done
+  echo "container app provisioning still ${state:-unknown} after 10 minutes" >&2; exit 1
 }
 
 status "container app $APP"
