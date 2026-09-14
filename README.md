@@ -4,7 +4,7 @@
 
 **Interlock gives every action an AI agent takes a receipt: it happened once (or is marked unknown when the service can't be asked), it was authorized when it fired, and the facts it was decided on still held when it landed, even through a crash.**
 
-Live demo: https://interlock-demo.PLACEHOLDER · Landing page: [az-said.github.io/Interlock/site](https://az-said.github.io/Interlock/site/) · Offline: `python3 demo.py 2`
+Live demo: [interlock-demo.greenpond-c5ddc6af.westus2.azurecontainerapps.io](https://interlock-demo.greenpond-c5ddc6af.westus2.azurecontainerapps.io) · Landing page: [az-said.github.io/Interlock/site](https://az-said.github.io/Interlock/site/) · Offline: `python3 demo.py 2`
 
 ## Install
 
