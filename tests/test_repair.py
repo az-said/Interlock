@@ -67,6 +67,19 @@ class RepairLoop(unittest.TestCase):
         self.assertIn("approval case-881 has had its 2 attempts", third["repair"]["changed"])
         self.assertEqual(shop.refunds, [])
 
+    def test_attempts_cap_counts_the_same_arguments_sent_again(self):
+        shop = Shop()
+        tools = self.tools(shop, attempts=2)
+        first = tools["create_refund"](order_id="881", amount=30)
+        self.assertTrue(first["repair"]["may_retry"])
+        second = tools["create_refund"](order_id="881", amount=30)      # the same call again gets base:2, a new attempt
+        self.assertFalse(second["repair"]["may_retry"])
+        third = tools["create_refund"](order_id="881", amount=30)
+        self.assertEqual(third["status"], "REFUSED:lease")
+        self.assertIn("approval case-881 has had its 2 attempts", third["repair"]["changed"])
+        self.assertFalse(third["repair"]["may_retry"])
+        self.assertEqual(shop.refunds, [])
+
     def test_duplicate_is_ignored_and_a_second_decision_cannot_use_the_approval(self):
         shop = Shop()
         tools = self.tools(shop)

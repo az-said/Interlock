@@ -61,6 +61,8 @@ class Envelope:
     `fields(effect)` returns the effect's named values (default: the effect itself). `attempts` caps the
     distinct effects tried under one approval: the first `attempts` are judged on their merits, any later
     one is refused, so a model that keeps re-deciding is stopped by the gate, not only by its own loop.
+    An attempt is the approval's "attempt" key when present (easy.py puts the request id there, so the
+    same arguments re-sent after a refusal count again), otherwise a hash of the effect.
     """
     def __init__(self, path, fields=lambda effect: effect, clock=time.time, attempts=None):
         self.path, self.fields, self.clock, self.attempts = path, fields, clock, attempts
@@ -70,7 +72,9 @@ class Envelope:
             db.execute("CREATE TABLE IF NOT EXISTS attempts (approval TEXT NOT NULL, attempt TEXT NOT NULL, PRIMARY KEY (approval, attempt))")
 
     @staticmethod
-    def _attempt(effect):
+    def _attempt(approval, effect):
+        if approval.get("attempt") is not None:
+            return str(approval["attempt"])
         return hashlib.sha256(json.dumps(effect, sort_keys=True, default=str).encode()).hexdigest()[:16]
 
     @contextlib.contextmanager
@@ -95,7 +99,7 @@ class Envelope:
             with self._db() as db:
                 tried = [a for (a,) in db.execute("SELECT attempt FROM attempts WHERE approval = ? ORDER BY rowid", (aid,))]
             over = (len(tried) >= self.attempts if effect is None
-                    else self._attempt(effect) not in tried[:self.attempts] and len(tried) >= self.attempts)
+                    else self._attempt(approval, effect) not in tried[:self.attempts] and len(tried) >= self.attempts)
             if over:
                 out.append(f"approval {aid} has had its {self.attempts} attempts")
         if effect is not None:
@@ -108,7 +112,7 @@ class Envelope:
     def allows(self, approval, effect):
         if self.attempts is not None and isinstance(approval, dict) and approval.get("id"):
             with self._db() as db:                  # count this attempt before judging it
-                db.execute("INSERT OR IGNORE INTO attempts VALUES (?, ?)", (approval["id"], self._attempt(effect)))
+                db.execute("INSERT OR IGNORE INTO attempts VALUES (?, ?)", (approval["id"], self._attempt(approval, effect)))
         return not self.problems(approval, effect)
 
     def is_live(self, approval):

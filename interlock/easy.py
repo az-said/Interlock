@@ -139,7 +139,10 @@ class Interlock:
                 request = request_id(*args)
                 eid = effect_id_for({"request_id": request})
                 facts = seen(*args) if seen else None
-                return {"agent": name, "lease": json.loads(json.dumps(approval(*args))) if approval else args,
+                lease = json.loads(json.dumps(approval(*args))) if approval else args
+                if approval and isinstance(lease, dict):
+                    lease["attempt"] = request                 # attempts count per effect id, including base:2
+                return {"agent": name, "lease": lease,
                         "request_id": request,
                         "premises": {"args": args, "facts": target.facts(args, eid) if facts is None
                                      else json.loads(json.dumps(facts, default=str))},
