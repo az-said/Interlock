@@ -1,5 +1,7 @@
 {
-  "generated": "2026-09-13 23:48 UTC",
+  "generated": "2026-09-14 01:06 UTC",
+  "demo": "temporal",
+  "page": "/demo",
   "scenario": "hand_refund_during_outage",
   "stem": "demo_live",
   "hand_check": false,
@@ -8,7 +10,7 @@
     "claim_ttl": 15,
     "stripe_timeout": 10
   },
-  "live_seconds_click_to_done": 25.1,
+  "live_seconds_click_to_done": 28.2,
   "live_dom": [
     {
       "mode": "temporal",
@@ -16,10 +18,10 @@
       "result_class": "result bad",
       "verdict": "Violated: $20.00 too much",
       "headline": "2 refunds, $40.00 refunded",
-      "payment_intent": "pi_3UFN8088KhIqqdFL1YpMQWGX",
+      "payment_intent": "pi_3UFOLS88KhIqqdFL1ejkagPX",
       "refund_ids": [
-        "re_3UFN8088KhIqqdFL1aLvuYqM",
-        "re_3UFN8088KhIqqdFL1SsDHLnR"
+        "re_3UFOLS88KhIqqdFL1bJuVzmI",
+        "re_3UFOLS88KhIqqdFL1knBnSZJ"
       ],
       "events": 9,
       "events_without_badge": 9,
@@ -29,15 +31,15 @@
         "amount_received": 10000,
         "refunds": [
           {
-            "id": "re_3UFN8088KhIqqdFL1aLvuYqM",
+            "id": "re_3UFOLS88KhIqqdFL1bJuVzmI",
             "amount": 2000,
             "metadata": {}
           },
           {
-            "id": "re_3UFN8088KhIqqdFL1SsDHLnR",
+            "id": "re_3UFOLS88KhIqqdFL1knBnSZJ",
             "amount": 2000,
             "metadata": {
-              "workflow_id": "refund-case-8abc6b425a92"
+              "workflow_id": "refund-case-a68e81964bdd"
             }
           }
         ]
@@ -50,19 +52,19 @@
       "result_class": "result good",
       "verdict": "Held",
       "headline": "1 refund, $20.00 refunded",
-      "payment_intent": "pi_3UFN7z88KhIqqdFL0TFaNx4D",
+      "payment_intent": "pi_3UFOLT88KhIqqdFL0V90O3nR",
       "refund_ids": [
-        "re_3UFN7z88KhIqqdFL03pkGgX3"
+        "re_3UFOLT88KhIqqdFL076OqqH6"
       ],
       "events": 12,
       "events_without_badge": 12,
       "badges": 0,
-      "receipt": "Interlock receipt for effect 115f7142a3fc: PROPOSED, AUTHORIZED, DISPATCHED, REFUSED.Verified from its entries: valid true, chain intact true, happened false, this effect committed at most once true, authorized when fired null, assumptions held null, refused \"stale_premise at recovery\", signed no (no key configured).",
+      "receipt": "Interlock receipt for effect f973276b510c: PROPOSED, AUTHORIZED, DISPATCHED, REFUSED.Verified from its entries: valid true, chain intact true, happened false, this effect committed at most once true, authorized when fired null, assumptions held null, refused \"stale_premise at recovery\", signed no (no key configured).",
       "stripe": {
         "amount_received": 10000,
         "refunds": [
           {
-            "id": "re_3UFN7z88KhIqqdFL03pkGgX3",
+            "id": "re_3UFOLT88KhIqqdFL076OqqH6",
             "amount": 2000,
             "metadata": {}
           }
@@ -72,13 +74,13 @@
     }
   ],
   "live_run": {
-    "id": "09b281c272",
+    "id": "c47aff8b49",
     "kind": "live",
     "mock": false,
     "scenario": "hand_refund_during_outage",
     "done": true,
     "error": null,
-    "elapsed": 23.6,
+    "elapsed": 26.3,
     "columns": [
       {
         "mode": "temporal",
@@ -94,261 +96,261 @@
     "events": [
       {
         "seq": 0,
-        "col": "interlock",
+        "col": "temporal",
         "kind": "case",
-        "text": "Stripe test payment pi_3UFN7z88KhIqqdFL0TFaNx4D: $100.00 paid. Support approves one refund of at most $20.00. Temporal workflow refund-case-87407bd16d7c started.",
+        "text": "Stripe test payment pi_3UFOLS88KhIqqdFL1ejkagPX: $100.00 paid. Support approves one refund of at most $20.00. Temporal workflow refund-case-a68e81964bdd started.",
         "data": {
-          "payment_intent": "pi_3UFN7z88KhIqqdFL0TFaNx4D",
-          "workflow_id": "refund-case-87407bd16d7c",
-          "case_id": "case-87407bd16d7c",
-          "dashboard": "https://dashboard.stripe.com/test/payments/pi_3UFN7z88KhIqqdFL0TFaNx4D"
+          "payment_intent": "pi_3UFOLS88KhIqqdFL1ejkagPX",
+          "case_id": "case-a68e81964bdd",
+          "dashboard": "https://dashboard.stripe.com/test/payments/pi_3UFOLS88KhIqqdFL1ejkagPX",
+          "workflow_id": "refund-case-a68e81964bdd"
         },
-        "t": 1.0,
+        "t": 1.4,
         "mock": false
       },
       {
         "seq": 1,
-        "col": "interlock",
+        "col": "temporal",
         "kind": "worker",
-        "text": "Worker process started, pid 88095. It is set to SIGKILL itself right before the refund call to Stripe.",
+        "text": "Worker process started, pid 76918. It is set to SIGKILL itself right before the refund call to Stripe.",
         "data": {
-          "pid": 88095
+          "pid": 76918
         },
-        "t": 1.0,
+        "t": 1.4,
         "mock": false
       },
       {
         "seq": 2,
-        "col": "temporal",
+        "col": "interlock",
         "kind": "case",
-        "text": "Stripe test payment pi_3UFN8088KhIqqdFL1YpMQWGX: $100.00 paid. Support approves one refund of at most $20.00. Temporal workflow refund-case-8abc6b425a92 started.",
+        "text": "Stripe test payment pi_3UFOLT88KhIqqdFL0V90O3nR: $100.00 paid. Support approves one refund of at most $20.00. Temporal workflow refund-case-146af2c02216 started.",
         "data": {
-          "payment_intent": "pi_3UFN8088KhIqqdFL1YpMQWGX",
-          "workflow_id": "refund-case-8abc6b425a92",
-          "case_id": "case-8abc6b425a92",
-          "dashboard": "https://dashboard.stripe.com/test/payments/pi_3UFN8088KhIqqdFL1YpMQWGX"
+          "payment_intent": "pi_3UFOLT88KhIqqdFL0V90O3nR",
+          "case_id": "case-146af2c02216",
+          "dashboard": "https://dashboard.stripe.com/test/payments/pi_3UFOLT88KhIqqdFL0V90O3nR",
+          "workflow_id": "refund-case-146af2c02216"
         },
-        "t": 1.1,
+        "t": 1.5,
         "mock": false
       },
       {
         "seq": 3,
-        "col": "temporal",
+        "col": "interlock",
         "kind": "worker",
-        "text": "Worker process started, pid 88097. It is set to SIGKILL itself right before the refund call to Stripe.",
+        "text": "Worker process started, pid 76920. It is set to SIGKILL itself right before the refund call to Stripe.",
         "data": {
-          "pid": 88097
+          "pid": 76920
         },
-        "t": 1.1,
+        "t": 1.5,
         "mock": false
       },
       {
         "seq": 4,
-        "col": "temporal",
+        "col": "interlock",
         "kind": "decision",
-        "text": "claude-haiku-4-5-20251001 read the payment with get_payment, then called issue_refund: 2000 cents, \"Partial refund for cracked glass jar on blender. Support case #4471 approved $20.00 refund; customer retains blender.\"",
+        "text": "claude-haiku-4-5-20251001 read the payment with get_payment, then called issue_refund: 2000 cents, \"Partial refund for cracked glass jar on blender - customer keeps blender. Support case #4471 approved.\"",
         "data": {
           "amount_cents": 2000,
-          "reason": "Partial refund for cracked glass jar on blender. Support case #4471 approved $20.00 refund; customer retains blender.",
+          "reason": "Partial refund for cracked glass jar on blender - customer keeps blender. Support case #4471 approved.",
           "model": "claude-haiku-4-5-20251001",
           "premises": {
-            "payment_intent": "pi_3UFN8088KhIqqdFL1YpMQWGX",
+            "payment_intent": "pi_3UFOLT88KhIqqdFL0V90O3nR",
             "refunded_by_others": 0
           }
         },
-        "t": 4.6,
+        "t": 5.9,
         "mock": false
       },
       {
         "seq": 5,
-        "col": "interlock",
+        "col": "temporal",
         "kind": "decision",
-        "text": "claude-haiku-4-5-20251001 read the payment with get_payment, then called issue_refund: 2000 cents, \"Partial refund for cracked glass jar - support case #4471 approved. Customer keeps blender.\"",
+        "text": "claude-haiku-4-5-20251001 read the payment with get_payment, then called issue_refund: 2000 cents, \"Partial refund for cracked glass jar - customer keeps blender - case #4471\"",
         "data": {
           "amount_cents": 2000,
-          "reason": "Partial refund for cracked glass jar - support case #4471 approved. Customer keeps blender.",
+          "reason": "Partial refund for cracked glass jar - customer keeps blender - case #4471",
           "model": "claude-haiku-4-5-20251001",
           "premises": {
-            "payment_intent": "pi_3UFN7z88KhIqqdFL0TFaNx4D",
+            "payment_intent": "pi_3UFOLS88KhIqqdFL1ejkagPX",
             "refunded_by_others": 0
           }
         },
-        "t": 5.1,
+        "t": 6.1,
         "mock": false
       },
       {
         "seq": 6,
-        "col": "interlock",
-        "kind": "journal",
-        "text": "PROPOSED by claude-haiku-4-5-20251001: refund $20.00. Premise: $0.00 already refunded on this payment.",
+        "col": "temporal",
+        "kind": "crash",
+        "text": "Worker pid 76918 is dead: exit code -9 (SIGKILL), right before the refund call to Stripe.",
         "data": {
-          "entry": {
-            "ts": 1789343292.521452,
-            "kind": "PROPOSED",
-            "effect_id": "115f7142a3fc",
-            "agent": "claude-haiku-4-5-20251001",
-            "lease": "approval/case-87407bd16d7c",
-            "premises": {
-              "payment_intent": "pi_3UFN7z88KhIqqdFL0TFaNx4D",
-              "refunded_by_others": 0
-            },
-            "effect": {
-              "amount": 2000
-            },
-            "prev": null,
-            "hash": "263ff2f150ce1ec29cd3931fd8e9dc15adfe20a4f05803f8d2d9403c350b9733"
-          }
+          "pid": 76918,
+          "exit_code": -9,
+          "point": "before_send"
         },
-        "t": 5.1,
+        "t": 6.1,
         "mock": false
       },
       {
         "seq": 7,
         "col": "interlock",
         "kind": "journal",
-        "text": "AUTHORIZED: approval approval/case-87407bd16d7c is live.",
+        "text": "PROPOSED by claude-haiku-4-5-20251001: refund $20.00. Premise: $0.00 already refunded on this payment.",
         "data": {
           "entry": {
-            "ts": 1789343292.52279,
-            "kind": "AUTHORIZED",
-            "effect_id": "115f7142a3fc",
-            "lease": "approval/case-87407bd16d7c",
-            "prev": "263ff2f150ce1ec29cd3931fd8e9dc15adfe20a4f05803f8d2d9403c350b9733",
-            "hash": "5772e707fc2f99fca123bc0aabe0ed930bfaf6a4d3ed6cd64f10b0d45e9d22df"
+            "ts": 1789347972.4515011,
+            "kind": "PROPOSED",
+            "effect_id": "f973276b510c",
+            "agent": "claude-haiku-4-5-20251001",
+            "lease": "approval/case-146af2c02216",
+            "premises": {
+              "payment_intent": "pi_3UFOLT88KhIqqdFL0V90O3nR",
+              "refunded_by_others": 0
+            },
+            "effect": {
+              "amount": 2000
+            },
+            "prev": null,
+            "hash": "5a7fad417221732f24250183b128aeed6c5ebd9f610dcf82d4c37b9a58427aaf"
           }
         },
-        "t": 5.1,
+        "t": 6.4,
         "mock": false
       },
       {
         "seq": 8,
         "col": "interlock",
         "kind": "journal",
-        "text": "DISPATCHED: on disk before the refund call. Checked just now: approval live, capped at $20.00, payment's refunds unchanged.",
+        "text": "AUTHORIZED: approval approval/case-146af2c02216 is live.",
         "data": {
           "entry": {
-            "ts": 1789343292.7076821,
-            "kind": "DISPATCHED",
-            "effect_id": "115f7142a3fc",
-            "effect": {
-              "amount": 2000
-            },
-            "lease": "approval/case-87407bd16d7c",
-            "premises": {
-              "payment_intent": "pi_3UFN7z88KhIqqdFL0TFaNx4D",
-              "refunded_by_others": 0
-            },
-            "checks": {
-              "lease_live": true,
-              "lease": {
-                "lease_id": "approval/case-87407bd16d7c",
-                "max_cents": 2000,
-                "revoked": null,
-                "granted": 1789343288.638041
-              },
-              "violations": []
-            },
-            "prev": "5772e707fc2f99fca123bc0aabe0ed930bfaf6a4d3ed6cd64f10b0d45e9d22df",
-            "hash": "8748f143961d90a9d412ba9206df2df90525a498bbcc7884b1928be35bfd7cab"
+            "ts": 1789347972.454746,
+            "kind": "AUTHORIZED",
+            "effect_id": "f973276b510c",
+            "lease": "approval/case-146af2c02216",
+            "prev": "5a7fad417221732f24250183b128aeed6c5ebd9f610dcf82d4c37b9a58427aaf",
+            "hash": "f49295ed915a1871207ad9e409672d885f318fbb93f819476541087e8aac5e57"
           }
-        },
-        "t": 5.1,
-        "mock": false
-      },
-      {
-        "seq": 9,
-        "col": "interlock",
-        "kind": "crash",
-        "text": "Worker pid 88095 is dead: exit code -9 (SIGKILL), right before the refund call to Stripe.",
-        "data": {
-          "pid": 88095,
-          "exit_code": -9,
-          "point": "before_send"
-        },
-        "t": 5.1,
-        "mock": false
-      },
-      {
-        "seq": 10,
-        "col": "temporal",
-        "kind": "crash",
-        "text": "Worker pid 88097 is dead: exit code -9 (SIGKILL), right before the refund call to Stripe.",
-        "data": {
-          "pid": 88097,
-          "exit_code": -9,
-          "point": "before_send"
-        },
-        "t": 5.1,
-        "mock": false
-      },
-      {
-        "seq": 11,
-        "col": "interlock",
-        "kind": "hand_refund",
-        "text": "While the worker is down, support refunds $20.00 by hand in Stripe: re_3UFN7z88KhIqqdFL03pkGgX3. No idempotency key, no metadata, as from the dashboard.",
-        "data": {
-          "refund_id": "re_3UFN7z88KhIqqdFL03pkGgX3",
-          "amount": 2000
-        },
-        "t": 6.2,
-        "mock": false
-      },
-      {
-        "seq": 12,
-        "col": "interlock",
-        "kind": "worker",
-        "text": "Worker process restarted, pid 88110. Temporal will retry the refund activity.",
-        "data": {
-          "pid": 88110
-        },
-        "t": 6.2,
-        "mock": false
-      },
-      {
-        "seq": 13,
-        "col": "temporal",
-        "kind": "hand_refund",
-        "text": "While the worker is down, support refunds $20.00 by hand in Stripe: re_3UFN8088KhIqqdFL1aLvuYqM. No idempotency key, no metadata, as from the dashboard.",
-        "data": {
-          "refund_id": "re_3UFN8088KhIqqdFL1aLvuYqM",
-          "amount": 2000
-        },
-        "t": 6.2,
-        "mock": false
-      },
-      {
-        "seq": 14,
-        "col": "temporal",
-        "kind": "worker",
-        "text": "Worker process restarted, pid 88112. Temporal will retry the refund activity.",
-        "data": {
-          "pid": 88112
-        },
-        "t": 6.2,
-        "mock": false
-      },
-      {
-        "seq": 15,
-        "col": "interlock",
-        "kind": "stripe",
-        "text": "Stripe now lists refund re_3UFN7z88KhIqqdFL03pkGgX3: $20.00, no metadata: the hand refund.",
-        "data": {
-          "refund_id": "re_3UFN7z88KhIqqdFL03pkGgX3",
-          "amount": 2000
         },
         "t": 6.4,
         "mock": false
       },
       {
-        "seq": 16,
-        "col": "temporal",
-        "kind": "stripe",
-        "text": "Stripe now lists refund re_3UFN8088KhIqqdFL1aLvuYqM: $20.00, no metadata: the hand refund.",
+        "seq": 9,
+        "col": "interlock",
+        "kind": "journal",
+        "text": "DISPATCHED: on disk before the refund call. Checked just now: approval live, capped at $20.00, payment's refunds unchanged.",
         "data": {
-          "refund_id": "re_3UFN8088KhIqqdFL1aLvuYqM",
+          "entry": {
+            "ts": 1789347972.7185762,
+            "kind": "DISPATCHED",
+            "effect_id": "f973276b510c",
+            "effect": {
+              "amount": 2000
+            },
+            "lease": "approval/case-146af2c02216",
+            "premises": {
+              "payment_intent": "pi_3UFOLT88KhIqqdFL0V90O3nR",
+              "refunded_by_others": 0
+            },
+            "checks": {
+              "lease_live": true,
+              "lease": {
+                "lease_id": "approval/case-146af2c02216",
+                "max_cents": 2000,
+                "revoked": null,
+                "granted": 1789347967.822399
+              },
+              "violations": []
+            },
+            "prev": "f49295ed915a1871207ad9e409672d885f318fbb93f819476541087e8aac5e57",
+            "hash": "1aacf2ab1ab85d6ec32daf1d08cf782cc4c2786b77500bd43cfe844b1687a8db"
+          }
+        },
+        "t": 6.9,
+        "mock": false
+      },
+      {
+        "seq": 10,
+        "col": "temporal",
+        "kind": "hand_refund",
+        "text": "While the worker is down, support refunds $20.00 by hand in Stripe: re_3UFOLS88KhIqqdFL1bJuVzmI. No idempotency key, no metadata, as from the dashboard.",
+        "data": {
+          "refund_id": "re_3UFOLS88KhIqqdFL1bJuVzmI",
           "amount": 2000
         },
-        "t": 6.8,
+        "t": 7.4,
+        "mock": false
+      },
+      {
+        "seq": 11,
+        "col": "temporal",
+        "kind": "worker",
+        "text": "Worker process restarted, pid 76981. Temporal will retry the refund activity.",
+        "data": {
+          "pid": 76981
+        },
+        "t": 7.4,
+        "mock": false
+      },
+      {
+        "seq": 12,
+        "col": "interlock",
+        "kind": "crash",
+        "text": "Worker pid 76920 is dead: exit code -9 (SIGKILL), right before the refund call to Stripe.",
+        "data": {
+          "pid": 76920,
+          "exit_code": -9,
+          "point": "before_send"
+        },
+        "t": 7.6,
+        "mock": false
+      },
+      {
+        "seq": 13,
+        "col": "temporal",
+        "kind": "stripe",
+        "text": "Stripe now lists refund re_3UFOLS88KhIqqdFL1bJuVzmI: $20.00, no metadata: the hand refund.",
+        "data": {
+          "refund_id": "re_3UFOLS88KhIqqdFL1bJuVzmI",
+          "amount": 2000
+        },
+        "t": 7.8,
+        "mock": false
+      },
+      {
+        "seq": 14,
+        "col": "interlock",
+        "kind": "hand_refund",
+        "text": "While the worker is down, support refunds $20.00 by hand in Stripe: re_3UFOLT88KhIqqdFL076OqqH6. No idempotency key, no metadata, as from the dashboard.",
+        "data": {
+          "refund_id": "re_3UFOLT88KhIqqdFL076OqqH6",
+          "amount": 2000
+        },
+        "t": 8.9,
+        "mock": false
+      },
+      {
+        "seq": 15,
+        "col": "interlock",
+        "kind": "worker",
+        "text": "Worker process restarted, pid 76997. Temporal will retry the refund activity.",
+        "data": {
+          "pid": 76997
+        },
+        "t": 8.9,
+        "mock": false
+      },
+      {
+        "seq": 16,
+        "col": "interlock",
+        "kind": "stripe",
+        "text": "Stripe now lists refund re_3UFOLT88KhIqqdFL076OqqH6: $20.00, no metadata: the hand refund.",
+        "data": {
+          "refund_id": "re_3UFOLT88KhIqqdFL076OqqH6",
+          "amount": 2000
+        },
+        "t": 9.6,
         "mock": false
       },
       {
@@ -360,7 +362,7 @@
           "attempt": 2,
           "last_failure": "activity StartToClose timeout"
         },
-        "t": 19.6,
+        "t": 20.9,
         "mock": false
       },
       {
@@ -372,19 +374,19 @@
           "attempt": 2,
           "last_failure": "activity StartToClose timeout"
         },
-        "t": 19.8,
+        "t": 21.2,
         "mock": false
       },
       {
         "seq": 19,
         "col": "temporal",
         "kind": "stripe",
-        "text": "Stripe now lists refund re_3UFN8088KhIqqdFL1SsDHLnR: $20.00, sent by the agent's workflow.",
+        "text": "Stripe now lists refund re_3UFOLS88KhIqqdFL1knBnSZJ: $20.00, sent by the agent's workflow.",
         "data": {
-          "refund_id": "re_3UFN8088KhIqqdFL1SsDHLnR",
+          "refund_id": "re_3UFOLS88KhIqqdFL1knBnSZJ",
           "amount": 2000
         },
-        "t": 21.8,
+        "t": 24.2,
         "mock": false
       },
       {
@@ -394,28 +396,28 @@
         "text": "REFUSED: stale_premise at recovery, refunded by others: was 0, now 2000",
         "data": {
           "entry": {
-            "ts": 1789343309.08194,
+            "ts": 1789347989.409154,
             "kind": "REFUSED",
-            "effect_id": "115f7142a3fc",
+            "effect_id": "f973276b510c",
             "reason": "stale_premise at recovery",
             "resolves": true,
             "rechecked": {
               "lease_live": true,
               "lease": {
-                "lease_id": "approval/case-87407bd16d7c",
+                "lease_id": "approval/case-146af2c02216",
                 "max_cents": 2000,
                 "revoked": null,
-                "granted": 1789343288.638041
+                "granted": 1789347967.822399
               },
               "violations": [
                 "refunded by others: was 0, now 2000"
               ]
             },
-            "prev": "8748f143961d90a9d412ba9206df2df90525a498bbcc7884b1928be35bfd7cab",
-            "hash": "5ed6e7936aaad54af0d03c5e2fdcf60d7877c6b1f042822c1e55e91d6e40c2c3"
+            "prev": "1aacf2ab1ab85d6ec32daf1d08cf782cc4c2786b77500bd43cfe844b1687a8db",
+            "hash": "afe003c86f2f79b3a0a1726a50eaff8be7bd08b6c1c8192198327258ef981b24"
           }
         },
-        "t": 22.1,
+        "t": 24.3,
         "mock": false
       },
       {
@@ -430,14 +432,11 @@
           "want_text": "one $20 refund: the one support made by hand",
           "outcome": "REFUSED:stale_premise_at_recovery",
           "why": "Interlock refused at recovery: the payment's refunds changed after the refund was decided (refunded by others: was 0, now 2000). A person decides what happens next.",
-          "workflow_id": "refund-case-87407bd16d7c",
-          "workflow_status": "COMPLETED",
-          "refund_attempts": 2,
-          "payment_intent": "pi_3UFN7z88KhIqqdFL0TFaNx4D",
-          "dashboard": "https://dashboard.stripe.com/test/payments/pi_3UFN7z88KhIqqdFL0TFaNx4D",
+          "payment_intent": "pi_3UFOLT88KhIqqdFL0V90O3nR",
+          "dashboard": "https://dashboard.stripe.com/test/payments/pi_3UFOLT88KhIqqdFL0V90O3nR",
           "refunds": [
             {
-              "id": "re_3UFN7z88KhIqqdFL03pkGgX3",
+              "id": "re_3UFOLT88KhIqqdFL076OqqH6",
               "amount": 2000,
               "status": "succeeded",
               "by": "no metadata: the hand refund"
@@ -445,7 +444,7 @@
           ],
           "refunded_cents": 2000,
           "receipt": {
-            "effect_id": "115f7142a3fc",
+            "effect_id": "f973276b510c",
             "final": "REFUSED",
             "entries": [
               "PROPOSED",
@@ -466,10 +465,13 @@
               "problems": []
             }
           },
+          "workflow_id": "refund-case-146af2c02216",
+          "workflow_status": "COMPLETED",
+          "refund_attempts": 2,
           "worker_exit_code": -9,
-          "crash_to_close": 16.3
+          "crash_to_close": 15.6
         },
-        "t": 23.0,
+        "t": 26.2,
         "mock": false
       },
       {
@@ -484,20 +486,17 @@
           "want_text": "one $20 refund: the one support made by hand",
           "outcome": "REFUNDED",
           "why": "The retry sent the refund. Nothing in the activity re-checked the approval or the payment after the crash.",
-          "workflow_id": "refund-case-8abc6b425a92",
-          "workflow_status": "COMPLETED",
-          "refund_attempts": 2,
-          "payment_intent": "pi_3UFN8088KhIqqdFL1YpMQWGX",
-          "dashboard": "https://dashboard.stripe.com/test/payments/pi_3UFN8088KhIqqdFL1YpMQWGX",
+          "payment_intent": "pi_3UFOLS88KhIqqdFL1ejkagPX",
+          "dashboard": "https://dashboard.stripe.com/test/payments/pi_3UFOLS88KhIqqdFL1ejkagPX",
           "refunds": [
             {
-              "id": "re_3UFN8088KhIqqdFL1aLvuYqM",
+              "id": "re_3UFOLS88KhIqqdFL1bJuVzmI",
               "amount": 2000,
               "status": "succeeded",
               "by": "no metadata: the hand refund"
             },
             {
-              "id": "re_3UFN8088KhIqqdFL1SsDHLnR",
+              "id": "re_3UFOLS88KhIqqdFL1knBnSZJ",
               "amount": 2000,
               "status": "succeeded",
               "by": "sent by the agent's workflow"
@@ -505,31 +504,34 @@
           ],
           "refunded_cents": 4000,
           "receipt": null,
+          "workflow_id": "refund-case-a68e81964bdd",
+          "workflow_status": "COMPLETED",
+          "refund_attempts": 2,
           "worker_exit_code": -9,
-          "crash_to_close": 16.7
+          "crash_to_close": 17.6
         },
-        "t": 23.6,
+        "t": 26.3,
         "mock": false
       }
     ]
   },
   "live_banner": "LIVE RUN: Stripe test mode, claude-haiku-4-5-20251001, Temporal dev server, worker processes killed with SIGKILL. Scenario: Hand refund during the outage.",
-  "live_status": "Run 09b281c272 finished in 23.6s.",
+  "live_status": "Run c47aff8b49 finished in 26.3s.",
   "runs_started": 2,
   "elapsed_read_twice_3s_apart": [
-    23.6,
-    23.6
+    26.3,
+    26.3
   ],
   "narrow_scroll_width": 400,
-  "narrow_status": "Run 09b281c272 finished in 23.6s.",
+  "narrow_status": "Run c47aff8b49 finished in 26.3s.",
   "cross_site": {
-    "page_origin": "http://127.0.0.1:53452",
+    "page_origin": "http://127.0.0.1:56946",
     "browser_attempts": {
       "no_cors_text_plain": "sent, opaque response opaque",
       "cors_json": "blocked: Failed to fetch"
     },
-    "latest_before": "09b281c272",
-    "latest_after": "09b281c272",
+    "latest_before": "c47aff8b49",
+    "latest_after": "c47aff8b49",
     "run_started": false,
     "direct_status": {
       "text/plain from curl-like client": 403,
@@ -538,11 +540,11 @@
     }
   },
   "poll_race": {
-    "held_back_run": "09b281c272",
-    "started_run": "38a0ae898d",
-    "page_run_id": "38a0ae898d",
+    "held_back_run": "c47aff8b49",
+    "started_run": "aca1be4e06",
+    "page_run_id": "aca1be4e06",
     "page_run_kind": "mock",
-    "status": "Run 38a0ae898d (MOCK) finished in 0s.",
+    "status": "Run aca1be4e06 (MOCK) finished in 0s.",
     "held": true
   },
   "mock_dom": [
@@ -576,10 +578,10 @@
   "mock_banner": "MOCK RUN: simulated in this process by experiments/refund_agent.py. No Stripe, no model, no Temporal, no real crash. Not a live result.",
   "mock_labels": {
     "title": "MOCK: Interlock: one crash, two setups",
-    "status": "Run 38a0ae898d (MOCK) finished in 0s.",
+    "status": "Run aca1be4e06 (MOCK) finished in 0s.",
     "live_settings_shown": false,
     "live_note_shown": false
   },
-  "mock_narrow_status": "Run 38a0ae898d (MOCK) finished in 0s.",
+  "mock_narrow_status": "Run aca1be4e06 (MOCK) finished in 0s.",
   "processes_left": null
 }

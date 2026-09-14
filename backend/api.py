@@ -12,14 +12,17 @@ The refund backend over HTTP (stdlib ThreadingHTTPServer, JSON in and out).
     POST /cases/{id}/manual-refund   {amount_cents}: support refunds by hand, straight to Stripe, no key
     GET  /health
 
+Pages: / and /demo/standalone (demo/standalone.html, backend/standalone.py, no Temporal needed); /demo (demo/index.html,
+backend/demo.py). temporalio is imported only when this starts: without it, or without a Temporal server, the
+standalone demo still runs, /cases and a live /demo run answer 400, and the /demo page says why.
+
 No auth, bound to 127.0.0.1: this is a demo. The approval is whatever the caller of POST /cases asserts
 (customer_text and approved_cents come from the same request); a real deployment takes approvals from
 the support tool, not from the client.
 """
-import argparse, asyncio, contextlib, json, os, re, sqlite3, sys, threading, time, traceback, uuid
+import argparse, asyncio, contextlib, importlib, json, os, re, sqlite3, sys, threading, time, traceback, uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from temporalio.client import Client, WorkflowExecutionStatus
 from backend import config, demo
 from backend.leases import DurableLeases
 from interlock import receipts
@@ -28,6 +31,7 @@ from interlock.targets.stripe_api import StripeError
 
 MODES = ("temporal", "temporal_checked", "interlock")
 MAX_BODY, MAX_TEXT = 64 * 1024, 4000
+TEMPORAL, UNAVAILABLE = None, "not connected yet"      # set by main(): the client, or why the Temporal demo is off
 LOOP = asyncio.new_event_loop()
 threading.Thread(target=LOOP.run_forever, daemon=True).start()
 
@@ -54,7 +58,13 @@ def load(case_id):
     return dict(row)
 
 
+def need_temporal():
+    if UNAVAILABLE:
+        raise BadRequest(f"the Temporal demo is unavailable ({UNAVAILABLE}); the standalone demo at /demo/standalone runs without it")
+
+
 def create(body, task_queue=None):
+    need_temporal()
     mode, text, paid, approved = (body.get(k) for k in ("mode", "customer_text", "paid_cents", "approved_cents"))
     if mode not in MODES or not isinstance(text, str) or not text.strip() or len(text) > MAX_TEXT \
             or type(paid) is not int or type(approved) is not int or not 0 < approved <= paid:
@@ -74,6 +84,7 @@ def create(body, task_queue=None):
 
 
 async def workflow_state(workflow_id):
+    from temporalio.client import WorkflowExecutionStatus
     handle = TEMPORAL.get_workflow_handle(workflow_id)
     d = await handle.describe()
     out = {"workflow_id": workflow_id, "run_id": d.run_id, "status": d.status.name if d.status else None,
@@ -98,6 +109,7 @@ async def workflow_state(workflow_id):
 
 
 def show(body, case_id):
+    need_temporal()
     case = load(case_id)
     refunds = config.stripe().request("GET", "/refunds", {"payment_intent": case["payment_intent"], "limit": 100})["data"]
     out = {"case": case, "workflow": wait(workflow_state(case["workflow_id"])),
@@ -129,15 +141,32 @@ def manual_refund(body, case_id):
 
 
 def health(body):
-    return {"ok": True, "temporal": config.TEMPORAL, "temporal_serving": wait(TEMPORAL.service_client.check_health())}
+    return {"ok": True, "temporal": config.TEMPORAL, "temporal_unavailable": UNAVAILABLE,
+            "temporal_serving": not UNAVAILABLE and wait(TEMPORAL.service_client.check_health())}
+
+
+def demo_start(body):
+    if body.get("kind") == "live":
+        need_temporal()
+    return demo.start(body, API)
+
+
+standalone = lambda: importlib.import_module("backend.standalone")     # no temporalio anywhere it reaches
 
 
 API = sys.modules[__name__]        # demo.py drives cases through this module's functions
 PAGE = os.path.join(config.ROOT, "demo", "index.html")
+STANDALONE_PAGE = os.path.join(config.ROOT, "demo", "standalone.html")
+PAGES = {"/": STANDALONE_PAGE, "/demo/standalone": STANDALONE_PAGE, "/demo/standalone/": STANDALONE_PAGE,
+         "/demo": PAGE, "/demo/": PAGE}
 ROUTES = [("GET", r"/health", health), ("POST", r"/cases", create), ("GET", r"/cases/([\w-]+)", show),
           ("POST", r"/cases/([\w-]+)/revoke", revoke), ("POST", r"/cases/([\w-]+)/manual-refund", manual_refund),
-          ("GET", r"/demo/info", lambda body: demo.info()), ("POST", r"/demo/runs", lambda body: demo.start(body, API)),
-          ("GET", r"/demo/runs/(\w+)/(\d+)", lambda body, run_id, after: demo.view(run_id, int(after)))]
+          ("GET", r"/demo/info", lambda body: {**demo.info(), "temporal_unavailable": UNAVAILABLE}),
+          ("POST", r"/demo/runs", demo_start),
+          ("GET", r"/demo/runs/(\w+)/(\d+)", lambda body, run_id, after: demo.view(run_id, int(after))),
+          ("GET", r"/demo/standalone/info", lambda body: standalone().info()),
+          ("POST", r"/demo/standalone/runs", lambda body: standalone().start(body, API)),
+          ("GET", r"/demo/standalone/runs/(\w+)/(\d+)", lambda body, run_id, after: standalone().view(run_id, int(after)))]
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -150,8 +179,8 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
     def _route(self, method):
-        if method == "GET" and self.path.split("?")[0] in ("/", "/demo", "/demo/"):
-            with open(PAGE, "rb") as f:
+        if method == "GET" and self.path.split("?")[0] in PAGES:
+            with open(PAGES[self.path.split("?")[0]], "rb") as f:
                 data = f.read()
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -201,16 +230,24 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
-    global TEMPORAL
+    global TEMPORAL, UNAVAILABLE
     port = argparse.ArgumentParser()
     port.add_argument("--port", type=int, default=int(os.environ.get("INTERLOCK_API_PORT", 8787)))
     args = port.parse_args()
     with cases() as db, db:
         db.execute("CREATE TABLE IF NOT EXISTS cases (case_id TEXT PRIMARY KEY, mode TEXT, payment_intent TEXT, "
                    "workflow_id TEXT, lease_id TEXT, customer_text TEXT, paid_cents INTEGER, approved_cents INTEGER, created REAL)")
-    TEMPORAL = wait(Client.connect(config.TEMPORAL))
+    UNAVAILABLE = os.environ.get("INTERLOCK_TEMPORAL_UNAVAILABLE")     # demo/serve.py sets it when it could not start one
+    if not UNAVAILABLE:
+        try:
+            from temporalio.client import Client
+            TEMPORAL = wait(Client.connect(config.TEMPORAL), timeout=20)
+        except ImportError:
+            UNAVAILABLE = "temporalio is not installed"
+        except Exception as e:
+            UNAVAILABLE = f"no Temporal server at {config.TEMPORAL}: {type(e).__name__}"
     server = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
-    print(f"api on http://127.0.0.1:{args.port} (temporal {config.TEMPORAL}, data {config.DATA})", flush=True)
+    print(f"api on http://127.0.0.1:{args.port} (temporal {UNAVAILABLE or config.TEMPORAL}, data {config.DATA})", flush=True)
     server.serve_forever()
 
 

@@ -63,6 +63,9 @@ MOCK_COLUMNS = {
                  "DurableExecution from interlock.gate: re-runs an unfinished step with a stable key. In memory."),
     "interlock": ("gate", "Interlock gate, simulated",
                   "interlock.Gate over the in-memory payments simulator. No Stripe, no Temporal."),
+    "standard": ("durable", "Retry with a stable key, simulated",       # backend/standalone.py's mock column
+                 "DurableExecution from interlock.gate: re-runs an unfinished step with the same key, re-checks "
+                 "nothing. In memory."),
 }
 
 
@@ -78,8 +81,9 @@ RUNS, BUSY, LATEST = {}, threading.Lock(), [None]
 
 
 class Run:
-    def __init__(self, kind, scenario, modes):
+    def __init__(self, kind, scenario, modes, columns=None):
         self.id, self.kind, self.scenario, self.modes = uuid.uuid4().hex[:10], kind, scenario, modes
+        self.columns = columns or COLUMNS           # live column titles; backend/standalone.py passes its own
         self.events, self.done, self.error, self.started, self.finished = [], False, None, time.time(), None
         self._lock = threading.Lock()
 
@@ -93,8 +97,8 @@ class Run:
         with self._lock:
             return {"id": self.id, "kind": self.kind, "mock": mock, "scenario": self.scenario, "done": self.done,
                     "error": self.error, "elapsed": round((self.finished or time.time()) - self.started, 1),
-                    "columns": [{"mode": m, "title": (MOCK_COLUMNS[m][1:] if mock else COLUMNS[m])[0],
-                                 "sub": (MOCK_COLUMNS[m][1:] if mock else COLUMNS[m])[1]} for m in self.modes],
+                    "columns": [{"mode": m, "title": (MOCK_COLUMNS[m][1:] if mock else self.columns[m])[0],
+                                 "sub": (MOCK_COLUMNS[m][1:] if mock else self.columns[m])[1]} for m in self.modes],
                     "events": self.events[after:]}
 
 
@@ -110,13 +114,16 @@ def info():
             "stripe_timeout": config.STRIPE_TIMEOUT, "temporal_ui": os.environ.get("TEMPORAL_UI"), "latest": LATEST[0]}
 
 
-def view(run_id, after):
-    if run_id not in RUNS:
+def view(run_id, after, runs=RUNS):
+    if run_id not in runs:
         raise LookupError(f"no run {run_id}")
-    return RUNS[run_id].view(after)
+    return runs[run_id].view(after)
 
 
-def start(body, api, drive=None):
+def start(body, api, drive=None, modes=("temporal", "temporal_checked", "interlock"), columns=None, runs=RUNS,
+          latest=LATEST, live=None):
+    """modes: the three live columns, the middle one only with hand_check. backend/standalone.py passes its own
+    modes, columns, runs, latest and live (the function that runs one live column, called as live(run, mode))."""
     kind, name = body.get("kind"), body.get("scenario", "hand_refund_during_outage")
     if kind not in ("live", "mock") or name not in SCENARIOS:
         raise api.BadRequest(f"need kind live|mock and scenario {'|'.join(SCENARIOS)}")
@@ -124,20 +131,18 @@ def start(body, api, drive=None):
         raise api.BadRequest("a live run needs " + " and ".join(missing()))
     if not BUSY.acquire(blocking=False):
         raise Busy("a run is already going; wait for it to finish")
-    modes = ("temporal", "temporal_checked", "interlock") if kind == "live" and body.get("hand_check") is True \
-        else ("temporal", "interlock")
-    run = Run(kind, name, modes)
-    RUNS[run.id], LATEST[0] = run, run.id
-    threading.Thread(target=drive or _drive, args=(run, api), daemon=True).start()
+    run = Run(kind, name, modes if kind == "live" and body.get("hand_check") is True else (modes[0], modes[2]), columns)
+    runs[run.id], latest[0] = run, run.id
+    threading.Thread(target=drive or _drive, args=(run, api, live), daemon=True).start()
     return run.view()
 
 
-def _drive(run, api):
+def _drive(run, api, live=None):
     try:
         if run.kind == "mock":
             mock(run)
         else:
-            threads = [threading.Thread(target=_column, args=(run, m, api)) for m in run.modes]
+            threads = [threading.Thread(target=_column, args=(run, m, api, live)) for m in run.modes]
             for t in threads:
                 t.start()
             for t in threads:
@@ -149,9 +154,9 @@ def _drive(run, api):
         BUSY.release()
 
 
-def _column(run, mode, api):
+def _column(run, mode, api, live=None):
     try:
-        live_column(run, mode, api)
+        live(run, mode) if live else live_column(run, mode, api)
     except Exception as e:
         run.emit(mode, "error", f"This column stopped: {type(e).__name__}: {e}")
         run.error = run.error or f"{mode}: {e}"
@@ -171,16 +176,13 @@ def live_column(run, mode, api):
     case = api.create({"customer_text": CASE_TEXT, "paid_cents": PAID, "approved_cents": APPROVED, "mode": mode},
                       task_queue=queue)
     cid, pi = case["case_id"], case["payment_intent"]
-    emit("case", f"Stripe test payment {pi}: {money(PAID)} paid. Support approves one refund of at most "
-                 f"{money(APPROVED)}. Temporal workflow {case['workflow_id']} started.",
-         payment_intent=pi, workflow_id=case["workflow_id"], case_id=cid, dashboard=DASHBOARD + pi)
+    emit_case(emit, pi, cid, f". Temporal workflow {case['workflow_id']} started.", workflow_id=case["workflow_id"])
     watch = Watch(api, case, emit)
     env = worker_env(queue)
     with open(config.path(f"worker-{run.id}-{mode}.log"), "ab") as log:
         worker = spawn({**env, "INTERLOCK_CRASH": sc["crash"],
                         "INTERLOCK_CRASH_MARKER": config.path(f"crash-{run.id}-{mode}")}, log)
-        emit("worker", f"Worker process started, pid {worker.pid}. It is set to SIGKILL itself {WHERE[sc['crash']]}.",
-             pid=worker.pid)
+        emit_started(emit, sc, worker.pid)
         try:
             until(lambda: worker.poll() is not None or watch.closed, watch, 150, "the worker never reached the crash point")
         finally:
@@ -192,17 +194,8 @@ def live_column(run, mode, api):
                             f"(workflow closed: {watch.closed}); see {log.name}")
         crashed_at = time.time()
         watch.poll()                                    # entries written just before the kill
-        emit("crash", f"Worker pid {worker.pid} is dead: exit code -9 (SIGKILL), {WHERE[sc['crash']]}.",
-             pid=worker.pid, exit_code=worker.returncode, point=sc["crash"])
-        if sc["action"] == "manual-refund":
-            r = api.manual_refund({"amount_cents": APPROVED}, cid)
-            emit("hand_refund", f"While the worker is down, support refunds {money(r['amount'])} by hand in Stripe: "
-                                f"{r['refund_id']}. No idempotency key, no metadata, as from the dashboard.",
-                 refund_id=r["refund_id"], amount=r["amount"])
-        elif sc["action"] == "revoke":
-            r = api.revoke({}, cid)
-            emit("revoke", f"While the worker is down, support revokes approval {r['lease_id']}. "
-                           f"Approval live now: {r['live']}.", **r)
+        emit_crash(emit, sc, worker.pid, worker.returncode)
+        outage(emit, sc, lambda cents: api.manual_refund({"amount_cents": cents}, cid), lambda: api.revoke({}, cid))
         worker = spawn(env, log)
         emit("worker", f"Worker process restarted, pid {worker.pid}. Temporal will retry the refund activity.",
              pid=worker.pid)
@@ -216,6 +209,33 @@ def live_column(run, mode, api):
     close = state["workflow"].get("close_time")
     data.update(worker_exit_code=-9, crash_to_close=round(close - crashed_at, 1) if close else None)
     emit("result", data["headline"], **data)
+
+
+def emit_case(emit, pi, cid, then, **data):
+    emit("case", f"Stripe test payment {pi}: {money(PAID)} paid. Support approves one refund of at most {money(APPROVED)}"
+                 + then, payment_intent=pi, case_id=cid, dashboard=DASHBOARD + pi, **data)
+
+
+def emit_started(emit, sc, pid):
+    emit("worker", f"Worker process started, pid {pid}. It is set to SIGKILL itself {WHERE[sc['crash']]}.", pid=pid)
+
+
+def emit_crash(emit, sc, pid, code):
+    emit("crash", f"Worker pid {pid} is dead: exit code {code} (SIGKILL), {WHERE[sc['crash']]}.",
+         pid=pid, exit_code=code, point=sc["crash"])
+
+
+def outage(emit, sc, refund, revoke):
+    """The scenario's action while the worker is down. refund(cents) -> {refund_id, amount}; revoke() -> {lease_id, live}."""
+    if sc["action"] == "manual-refund":
+        r = refund(APPROVED)
+        emit("hand_refund", f"While the worker is down, support refunds {money(r['amount'])} by hand in Stripe: "
+                            f"{r['refund_id']}. No idempotency key, no metadata, as from the dashboard.",
+             refund_id=r["refund_id"], amount=r["amount"])
+    elif sc["action"] == "revoke":
+        r = revoke()
+        emit("revoke", f"While the worker is down, support revokes approval {r['lease_id']}. "
+                       f"Approval live now: {r['live']}.", lease_id=r["lease_id"], live=r["live"])
 
 
 def until(done, watch, seconds, message):
@@ -248,7 +268,7 @@ async def snapshot(client, workflow_id):
 
 
 class Watch:
-    """Turns what Temporal, the journal and Stripe say into events, once each."""
+    """Turns what Temporal, the journal and Stripe say into events, once each. backend/standalone.py subclasses it."""
     def __init__(self, api, case, emit):
         self.api, self.case, self.emit = api, case, emit
         self.eid = effect_id_for({"request_id": case["case_id"]}) if case["mode"] == "interlock" else None
@@ -259,28 +279,36 @@ class Watch:
         snap = self.api.wait(snapshot(self.api.TEMPORAL, self.case["workflow_id"]))
         d = snap["decision"]
         if d and not self.decision:
-            self.decision = d
-            self.emit("decision", f"{d['model']} read the payment with get_payment, then called issue_refund: "
-                                  f"{d['amount_cents']} cents, \"{d['reason']}\"",
-                      amount_cents=d["amount_cents"], reason=d["reason"], model=d["model"], premises=d["premises"])
+            self.decided(d)
         if snap["attempt"] and snap["attempt"][0] > 1 and snap["attempt"] != self.attempt:
             n, failure = self.attempt = snap["attempt"]
             self.emit("retry", f"Temporal runs refund attempt {n}." + (f" Attempt {n - 1} failed: {failure}" if failure else ""),
                       attempt=n, last_failure=failure)
+        self.follow(config.stripe, snap["status"] != "RUNNING")
+        self.closed = snap["status"] != "RUNNING"
+
+    def decided(self, d, then=""):
+        self.decision = d
+        self.emit("decision", f"{d['model']} read the payment with get_payment, then called issue_refund: "
+                              f"{d['amount_cents']} cents, \"{d['reason']}\"{then}",
+                  amount_cents=d["amount_cents"], reason=d["reason"], model=d["model"], premises=d["premises"])
+
+    def follow(self, client, now=False):
+        """New Interlock journal entries, and Stripe's refund list: at once when now, else at most every 1.5s.
+        client() returns the Stripe client, called only when Stripe is read (config.stripe may run the Stripe CLI)."""
         if self.journal:
             entries = self.journal.entries(self.eid)
             for e in entries[self.entries:]:
                 self.emit("journal", journal_text(e), entry=e)
             self.entries = len(entries)
-        if snap["status"] != "RUNNING" or time.time() - self.stripe_read > 1.5:
+        if now or time.time() - self.stripe_read > 1.5:
             self.stripe_read = time.time()
-            data = config.stripe().request("GET", "/refunds", {"payment_intent": self.case["payment_intent"], "limit": 100})["data"]
+            data = client().request("GET", "/refunds", {"payment_intent": self.case["payment_intent"], "limit": 100})["data"]
             for r in sorted(data, key=lambda r: r["created"]):
                 if r["id"] not in self.refunds and r["status"] != "failed":
                     self.refunds.add(r["id"])
                     self.emit("stripe", f"Stripe now lists refund {r['id']}: {money(r['amount'])}, {who(r)}.",
                               refund_id=r["id"], amount=r["amount"])
-        self.closed = snap["status"] != "RUNNING"
 
 
 # ---- shared by live and mock, and tested offline ---------------------------------------------------------------
@@ -292,7 +320,7 @@ def money(cents, unit=100):
 def who(refund):
     md = refund.get("metadata") or {}
     return ("sent by the agent's workflow" if md.get("workflow_id") else "sent by Interlock" if md.get("interlock_effect_id")
-            else "no metadata: the hand refund")
+            else "sent by the agent's worker" if md.get("case_id") else "no metadata: the hand refund")
 
 
 def journal_text(e, unit=100):
@@ -359,15 +387,20 @@ def explain(mode, outcome, violations=None):
 
 
 def result_data(state, sc, mode):
-    wf, stripe, lock = state["workflow"], state["stripe"], state.get("interlock")
+    wf = state["workflow"]
     outcome = (wf.get("result") or {}).get("outcome") or wf.get("failure")
+    return {**outcome_data(outcome, state["stripe"], state.get("interlock"), sc, mode), "workflow_id": wf["workflow_id"],
+            "workflow_status": wf["status"], "refund_attempts": wf["attempts"].get("refund")}
+
+
+def outcome_data(outcome, stripe, lock, sc, mode):
+    """The result card from an outcome, Stripe's refund list and the Interlock receipt. No Temporal."""
     refunds = sorted((r for r in stripe["refunds"] if r["status"] != "failed"), key=lambda r: r["created"])
     held, head, verdict = headline([r["amount"] for r in refunds], *sc["want"])
     verification = lock and lock.get("verification")
     rc = (verification or {}).get("rechecked_at_recovery") or {}
     out = {"headline": head, "verdict": verdict, "held": held, "want_text": sc["want_text"], "outcome": outcome,
-           "why": explain(mode, outcome, rc.get("violations")), "workflow_id": wf["workflow_id"],
-           "workflow_status": wf["status"], "refund_attempts": wf["attempts"].get("refund"),
+           "why": explain(mode, outcome, rc.get("violations")),
            "payment_intent": stripe["payment_intent"], "dashboard": DASHBOARD + stripe["payment_intent"],
            "refunds": [{"id": r["id"], "amount": r["amount"], "status": r["status"], "by": who(r)} for r in refunds],
            "refunded_cents": sum(r["amount"] for r in refunds), "receipt": None}
@@ -385,14 +418,16 @@ def result_data(state, sc, mode):
 LIVE_WORKER_DROPS = ("INTERLOCK_CRASH", "INTERLOCK_EMULATE_24H", "INTERLOCK_NO_LOOKUP")
 
 
-def worker_env(queue):
+def live_env():
     """
     A live worker's environment: this server's, without crash injection (set per spawn) and without the EMULATED
     switches of backend/config.py, so a run labeled live never runs with an emulated Stripe key or lookup.
     """
-    env = {k: v for k, v in os.environ.items() if not k.startswith(LIVE_WORKER_DROPS)}
-    env["INTERLOCK_TASK_QUEUE"] = queue
-    return env
+    return {k: v for k, v in os.environ.items() if not k.startswith(LIVE_WORKER_DROPS)}
+
+
+def worker_env(queue):
+    return {**live_env(), "INTERLOCK_TASK_QUEUE": queue}
 
 
 def mock(run):

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Interlock: one crash, two setups</title>
+<title>Interlock: one crash, the same refund</title>
 <style>
 :root {
   --bg: #f6f6f3; --fg: #15171c; --muted: #555c6b; --card: #ffffff; --line: #d9dce3;
@@ -76,8 +76,8 @@ ol.events { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(
 .ev.decision .k { color: var(--accent); }
 .ev.stripe .k { color: var(--good); }
 .ev a { color: var(--accent); }
-.unavailable { margin: 16px 0 0; color: var(--warn); font-weight: 600; }
-.unavailable a { color: var(--accent); }
+.other { margin: 14px 0 0; font-size: 0.95rem; }
+.other a { color: var(--accent); font-weight: 600; }
 footer { margin-top: 28px; color: var(--muted); font-size: 0.9rem; max-width: 90ch; }
 footer p { margin: 0 0 8px; }
 </style>
@@ -86,14 +86,14 @@ footer p { margin: 0 0 8px; }
 <div class="wrap">
   <header>
     <p class="eyebrow">Interlock demo</p>
-    <h1>One crash, the same refund, two setups</h1>
+    <h1>One crash, the same refund, two workers</h1>
     <p class="lede" id="story">Loading scenarios.</p>
-    <p class="unavailable" id="unavailable" hidden></p>
+    <p class="other"><a href="/demo">Already on Temporal? See the Temporal demo</a></p>
   </header>
 
   <section class="controls" aria-label="Run controls">
     <label>Scenario <select id="scenario"></select></label>
-    <label class="check"><input type="checkbox" id="handcheck"> Live only: add Temporal plus a hand-written check</label>
+    <label class="check"><input type="checkbox" id="handcheck"> Live only: add a worker with a hand-written re-check</label>
     <div class="buttons">
       <button id="live" class="primary" type="button">Run live</button>
       <button id="mock" class="secondary" type="button">Run mock (simulated, no Stripe)</button>
@@ -102,20 +102,21 @@ footer p { margin: 0 0 8px; }
   </section>
 
   <p class="banner" id="banner" hidden></p>
-  <p class="status" id="status" aria-live="polite">No run yet. Run live creates real Stripe test payments and refunds, calls a real model, and kills real worker processes.</p>
+  <p class="status" id="status" aria-live="polite">No run yet. Run live creates real Stripe test payments and refunds, calls a real model, and kills a real worker process. No Temporal needed.</p>
   <main class="columns" id="columns"></main>
 
   <footer>
     <p id="settings"></p>
-    <p id="livenote">Live runs: every payment, refund and refund list is Stripe test mode; the refund decision is a real model call; each column is a Temporal workflow on the local dev server with its own worker process, which SIGKILLs itself at the crash point and is restarted. Each number on a live result is re-read from Stripe, Temporal or the Interlock journal at the end of that run.</p>
+    <p id="livenote">Live runs: every payment, refund and refund list is Stripe test mode; the refund decision is a real model call; each column is its own worker process (a plain Python process, no Temporal), which SIGKILLs itself at the crash point and is restarted by this server. Each number on a live result is re-read from Stripe or the Interlock journal at the end of that run.</p>
     <p>Interlock refuses because the payment's refunds changed after the model decided. It does not recognize the hand refund as the same action, so an unrelated refund would stop it too, and a person decides. Receipts here are hash-chained and unsigned.</p>
   </footer>
 </div>
 
 <script>
+const API = "/demo/standalone";
 const $ = (s) => document.querySelector(s);
 const LABELS = { case: "CASE", worker: "WORKER", decision: "LLM", crash: "CRASH", hand_refund: "HAND REFUND", revoke: "REVOKED",
-  retry: "TEMPORAL", journal: "JOURNAL", stripe: "STRIPE", error: "ERROR", sim: "SIMULATED" };
+  retry: "RETRY", journal: "JOURNAL", stripe: "STRIPE", error: "ERROR", sim: "SIMULATED" };
 let info = null, run = null, after = 0, cols = {}, timer = null;
 const TITLE = document.title;
 
@@ -136,19 +137,14 @@ async function call(method, path, body) {
   return j;
 }
 
-function busy(on) { $("#live").disabled = on || !!(info && (info.live_missing.length || info.temporal_unavailable)); $("#mock").disabled = on; }
+function busy(on) { $("#live").disabled = on || !!(info && info.live_missing.length); $("#mock").disabled = on; }
 
 async function init() {
-  info = await call("GET", "/demo/info");
+  info = await call("GET", `${API}/info`);
   for (const [key, s] of Object.entries(info.scenarios)) $("#scenario").append(Object.assign(el("option", "", s.title), { value: key }));
   $("#scenario").onchange = () => { $("#story").textContent = info.scenarios[$("#scenario").value].story; };
   $("#scenario").onchange();
   $("#settings").textContent = `Model ${info.model}. Interlock claim TTL ${info.claim_ttl}s, Stripe request timeout ${info.stripe_timeout}s (the backend defaults are 40s and 30s; the timeout always stays inside the claim).`;
-  if (info.temporal_unavailable) {
-    $("#unavailable").append(`Temporal demo unavailable on this server: ${info.temporal_unavailable}. `,
-      Object.assign(el("a", "", "The standalone demo runs without Temporal."), { href: "/demo/standalone" }));
-    $("#unavailable").hidden = false;
-  }
   if (info.live_missing.length) $("#notice").textContent = "Run live is off on this server: it needs " + info.live_missing.join(" and ") + ". Run mock still works and is labeled MOCK.";
   busy(false);
   $("#live").onclick = () => start("live");
@@ -165,7 +161,7 @@ async function start(kind) {
   clearTimeout(timer);
   $("#notice").textContent = "";
   try {
-    const v = await call("POST", "/demo/runs", { kind, scenario: $("#scenario").value, hand_check: $("#handcheck").checked });
+    const v = await call("POST", `${API}/runs`, { kind, scenario: $("#scenario").value, hand_check: $("#handcheck").checked });
     run = v; build(v); apply(v); schedule(800);
   } catch (e) {
     $("#notice").textContent = e.message;
@@ -176,7 +172,7 @@ async function start(kind) {
 async function poll() {
   const id = run.id;
   try {
-    const v = await call("GET", `/demo/runs/${id}/${cols.__id === id ? after : 0}`);
+    const v = await call("GET", `${API}/runs/${id}/${cols.__id === id ? after : 0}`);
     if (!run || v.id !== run.id) return;       // a new run started while this request was out
     if (cols.__id !== v.id) build(v);
     apply(v);
@@ -197,8 +193,8 @@ function build(v) {
   banner.hidden = false;
   banner.className = "banner " + (v.mock ? "mock" : "live");
   banner.textContent = v.mock
-    ? "MOCK RUN: simulated in this process by experiments/refund_agent.py. No Stripe, no model, no Temporal, no real crash. Not a live result."
-    : `LIVE RUN: Stripe test mode, ${info.model}, Temporal dev server, worker processes killed with SIGKILL. Scenario: ${info.scenarios[v.scenario].title}.`;
+    ? "MOCK RUN: simulated in this process by experiments/refund_agent.py. No Stripe, no model, no worker process, no real crash. Not a live result."
+    : `LIVE RUN: Stripe test mode, ${info.model}, a separate worker process killed with SIGKILL and restarted. No Temporal. Scenario: ${info.scenarios[v.scenario].title}.`;
   document.body.dataset.runKind = v.kind;
   document.title = (v.mock ? "MOCK: " : "") + TITLE;
   $("#settings").hidden = $("#livenote").hidden = v.mock;     // live settings, not used by a mock run
@@ -208,7 +204,7 @@ function build(v) {
     const h = el("h2");
     if (v.mock) h.append(badge());
     h.append(c.title);
-    const result = el("div", "result pending", v.mock ? "MOCK: waiting for the simulation." : "Running. The result appears here when Temporal closes the workflow.");
+    const result = el("div", "result pending", v.mock ? "MOCK: waiting for the simulation." : "Running. The result appears here when the restarted worker is done.");
     const list = el("ol", "events");
     sec.append(h, el("p", "sub", c.sub), result, list);
     main.append(sec);
@@ -252,17 +248,18 @@ function renderResult(box, ev, mock) {
   if (mock) { box.append(meta); return; }
 
   box.dataset.paymentIntent = d.payment_intent;
-  box.dataset.refundIds = d.refunds.map((r) => r.id).join(",");
+  box.dataset.refundIds = (d.refunds || []).map((r) => r.id).join(",");
   const ul = el("ul");
-  for (const r of d.refunds) {
+  for (const r of d.refunds || []) {
     const li = el("li");
     li.append(el("code", "", r.id), ` ${money(r.amount)}, ${r.by}`);
     ul.append(li);
   }
-  if (!d.refunds.length) ul.append(el("li", "", "No refund objects in Stripe for this payment."));
+  if (!(d.refunds || []).length) ul.append(el("li", "", "No refund objects in Stripe for this payment."));
   box.append(ul);
-  meta.append(`, refund attempt ${d.refund_attempts}, ${d.crash_to_close}s from crash to close. `, link(d.dashboard, "Payment in Stripe"));
-  if (info.temporal_ui) { meta.append(" "); meta.append(link(`${info.temporal_ui}/namespaces/default/workflows/${d.workflow_id}`, "Workflow in Temporal")); }
+  for (const [key, text] of [["worker_exit_code", "worker exit code "], ["refund_attempts", "refund attempt "], ["crash_to_close", "s from crash to done"]])
+    if (d[key] != null) meta.append(", " + (key === "crash_to_close" ? d[key] + text : text + d[key]));
+  meta.append(". ", link(d.dashboard, "Payment in Stripe"));
   box.append(meta);
   if (d.receipt) {
     const v = d.receipt.verification, rc = el("div", "receipt");

@@ -2,11 +2,14 @@
     python3 -m unittest tests.test_demo
 
 Offline checks for backend/demo.py: the verdict and wording shown on the page, the one-run-at-a-time guard, and
-that a mock run is the in-process simulation with every event marked mock. No Stripe, model or Temporal.
+that a mock run is the in-process simulation with every event marked mock. For backend/api.py: its routes for both
+demos (the standalone engine stubbed), Temporal unavailable, one run across both demos, and that the server starts
+without temporalio. No Stripe, model or Temporal.
 """
-import http.client, importlib.util, json, os, sys, threading, time, unittest
+import contextlib, http.client, importlib.util, json, os, signal, socket, subprocess, sys, tempfile, threading, time, types, unittest
 from unittest import mock
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, ROOT)
 from backend import demo
 
 
@@ -59,6 +62,17 @@ class Demo(unittest.TestCase):
         self.assertIn("Interlock refused at recovery", d["why"])
         self.assertIn("was 0, now 2000", d["why"])
 
+    def test_stripe_client_is_made_only_when_stripe_is_read(self):
+        # config.stripe may run `stripe config --list`, so polls between reads must not create a client
+        made, client = [], mock.Mock()
+        client.request.return_value = {"data": []}
+        watch = demo.Watch(None, {"mode": "standard", "case_id": "case-1", "payment_intent": "pi_1"}, lambda *a, **k: None)
+        factory = lambda: made.append(1) or client
+        watch.follow(factory, True)
+        for _ in range(5):
+            watch.follow(factory)
+        self.assertEqual((len(made), client.request.call_count), (1, 1))
+
     def test_journal_lines(self):
         refused = {"kind": "REFUSED", "reason": "stale_premise at recovery",
                    "rechecked": {"lease_live": True, "violations": ["refunded by others: was 0, now 2000"]}}
@@ -73,7 +87,7 @@ class Demo(unittest.TestCase):
     def test_one_run_at_a_time(self):
         release = threading.Event()
 
-        def drive(run, api):
+        def drive(run, api, live=None):
             release.wait(5)
             run.done = True
             demo.BUSY.release()
@@ -129,13 +143,12 @@ class Demo(unittest.TestCase):
                          {"temporal": "RERUN:ok", "interlock": "REFUSED:lease_at_recovery"})
 
 
-@unittest.skipUnless(importlib.util.find_spec("temporalio"), "backend/api.py needs temporalio")
-class ApiRequestChecks(unittest.TestCase):
-    """A page on another site, or a DNS-rebound name, cannot drive the API. No run is started."""
+class Server(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         from http.server import ThreadingHTTPServer
         from backend import api
+        cls.api = api
         cls.server = ThreadingHTTPServer(("127.0.0.1", 0), api.Handler)
         threading.Thread(target=cls.server.serve_forever, daemon=True).start()
 
@@ -144,11 +157,18 @@ class ApiRequestChecks(unittest.TestCase):
         cls.server.shutdown()
         cls.server.server_close()
 
-    def send(self, method, path, headers, body=None):
+    def send(self, method, path, headers=None, body=None, raw=False):
         conn = http.client.HTTPConnection("127.0.0.1", self.server.server_port, timeout=30)
-        conn.request(method, path, body=body, headers=headers)
+        if method == "POST" and headers is None:
+            headers, body = {"Content-Type": "application/json"}, json.dumps(body)
+        conn.request(method, path, body=body, headers=headers or {})
         r = conn.getresponse()
-        return r.status, json.loads(r.read())
+        data = r.read()
+        return r.status, (data.decode() if raw else json.loads(data))
+
+
+class ApiRequestChecks(Server):
+    """A page on another site, or a DNS-rebound name, cannot drive the API. No run is started."""
 
     def test_checks(self):
         host = f"127.0.0.1:{self.server.server_port}"
@@ -162,6 +182,122 @@ class ApiRequestChecks(unittest.TestCase):
         self.assertEqual(self.send("POST", "/demo/runs", {"Host": host, "Content-Type": "application/json",
                                                           "Origin": "http://" + host}, bad)[0], 400)
         self.assertEqual(self.send("POST", "/demo/runs", {"Host": host, "Content-Type": "application/json"}, bad)[0], 400)
+
+
+def page(name):
+    with open(os.path.join(ROOT, "demo", name)) as f:
+        return f.read()
+
+
+def stub_standalone():
+    """backend/standalone.py's interface, holding demo.BUSY for its run the way the engine must."""
+    def start(body, api):
+        if body.get("kind") not in ("live", "mock"):
+            raise api.BadRequest("need kind live|mock")
+        if not demo.BUSY.acquire(blocking=False):
+            raise demo.Busy("a run is already going; wait for it to finish")
+        return {"id": "stub1", "kind": body["kind"]}
+
+    def view(run_id, after):
+        if run_id != "stub1":
+            raise LookupError(f"no run {run_id}")
+        return {"id": run_id, "after": after}
+    return types.SimpleNamespace(info=lambda: {"scenarios": {}, "live_missing": [], "latest": None}, start=start, view=view)
+
+
+class ApiRoutes(Server):
+    def setUp(self):
+        patches = [mock.patch.dict(sys.modules, {"backend.standalone": stub_standalone()}),
+                   mock.patch.object(self.api, "UNAVAILABLE", "temporalio is not installed")]
+        for p in patches:
+            p.start()
+            self.addCleanup(p.stop)
+
+    def test_pages(self):
+        standalone = page("standalone.html")
+        for path in ("/", "/demo/standalone", "/demo/standalone/"):
+            self.assertEqual(self.send("GET", path, raw=True), (200, standalone), path)
+        self.assertIn('href="/demo">Already on Temporal? See the Temporal demo', standalone)
+        self.assertIn('"/demo/standalone"', standalone)
+        self.assertEqual(self.send("GET", "/demo", raw=True), (200, page("index.html")))
+
+    def test_standalone_routes(self):
+        self.assertEqual(self.send("GET", "/demo/standalone/info"), (200, {"scenarios": {}, "live_missing": [], "latest": None}))
+        self.assertEqual(self.send("POST", "/demo/standalone/runs", body={"kind": "sideways"})[0], 400)
+        try:
+            self.assertEqual(self.send("POST", "/demo/standalone/runs", body={"kind": "live"}), (200, {"id": "stub1", "kind": "live"}))
+        finally:
+            demo.BUSY.release()
+        self.assertEqual(self.send("GET", "/demo/standalone/runs/stub1/3"), (200, {"id": "stub1", "after": 3}))
+        self.assertEqual(self.send("GET", "/demo/standalone/runs/nope/0")[0], 404)
+
+    def test_temporal_unavailable(self):
+        status, info = self.send("GET", "/demo/info")
+        self.assertEqual((status, info["temporal_unavailable"]), (200, "temporalio is not installed"))
+        self.assertEqual(self.send("GET", "/health")[1]["temporal_serving"], False)
+        for method, path, body in (("POST", "/demo/runs", {"kind": "live"}), ("POST", "/cases", {}), ("GET", "/cases/case-1", None)):
+            status, answer = self.send(method, path, body=body)
+            self.assertEqual(status, 400, path)
+            self.assertIn("/demo/standalone", answer["error"])
+        self.assertIn("info.temporal_unavailable", page("index.html"))
+        self.assertIn('href: "/demo/standalone"', page("index.html"))
+
+    def test_one_run_across_both_demos(self):
+        self.assertEqual(self.send("POST", "/demo/standalone/runs", body={"kind": "mock"})[0], 200)
+        try:
+            self.assertEqual(self.send("POST", "/demo/runs", body={"kind": "mock"})[0], 409)
+        finally:
+            demo.BUSY.release()
+        release = threading.Event()
+
+        def drive(run, api, live=None):
+            release.wait(5)
+            run.done = True
+            demo.BUSY.release()
+        with mock.patch.object(demo, "_drive", drive):
+            self.assertEqual(self.send("POST", "/demo/runs", body={"kind": "mock"})[0], 200)
+            try:
+                self.assertEqual(self.send("POST", "/demo/standalone/runs", body={"kind": "mock"})[0], 409)
+            finally:
+                release.set()
+        self.assertTrue(demo.BUSY.acquire(timeout=5))
+        demo.BUSY.release()
+
+
+class NoTemporal(unittest.TestCase):
+    def test_server_modules_import_without_temporalio(self):
+        names = ["backend.api"] + (["backend.standalone"] if importlib.util.find_spec("backend.standalone") else [])
+        code = ("import sys; sys.modules['temporalio'] = None; sys.path.insert(0, sys.argv[1]); "     # None: import raises
+                "import importlib; [importlib.import_module(n) for n in sys.argv[2:]]")
+        r = subprocess.run([sys.executable, "-c", code, ROOT] + names, capture_output=True, text=True, timeout=60)
+        self.assertEqual(r.returncode, 0, r.stderr)
+
+    @unittest.skipIf(importlib.util.find_spec("temporalio"), "checks the start without temporalio installed")
+    def test_serve_starts_without_temporalio(self):
+        with socket.socket() as s:
+            s.bind(("127.0.0.1", 0))
+            port = s.getsockname()[1]
+        env = {**os.environ, "INTERLOCK_DATA": tempfile.mkdtemp()}
+        serve = subprocess.Popen([sys.executable, os.path.join(ROOT, "demo", "serve.py"), "--port", str(port)], env=env,
+                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+        try:
+            for _ in range(100):
+                with contextlib.suppress(OSError):
+                    conn = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
+                    conn.request("GET", "/demo/info")
+                    info = json.loads(conn.getresponse().read())
+                    break
+                time.sleep(0.2)
+            else:
+                self.fail("demo/serve.py did not serve")
+            self.assertEqual(info["temporal_unavailable"], "temporalio is not installed")
+            conn = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
+            conn.request("GET", "/")
+            r = conn.getresponse()
+            self.assertEqual((r.status, b"Already on Temporal?" in r.read()), (200, True))
+        finally:
+            os.killpg(serve.pid, signal.SIGINT)          # serve.py stops the API's process group on the way out
+            serve.wait(30)
 
 
 if __name__ == "__main__":
