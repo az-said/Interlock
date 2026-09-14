@@ -605,7 +605,7 @@ Saturday we wrote two specs that looked like different projects: one refund, at 
 | | |
 |---|---|
 | **Said Azaizah** | [said-azaizah.vercel.app](https://said-azaizah.vercel.app) · [github.com/az-said](https://github.com/az-said) |
-| **Kiro Moussa** | [kiro.city](https://kiro.city) · [github.com/shawnzhu02](https://github.com/shawnzhu02) |
+| **Kiro Moussa** | [kiro.city](https://kiro.city) · [https://github.com/kiromoussa](https://github.com/kiromoussa) |
 
 ## References
 
