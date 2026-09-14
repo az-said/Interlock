@@ -150,7 +150,7 @@ def without_gate(reqs, everyone):
     return {"reviews": reviews, "wrong_orders": wrong_orders(api, reqs)}
 
 
-def with_gate(reqs):
+def with_gate(reqs, keep_journal=False):
     api, now, rng = World(reqs), [0.0], random.Random(SEED)
     clock = lambda: now[0]
     authority = Authority(groups=GROUPS, max_age=4 * HOUR, clock=clock)
@@ -192,8 +192,11 @@ def with_gate(reqs):
             ready.setdefault(item["escalation"], now[0] + rng.expovariate(1 / LATENCY))
         now[0] = max(now[0], min(ready[i["escalation"]] for i in inbox.queue.values()))
         review()
-    return {"reviews": reviews, "wrong_orders": wrong_orders(api, reqs), "why": why, "repair_reviews": repairs,
-            "scoreboard": scoreboard(gate.journal)}
+    out = {"reviews": reviews, "wrong_orders": wrong_orders(api, reqs), "why": why, "repair_reviews": repairs,
+           "scoreboard": scoreboard(gate.journal)}
+    if keep_journal:
+        out["journal"] = gate.journal.entries()
+    return out
 
 
 def main():

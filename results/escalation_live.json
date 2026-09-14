@@ -1,0 +1,792 @@
+{
+  "started": "2026-09-13T23:10:44+00:00",
+  "finished": "2026-09-13T23:10:53+00:00",
+  "mode": "stripe test mode",
+  "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+  "refunds": {
+    "hand": "re_3UFMXp88KhIqqdFL0H2qsNzS",
+    "d6e3b0b377a0": "re_3UFMXp88KhIqqdFL00Nz6DsF",
+    "d7980f794e87": "re_3UFMXp88KhIqqdFL0NNT0LCm"
+  },
+  "refunded_total_cents": 9500,
+  "confirmation": {
+    "path": "webhook",
+    "webhook_deliveries": [
+      {
+        "at": "2026-09-13T23:10:49+00:00",
+        "type": "refund.created",
+        "status": "IGNORED:unknown_effect"
+      },
+      {
+        "at": "2026-09-13T23:10:49+00:00",
+        "type": "refund.updated",
+        "status": "IGNORED:unknown_effect"
+      },
+      {
+        "at": "2026-09-13T23:10:51+00:00",
+        "type": "refund.created",
+        "status": "CONFIRMED"
+      },
+      {
+        "at": "2026-09-13T23:10:51+00:00",
+        "type": "refund.updated",
+        "status": "DUPLICATE_IGNORED"
+      },
+      {
+        "at": "2026-09-13T23:10:52+00:00",
+        "type": "refund.created",
+        "status": "CONFIRMED"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "payment",
+      "at": "2026-09-13T23:10:45+00:00",
+      "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+      "amount": 10000
+    },
+    {
+      "step": "listener",
+      "at": "2026-09-13T23:10:47+00:00",
+      "ready": true
+    },
+    {
+      "step": "request",
+      "at": "2026-09-13T23:10:47+00:00",
+      "request_id": "refund-50/pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+      "status": "QUEUED",
+      "reason": "needs_judgment",
+      "detail": [
+        "amount at most 1000 cents"
+      ],
+      "group": "ap-leads"
+    },
+    {
+      "step": "approved",
+      "at": "2026-09-13T23:10:47+00:00",
+      "by": "ana",
+      "status": "APPROVED"
+    },
+    {
+      "step": "hand refund",
+      "at": "2026-09-13T23:10:49+00:00",
+      "refund": "re_3UFMXp88KhIqqdFL0H2qsNzS",
+      "amount": 3000,
+      "status": "succeeded"
+    },
+    {
+      "step": "send",
+      "at": "2026-09-13T23:10:49+00:00",
+      "status": "REFUSED:stale_premise",
+      "reason": "stale_premise",
+      "changes": [
+        {
+          "field": "refunded_by_others",
+          "was": 0,
+          "now": 3000
+        }
+      ],
+      "repairs": [
+        "still_fits"
+      ]
+    },
+    {
+      "step": "repair accepted",
+      "at": "2026-09-13T23:10:50+00:00",
+      "by": "ana",
+      "repair": "still_fits",
+      "status": "COMMITTED"
+    },
+    {
+      "step": "second request",
+      "at": "2026-09-13T23:10:50+00:00",
+      "request_id": "refund-15/pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+      "status": "QUEUED",
+      "group": "ap-leads"
+    },
+    {
+      "step": "sla tick",
+      "at": "2026-09-13T23:10:51+00:00",
+      "moved": {
+        "refund-15/pi_3UFMXp88KhIqqdFL0YDJ0sBr": "finance-manager"
+      },
+      "group": "finance-manager",
+      "level": 1,
+      "breach": true
+    },
+    {
+      "step": "ap-leads after breach",
+      "at": "2026-09-13T23:10:51+00:00",
+      "by": "ana",
+      "status": "REFUSED:lease"
+    },
+    {
+      "step": "approved up the chain",
+      "at": "2026-09-13T23:10:52+00:00",
+      "by": "fm",
+      "status": "COMMITTED"
+    },
+    {
+      "step": "confirmation",
+      "at": "2026-09-13T23:10:52+00:00",
+      "path": "webhook"
+    }
+  ],
+  "explained": "a fact this action depends on changed since it was decided. Changed: refunded_by_others was 0, now 3000. Suggested, needs rules or a person: 5000 still fits: 7000 of 10000 is left to refund, if the other refund was not this one",
+  "receipts": {
+    "refund-50/pi_3UFMXp88KhIqqdFL0YDJ0sBr": {
+      "effect_id": "d6e3b0b377a0",
+      "entries": [
+        {
+          "ts": 1789341047.490674,
+          "kind": "PROPOSED",
+          "effect_id": "d6e3b0b377a0",
+          "agent": "inbox",
+          "lease": null,
+          "premises": {
+            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "refunded_by_others": 0
+          },
+          "effect": {
+            "amount": 5000
+          },
+          "request": {
+            "id": "refund-50/pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "amount": 5000
+          },
+          "prev": null,
+          "hash": "12c81c9675940739e01ae9bb16c53893b3d71b469a96f1b038f6796f1bc5fe4d"
+        },
+        {
+          "ts": 1789341047.491254,
+          "kind": "ESCALATED",
+          "effect_id": "d6e3b0b377a0",
+          "at": 1789341044.0,
+          "reason": "needs_judgment",
+          "why": "a rule asks a person to decide this",
+          "detail": [
+            "amount at most 1000 cents"
+          ],
+          "facts": {
+            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "refunded_by_others": 0
+          },
+          "changes": [],
+          "repairs": [],
+          "route": "refunds",
+          "group": "ap-leads",
+          "routed_to": [
+            "ana"
+          ],
+          "level": 0,
+          "due": 1789355444.0,
+          "breach": false,
+          "prev": "12c81c9675940739e01ae9bb16c53893b3d71b469a96f1b038f6796f1bc5fe4d",
+          "hash": "c780abb1c68c9ac48884de333d677957d134b1b1f68ed5e048d82a8311f10b70"
+        },
+        {
+          "ts": 1789341047.4917881,
+          "kind": "DECIDED",
+          "effect_id": "d6e3b0b377a0",
+          "at": 1789342244.0,
+          "by": "ana",
+          "decision": "approve",
+          "escalation": "c780abb1c68c9ac48884de333d677957d134b1b1f68ed5e048d82a8311f10b70",
+          "group": "ap-leads",
+          "members": [
+            "ana"
+          ],
+          "repair": null,
+          "prev": "c780abb1c68c9ac48884de333d677957d134b1b1f68ed5e048d82a8311f10b70",
+          "hash": "c0395a0117b6d05a42d47e6cb98d5206530cad14d36dbd57eebd1c788ca5a418"
+        },
+        {
+          "ts": 1789341049.031518,
+          "kind": "PROPOSED",
+          "effect_id": "d6e3b0b377a0",
+          "agent": "inbox",
+          "lease": {
+            "by": "ana",
+            "at": 1789342244.0,
+            "group": "ap-leads",
+            "escalation": "c780abb1c68c9ac48884de333d677957d134b1b1f68ed5e048d82a8311f10b70"
+          },
+          "premises": {
+            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "refunded_by_others": 0
+          },
+          "effect": {
+            "amount": 5000
+          },
+          "request": {
+            "id": "refund-50/pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "amount": 5000
+          },
+          "prev": "c0395a0117b6d05a42d47e6cb98d5206530cad14d36dbd57eebd1c788ca5a418",
+          "hash": "0df934ad72cc59e0702cabb3091fa4505ca9b3f90a98a2778c2a92470b248d98"
+        },
+        {
+          "ts": 1789341049.032058,
+          "kind": "AUTHORIZED",
+          "effect_id": "d6e3b0b377a0",
+          "lease": {
+            "by": "ana",
+            "at": 1789342244.0,
+            "group": "ap-leads",
+            "escalation": "c780abb1c68c9ac48884de333d677957d134b1b1f68ed5e048d82a8311f10b70"
+          },
+          "prev": "0df934ad72cc59e0702cabb3091fa4505ca9b3f90a98a2778c2a92470b248d98",
+          "hash": "9c4541cd20bcbe2d7fc253d95f9c31f3210fde939ab8633a3ae6c4659c7cbe41"
+        },
+        {
+          "ts": 1789341049.418665,
+          "kind": "REFUSED",
+          "effect_id": "d6e3b0b377a0",
+          "code": "stale_premise",
+          "reason": [
+            "refunded by others: was 0, now 3000"
+          ],
+          "checks": {
+            "lease_live": true,
+            "lease": null,
+            "violations": [
+              "refunded by others: was 0, now 3000"
+            ]
+          },
+          "changes": [
+            {
+              "field": "refunded_by_others",
+              "was": 0,
+              "now": 3000
+            }
+          ],
+          "repairs": [
+            {
+              "code": "still_fits",
+              "set": {},
+              "why": "5000 still fits: 7000 of 10000 is left to refund, if the other refund was not this one"
+            }
+          ],
+          "prev": "9c4541cd20bcbe2d7fc253d95f9c31f3210fde939ab8633a3ae6c4659c7cbe41",
+          "hash": "eec64153476ac080093b3cbdca4431d495ceb4c47f76cf571eeed2d0eda7d77a"
+        },
+        {
+          "ts": 1789341049.6221561,
+          "kind": "ESCALATED",
+          "effect_id": "d6e3b0b377a0",
+          "at": 1789342544.0,
+          "reason": "stale_premise",
+          "why": "a fact this action depends on changed since it was decided",
+          "detail": "REFUSED:stale_premise",
+          "facts": {
+            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "refunded_by_others": 3000
+          },
+          "changes": [
+            {
+              "field": "refunded_by_others",
+              "was": 0,
+              "now": 3000
+            }
+          ],
+          "repairs": [
+            {
+              "code": "still_fits",
+              "set": {},
+              "why": "5000 still fits: 7000 of 10000 is left to refund, if the other refund was not this one"
+            }
+          ],
+          "route": "refunds",
+          "group": "ap-leads",
+          "routed_to": [
+            "ana"
+          ],
+          "level": 0,
+          "due": 1789356944.0,
+          "breach": false,
+          "prev": "eec64153476ac080093b3cbdca4431d495ceb4c47f76cf571eeed2d0eda7d77a",
+          "hash": "18bb58683b4ebb6af53711cf438bac66a8d3414e47640d11932735a9ee976db3"
+        },
+        {
+          "ts": 1789341049.6229792,
+          "kind": "DECIDED",
+          "effect_id": "d6e3b0b377a0",
+          "at": 1789343144.0,
+          "by": "ana",
+          "decision": "approve",
+          "escalation": "18bb58683b4ebb6af53711cf438bac66a8d3414e47640d11932735a9ee976db3",
+          "group": "ap-leads",
+          "members": [
+            "ana"
+          ],
+          "repair": null,
+          "prev": "18bb58683b4ebb6af53711cf438bac66a8d3414e47640d11932735a9ee976db3",
+          "hash": "53b3b8cced9ee3594fd64808ccae52abe13a980301a5389cce72c0c7b1c8766d"
+        },
+        {
+          "ts": 1789341049.623392,
+          "kind": "PROPOSED",
+          "effect_id": "d6e3b0b377a0",
+          "agent": "inbox",
+          "lease": {
+            "by": "ana",
+            "at": 1789343144.0,
+            "group": "ap-leads",
+            "escalation": "18bb58683b4ebb6af53711cf438bac66a8d3414e47640d11932735a9ee976db3"
+          },
+          "premises": {
+            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "refunded_by_others": 3000
+          },
+          "effect": {
+            "amount": 5000
+          },
+          "request": {
+            "id": "refund-50/pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "amount": 5000
+          },
+          "prev": "53b3b8cced9ee3594fd64808ccae52abe13a980301a5389cce72c0c7b1c8766d",
+          "hash": "d0ecb8dfe72a8d30962fcda818b76fac59b63c0d08e43207852ac45c0888221d"
+        },
+        {
+          "ts": 1789341049.623713,
+          "kind": "AUTHORIZED",
+          "effect_id": "d6e3b0b377a0",
+          "lease": {
+            "by": "ana",
+            "at": 1789343144.0,
+            "group": "ap-leads",
+            "escalation": "18bb58683b4ebb6af53711cf438bac66a8d3414e47640d11932735a9ee976db3"
+          },
+          "prev": "d0ecb8dfe72a8d30962fcda818b76fac59b63c0d08e43207852ac45c0888221d",
+          "hash": "7d21b7f4da01831e2b77d650267465e69f5a7d200015c11b5afa47fa7101699d"
+        },
+        {
+          "ts": 1789341049.823545,
+          "kind": "DISPATCHED",
+          "effect_id": "d6e3b0b377a0",
+          "effect": {
+            "amount": 5000
+          },
+          "lease": {
+            "by": "ana",
+            "at": 1789343144.0,
+            "group": "ap-leads",
+            "escalation": "18bb58683b4ebb6af53711cf438bac66a8d3414e47640d11932735a9ee976db3"
+          },
+          "premises": {
+            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "refunded_by_others": 3000
+          },
+          "checks": {
+            "lease_live": true,
+            "lease": null,
+            "violations": []
+          },
+          "prev": "7d21b7f4da01831e2b77d650267465e69f5a7d200015c11b5afa47fa7101699d",
+          "hash": "c3cc654aa79cab52e4f49ca7a245d2291ad93d142a7159cecd8064e3041e015e"
+        },
+        {
+          "ts": 1789341050.765926,
+          "kind": "COMMITTED",
+          "effect_id": "d6e3b0b377a0",
+          "result": {
+            "status": "ok",
+            "refund": "re_3UFMXp88KhIqqdFL00Nz6DsF",
+            "amount": 5000
+          },
+          "prev": "c3cc654aa79cab52e4f49ca7a245d2291ad93d142a7159cecd8064e3041e015e",
+          "hash": "811997a9a414d021795a32b8e8eb32e53cd7c872e8fc673f6e8cecd604cac42e"
+        },
+        {
+          "ts": 1789341051.004381,
+          "kind": "CONFIRMED",
+          "effect_id": "d6e3b0b377a0",
+          "via": "webhook",
+          "event": "evt_3UFMXp88KhIqqdFL0jGtFiSO",
+          "refund": "re_3UFMXp88KhIqqdFL00Nz6DsF",
+          "status": "succeeded",
+          "amount": 5000,
+          "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+          "created": 1789341050,
+          "prev": "811997a9a414d021795a32b8e8eb32e53cd7c872e8fc673f6e8cecd604cac42e",
+          "hash": "c365659b7bdc369cde14a68efedfd76fcdc41eaa7847d5e1ae2117fba240e0dd"
+        }
+      ],
+      "summary": {
+        "effect_id": "d6e3b0b377a0",
+        "proposed": true,
+        "authorized": true,
+        "executed": true,
+        "recorded": true,
+        "final": "COMMITTED",
+        "authority": {
+          "by": "ana",
+          "at": 1789343144.0,
+          "group": "ap-leads",
+          "escalation": "18bb58683b4ebb6af53711cf438bac66a8d3414e47640d11932735a9ee976db3"
+        }
+      }
+    },
+    "refund-15/pi_3UFMXp88KhIqqdFL0YDJ0sBr": {
+      "effect_id": "d7980f794e87",
+      "entries": [
+        {
+          "ts": 1789341050.982702,
+          "kind": "PROPOSED",
+          "effect_id": "d7980f794e87",
+          "agent": "inbox",
+          "lease": null,
+          "premises": {
+            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "refunded_by_others": 8000
+          },
+          "effect": {
+            "amount": 1500
+          },
+          "request": {
+            "id": "refund-15/pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "amount": 1500
+          },
+          "prev": null,
+          "hash": "b84c155dbcffa4f5097abdb6f32a9ab23301a47d4e697064516a870e628692bd"
+        },
+        {
+          "ts": 1789341050.983875,
+          "kind": "ESCALATED",
+          "effect_id": "d7980f794e87",
+          "at": 1789343444.0,
+          "reason": "needs_judgment",
+          "why": "a rule asks a person to decide this",
+          "detail": [
+            "amount at most 1000 cents"
+          ],
+          "facts": {
+            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "refunded_by_others": 8000
+          },
+          "changes": [],
+          "repairs": [],
+          "route": "refunds",
+          "group": "ap-leads",
+          "routed_to": [
+            "ana"
+          ],
+          "level": 0,
+          "due": 1789357844.0,
+          "breach": false,
+          "prev": "b84c155dbcffa4f5097abdb6f32a9ab23301a47d4e697064516a870e628692bd",
+          "hash": "4c94eb6d99e7e78289db3a20b1bf72646d174f246d9a173c1128f21e953f4fe3"
+        },
+        {
+          "ts": 1789341051.2023501,
+          "kind": "ESCALATED",
+          "effect_id": "d7980f794e87",
+          "at": 1789357904.0,
+          "reason": "needs_judgment",
+          "why": "a rule asks a person to decide this",
+          "detail": [
+            "amount at most 1000 cents"
+          ],
+          "facts": {
+            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "refunded_by_others": 8000
+          },
+          "changes": [],
+          "repairs": [],
+          "route": "refunds",
+          "group": "finance-manager",
+          "routed_to": [
+            "fm"
+          ],
+          "level": 1,
+          "due": 1789372304.0,
+          "breach": true,
+          "prev": "4c94eb6d99e7e78289db3a20b1bf72646d174f246d9a173c1128f21e953f4fe3",
+          "hash": "cce3a03ef6c19e28b0f58b1f1685a64599215c7003eec2656fb9093302818866"
+        },
+        {
+          "ts": 1789341051.203933,
+          "kind": "DECIDED",
+          "effect_id": "d7980f794e87",
+          "at": 1789358804.0,
+          "by": "fm",
+          "decision": "approve",
+          "escalation": "cce3a03ef6c19e28b0f58b1f1685a64599215c7003eec2656fb9093302818866",
+          "group": "finance-manager",
+          "members": [
+            "fm"
+          ],
+          "repair": null,
+          "prev": "cce3a03ef6c19e28b0f58b1f1685a64599215c7003eec2656fb9093302818866",
+          "hash": "6d1246ce47f8ad05df826880a87e18114cdcff8d69b2f558c48a51fee7f865f1"
+        },
+        {
+          "ts": 1789341051.204596,
+          "kind": "PROPOSED",
+          "effect_id": "d7980f794e87",
+          "agent": "inbox",
+          "lease": {
+            "by": "fm",
+            "at": 1789358804.0,
+            "group": "finance-manager",
+            "escalation": "cce3a03ef6c19e28b0f58b1f1685a64599215c7003eec2656fb9093302818866"
+          },
+          "premises": {
+            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "refunded_by_others": 8000
+          },
+          "effect": {
+            "amount": 1500
+          },
+          "request": {
+            "id": "refund-15/pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "amount": 1500
+          },
+          "prev": "6d1246ce47f8ad05df826880a87e18114cdcff8d69b2f558c48a51fee7f865f1",
+          "hash": "517e358ee73ad0130101695b06bf36a5e71aba14b3a2ece335d2c49ee6506703"
+        },
+        {
+          "ts": 1789341051.204937,
+          "kind": "AUTHORIZED",
+          "effect_id": "d7980f794e87",
+          "lease": {
+            "by": "fm",
+            "at": 1789358804.0,
+            "group": "finance-manager",
+            "escalation": "cce3a03ef6c19e28b0f58b1f1685a64599215c7003eec2656fb9093302818866"
+          },
+          "prev": "517e358ee73ad0130101695b06bf36a5e71aba14b3a2ece335d2c49ee6506703",
+          "hash": "819fded7d9f9574f7289d5a636fc72f7e1194d18f680b69d835f3b838cbdda25"
+        },
+        {
+          "ts": 1789341051.399571,
+          "kind": "DISPATCHED",
+          "effect_id": "d7980f794e87",
+          "effect": {
+            "amount": 1500
+          },
+          "lease": {
+            "by": "fm",
+            "at": 1789358804.0,
+            "group": "finance-manager",
+            "escalation": "cce3a03ef6c19e28b0f58b1f1685a64599215c7003eec2656fb9093302818866"
+          },
+          "premises": {
+            "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+            "refunded_by_others": 8000
+          },
+          "checks": {
+            "lease_live": true,
+            "lease": null,
+            "violations": []
+          },
+          "prev": "819fded7d9f9574f7289d5a636fc72f7e1194d18f680b69d835f3b838cbdda25",
+          "hash": "96a7163edd0e0099448f5860c2154dd8d1f226d5e6df741611823d51f0669e23"
+        },
+        {
+          "ts": 1789341052.436738,
+          "kind": "COMMITTED",
+          "effect_id": "d7980f794e87",
+          "result": {
+            "status": "ok",
+            "refund": "re_3UFMXp88KhIqqdFL0NNT0LCm",
+            "amount": 1500
+          },
+          "prev": "96a7163edd0e0099448f5860c2154dd8d1f226d5e6df741611823d51f0669e23",
+          "hash": "50e27a07cb33532094f031c28eefd8363adbf5ed2765b35f775185539b1a658d"
+        },
+        {
+          "ts": 1789341052.579992,
+          "kind": "CONFIRMED",
+          "effect_id": "d7980f794e87",
+          "via": "webhook",
+          "event": "evt_3UFMXp88KhIqqdFL0yOjWHsy",
+          "refund": "re_3UFMXp88KhIqqdFL0NNT0LCm",
+          "status": "succeeded",
+          "amount": 1500,
+          "payment_intent": "pi_3UFMXp88KhIqqdFL0YDJ0sBr",
+          "created": 1789341052,
+          "prev": "50e27a07cb33532094f031c28eefd8363adbf5ed2765b35f775185539b1a658d",
+          "hash": "4143bcf68bb33fa79cc23b8de2996acf21cc23c5c382f7cdcc9db965cc444bb9"
+        }
+      ],
+      "summary": {
+        "effect_id": "d7980f794e87",
+        "proposed": true,
+        "authorized": true,
+        "executed": true,
+        "recorded": true,
+        "final": "COMMITTED",
+        "authority": {
+          "by": "fm",
+          "at": 1789358804.0,
+          "group": "finance-manager",
+          "escalation": "cce3a03ef6c19e28b0f58b1f1685a64599215c7003eec2656fb9093302818866"
+        }
+      }
+    }
+  },
+  "verify": {
+    "refund-50/pi_3UFMXp88KhIqqdFL0YDJ0sBr": {
+      "effect_id": "d6e3b0b377a0",
+      "valid": true,
+      "tamper_evident": true,
+      "signed": null,
+      "happened": true,
+      "happened_once": true,
+      "authorized_when_fired": true,
+      "assumptions_held": true,
+      "refused": null,
+      "evidence": {
+        "status": "ok",
+        "refund": "re_3UFMXp88KhIqqdFL00Nz6DsF",
+        "amount": 5000
+      },
+      "rechecked_at_recovery": null,
+      "approved_by": "ana",
+      "approval_verified": true,
+      "escalations": [
+        {
+          "at": 1789341044.0,
+          "reason": "needs_judgment",
+          "group": "ap-leads",
+          "routed_to": [
+            "ana"
+          ],
+          "level": 0,
+          "breach": false,
+          "changes": [],
+          "repairs": 0,
+          "decision": {
+            "by": "ana",
+            "decision": "approve",
+            "at": 1789342244.0
+          }
+        },
+        {
+          "at": 1789342544.0,
+          "reason": "stale_premise",
+          "group": "ap-leads",
+          "routed_to": [
+            "ana"
+          ],
+          "level": 0,
+          "breach": false,
+          "changes": [
+            {
+              "field": "refunded_by_others",
+              "was": 0,
+              "now": 3000
+            }
+          ],
+          "repairs": 1,
+          "decision": {
+            "by": "ana",
+            "decision": "approve",
+            "at": 1789343144.0
+          }
+        }
+      ],
+      "confirmed_by_target": true,
+      "confirmation": [
+        {
+          "via": "webhook",
+          "event": "evt_3UFMXp88KhIqqdFL0jGtFiSO",
+          "refund": "re_3UFMXp88KhIqqdFL00Nz6DsF",
+          "status": "succeeded"
+        }
+      ],
+      "problems": []
+    },
+    "refund-15/pi_3UFMXp88KhIqqdFL0YDJ0sBr": {
+      "effect_id": "d7980f794e87",
+      "valid": true,
+      "tamper_evident": true,
+      "signed": null,
+      "happened": true,
+      "happened_once": true,
+      "authorized_when_fired": true,
+      "assumptions_held": true,
+      "refused": null,
+      "evidence": {
+        "status": "ok",
+        "refund": "re_3UFMXp88KhIqqdFL0NNT0LCm",
+        "amount": 1500
+      },
+      "rechecked_at_recovery": null,
+      "approved_by": "fm",
+      "approval_verified": true,
+      "escalations": [
+        {
+          "at": 1789343444.0,
+          "reason": "needs_judgment",
+          "group": "ap-leads",
+          "routed_to": [
+            "ana"
+          ],
+          "level": 0,
+          "breach": false,
+          "changes": [],
+          "repairs": 0,
+          "decision": null
+        },
+        {
+          "at": 1789357904.0,
+          "reason": "needs_judgment",
+          "group": "finance-manager",
+          "routed_to": [
+            "fm"
+          ],
+          "level": 1,
+          "breach": true,
+          "changes": [],
+          "repairs": 0,
+          "decision": {
+            "by": "fm",
+            "decision": "approve",
+            "at": 1789358804.0
+          }
+        }
+      ],
+      "confirmed_by_target": true,
+      "confirmation": [
+        {
+          "via": "webhook",
+          "event": "evt_3UFMXp88KhIqqdFL0yOjWHsy",
+          "refund": "re_3UFMXp88KhIqqdFL0NNT0LCm",
+          "status": "succeeded"
+        }
+      ],
+      "problems": []
+    }
+  },
+  "scoreboard": {
+    "requests": 2,
+    "cleared_no_person": 0,
+    "cleared_verified": 0,
+    "sent_after_person": 2,
+    "rejected": 0,
+    "closed_by_repair": 0,
+    "open": 0,
+    "escalated": 2,
+    "stale_approvals_caught": 1,
+    "crash_to_person": 0,
+    "repairs_suggested": 1,
+    "repairs_accepted": 0,
+    "sla_breaches": 1,
+    "confirmed_by_target": 2,
+    "no_person_share": 0.0,
+    "escalated_by_reason": {
+      "needs_judgment": 2,
+      "stale_premise": 1
+    },
+    "time_to_decision": {
+      "n": 3,
+      "median": 1200.0,
+      "p90": 15360.0,
+      "max": 15360.0
+    }
+  }
+}
