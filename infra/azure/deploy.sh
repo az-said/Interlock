@@ -180,7 +180,8 @@ apply() {  # $1 = allowed host
   az rest --method put --url "$APP_URL" --body "@$BODY" -o none
   local state="" i
   for i in $(seq 120); do  # the PUT returns before provisioning ends; wait up to 10 minutes
-    state="$(az containerapp show -n "$APP" -g "$RG" --query properties.provisioningState -o tsv)"
+    # A failed poll (a DNS blip ended the second live deploy here) is retried, not fatal.
+    state="$(az containerapp show -n "$APP" -g "$RG" --query properties.provisioningState -o tsv)" || state=""
     case "$state" in
       Succeeded) return ;;
       Failed|Canceled) echo "container app provisioning ended $state" >&2; exit 1 ;;

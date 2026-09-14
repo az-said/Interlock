@@ -23,7 +23,9 @@ case "$*" in
   *"--query properties.configuration.ingress.fqdn"*) echo "$STUB_FQDN" ;;
   *"--query properties.latestRevisionName"*) echo interlock-demo--rev1 ;;
   "role assignment list"*) echo "${STUB_ROLE_ID:-}" ;;
-  "containerapp show -n interlock-demo -g interlock-demo-rg --query properties.provisioningState"*) echo "${STUB_APP_STATE:-Succeeded}" ;;
+  "containerapp show -n interlock-demo -g interlock-demo-rg --query properties.provisioningState"*)
+    if [ -n "${STUB_APP_FLAKY:-}" ] && [ ! -e "$STUB_LOG.flaky" ]; then touch "$STUB_LOG.flaky"; exit 1; fi
+    echo "${STUB_APP_STATE:-Succeeded}" ;;
   *"--query properties.provisioningState"*) echo "${STUB_ENV_STATE:-Succeeded}" ;;
   *"--query"*) echo "/subscriptions/x/resourceGroups/rg/providers/p/$2" ;;
   "rest --method put"*)
@@ -151,8 +153,9 @@ class AzureDeployScript(unittest.TestCase):
     def test_rerun_keeps_role_and_failed_provisioning_stops(self):
         repo = self.make_repo()
         fqdn = "interlock-demo.predicted.eastus.azurecontainerapps.io"
-        p, calls = self.deploy(repo, fqdn, role_id="existing-assignment")
+        p, calls = self.deploy(repo, fqdn, role_id="existing-assignment", STUB_APP_FLAKY="1")   # first poll fails
         self.assertEqual(p.returncode, 0, p.stderr)
+        self.assertEqual(p.stdout.strip(), "https://" + fqdn)
         lines = calls.splitlines()
         self.assertEqual(sum(l.startswith("rest --method put") for l in lines), 1)
         self.assertEqual(sum(l.startswith("role assignment create") for l in lines), 0)
