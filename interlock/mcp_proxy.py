@@ -45,12 +45,16 @@ from .gate import Rejected
 from .journal import CLAIM_TTL, effect_id_for, open_dispatch
 from .tools import RESOLVED, ToolError, fill, gated, run, structured
 
+PROTOCOL_VERSION = "io.modelcontextprotocol/protocolVersion"
+ENVELOPE = (PROTOCOL_VERSION, "io.modelcontextprotocol/clientCapabilities", "io.modelcontextprotocol/clientInfo")
+
 
 class Upstream:
     """The real MCP server, as a child process. Our own requests use ids no client can guess."""
     def __init__(self, command, to_client):
         self.proc = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, bufsize=1)
         self.to_client, self.waiting, self.ids = to_client, {}, itertools.count(1)
+        self.envelope = None           # a 2026-07-28 client's _meta envelope, stamped on our own requests
         self.prefix = f"interlock-{uuid.uuid4().hex}-"
         self.write_lock, self.wait_lock = threading.Lock(), threading.Lock()
         threading.Thread(target=self._read, daemon=True).start()
@@ -78,7 +82,10 @@ class Upstream:
         rid, waiter = f"{self.prefix}{next(self.ids)}", queue.Queue()
         with self.wait_lock:
             self.waiting[rid] = waiter
-        self.send({"jsonrpc": "2.0", "id": rid, "method": "tools/call", "params": {"name": name, "arguments": arguments}})
+        params = {"name": name, "arguments": arguments}
+        if self.envelope:              # a real server locks the connection to one era and refuses un-enveloped requests
+            params["_meta"] = dict(self.envelope)
+        self.send({"jsonrpc": "2.0", "id": rid, "method": "tools/call", "params": params})
         try:
             msg = waiter.get(timeout=timeout)
         except queue.Empty:
@@ -158,6 +165,9 @@ class Proxy:
             if not line.strip():
                 continue
             msg = json.loads(line)
+            meta = (msg.get("params") or {}).get("_meta") if isinstance(msg.get("params"), dict) else None
+            if isinstance(meta, dict) and PROTOCOL_VERSION in meta:   # stored before any recovery or fact read goes upstream
+                self.upstream.envelope = {k: meta[k] for k in ENVELOPE if k in meta}
             if msg.get("method") == "tools/call" and (msg.get("params") or {}).get("name") in self.tools:
                 threading.Thread(target=self.handle_call, args=(msg,), daemon=True).start()
                 continue

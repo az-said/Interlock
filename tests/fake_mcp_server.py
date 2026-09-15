@@ -35,12 +35,34 @@ def data(obj):
 
 
 LOG = os.environ.get("FAKE_LOG")
+ENVELOPE = ("io.modelcontextprotocol/protocolVersion", "io.modelcontextprotocol/clientCapabilities")
+era = None                         # like mcp 2.x: the first request locks the connection to one protocol era
+
+
+def error(mid, code, message):
+    sys.stdout.write(json.dumps({"jsonrpc": "2.0", "id": mid, "error": {"code": code, "message": message}}) + "\n")
+    sys.stdout.flush()
+
 
 for line in sys.stdin:
     msg = json.loads(line)
     if "id" not in msg:
         continue
     method, mid = msg.get("method"), msg["id"]
+    meta = (msg.get("params") or {}).get("_meta") or {}
+    enveloped = all(k in meta for k in ENVELOPE)
+    era = era or ("modern" if enveloped else "handshake")
+    if era == "modern" and not enveloped:
+        error(mid, -32602, "params._meta must carry the 2026-07-28 envelope")
+        continue
+    if era != "modern" and ENVELOPE[0] in meta:
+        error(mid, -32600, "this connection serves the handshake protocol era")
+        continue
+    if era == "handshake" and method == "initialize":
+        era = "initialized"
+    elif era == "handshake":                                              # the init gate: nothing before initialize
+        error(mid, -32602, "Invalid request parameters")
+        continue
     if LOG and method == "tools/call":                                    # what reached the server, in order
         with open(LOG, "a") as f:
             f.write(json.dumps(msg["params"]) + "\n")

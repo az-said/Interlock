@@ -5,7 +5,7 @@ The MCP proxy against a real subprocess MCP server: passthrough, one refund per 
 recovery after the proxy is killed mid-call (with and without the initialize handshake), and refusal when support refunded by hand
 while it was down.
 """
-import json, os, queue, signal, subprocess, sys, tempfile, threading, time, unittest
+import importlib.util, json, os, queue, signal, subprocess, sys, tempfile, threading, time, unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FAKE = os.path.join(ROOT, "tests", "fake_mcp_server.py")
@@ -23,12 +23,12 @@ CONFIG = {
 
 class Session:
     """One proxy process (and its upstream child) in its own process group, with a line reader."""
-    def __init__(self, cwd, state, slow=0, slow_before=0, modern=False, stderr=None):
+    def __init__(self, cwd, state, slow=0, slow_before=0, modern=False, stderr=None, server=None):
         """modern: no handshake; every request carries the 2026-07-28 protocol envelope in _meta, as the spec says."""
         env = {**os.environ, "FAKE_STATE": state, "FAKE_SLOW": str(slow), "FAKE_SLOW_BEFORE": str(slow_before), "PYTHONPATH": ROOT,
                "FAKE_LOG": os.path.join(cwd, "calls.jsonl")}
         self.stderr = open(stderr, "a") if stderr else subprocess.DEVNULL
-        self.proc = subprocess.Popen([sys.executable, "-m", "interlock.mcp_proxy", "--config", "config.json", "--", sys.executable, FAKE],
+        self.proc = subprocess.Popen([sys.executable, "-m", "interlock.mcp_proxy", "--config", "config.json", "--", sys.executable, server or FAKE],
                                      cwd=cwd, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=self.stderr,
                                      text=True, bufsize=1, start_new_session=True)
         self.lines = queue.Queue()
@@ -288,6 +288,26 @@ class StartupRecovery(unittest.TestCase):
             p.upstream.proc.stdin.close()
             p.upstream.proc.stdout.close()
             self.assertEqual((len(runs), most[0]), (1, 1))
+
+
+@unittest.skipUnless(importlib.util.find_spec("mcp"), "the mcp SDK is not installed")
+class RealSdk(unittest.TestCase):
+    """A real mcp 2.x server locks each connection to the era of its first request, so the proxy's own reads carry the envelope."""
+    def test_a_modern_clients_first_request_is_a_gated_call(self):
+        with tempfile.TemporaryDirectory() as d:
+            with open(os.path.join(d, "config.json"), "w") as f:
+                json.dump(CONFIG, f)
+            server = os.path.join(ROOT, "tests", "mcp2_payments_server.py")
+            s = Session(d, os.path.join(d, "state.json"), modern=True, server=server)
+            try:
+                first = s.refund("881", 20)
+                self.assertEqual(first["_meta"]["interlock"]["status"], "COMMITTED", first)
+                order = s.request("tools/call", {"name": "get_order", "arguments": {"order_id": "881"}})   # passthrough still accepted
+                self.assertFalse(order.get("isError"), order)
+                self.assertIn('"refunded_total": 20', order["content"][0]["text"])
+                self.assertIn("already happened once", s.refund("881", 20)["content"][0]["text"])
+            finally:
+                s.close()
 
 
 if __name__ == "__main__":
