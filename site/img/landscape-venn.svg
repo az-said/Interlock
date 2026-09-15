@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="760" viewBox="0 0 960 760" font-family="Arial, Helvetica, sans-serif" role="img" aria-labelledby="venn-title venn-desc">
+  <title id="venn-title">Where Interlock sits among agent reliability tools</title>
+  <desc id="venn-desc">Three overlapping circles. Picks up after a crash: Temporal, DBOS, Restate, LangGraph checkpoints, OpenAI Agents SDK resume, Google ADK resumability. Won't send the same request twice: Stripe idempotency keys, Stripe ACP. Checks permission before acting: Google ADK confirmation, Salus, HumanLayer, MCP gateways, AP2 mandates. Where the first two overlap, the recommended framework setups held a plain crash but paid 40 dollars on a 20 dollar refund when support refunded by hand during the outage. Where crash recovery and permission overlap, Google ADK stopped a replayed refund only when the approver's rejection reached it. In the center, Interlock re-checks permission and facts right before the send and again after a crash, by default, and leaves a receipt. Footnote: a careful engineer can hand-build the center with 6 to 12 added lines per path, and it ties Interlock on money.</desc>
+
+  <!-- Circles: A crash recovery (blue), B dedupe (amber), C permission (cyan). -->
+  <circle cx="345" cy="265" r="215" fill="#60a5fa" fill-opacity=".10" stroke="#60a5fa" stroke-opacity=".7" stroke-width="2"/>
+  <circle cx="615" cy="265" r="215" fill="#f5a524" fill-opacity=".08" stroke="#f5a524" stroke-opacity=".7" stroke-width="2"/>
+  <circle cx="480" cy="480" r="215" fill="#a8f0f6" fill-opacity=".07" stroke="#a8f0f6" stroke-opacity=".7" stroke-width="2"/>
+
+  <!-- Circle names -->
+  <text x="170" y="22" fill="#60a5fa" font-size="17" font-weight="700">Picks up after a crash</text>
+  <text x="170" y="42" fill="#e8eaee" fill-opacity=".62" font-size="13">replays the old decision</text>
+  <text x="790" y="22" fill="#f5a524" font-size="17" font-weight="700" text-anchor="end">Won't send the same request twice</text>
+  <text x="790" y="42" fill="#e8eaee" fill-opacity=".62" font-size="13" text-anchor="end">only that exact request</text>
+  <text x="480" y="726" fill="#a8f0f6" font-size="17" font-weight="700" text-anchor="middle">Checks permission before acting</text>
+  <text x="480" y="747" fill="#e8eaee" fill-opacity=".62" font-size="13" text-anchor="middle">at decision time only</text>
+
+  <!-- Members of each circle alone -->
+  <g fill="#e8eaee" fill-opacity=".85" font-size="14">
+    <text x="215" y="160">Temporal</text>
+    <text x="215" y="182">DBOS</text>
+    <text x="215" y="204">Restate</text>
+    <text x="215" y="226">LangGraph checkpoints</text>
+    <text x="215" y="248">OpenAI Agents SDK resume</text>
+    <text x="215" y="270">Google ADK resumability</text>
+
+    <text x="745" y="220" text-anchor="end">Stripe idempotency keys</text>
+    <text x="745" y="242" text-anchor="end">Stripe ACP</text>
+
+    <text x="480" y="585" text-anchor="middle">Google ADK confirmation · Salus</text>
+    <text x="480" y="607" text-anchor="middle">HumanLayer · MCP gateways</text>
+    <text x="480" y="629" text-anchor="middle">AP2 mandates</text>
+  </g>
+
+  <!-- Measured overlaps -->
+  <g font-size="11" text-anchor="middle">
+    <text x="480" y="178" fill="#e8eaee" fill-opacity=".92" font-weight="700">Framework + key</text>
+    <text x="480" y="194" fill="#e8eaee" fill-opacity=".65">held a plain crash,</text>
+    <text x="480" y="210" fill="#f87171">paid $40 in the</text>
+    <text x="480" y="226" fill="#f87171">hand-refund outage</text>
+
+    <text x="360" y="402" fill="#e8eaee" fill-opacity=".92" font-weight="700">ADK resume</text>
+    <text x="360" y="417" fill="#e8eaee" fill-opacity=".92" font-weight="700">+ confirmation</text>
+    <text x="360" y="434" fill="#e8eaee" fill-opacity=".65">stops the replay only</text>
+    <text x="360" y="449" fill="#e8eaee" fill-opacity=".65">if the approver says no</text>
+  </g>
+
+  <!-- Center -->
+  <circle cx="480" cy="330" r="74" fill="#34d399" fill-opacity=".16" stroke="#34d399" stroke-width="2"/>
+  <text x="480" y="318" fill="#34d399" font-size="20" font-weight="700" text-anchor="middle">Interlock</text>
+  <text x="480" y="339" fill="#e8eaee" font-size="11.5" text-anchor="middle">re-checks at the send</text>
+  <text x="480" y="354" fill="#e8eaee" font-size="11.5" text-anchor="middle">and after a crash,</text>
+  <text x="480" y="369" fill="#e8eaee" font-size="11.5" text-anchor="middle">leaves a receipt</text>
+</svg>
