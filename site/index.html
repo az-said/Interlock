@@ -838,6 +838,78 @@
     </div>
   </section>
 
+  <!-- The machine. The five rules as the state flow every effect walks through, ported from the
+       visual explainer (docs/interlock-explained.html) into the landing page's style. -->
+  <section id="machine" class="dark pad" data-play>
+    <span class="blob" style="--tone:var(--good);width:620px;height:620px;right:-160px;top:-80px;opacity:.16"></span>
+    <style>
+      .machine { margin-top: 3rem; padding: 1.6rem 1.4rem; }
+      .machine .scroll-x { overflow-x: auto; }
+      .machine svg { display: block; width: 100%; min-width: 760px; height: auto; }
+      .machine .node rect { fill: rgba(255, 255, 255, .05); stroke: rgba(232, 234, 238, .35); }
+      .machine .node text, .machine .note { fill: var(--text); font: 600 13px/1 var(--mono, ui-monospace, Menlo, monospace); letter-spacing: .04em; }
+      .machine .effect rect { fill: var(--text); } .machine .effect text { fill: var(--ink); }
+      .machine .ok rect { fill: rgba(52, 211, 153, .12); stroke: var(--good); } .machine .ok text { fill: var(--good); }
+      .machine .bad rect { fill: rgba(248, 113, 113, .12); stroke: var(--bad); } .machine .bad text { fill: var(--bad); }
+      .machine .warn rect { fill: rgba(245, 165, 36, .12); stroke: var(--warn); } .machine .warn text { fill: var(--warn); }
+      .machine .flow { stroke: rgba(232, 234, 238, .55); stroke-width: 1.5; fill: none; }
+      .machine .flow-bad { stroke: var(--bad); stroke-width: 1.3; fill: none; }
+      .machine .flow-warn { stroke: var(--warn); stroke-width: 1.3; fill: none; }
+      .machine .lbl { fill: var(--dim); font: 400 13px/1 var(--font, Arial, sans-serif); }
+      .machine .lbl-mono { fill: var(--dim); font: 400 12.5px/1 var(--mono, ui-monospace, Menlo, monospace); }
+      .machine-foot { margin-top: 1.6rem; max-width: 44rem; color: var(--dim); }
+      .machine-list { display: none; list-style: none; margin: 0; padding: 0; }
+      .machine-list li { position: relative; padding: .7rem .9rem; border: 1px solid rgba(232, 234, 238, .3); border-radius: 10px; font: 600 13px/1.3 var(--mono, ui-monospace, Menlo, monospace); letter-spacing: .04em; }
+      .machine-list li + li { margin-top: 1.1rem; }
+      .machine-list li + li::before { content: ""; position: absolute; left: 1.4rem; top: -1.1rem; height: 1.1rem; width: 1px; background: rgba(232, 234, 238, .45); }
+      .machine-list li span { display: block; margin-top: .3rem; font: 400 13px/1.4 var(--font, Arial, sans-serif); letter-spacing: 0; color: var(--dim); }
+      .machine-list .effect { background: var(--text); color: var(--ink); } .machine-list .effect span { color: rgba(12, 14, 18, .7); }
+      .machine-list .ok { border-color: var(--good); color: var(--good); } .machine-list .bad { border-color: var(--bad); color: var(--bad); } .machine-list .warn { border-color: var(--warn); color: var(--warn); }
+      @media (max-width: 700px) { .machine .scroll-x { display: none; } .machine-list { display: block; } .machine { padding: 1.1rem; } }
+    </style>
+    <div class="wrap">
+      <h2 class="in" style="--d:80">Every action walks the same path. <em>On recovery, never guess.</em></h2>
+      <p class="lede in" style="--d:160">Five rules. Write the decision to disk before acting. Fix the effect's identity when the request is approved, never by the model. Carry the premises and re-check at commit. Treat authority as a lease checked at dispatch. On recovery, never guess.</p>
+      <div class="glass machine in" style="--d:260">
+        <div class="scroll-x">
+          <svg viewBox="0 0 900 290" role="img" aria-label="State flow: PROPOSED, AUTHORIZED, DISPATCHED written to disk before the call, the effect, then COMMITTED. A changed premise, the same id with a different amount, or a dead lease ends in REFUSED. A crash after dispatch is recovered by tier: retry, look up, or AMBIGUOUS when nobody can know.">
+            <defs>
+              <marker id="m-ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5 0 10z" fill="rgba(232,234,238,.7)"/></marker>
+              <marker id="m-ar-bad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5 0 10z" fill="#f87171"/></marker>
+              <marker id="m-ar-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5 0 10z" fill="#f5a524"/></marker>
+            </defs>
+            <g class="node"><rect x="20" y="50" width="120" height="44" rx="10"/><text x="80" y="77" text-anchor="middle">PROPOSED</text></g>
+            <g class="node"><rect x="190" y="50" width="130" height="44" rx="10"/><text x="255" y="77" text-anchor="middle">AUTHORIZED</text></g>
+            <g class="node"><rect x="370" y="50" width="130" height="44" rx="10"/><text x="435" y="77" text-anchor="middle">DISPATCHED</text></g>
+            <g class="node effect"><rect x="550" y="50" width="100" height="44" rx="10"/><text x="600" y="77" text-anchor="middle">effect</text></g>
+            <g class="node ok"><rect x="700" y="50" width="150" height="44" rx="10"/><text x="775" y="77" text-anchor="middle">COMMITTED</text></g>
+            <line class="flow" x1="140" y1="72" x2="188" y2="72" marker-end="url(#m-ar)"/>
+            <line class="flow" x1="320" y1="72" x2="368" y2="72" marker-end="url(#m-ar)"/>
+            <line class="flow" x1="500" y1="72" x2="548" y2="72" marker-end="url(#m-ar)"/>
+            <line class="flow" x1="650" y1="72" x2="698" y2="72" marker-end="url(#m-ar)"/>
+            <g class="node bad"><rect x="700" y="146" width="150" height="40" rx="10"/><text x="775" y="171" text-anchor="middle">REFUSED</text></g>
+            <g class="node warn"><rect x="700" y="228" width="150" height="40" rx="10"/><text x="775" y="253" text-anchor="middle">AMBIGUOUS</text></g>
+            <path class="flow-bad" d="M80 94 V166 H698" marker-end="url(#m-ar-bad)"/>
+            <path class="flow-bad" d="M255 94 V166"/>
+            <path class="flow-warn" d="M600 94 V248 H698" marker-end="url(#m-ar-warn)"/>
+            <text class="lbl-mono" x="435" y="116" text-anchor="middle">written to disk before the call</text>
+            <text class="lbl" x="92" y="200">premise changed · same id, different amount</text>
+            <text class="lbl" x="266" y="140">lease dead</text>
+            <text class="lbl" x="612" y="224">crash: retry / look up / cannot know</text>
+          </svg>
+        </div>
+        <ol class="machine-list" aria-hidden="true">
+          <li>PROPOSED<span>premise changed, or same id with a different amount: REFUSED</span></li>
+          <li>AUTHORIZED<span>lease dead: REFUSED</span></li>
+          <li>DISPATCHED<span>written to disk before the call</span></li>
+          <li class="effect">effect<span>crash here: retry, look up, or AMBIGUOUS when nobody can know</span></li>
+          <li class="ok">COMMITTED</li>
+        </ol>
+      </div>
+      <p class="machine-foot in" style="--d:360">The output of every effect is a receipt: four booleans and a final state. An auditor reads receipts instead of reconciling logs.</p>
+    </div>
+  </section>
+
   <!-- Try it yourself. Four faults from the tested table, replayed from the gate's real journal
        (viewer/traces.js, built by viewer/build.py from experiments/refund_agent.py). The code is
        the real integration; each step lights the lines it depends on. Only the pacing is added. -->
@@ -1101,6 +1173,34 @@
         <h3>The approval went stale. No second refund.</h3>
         <p>The refund returns to the queue saying what changed since it was approved. Approvals can also expire, and stop working the moment the approver loses access.</p>
       </article>
+    </div>
+  </section>
+
+  <!-- The field. Every layer around an agent's action and who owns it, ported from the visual
+       explainer. The last row is the seam Interlock fills. -->
+  <section id="field" class="dark pad" data-play>
+    <span class="blob" style="--tone:var(--blue);width:640px;height:640px;right:-180px;top:0;opacity:.3"></span>
+    <div class="wrap">
+      <h2 class="in" style="--d:80">Every layer has an owner. <em>Except the effect itself.</em></h2>
+      <p class="lede in" style="--d:160">Model providers sit on one side of the effect, API providers on the other, workflow engines upstream. No shipping product owns the seam. Seams are where payment processors, telephony APIs and bank-data aggregators came from.</p>
+      <div class="glass cmp in" style="--d:250">
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr><th style="width:26%">Layer</th><th>Question it answers</th><th>Who</th></tr>
+            </thead>
+            <tbody>
+              <tr class="in" style="--d:350"><td>Artifacts in</td><td data-label="Question it answers">Is this package safe to install?</td><td data-label="Who">Sandboxing tools</td></tr>
+              <tr class="in" style="--d:450"><td>Policy and inventory</td><td data-label="Question it answers">What may agents do?</td><td data-label="Who">Governance platforms</td></tr>
+              <tr class="in" style="--d:550"><td>Durable execution</td><td data-label="Question it answers">Resume after failure</td><td data-label="Who">Workflow engines; agent SDKs with first-party support</td></tr>
+              <tr class="in" style="--d:650"><td>Injection containment</td><td data-label="Question it answers">Can data change control flow?</td><td data-label="Who">Capability-based research systems</td></tr>
+              <tr class="in" style="--d:750"><td>Dedup at the receiver</td><td data-label="Question it answers">Don't do it twice</td><td data-label="Who">Payment APIs with idempotency keys</td></tr>
+              <tr class="in" style="--d:850"><td>Agent-native payment rails</td><td data-label="Question it answers">Let agents hold and move money</td><td data-label="Who">New rails, funded this year</td></tr>
+              <tr class="in" style="--d:1000"><td class="us">Effects</td><td data-label="Question it answers" class="us"><b>Did it happen, once, under live authority, on premises that still hold?</b></td><td data-label="Who" class="us"><span class="yes"><svg aria-hidden="true"><use href="#i-check"/></svg>No shipping product. Interlock.</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </section>
 
