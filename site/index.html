@@ -619,6 +619,44 @@
   .mtx .note { padding: .9rem 1.4rem 1.2rem; font-size: 13px; line-height: 1.5; color: var(--faint); }
   .tie { margin-top: 1rem; padding: 1.2rem 1.4rem; font-size: 16px; line-height: 1.55; color: var(--dim); }
   .tie b { color: var(--text); }
+
+  /* Motion borrowed from 21st.dev patterns, rebuilt without dependencies: a sliding tab indicator
+     (educalvolpz Animated Tabs), a border beam on the install button (larsen66 Border Beam Button)
+     and a text shimmer (ibelick Text Shimmer). All three stop under reduced motion. */
+  .has-ind { position: relative; isolation: isolate; }
+  .tab-ind { position: absolute; left: 0; top: 0; z-index: -1; pointer-events: none; border-radius: 999px; opacity: 0;
+    transition: transform .5s cubic-bezier(.34, 1.36, .64, 1), width .5s cubic-bezier(.34, 1.36, .64, 1), height .5s cubic-bezier(.34, 1.36, .64, 1), background-color .3s var(--ease), opacity .2s; }
+  .has-ind.ind-ready .tab-ind { opacity: 1; }
+  .hero-tabs.has-ind button, .flow-pick.has-ind button, .flow-comp.has-ind button { position: relative; z-index: 1; transition: color .3s var(--ease), border-color .3s var(--ease); }
+  .hero-tabs.has-ind button[aria-selected="true"], .flow-pick.has-ind button[aria-pressed="true"], .flow-comp.has-ind button[aria-pressed="true"] { background: transparent; }
+  .flow-pick.has-ind button[aria-pressed="true"] { border-color: transparent; }
+  .hero-tabs .tab-ind { background: var(--text); }
+  .hero-tabs .tab-ind.good { background: var(--good); box-shadow: 0 0 18px rgba(52, 211, 153, .35); }
+  .flow-pick .tab-ind { background: var(--text); }
+  .flow-comp .tab-ind { background: rgba(255, 255, 255, .14); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .4); }
+  .dm-tabs.has-ind button[aria-pressed="true"] { border-bottom-color: transparent; }
+  .dm-tabs .tab-ind { border-radius: 2px; background: var(--good); }
+
+  @property --beam { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+  .install { position: relative; isolation: isolate; }
+  .install::before { content: ""; position: absolute; inset: -2px; z-index: -1; border-radius: inherit; padding: 2px; pointer-events: none;
+    background: conic-gradient(from var(--beam), transparent 0 62%, rgba(168, 240, 246, .95) 76%, #34d399 86%, transparent 94%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    animation: beam 3.6s linear infinite; }
+  .install.offscreen::before { animation-play-state: paused; }
+  @keyframes beam { to { --beam: 360deg; } }
+
+  .hero h1 em.shimmer { background: linear-gradient(100deg, var(--accent) 40%, #ffffff 50%, var(--accent) 60%) 0 0 / 250% 100% no-repeat;
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    animation: shimmer 2.6s linear 1.1s 2 both; }
+  @keyframes shimmer { from { background-position: 100% 0; } to { background-position: -50% 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tab-ind { transition: none !important; }
+    .install::before { animation: none; opacity: .55; }
+    .hero h1 em.shimmer { animation: none; -webkit-text-fill-color: currentColor; background: none; }
+  }
 </style>
 </head>
 <body>
@@ -1834,6 +1872,39 @@ Finish with a report: each effect you wrapped (file, function, key, premises, ti
       auto = setInterval(() => { const keys = data.comps.map(([k]) => k); comp = keys[(keys.indexOf(comp) + 1) % keys.length]; render(false); }, 4200);
     }, { threshold: 0.4 }).observe(root.querySelector(".flow"));
   });
+
+
+  // Sliding indicator under whichever tab is selected: one span per group, moved to the active button's box.
+  // It follows every state change (clicks, keyboard, the timeline's auto-advance) by watching aria attributes.
+  document.querySelectorAll(".hero-tabs, .flow-pick, .flow-comp, .dm-tabs").forEach((group) => {
+    const underline = group.classList.contains("dm-tabs");
+    const ind = document.createElement("span"); ind.className = "tab-ind"; ind.setAttribute("aria-hidden", "true");
+    group.classList.add("has-ind"); group.prepend(ind);
+    const place = () => {
+      const on = group.querySelector('button[aria-selected="true"], button[aria-pressed="true"]');
+      if (!on) { ind.style.opacity = "0"; return; }
+      ind.style.opacity = "";
+      const h = underline ? 2 : on.offsetHeight, y = underline ? on.offsetTop + on.offsetHeight - 2 : on.offsetTop;
+      ind.style.width = on.offsetWidth + "px"; ind.style.height = h + "px";
+      ind.style.transform = `translate(${on.offsetLeft}px, ${y}px)`;
+      ind.classList.toggle("good", on.dataset.flow === "with");
+    };
+    place();
+    requestAnimationFrame(() => requestAnimationFrame(() => group.classList.add("ind-ready")));
+    new MutationObserver(place).observe(group, { subtree: true, attributes: true, attributeFilter: ["aria-selected", "aria-pressed"] });
+    if ("ResizeObserver" in window) new ResizeObserver(place).observe(group);
+    document.fonts && document.fonts.ready.then(place);
+  });
+
+  // The install button's border beam only runs while the button is on screen.
+  (() => {
+    const btn = document.querySelector("[data-install]");
+    if (!btn || !("IntersectionObserver" in window)) return;
+    new IntersectionObserver(([e]) => btn.classList.toggle("offscreen", !e.isIntersecting)).observe(btn);
+  })();
+
+  // Two shimmer passes over the hero's second line after load, then it rests.
+  if (!reduce) document.querySelector(".hero h1 em")?.classList.add("shimmer");
 
   const sections = document.querySelectorAll("[data-play]");
   if (reduce) sections.forEach((s) => s.classList.add("on"));
