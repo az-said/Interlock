@@ -34,11 +34,16 @@ def data(obj):
     return {"content": [{"type": "text", "text": json.dumps(obj)}], "structuredContent": obj}
 
 
+LOG = os.environ.get("FAKE_LOG")
+
 for line in sys.stdin:
     msg = json.loads(line)
     if "id" not in msg:
         continue
     method, mid = msg.get("method"), msg["id"]
+    if LOG and method == "tools/call":                                    # what reached the server, in order
+        with open(LOG, "a") as f:
+            f.write(json.dumps(msg["params"]) + "\n")
     if method == "initialize":
         reply(mid, {"protocolVersion": msg["params"].get("protocolVersion", "2025-06-18"),
                     "capabilities": {"tools": {}}, "serverInfo": {"name": "fake-payments", "version": "1"}})
@@ -52,6 +57,8 @@ for line in sys.stdin:
         elif name == "create_refund" and args.get("amount") == 999:       # a declined card: an error, nothing written
             reply(mid, {"isError": True, "content": [{"type": "text", "text": "card declined"}]})
         elif name == "create_refund":
+            time.sleep(float(os.environ.get("FAKE_SLOW_BEFORE", "0")))   # a send that never lands before a kill
+            state = load()
             state["refunds"].append({"order_id": args["order_id"], "amount": args["amount"], "reference": args.get("reference")})
             save(state)
             time.sleep(float(os.environ.get("FAKE_SLOW", "0")))

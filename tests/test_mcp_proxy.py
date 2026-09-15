@@ -2,7 +2,7 @@
     python3 -m unittest discover -s tests
 
 The MCP proxy against a real subprocess MCP server: passthrough, one refund per request,
-recovery after the proxy is killed mid-call, and refusal when support refunded by hand
+recovery after the proxy is killed mid-call (with and without the initialize handshake), and refusal when support refunded by hand
 while it was down.
 """
 import json, os, queue, signal, subprocess, sys, tempfile, threading, time, unittest
@@ -23,17 +23,21 @@ CONFIG = {
 
 class Session:
     """One proxy process (and its upstream child) in its own process group, with a line reader."""
-    def __init__(self, cwd, state, slow=0):
-        env = {**os.environ, "FAKE_STATE": state, "FAKE_SLOW": str(slow), "PYTHONPATH": ROOT}
+    def __init__(self, cwd, state, slow=0, slow_before=0, modern=False, stderr=None):
+        """modern: no handshake; every request carries the 2026-07-28 protocol envelope in _meta, as the spec says."""
+        env = {**os.environ, "FAKE_STATE": state, "FAKE_SLOW": str(slow), "FAKE_SLOW_BEFORE": str(slow_before), "PYTHONPATH": ROOT,
+               "FAKE_LOG": os.path.join(cwd, "calls.jsonl")}
+        self.stderr = open(stderr, "a") if stderr else subprocess.DEVNULL
         self.proc = subprocess.Popen([sys.executable, "-m", "interlock.mcp_proxy", "--config", "config.json", "--", sys.executable, FAKE],
-                                     cwd=cwd, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                                     cwd=cwd, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=self.stderr,
                                      text=True, bufsize=1, start_new_session=True)
         self.lines = queue.Queue()
         self.reader = threading.Thread(target=self._read, daemon=True)
         self.reader.start()
-        self.ids = 0
-        self.request("initialize", {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "test", "version": "1"}})
-        self.write({"jsonrpc": "2.0", "method": "notifications/initialized"})
+        self.ids, self.modern = 0, modern
+        if not modern:
+            self.request("initialize", {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "test", "version": "1"}})
+            self.write({"jsonrpc": "2.0", "method": "notifications/initialized"})
 
     def _read(self):
         try:
@@ -45,7 +49,9 @@ class Session:
 
     def _release(self):
         self.reader.join(timeout=5)
-        for pipe in (self.proc.stdin, self.proc.stdout):
+        for pipe in (self.proc.stdin, self.proc.stdout, None if self.stderr == subprocess.DEVNULL else self.stderr):
+            if pipe is None:
+                continue
             try:
                 pipe.close()
             except (ValueError, OSError):
@@ -57,6 +63,10 @@ class Session:
 
     def request(self, method, params, wait=True):
         self.ids += 1
+        if self.modern:
+            params = {**params, "_meta": {"io.modelcontextprotocol/protocolVersion": "2026-07-28",
+                                          "io.modelcontextprotocol/clientCapabilities": {},
+                                          "io.modelcontextprotocol/clientInfo": {"name": "test", "version": "1"}}}
         self.write({"jsonrpc": "2.0", "id": self.ids, "method": method, "params": params})
         if not wait:
             return None
@@ -194,6 +204,90 @@ class McpProxy(unittest.TestCase):
             self.assertEqual([r["amount"] for r in self.refunds()], [20])
         finally:
             s.close()
+
+
+class StartupRecovery(unittest.TestCase):
+    """A proxy killed after dispatching leaves an effect in flight; the restarted proxy resolves it once, handshake or not."""
+    def setUp(self):
+        self.dir = tempfile.mkdtemp()
+        self.state = os.path.join(self.dir, "state.json")
+        self.stderr = os.path.join(self.dir, "stderr.log")
+        with open(os.path.join(self.dir, "config.json"), "w") as f:
+            json.dump(CONFIG, f)
+
+    def read(self, path):
+        with open(path) as f:
+            return f.read()
+
+    def crash_after_dispatch(self, modern):
+        journal = os.path.join(self.dir, "journal", "__main__.create_refund.jsonl")    # the proxy runs as -m
+        s = Session(self.dir, self.state, slow_before=30, modern=modern)             # the first send never lands
+        s.refund("881", 20, wait=False)
+        deadline = time.time() + 10
+        while not (os.path.exists(journal) and '"DISPATCHED"' in self.read(journal)):
+            self.assertLess(time.time(), deadline, "the proxy never dispatched")
+            time.sleep(0.05)
+        s.kill()
+        time.sleep(1.5)                                              # the dead proxy's claim expires
+        self.assertFalse(os.path.exists(self.state))                 # nothing landed: the effect is in flight
+
+    def refunds(self):
+        return [r["order_id"] for r in json.loads(self.read(self.state))["refunds"]]
+
+    def recovered_lines(self):
+        return [line for line in self.read(self.stderr).splitlines() if line.startswith("interlock: recovered")]
+
+    def test_a_client_on_the_stateless_spec_gets_recovery_before_its_first_gated_call_is_sent(self):
+        self.crash_after_dispatch(modern=True)
+        s = Session(self.dir, self.state, modern=True, stderr=self.stderr)   # no initialize, no notifications/initialized
+        try:
+            other = s.refund("882", 20)                              # a different order: its own call does not settle 881
+            self.assertEqual(other["_meta"]["interlock"]["status"], "COMMITTED", other)
+            self.assertEqual(self.refunds(), ["881", "882"])         # 881 was resolved (resent once) before 882 went out
+            sends = [c["arguments"]["order_id"] for c in map(json.loads, self.read(os.path.join(self.dir, "calls.jsonl")).splitlines())
+                     if c["name"] == "create_refund"]
+            self.assertEqual(sends, ["881", "881", "882"])           # the crashed send, recovery's resend, the new call
+            s.refund("883", 20)
+            self.assertEqual(len(self.recovered_lines()), 1)         # a later gated call does not recover again
+        finally:
+            s.close()
+
+    def test_the_handshake_still_triggers_recovery_once(self):
+        self.crash_after_dispatch(modern=False)
+        s = Session(self.dir, self.state, stderr=self.stderr)
+        try:
+            deadline = time.time() + 10
+            while not os.path.exists(self.state):                   # recovered on notifications/initialized, no call needed
+                self.assertLess(time.time(), deadline, "recovery never ran after the handshake")
+                time.sleep(0.05)
+            self.assertEqual(s.refund("882", 20)["_meta"]["interlock"]["status"], "COMMITTED")
+            self.assertEqual(self.refunds(), ["881", "882"])
+            self.assertEqual(len(self.recovered_lines()), 1)         # the gated call did not run it again
+        finally:
+            s.close()
+
+    def test_concurrent_triggers_run_recover_once_and_never_at_the_same_time(self):
+        from interlock.mcp_proxy import Proxy
+        with tempfile.TemporaryDirectory() as d:
+            p = Proxy({**CONFIG, "journal_dir": os.path.join(d, "journal")}, [sys.executable, "-c", "pass"])
+            p.upstream.proc.wait()
+            runs, inside, most = [], [0], [0]
+            def slow_recover():
+                inside[0] += 1
+                most[0] = max(most[0], inside[0])
+                time.sleep(0.2)
+                runs.append(1)
+                inside[0] -= 1
+                return {}
+            p.interlock.recover = slow_recover
+            threads = [threading.Thread(target=p.recover) for _ in range(8)]
+            for t in threads:
+                t.start()
+            for t in threads:
+                t.join()
+            p.upstream.proc.stdin.close()
+            p.upstream.proc.stdout.close()
+            self.assertEqual((len(runs), most[0]), (1, 1))
 
 
 if __name__ == "__main__":

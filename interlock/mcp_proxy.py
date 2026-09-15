@@ -7,7 +7,9 @@ Point the agent's MCP server command at this instead of the server. Every messag
 through untouched, except `tools/call` for the tools named in the config. Those go through
 the gate: facts are read from another tool before the send and again before any resend,
 the call is journaled before it goes out, a crash is recovered on the next start, and the
-response carries the receipt in `_meta.interlock`.
+response carries the receipt in `_meta.interlock`. Recovery runs once per start: when a handshake client
+sends notifications/initialized, or, for a client on the stateless 2026-07-28 spec (no handshake), before
+the first gated call is sent.
 
     {
       "journal_dir": ".interlock/mcp",
@@ -96,7 +98,7 @@ class Proxy:
         self.upstream = Upstream(command, self.to_client)
         self.interlock = Interlock(config.get("journal_dir", ".interlock/mcp"), claim_ttl=config.get("claim_ttl", CLAIM_TTL))
         self.tools = {name: self._gated(name, spec) for name, spec in config["tools"].items()}
-        self.recovered = False
+        self.recovered, self.recovering = False, threading.Lock()
         self.reads = {}                                   # client request id -> (tool, arguments) of a passthrough call
 
     def to_client(self, msg):
@@ -114,11 +116,29 @@ class Proxy:
     def handle_call(self, msg):
         """Every gated call gets exactly one answer, whatever happens inside."""
         try:
+            self.recover()                                # a client with no handshake: settle a crash before the first send
             self._handle_call(msg)
         except Exception as e:
             sys.stderr.write(f"interlock: could not process call: {e!r}\n")
             self.to_client({"jsonrpc": "2.0", "id": msg["id"], "result": {
                 "isError": True, "content": [{"type": "text", "text": f"Interlock could not process this call ({type(e).__name__}); it will be settled before anything is sent again."}]}})
+
+    def recover(self):
+        """
+        Resolve what a crash left in flight, once per proxy: on notifications/initialized (the handshake), or before
+        the first gated call (a client on the stateless 2026-07-28 spec sends no handshake). Concurrent callers wait.
+        """
+        if self.recovered:
+            return
+        with self.recovering:
+            if self.recovered:
+                return
+            try:
+                for tool, outcomes in self.interlock.recover().items():
+                    for eid, status in outcomes.items():
+                        sys.stderr.write(f"interlock: recovered {tool} {eid}: {status}\n")
+            finally:
+                self.recovered = True                     # a failed recovery is not retried here; each call retries its own
 
     def _handle_call(self, msg):
         name, arguments = msg["params"]["name"], msg["params"].get("arguments") or {}
@@ -145,11 +165,8 @@ class Proxy:
                 params = msg.get("params") or {}
                 self.reads[msg["id"]] = (params.get("name"), params.get("arguments") or {})
             self.upstream.send(msg)
-            if msg.get("method") == "notifications/initialized" and not self.recovered:
-                self.recovered = True                     # upstream is ready: resolve what a crash left in flight
-                for tool, outcomes in self.interlock.recover().items():
-                    for eid, status in outcomes.items():
-                        sys.stderr.write(f"interlock: recovered {tool} {eid}: {status}\n")
+            if msg.get("method") == "notifications/initialized":
+                self.recover()                            # upstream is ready: resolve what a crash left in flight
         self.upstream.proc.stdin.close()
         self.upstream.proc.wait()
 

@@ -52,7 +52,7 @@ python3 -m interlock.mcp_proxy --config interlock.mcp.json -- python3 payments_s
   "idempotency_argument": "reference"}}}
 ```
 
-Every other message passes through untouched. `create_refund` is journaled before it goes out, its facts are read from `get_order` and read again before any resend, a crash is recovered on the next start, and the tool result carries the receipt in `_meta.interlock`. MCP itself has no idempotency or transactional contract; this is where a tool gets one. `tests/test_mcp_proxy.py` runs it against a real subprocess MCP server, kills the proxy mid-call, and checks the refund lands once, and that a refund issued by hand during the outage is refused even when the agent retries.
+Every other message passes through untouched. `create_refund` is journaled before it goes out, its facts are read from `get_order` and read again before any resend, a crash is recovered on the next start, and the tool result carries the receipt in `_meta.interlock`. Recovery runs once per start: on `notifications/initialized` for a client that uses the `initialize` handshake, or before the first gated call is sent for a client on the stateless MCP spec (2026-07-28, no handshake). MCP itself has no idempotency or transactional contract; this is where a tool gets one. `tests/test_mcp_proxy.py` runs it against a real subprocess MCP server, kills the proxy mid-call, and checks the refund lands once, and that a refund issued by hand during the outage is refused even when the agent retries.
 
 Premise tools must return every configured field, and lookup tools must return a JSON boolean in the configured `found` field. An error, missing field, or malformed lookup leaves the action unsent or unresolved; it never proves that the previous action was absent.
 
