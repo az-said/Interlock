@@ -1,5 +1,5 @@
-"""The landing page and the short README stay correct: the copied prompt matches docs/install-with-ai.md,
-snippets parse, the live demo URL lives in one constant, and every relative link in the moved docs resolves."""
+"""The landing page, the docs page and the short README stay correct: the copied prompt matches docs/install-with-ai.md,
+snippets parse, the live demo URL lives in one constant per page, and every relative link in the moved docs resolves."""
 import html, json, os, re, unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -15,13 +15,15 @@ def anchors(text):
 
 class Site(unittest.TestCase):
     def setUp(self):
-        self.page = read("site", "index.html")
+        self.landing = read("site", "index.html")
+        self.page = read("site", "docs.html")
 
-    def pre(self, id_):
-        return html.unescape(re.search(r'<pre[^>]*id="%s"[^>]*>(.*?)</pre>' % id_, self.page, re.S)[1])
+    def pre(self, id_, page=None):
+        return html.unescape(re.search(r'<pre[^>]*id="%s"[^>]*>(.*?)</pre>' % id_, page or self.page, re.S)[1])
 
     def test_prompt_matches_doc_and_is_short(self):
         prompt = read("docs", "install-with-ai.md").split("```text\n")[1].split("```")[0].rstrip("\n")
+        self.assertEqual(self.pre("ai-prompt", self.landing), prompt)
         self.assertEqual(self.pre("ai-prompt"), prompt)
         self.assertLess(len(prompt.split()), 450)
         for must in ("gate.recover()", "never from model output", "Never claim exactly-once", "idempotency_key",
@@ -68,9 +70,23 @@ class Site(unittest.TestCase):
         self.assertIn(f"{run} tests in {files} files, {passed} passed and {skipped} skipped", proof)
 
     def test_live_demo_url_is_one_constant(self):
-        self.assertEqual(len(re.findall(r"const LIVE_DEMO_URL = ", self.page)), 1)
-        self.assertIn("data-live-demo hidden", self.page)
+        for page in (self.landing, self.page):
+            self.assertEqual(len(re.findall(r"const LIVE_DEMO_URL = ", page)), 1)
+            self.assertIn("data-live-demo hidden", page)
         self.assertIn("data-embed hidden", self.page)
+
+    def test_landing_is_one_install_button(self):
+        # Everything else lives on docs.html: one headline, one install button, no lede or small print.
+        self.assertIn('data-install', self.landing)
+        self.assertIn(">Install with your AI</span>", self.landing)
+        self.assertEqual(len(re.findall(r"<h1", self.landing)), 1)
+        self.assertEqual(len(re.findall(r"<button", self.landing)), 1)
+        self.assertNotIn('class="micro"', self.landing)
+        self.assertNotIn('class="lede', self.landing)
+        self.assertIn('href="docs.html"', self.landing)
+        for id_ in ("tested", "problem", "dataflow", "fix", "demo", "receipt", "approvals", "compare", "add"):
+            self.assertIn(f'id="{id_}"', self.page)
+            self.assertNotIn(f'id="{id_}"', self.landing)
 
     def test_relative_links_resolve(self):
         for doc in DOCS:
